@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import time  # Import time module for timingdd
 
-def lhs_jax(n_dim, criterion=None, iterations=5, keys=None, n_samples_per_device=1):
+def lhs_jax(n_dim, criterion='m', iterations=5, keys=None, n_samples_per_device=1):
     """
     Parallelized Latin Hypercube Sampling (LHS) using `jax.pmap`.
     Each device generates a subset of samples to distribute memory load.
@@ -28,6 +28,7 @@ def lhs_jax(n_dim, criterion=None, iterations=5, keys=None, n_samples_per_device
     samples = jax.vmap(sample_dim)(keys)
 
     if criterion in ['maximin', 'm']:
+        print('Maximin criterion implemented')
         samples = _optimize_maximin(samples, iterations)
 
     return samples.T  # Transpose to (n_samples_per_device, n_dim)
@@ -97,7 +98,7 @@ def main():
 
     # Fix: Pass `n_samples_per_device` as a static argument
     parallel_lhs = pmap(
-        lambda n_dim, keys: lhs_jax(n_dim, None, 5, keys, n_samples_per_device),
+        lambda n_dim, keys: lhs_jax(n_dim, 'm', 200, keys, n_samples_per_device),
         in_axes=(None, 0),
     )
 
