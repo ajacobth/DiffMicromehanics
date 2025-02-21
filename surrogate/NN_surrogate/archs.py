@@ -79,7 +79,7 @@ class Mlp(nn.Module):
             x = FourierEmbs(**self.fourier_emb)(x)
 
         # Loop through each specified hidden dimension
-        for dim in self.hidden_dims:
+        for dim in self.hidden_dim:
             x = Dense(features=dim)(x)
             x = self.activation_fn(x)
 

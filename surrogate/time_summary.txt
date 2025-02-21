@@ -1,0 +1,14 @@
+
+case_trial--- 0.33964991569519043 seconds ---
+case_trial--- 0.17336392402648926 seconds ---
+case_trial--- 1.1163158416748047 seconds ---
+case_trial--- 11.538761138916016 seconds ---
+case_trial--- 12.540420770645142 seconds ---
+case_trial--- 12.61291217803955 seconds ---
+case_trial--- 12.51157808303833 seconds ---
+case_trial--- 11.573532819747925 seconds ---
+case_trial--- 11.693418979644775 seconds ---
+case_trial--- 11.149105072021484 seconds ---
+case_trial--- 10.876644134521484 seconds ---
+case_trial--- 11.198610305786133 seconds ---
+case_trial--- 12.874230861663818 seconds ---

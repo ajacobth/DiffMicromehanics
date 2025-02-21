@@ -117,14 +117,14 @@ class SURROGATE:
         raise NotImplementedError("Subclasses should implement this!")
 
     # all lossess
-    def losses(self, params, time_batch, batch_initial, *args):
+    def losses(self, params, batch_inputs, batch_targets, *args):
         raise NotImplementedError("Subclasses should implement this!")
 
 
     @partial(jit, static_argnums=(0,))
-    def loss(self, params, weights, time_batch, batch_initial, *args):
+    def loss(self, params, weights, batch_inputs, batch_targets, *args):
         # Compute losses
-        losses = self.losses(params, time_batch, batch_initial, *args)
+        losses = self.losses(params, batch_inputs, batch_targets, *args)
         # Compute weighted loss
         weighted_losses = tree_map(lambda x, y: x * y, losses, weights)
         # Sum weighted losses
@@ -132,10 +132,10 @@ class SURROGATE:
         return loss
 
     @partial(jit, static_argnums=(0,))
-    def compute_weights(self, params, time_batch, batch_initial, *args):
+    def compute_weights(self, params, batch_inputs, batch_targets, *args):
         if self.config.weighting.scheme == "grad_norm":
             # Compute the gradient of each loss w.r.t. the parameters
-            grads = jacrev(self.losses)(params, time_batch, batch_initial, *args)
+            grads = jacrev(self.losses)(params, batch_inputs, batch_targets, *args)
 
             # Compute the grad norm of each loss
             grad_norm_dict = {}
@@ -156,18 +156,18 @@ class SURROGATE:
     
 
     @partial(pmap, axis_name="batch", static_broadcasted_argnums=(0,))
-    def update_weights(self, state, time_batch, batch_initial,*args):
+    def update_weights(self, state, batch_inputs, batch_targets,*args):
         
-        weights = self.compute_weights(state.params, time_batch, batch_initial,
+        weights = self.compute_weights(state.params, batch_inputs, batch_targets,
                                        *args)
         weights = lax.pmean(weights, "batch")
         state = state.apply_weights(weights=weights)
         return state
     
     @partial(pmap, axis_name="batch", static_broadcasted_argnums=(0,))
-    def step(self, state, time_batch, batch_initial, *args):
+    def step(self, state, batch_inputs, batch_targets, *args):
         
-        grads = grad(self.loss)(state.params, state.weights, time_batch, batch_initial,*args)
+        grads = grad(self.loss)(state.params, state.weights,batch_inputs, batch_targets,*args)
         
         grads = lax.pmean(grads, "batch")
         state = state.apply_gradients(grads=grads)

@@ -1,0 +1,31 @@
+Waiting for JIT...
+num_batches 4096
+0
+jax.errors.SimplifiedTraceback: For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/main.py", line 32, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/train.py", line 81, in train_and_evaluate
+    model.state = model.step(model.state, batch)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/NN_surrogate/models.py", line 170, in step
+    grads = grad(self.loss)(state.params, state.weights,batch,*args)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/NN_surrogate/models.py", line 127, in loss
+    losses = self.losses(params, batch, *args)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/models.py", line 37, in losses
+    batched_residuals = vmap(self.residual, in_axes=(None, 0, 0))(params, x, y_actual)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/models.py", line 30, in residual
+    return jnp.linalg.norm(y_pred - y_actual)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 736, in op
+    return getattr(self.aval, f"_{name}")(self, *args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 264, in deferring_binary_op
+    return binary_op(*args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/ufuncs.py", line 85, in <lambda>
+    fn = lambda x1, x2, /: lax_fn(*promote_args(numpy_fn.__name__, x1, x2))
+TypeError: sub got incompatible shapes for broadcasting: (9,), (12,).

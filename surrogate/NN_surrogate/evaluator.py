@@ -12,8 +12,8 @@ class BaseEvaluator:
         self.model = model
         self.log_dict = {}
 
-    def log_losses(self, params, batch, *args):
-        losses = self.model.losses(params,batch, *args)
+    def log_losses(self, params, batch_inputs, batch_targets, *args):
+        losses = self.model.losses(params,batch_inputs, batch_targets, *args)
 
         for key, values in losses.items():
             self.log_dict[key + "_loss"] = values
@@ -23,8 +23,8 @@ class BaseEvaluator:
         for key, values in weights.items():
             self.log_dict[key + "_weight"] = values
 
-    def log_grads(self, params,batch, *args):
-        grads = jacrev(self.model.losses)(params,batch, *args)
+    def log_grads(self, params,batch_inputs, batch_targets, *args):
+        grads = jacrev(self.model.losses)(params,batch_inputs, batch_targets, *args)
         for key, value in grads.items():
             flattened_grad = flatten_pytree(value)
             grad_norm = jnp.linalg.norm(flattened_grad)
@@ -32,19 +32,19 @@ class BaseEvaluator:
 
 
 
-    def __call__(self, state, time_batch, batch_initial,*args):
+    def __call__(self, state, batch_inputs, batch_targets,*args):
         # Initialize the log dict
         self.log_dict = {}
         params = state.params
 
         if self.config.logging.log_losses:
-            self.log_losses(params, time_batch, batch_initial,*args)
+            self.log_losses(params, batch_inputs, batch_targets,*args)
 
         if self.config.logging.log_weights:
             self.log_weights(state)
 
         if self.config.logging.log_grads:
-            self.log_grads(params,  time_batch, batch_initial, *args)
+            self.log_grads(params,  batch_inputs, batch_targets, *args)
 
 
         return self.log_dict

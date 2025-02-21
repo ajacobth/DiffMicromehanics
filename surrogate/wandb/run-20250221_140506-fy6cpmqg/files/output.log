@@ -1,0 +1,1005 @@
+Waiting for JIT...
+Using 1 devices for parallel training.
+Epoch 1/10000, Num Batches: 8152
+Traced<ShapedArray(float32[])>with<DynamicJaxprTrace(level=3/1)>
+4.6628447
+Traced<ConcreteArray(4.662844657897949, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(4.6628447, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x33e1c1db0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x3145ab7c0; to 'JaxprTracer' at 0x33e30af40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2d66b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+I0221 14:05:09.428356 8280885312 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0221 14:05:09.428514 8280885312 utils.py:160] NumExpr defaulting to 8 threads.
+0.03720694
+Traced<ConcreteArray(0.03720694035291672, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03720694, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769c90>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34db16630; to 'JaxprTracer' at 0x34db164f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fd6b720>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.029334048
+Traced<ConcreteArray(0.029334047809243202, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02933405, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769b90>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e0afd10; to 'JaxprTracer' at 0x34e0afae0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2405b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.034524746
+Traced<ConcreteArray(0.03452474623918533, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03452475, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769dd0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34c9888b0; to 'JaxprTracer' at 0x34e0d4ea0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c81af10>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.020231918
+Traced<ConcreteArray(0.02023191750049591, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02023192, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769da0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7bb450; to 'JaxprTracer' at 0x34e7bb400>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d70cde0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.014959817
+Traced<ConcreteArray(0.014959816820919514, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01495982, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769e70>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7cc810; to 'JaxprTracer' at 0x34e7cc7c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c81af10>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018520769
+Traced<ConcreteArray(0.018520768731832504, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01852077, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769f10>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7d5ea0; to 'JaxprTracer' at 0x34e7d5e50>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34eabff50>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.027623283
+Traced<ConcreteArray(0.027623282745480537, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02762328, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769c10>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7d8e00; to 'JaxprTracer' at 0x34e7d8f40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34ea4a600>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022044525
+Traced<ConcreteArray(0.022044524550437927, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02204452, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769db0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7e1720; to 'JaxprTracer' at 0x34e7e10e0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2228f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.036063362
+Traced<ConcreteArray(0.036063361912965775, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03606336, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34c769ac0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34e7e6680; to 'JaxprTracer' at 0x34e7e6630>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3509dac40>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.026816484
+Traced<ConcreteArray(0.026816483587026596, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02681648, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f6280a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f624810; to 'JaxprTracer' at 0x34f624770>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e6c24f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019526133
+Traced<ConcreteArray(0.019526133313775063, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01952613, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62a0a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f627450; to 'JaxprTracer' at 0x34f6272c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x169e6f840>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019948732
+Traced<ConcreteArray(0.01994873210787773, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01994873, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f6250a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f62b040; to 'JaxprTracer' at 0x34f62b680>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34da0be50>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.03510039
+Traced<ConcreteArray(0.035100389271974564, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03510039, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f62ba90; to 'JaxprTracer' at 0x34f62b950>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d6bcc80>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.033058446
+Traced<ConcreteArray(0.033058445900678635, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03305845, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d0c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f62b040; to 'JaxprTracer' at 0x34f62b8b0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34eb91df0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023550395
+Traced<ConcreteArray(0.02355039492249489, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02355039, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f6330c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f62b810; to 'JaxprTracer' at 0x34f62bf40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e9bfcc0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.026289565
+Traced<ConcreteArray(0.0262895654886961, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02628957, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f627b30; to 'JaxprTracer' at 0x34f627f40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3408e6730>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022824755
+Traced<ConcreteArray(0.022824754938483238, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02282475, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d190>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f62b540; to 'JaxprTracer' at 0x34f627180>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e9945b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.03897362
+Traced<ConcreteArray(0.038973618298769, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03897362, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d100>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63aae0; to 'JaxprTracer' at 0x34f63a720>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2405b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023926282
+Traced<ConcreteArray(0.023926282301545143, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02392628, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63a400; to 'JaxprTracer' at 0x34f631270>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e9945b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01851355
+Traced<ConcreteArray(0.018513549119234085, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01851355, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d030>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f638950; to 'JaxprTracer' at 0x34f638e50>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2405b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.034232378
+Traced<ConcreteArray(0.034232378005981445, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03423238, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d070>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63b7c0; to 'JaxprTracer' at 0x34f63b860>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x355d483b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018073391
+Traced<ConcreteArray(0.018073391169309616, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01807339, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d160>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63a040; to 'JaxprTracer' at 0x34f63ad10>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e25d6d0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016248133
+Traced<ConcreteArray(0.016248133033514023, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01624813, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d0e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63ad60; to 'JaxprTracer' at 0x34f63a590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fddea40>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.014944067
+Traced<ConcreteArray(0.014944067224860191, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01494407, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63be00; to 'JaxprTracer' at 0x34f63b3b0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d26d8a0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.007964823
+Traced<ConcreteArray(0.00796482339501381, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.00796482, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d310>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63a360; to 'JaxprTracer' at 0x34f63a4f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c875fc0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.013148984
+Traced<ConcreteArray(0.01314898394048214, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01314898, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d2b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63a5e0; to 'JaxprTracer' at 0x34f63a180>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3566fb220>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016547306
+Traced<ConcreteArray(0.01654730550944805, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01654731, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d0d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f649bd0; to 'JaxprTracer' at 0x34f649810>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3578d11b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.02619644
+Traced<ConcreteArray(0.026196440681815147, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02619644, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d100>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f649450; to 'JaxprTracer' at 0x34f6492c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3562238d0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022279592
+Traced<ConcreteArray(0.022279592230916023, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02227959, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d270>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f63b810; to 'JaxprTracer' at 0x34f63b220>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313af4230>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01982999
+Traced<ConcreteArray(0.019829990342259407, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01982999, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d2b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f6494a0; to 'JaxprTracer' at 0x34f649770>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x357a256a0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019528517
+Traced<ConcreteArray(0.019528517499566078, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01952852, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d320>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64c4a0; to 'JaxprTracer' at 0x34f64c860>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3408e6730>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019368665
+Traced<ConcreteArray(0.019368665292859077, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01936867, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d250>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64cf40; to 'JaxprTracer' at 0x34f64cef0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2c2990>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019086417
+Traced<ConcreteArray(0.01908641681075096, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01908642, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d120>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64e3b0; to 'JaxprTracer' at 0x34f64e9a0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x35bf66b10>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018823864
+Traced<ConcreteArray(0.018823863938450813, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01882386, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d210>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655bd0; to 'JaxprTracer' at 0x34f6554a0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34087b940>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018613666
+Traced<ConcreteArray(0.01861366629600525, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01861367, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d0c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655c20; to 'JaxprTracer' at 0x34f655590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8bd380>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018463865
+Traced<ConcreteArray(0.0184638649225235, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01846386, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d310>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655c20; to 'JaxprTracer' at 0x34f655810>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2db9f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01824716
+Traced<ConcreteArray(0.01824715919792652, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01824716, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d070>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b450; to 'JaxprTracer' at 0x34f65bf90>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34eeffde0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018085046
+Traced<ConcreteArray(0.018085045740008354, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01808505, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d080>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a310; to 'JaxprTracer' at 0x34f64a540>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x340852e40>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017892074
+Traced<ConcreteArray(0.017892073839902878, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01789207, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d360>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b540; to 'JaxprTracer' at 0x34f65b2c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e63f030>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017729582
+Traced<ConcreteArray(0.017729582265019417, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01772958, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d2e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655ea0; to 'JaxprTracer' at 0x34f6552c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34eb91df0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01780063
+Traced<ConcreteArray(0.017800629138946533, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01780063, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d100>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bb80; to 'JaxprTracer' at 0x34f65bf40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e25d6d0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017468909
+Traced<ConcreteArray(0.017468908801674843, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01746891, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d420>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655040; to 'JaxprTracer' at 0x34f655630>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34da58a90>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0173191
+Traced<ConcreteArray(0.017319099977612495, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0173191, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b130; to 'JaxprTracer' at 0x34f65be50>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fdfad00>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017196955
+Traced<ConcreteArray(0.017196955159306526, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01719696, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d030>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655630; to 'JaxprTracer' at 0x34f655590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2806c0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017065462
+Traced<ConcreteArray(0.017065461724996567, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01706546, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d170>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b810; to 'JaxprTracer' at 0x34f65b9f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34da77df0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016961431
+Traced<ConcreteArray(0.01696143113076687, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01696143, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d3d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64aae0; to 'JaxprTracer' at 0x34f64a5e0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x36122ad00>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016844237
+Traced<ConcreteArray(0.016844237223267555, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01684424, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d280>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f6559a0; to 'JaxprTracer' at 0x34f655310>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34087b940>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016755175
+Traced<ConcreteArray(0.016755174845457077, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01675517, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d3f0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a270; to 'JaxprTracer' at 0x34f64a360>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2db9f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016648326
+Traced<ConcreteArray(0.016648326069116592, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01664833, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d400>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f6569f0; to 'JaxprTracer' at 0x34f656900>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8da490>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016382536
+Traced<ConcreteArray(0.01638253591954708, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01638254, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d3c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64af40; to 'JaxprTracer' at 0x34f64a310>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e25d6d0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016451197
+Traced<ConcreteArray(0.016451196745038033, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0164512, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d090>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b950; to 'JaxprTracer' at 0x34f65b360>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fd5dd10>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01638067
+Traced<ConcreteArray(0.01638066954910755, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01638067, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d0e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a7c0; to 'JaxprTracer' at 0x34f64a2c0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2405b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016291672
+Traced<ConcreteArray(0.016291672363877296, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01629167, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656860; to 'JaxprTracer' at 0x34f6569f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2bf3b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016222378
+Traced<ConcreteArray(0.016222378239035606, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01622238, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d180>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64aae0; to 'JaxprTracer' at 0x34f64a540>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x365a78580>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0161343
+Traced<ConcreteArray(0.016134299337863922, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0161343, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d190>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bea0; to 'JaxprTracer' at 0x34f65bd10>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e661160>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01589844
+Traced<ConcreteArray(0.015898440033197403, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01589844, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d500>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a9f0; to 'JaxprTracer' at 0x34f64a590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34ebe0400>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015582263
+Traced<ConcreteArray(0.01558226253837347, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01558226, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d450>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65be50; to 'JaxprTracer' at 0x34f65bd60>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e68dae0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015617762
+Traced<ConcreteArray(0.015617761760950089, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01561776, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d360>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655d10; to 'JaxprTracer' at 0x34f655400>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d61fe50>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015777903
+Traced<ConcreteArray(0.01577790267765522, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0157779, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d380>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b220; to 'JaxprTracer' at 0x34f65b590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8da490>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015908036
+Traced<ConcreteArray(0.01590803638100624, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01590804, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d250>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a9a0; to 'JaxprTracer' at 0x34f64a630>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fd66990>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016016064
+Traced<ConcreteArray(0.01601606421172619, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01601606, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d560>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655860; to 'JaxprTracer' at 0x34f655c70>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x169e903c0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015397129
+Traced<ConcreteArray(0.015397128649055958, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01539713, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d3c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a040; to 'JaxprTracer' at 0x34f64a270>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x35eaaea30>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01573559
+Traced<ConcreteArray(0.01573559083044529, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01573559, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d660>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b9f0; to 'JaxprTracer' at 0x34f65b5e0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313af4230>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01587171
+Traced<ConcreteArray(0.01587170921266079, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01587171, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d380>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bf40; to 'JaxprTracer' at 0x34f65bb80>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34eac1760>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0138966665
+Traced<ConcreteArray(0.013896666467189789, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01389667, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d2b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64ac70; to 'JaxprTracer' at 0x34f64a770>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2bf3b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.024909016
+Traced<ConcreteArray(0.024909015744924545, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02490902, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b5e0; to 'JaxprTracer' at 0x34f65b4f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3408e6730>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022908239
+Traced<ConcreteArray(0.02290823869407177, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02290824, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64ac20; to 'JaxprTracer' at 0x34f64aa40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x36a869cc0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019917065
+Traced<ConcreteArray(0.019917065277695656, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01991707, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d600>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655310; to 'JaxprTracer' at 0x34f655f40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313a41310>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.013057257
+Traced<ConcreteArray(0.013057257048785686, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01305726, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d360>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a5e0; to 'JaxprTracer' at 0x34f64a270>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2405b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.019443557
+Traced<ConcreteArray(0.019443556666374207, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01944356, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656e00; to 'JaxprTracer' at 0x34f655900>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313a893e0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.020721009
+Traced<ConcreteArray(0.020721009001135826, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02072101, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d3d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64ae50; to 'JaxprTracer' at 0x34f64a400>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8af450>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.014468654
+Traced<ConcreteArray(0.014468654058873653, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01446865, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d4a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bf40; to 'JaxprTracer' at 0x34f65bea0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x36d738fd0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.020557022
+Traced<ConcreteArray(0.020557021722197533, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02055702, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d090>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a2c0; to 'JaxprTracer' at 0x34f64a540>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e6c24f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.020007763
+Traced<ConcreteArray(0.02000776305794716, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02000776, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d1d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656180; to 'JaxprTracer' at 0x34f655c70>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e6c24f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016500704
+Traced<ConcreteArray(0.016500703990459442, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0165007, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d240>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a7c0; to 'JaxprTracer' at 0x34f64a680>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x36eb168b0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.029103873
+Traced<ConcreteArray(0.029103873297572136, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02910387, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d680>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b220; to 'JaxprTracer' at 0x34f65bf40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d2c0f30>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.009934213
+Traced<ConcreteArray(0.009934213012456894, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.00993421, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d660>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64acc0; to 'JaxprTracer' at 0x34f64a540>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e6d9260>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.012645725
+Traced<ConcreteArray(0.012645725160837173, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01264573, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d610>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656040; to 'JaxprTracer' at 0x34f655590>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c891830>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022148067
+Traced<ConcreteArray(0.022148067131638527, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02214807, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d100>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a3b0; to 'JaxprTracer' at 0x34f64a810>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313a893e0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.03547719
+Traced<ConcreteArray(0.03547719120979309, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03547719, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d6b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65ba40; to 'JaxprTracer' at 0x34f65b220>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313a779c0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.029683087
+Traced<ConcreteArray(0.029683087021112442, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02968309, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a680; to 'JaxprTracer' at 0x34f64a4a0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e26e220>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+Epoch 2/10000, Num Batches: 8152
+0.021280123
+Traced<ConcreteArray(0.02128012292087078, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02128012, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d030>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656b80; to 'JaxprTracer' at 0x34f655bd0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8bd380>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.024388907
+Traced<ConcreteArray(0.024388907477259636, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02438891, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64aae0; to 'JaxprTracer' at 0x34f64a4f0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2c2990>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023677634
+Traced<ConcreteArray(0.023677634075284004, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02367763, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65be00; to 'JaxprTracer' at 0x34f65ba40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x371ffd370>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023564702
+Traced<ConcreteArray(0.02356470189988613, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0235647, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d090>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64aea0; to 'JaxprTracer' at 0x34f64ae50>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34ea4a600>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023404075
+Traced<ConcreteArray(0.02340407483279705, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02340407, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d500>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656a90; to 'JaxprTracer' at 0x34f655450>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e2228f0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023264654
+Traced<ConcreteArray(0.023264653980731964, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02326465, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d730>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a180; to 'JaxprTracer' at 0x34f64a630>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8da490>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023125954
+Traced<ConcreteArray(0.02312595397233963, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02312595, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d5c0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b310; to 'JaxprTracer' at 0x34f65bcc0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e68dae0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.023008103
+Traced<ConcreteArray(0.023008102551102638, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0230081, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d690>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64af90; to 'JaxprTracer' at 0x34f64a360>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d2c0f30>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0228777
+Traced<ConcreteArray(0.022877700626850128, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0228777, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d100>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656b30; to 'JaxprTracer' at 0x34f655400>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3746bc960>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022777189
+Traced<ConcreteArray(0.022777188569307327, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02277719, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d750>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a450; to 'JaxprTracer' at 0x34f64a680>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d61fe50>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022718223
+Traced<ConcreteArray(0.022718222811818123, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02271822, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d030>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bc70; to 'JaxprTracer' at 0x34f65b900>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x374329a60>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022587914
+Traced<ConcreteArray(0.022587914019823074, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02258791, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d7e0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a5e0; to 'JaxprTracer' at 0x34f64a400>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3727f8c90>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.022503518
+Traced<ConcreteArray(0.02250351756811142, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02250352, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d720>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f6563b0; to 'JaxprTracer' at 0x34f6554a0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34ebe0400>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.028641976
+Traced<ConcreteArray(0.028641976416110992, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02864198, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d450>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64ab80; to 'JaxprTracer' at 0x34f64ab30>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e661160>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.021070873
+Traced<ConcreteArray(0.021070873364806175, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02107087, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d2b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bbd0; to 'JaxprTracer' at 0x34f65b130>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e26e220>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.017653096
+Traced<ConcreteArray(0.017653096467256546, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0176531, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d4a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a270; to 'JaxprTracer' at 0x34f64a040>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e906410>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.009575831
+Traced<ConcreteArray(0.009575830772519112, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.00957583, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d6b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656950; to 'JaxprTracer' at 0x34f6553b0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x340852e40>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0129751
+Traced<ConcreteArray(0.012975100427865982, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0129751, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d800>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64a720; to 'JaxprTracer' at 0x34f64a6d0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x3408e6730>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.016035214
+Traced<ConcreteArray(0.016035214066505432, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01603521, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d640>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b900; to 'JaxprTracer' at 0x34f65bf90>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313ab5f00>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.020222852
+Traced<ConcreteArray(0.020222852006554604, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.02022285, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d6b0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64abd0; to 'JaxprTracer' at 0x34f64ab80>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8940a0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.01346777
+Traced<ConcreteArray(0.01346777006983757, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01346777, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d720>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656090; to 'JaxprTracer' at 0x34f655310>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x313a893e0>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.0243812
+Traced<ConcreteArray(0.024381199851632118, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.0243812, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d4a0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64aae0; to 'JaxprTracer' at 0x34f64aa40>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x16fd5dd10>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.009256859
+Traced<ConcreteArray(0.009256859309971333, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.00925686, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d7d0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b400; to 'JaxprTracer' at 0x34f65bcc0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34c8af450>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.010958638
+Traced<ConcreteArray(0.010958638042211533, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01095864, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d800>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f64ab30; to 'JaxprTracer' at 0x34f64a950>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x37b05bb00>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.040640138
+Traced<ConcreteArray(0.04064013808965683, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.04064014, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d450>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65bef0; to 'JaxprTracer' at 0x34f65b900>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34e63f030>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.038173784
+Traced<ConcreteArray(0.03817378357052803, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03817378, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d770>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f655cc0; to 'JaxprTracer' at 0x34f655860>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x33e26e220>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.015713312
+Traced<ConcreteArray(0.015713311731815338, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01571331, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d7f0>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b360; to 'JaxprTracer' at 0x34f65b4a0>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d65cd80>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.018646419
+Traced<ConcreteArray(0.018646419048309326, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.01864642, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d850>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f656c20; to 'JaxprTracer' at 0x34f655c20>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0
+  [34m[1min [39m[22m(c,) }, 'in_shardings': (UnspecifiedValue,), 'out_shardings': (UnspecifiedValue,), 'resource_env': None, 'donated_invars': (False,), 'name': '_mean', 'keep_unused': False, 'inline': True}, effects=set(), source_info=SourceInfo(traceback=<jaxlib.xla_extension.Traceback object at 0x34d61ab30>, name_stack=NameStack(stack=(Transform(name='jvp'),))))
+0.032140587
+Traced<ConcreteArray(0.0321405865252018, dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array(0.03214059, dtype=float32)
+  tangent = Traced<ShapedArray(float32[])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x34f62d820>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=1/0)>,), out_tracer_refs=[<weakref at 0x34f65b590; to 'JaxprTracer' at 0x34f65b040>], out_avals=[ShapedArray(float32[])], primitive=pjit, params={'jaxpr': { [34m[1mlambda [39m[22m; a[35m:f32[1][39m. [34m[1mlet
+[34m[1m    [39m[22mb[35m:f32[][39m = reduce_sum[axes=(0,)] a
+    c[35m:f32[][39m = div b 1.0

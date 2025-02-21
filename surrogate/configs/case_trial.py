@@ -9,6 +9,7 @@ def get_config():
 
     config.mode = "train"
 
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "DIFFMICRO"
@@ -17,24 +18,17 @@ def get_config():
     
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "ModifiedMlp"
-    arch.num_layers = 4
-    arch.hidden_dim = 128
-    arch.out_dim = 1
-    arch.activation = "tanh"
-    #arch.periodicity = False#ml_collections.ConfigDict(
-        #{"period": (jnp.pi,), "axis": (1,), "trainable": (False,)}
-    #)
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1, "embed_dim": 128})
-    #arch.reparam = ml_collections.ConfigDict(
-    #   {"type": "weight_fact", "mean": 0.5, "stddev": 0.1}
-    #)
+    arch.arch_name = "Mlp"
+    arch.hidden_dim = (128, 128, 128)
+    arch.out_dim = 12
+    arch.activation = "relu"
     
-    
+    # data file
+    #config.data.path = "data.csv"
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs =  10
-    training.batch_size = 4096
+    training.max_epochs =  10000
+    training.batch_size = 2
 
     
     
@@ -44,9 +38,9 @@ def get_config():
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
-    optim.learning_rate = 5e-4
+    optim.learning_rate = 1e-3
     optim.decay_rate = 0.9
-    optim.decay_steps = 5000
+    optim.decay_steps = 10000
     optim.grad_accum_steps = 0
 
 
@@ -70,11 +64,12 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = 10000
+    saving.save_epoch = 5000
     saving.num_keep_ckpts = 10
 
     # Input shape for initializing Flax models
     config.input_dim = 3
+    config.output_dim = arch.out_dim
 
     # Integer for PRNG random seed.
     config.seed = 101

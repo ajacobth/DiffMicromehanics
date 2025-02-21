@@ -1,0 +1,192 @@
+2025-02-21 12:55:00,693 INFO    StreamThr :35592 [internal.py:wandb_internal():86] W&B internal server running at pid: 35592, started at: 2025-02-21 12:55:00.692380
+2025-02-21 12:55:00,694 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: status
+2025-02-21 12:55:00,695 INFO    WriterThread:35592 [datastore.py:open_for_write():85] open: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/run-kwn625ff.wandb
+2025-02-21 12:55:00,696 DEBUG   SenderThread:35592 [sender.py:send():382] send: header
+2025-02-21 12:55:00,722 DEBUG   SenderThread:35592 [sender.py:send():382] send: run
+2025-02-21 12:55:02,788 INFO    SenderThread:35592 [dir_watcher.py:__init__():211] watching files in: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files
+2025-02-21 12:55:02,788 INFO    SenderThread:35592 [sender.py:_start_run_threads():1136] run started: kwn625ff with start time 1740160500.692543
+2025-02-21 12:55:02,795 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: check_version
+2025-02-21 12:55:02,795 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: check_version
+2025-02-21 12:55:02,875 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: run_start
+2025-02-21 12:55:02,880 DEBUG   HandlerThread:35592 [system_info.py:__init__():32] System info init
+2025-02-21 12:55:02,880 DEBUG   HandlerThread:35592 [system_info.py:__init__():47] System info init done
+2025-02-21 12:55:02,880 INFO    HandlerThread:35592 [system_monitor.py:start():194] Starting system monitor
+2025-02-21 12:55:02,880 INFO    SystemMonitor:35592 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2025-02-21 12:55:02,880 INFO    HandlerThread:35592 [system_monitor.py:probe():214] Collecting system info
+2025-02-21 12:55:02,881 DEBUG   HandlerThread:35592 [system_info.py:probe():196] Probing system
+2025-02-21 12:55:02,881 INFO    SystemMonitor:35592 [interfaces.py:start():190] Started cpu monitoring
+2025-02-21 12:55:02,881 INFO    SystemMonitor:35592 [interfaces.py:start():190] Started disk monitoring
+2025-02-21 12:55:02,883 INFO    SystemMonitor:35592 [interfaces.py:start():190] Started gpuapple monitoring
+2025-02-21 12:55:02,884 INFO    SystemMonitor:35592 [interfaces.py:start():190] Started memory monitoring
+2025-02-21 12:55:02,884 INFO    SystemMonitor:35592 [interfaces.py:start():190] Started network monitoring
+2025-02-21 12:55:02,887 DEBUG   HandlerThread:35592 [system_info.py:_probe_git():181] Probing git
+2025-02-21 12:55:02,920 DEBUG   HandlerThread:35592 [system_info.py:_probe_git():189] Probing git done
+2025-02-21 12:55:02,920 DEBUG   HandlerThread:35592 [system_info.py:probe():244] Probing system done
+2025-02-21 12:55:02,920 DEBUG   HandlerThread:35592 [system_monitor.py:probe():223] {'os': 'macOS-15.3.1-arm64-arm-64bit', 'python': '3.9.18', 'heartbeatAt': '2025-02-21T17:55:02.881408', 'startedAt': '2025-02-21T17:55:00.687480', 'docker': None, 'cuda': None, 'args': ('--config=configs/case_trial.py',), 'state': 'running', 'program': '/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/main.py', 'codePathLocal': 'main.py', 'codePath': 'surrogate/main.py', 'git': {'remote': 'https://github.com/ajacobth/DiffMicromehanics.git', 'commit': '1bb58ed46f9186957036118c54355ea3c7014b07'}, 'email': 'ajacobth@purdue.edu', 'root': '/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics', 'host': 'vpnclient-zone-vendor-2-129.itap.purdue.edu', 'username': 'akshayjacobthomas', 'executable': '/Users/akshayjacobthomas/anaconda3/envs/jax_trial/bin/python', 'cpu_count': 12, 'cpu_count_logical': 12, 'disk': {'/': {'total': 926.3517189025879, 'used': 202.47042846679688}}, 'gpuapple': {'type': 'arm', 'vendor': 'Apple'}, 'memory': {'total': 32.0}}
+2025-02-21 12:55:02,920 INFO    HandlerThread:35592 [system_monitor.py:probe():224] Finished collecting system info
+2025-02-21 12:55:02,920 INFO    HandlerThread:35592 [system_monitor.py:probe():227] Publishing system info
+2025-02-21 12:55:02,920 DEBUG   HandlerThread:35592 [system_info.py:_save_pip():52] Saving list of pip packages installed into the current environment
+2025-02-21 12:55:02,921 DEBUG   HandlerThread:35592 [system_info.py:_save_pip():68] Saving pip packages done
+2025-02-21 12:55:02,921 DEBUG   HandlerThread:35592 [system_info.py:_save_conda():75] Saving list of conda packages installed into the current environment
+2025-02-21 12:55:03,789 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/requirements.txt
+2025-02-21 12:55:03,790 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/conda-environment.yaml
+2025-02-21 12:55:04,087 DEBUG   HandlerThread:35592 [system_info.py:_save_conda():87] Saving conda packages done
+2025-02-21 12:55:04,088 INFO    HandlerThread:35592 [system_monitor.py:probe():229] Finished publishing system info
+2025-02-21 12:55:04,089 DEBUG   SenderThread:35592 [sender.py:send():382] send: files
+2025-02-21 12:55:04,089 INFO    SenderThread:35592 [sender.py:_save_file():1392] saving file wandb-metadata.json with policy now
+2025-02-21 12:55:04,092 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: stop_status
+2025-02-21 12:55:04,092 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: stop_status
+2025-02-21 12:55:04,093 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: internal_messages
+2025-02-21 12:55:04,278 DEBUG   SenderThread:35592 [sender.py:send():382] send: telemetry
+2025-02-21 12:55:04,467 INFO    wandb-upload_0:35592 [upload_job.py:push():131] Uploaded file /var/folders/v2/yw09xwqn1p59m1j1qmqxmbmm0000gn/T/tmp8cxlvt8fwandb/hfd835fq-wandb-metadata.json
+2025-02-21 12:55:04,794 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/conda-environment.yaml
+2025-02-21 12:55:04,794 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/output.log
+2025-02-21 12:55:04,794 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-metadata.json
+2025-02-21 12:55:06,453 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: status_report
+2025-02-21 12:55:06,804 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/output.log
+2025-02-21 12:55:11,478 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: status_report
+2025-02-21 12:55:15,323 DEBUG   SenderThread:35592 [sender.py:send():382] send: exit
+2025-02-21 12:55:15,323 INFO    SenderThread:35592 [sender.py:send_exit():589] handling exit code: 0
+2025-02-21 12:55:15,323 INFO    SenderThread:35592 [sender.py:send_exit():591] handling runtime: 12
+2025-02-21 12:55:15,324 INFO    SenderThread:35592 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2025-02-21 12:55:15,324 INFO    SenderThread:35592 [sender.py:send_exit():597] send defer
+2025-02-21 12:55:15,324 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 0
+2025-02-21 12:55:15,325 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,325 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 0
+2025-02-21 12:55:15,325 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 1
+2025-02-21 12:55:15,325 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 1
+2025-02-21 12:55:15,325 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,325 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 1
+2025-02-21 12:55:15,325 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 2
+2025-02-21 12:55:15,325 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 2
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [system_monitor.py:finish():203] Stopping system monitor
+2025-02-21 12:55:15,325 DEBUG   SystemMonitor:35592 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [interfaces.py:finish():202] Joined cpu monitor
+2025-02-21 12:55:15,325 DEBUG   SystemMonitor:35592 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2025-02-21 12:55:15,325 INFO    HandlerThread:35592 [interfaces.py:finish():202] Joined disk monitor
+2025-02-21 12:55:15,325 DEBUG   SystemMonitor:35592 [system_monitor.py:_start():183] Publishing last batch of metrics
+2025-02-21 12:55:15,851 INFO    Thread-12 :35592 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-summary.json
+2025-02-21 12:55:15,905 INFO    HandlerThread:35592 [interfaces.py:finish():202] Joined gpuapple monitor
+2025-02-21 12:55:15,905 INFO    HandlerThread:35592 [interfaces.py:finish():202] Joined memory monitor
+2025-02-21 12:55:15,905 INFO    HandlerThread:35592 [interfaces.py:finish():202] Joined network monitor
+2025-02-21 12:55:15,905 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,905 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 2
+2025-02-21 12:55:15,905 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 3
+2025-02-21 12:55:15,905 DEBUG   SenderThread:35592 [sender.py:send():382] send: telemetry
+2025-02-21 12:55:15,905 DEBUG   SenderThread:35592 [sender.py:send():382] send: stats
+2025-02-21 12:55:15,906 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,906 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 3
+2025-02-21 12:55:15,906 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 3
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 4
+2025-02-21 12:55:15,906 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,906 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 4
+2025-02-21 12:55:15,906 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 4
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 5
+2025-02-21 12:55:15,906 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,906 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 5
+2025-02-21 12:55:15,906 DEBUG   SenderThread:35592 [sender.py:send():382] send: summary
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2025-02-21 12:55:15,906 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 5
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 6
+2025-02-21 12:55:15,906 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:15,906 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 6
+2025-02-21 12:55:15,906 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:15,906 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 6
+2025-02-21 12:55:15,908 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: status_report
+2025-02-21 12:55:16,045 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 7
+2025-02-21 12:55:16,045 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:16,045 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 7
+2025-02-21 12:55:16,045 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:16,046 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 7
+2025-02-21 12:55:16,327 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: poll_exit
+2025-02-21 12:55:16,474 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 8
+2025-02-21 12:55:16,475 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: poll_exit
+2025-02-21 12:55:16,475 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:16,475 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 8
+2025-02-21 12:55:16,475 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:16,476 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 8
+2025-02-21 12:55:16,476 INFO    SenderThread:35592 [job_builder.py:build():298] Attempting to build job artifact
+2025-02-21 12:55:16,476 INFO    SenderThread:35592 [job_builder.py:_get_source_type():428] is repo sourced job
+2025-02-21 12:55:16,507 INFO    SenderThread:35592 [job_builder.py:build():404] adding wandb-job metadata file
+2025-02-21 12:55:16,510 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 9
+2025-02-21 12:55:16,510 DEBUG   SenderThread:35592 [sender.py:send():382] send: artifact
+2025-02-21 12:55:16,510 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:16,511 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 9
+2025-02-21 12:55:16,765 INFO    SenderThread:35592 [sender.py:send_artifact():1470] sent artifact job-https___github.com_ajacobth_DiffMicromehanics.git_surrogate_main.py - {'id': 'QXJ0aWZhY3Q6MTUyMDY2MDMyMQ==', 'state': 'COMMITTED', 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjU2Njk5Nzc2Mw==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6MTUyMDY2MDMyMQ==', 'versionIndex': 0}}}
+2025-02-21 12:55:16,765 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:16,766 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 9
+2025-02-21 12:55:16,766 INFO    SenderThread:35592 [dir_watcher.py:finish():358] shutting down directory watcher
+2025-02-21 12:55:16,857 INFO    SenderThread:35592 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/config.yaml
+2025-02-21 12:55:16,857 INFO    SenderThread:35592 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-summary.json
+2025-02-21 12:55:16,858 INFO    SenderThread:35592 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/output.log
+2025-02-21 12:55:16,858 INFO    SenderThread:35592 [dir_watcher.py:finish():388] scan: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files
+2025-02-21 12:55:16,859 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/requirements.txt requirements.txt
+2025-02-21 12:55:16,859 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/output.log output.log
+2025-02-21 12:55:16,862 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/config.yaml config.yaml
+2025-02-21 12:55:16,864 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-summary.json wandb-summary.json
+2025-02-21 12:55:16,867 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/conda-environment.yaml conda-environment.yaml
+2025-02-21 12:55:16,870 INFO    SenderThread:35592 [dir_watcher.py:finish():402] scan save: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-metadata.json wandb-metadata.json
+2025-02-21 12:55:16,870 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 10
+2025-02-21 12:55:16,870 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:16,870 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 10
+2025-02-21 12:55:16,872 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:16,872 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 10
+2025-02-21 12:55:16,873 INFO    SenderThread:35592 [file_pusher.py:finish():175] shutting down file pusher
+2025-02-21 12:55:17,146 INFO    wandb-upload_1:35592 [upload_job.py:push():131] Uploaded file /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/output.log
+2025-02-21 12:55:17,239 INFO    wandb-upload_0:35592 [upload_job.py:push():131] Uploaded file /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/requirements.txt
+2025-02-21 12:55:17,299 INFO    wandb-upload_3:35592 [upload_job.py:push():131] Uploaded file /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/wandb-summary.json
+2025-02-21 12:55:17,299 INFO    wandb-upload_2:35592 [upload_job.py:push():131] Uploaded file /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/config.yaml
+2025-02-21 12:55:17,333 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: poll_exit
+2025-02-21 12:55:17,334 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: poll_exit
+2025-02-21 12:55:17,337 INFO    wandb-upload_4:35592 [upload_job.py:push():131] Uploaded file /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/files/conda-environment.yaml
+2025-02-21 12:55:17,544 INFO    Thread-11 :35592 [sender.py:transition_state():617] send defer: 11
+2025-02-21 12:55:17,545 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:17,545 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 11
+2025-02-21 12:55:17,546 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:17,546 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 11
+2025-02-21 12:55:17,546 INFO    SenderThread:35592 [file_pusher.py:join():181] waiting for file pusher
+2025-02-21 12:55:17,546 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 12
+2025-02-21 12:55:17,546 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:17,546 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 12
+2025-02-21 12:55:17,547 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:17,547 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 12
+2025-02-21 12:55:17,547 INFO    SenderThread:35592 [file_stream.py:finish():595] file stream finish called
+2025-02-21 12:55:17,594 INFO    SenderThread:35592 [file_stream.py:finish():599] file stream finish is done
+2025-02-21 12:55:17,594 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 13
+2025-02-21 12:55:17,595 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:17,595 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 13
+2025-02-21 12:55:17,595 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:17,595 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 13
+2025-02-21 12:55:17,596 INFO    SenderThread:35592 [sender.py:transition_state():617] send defer: 14
+2025-02-21 12:55:17,596 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: defer
+2025-02-21 12:55:17,596 DEBUG   SenderThread:35592 [sender.py:send():382] send: final
+2025-02-21 12:55:17,596 INFO    HandlerThread:35592 [handler.py:handle_request_defer():172] handle defer: 14
+2025-02-21 12:55:17,596 DEBUG   SenderThread:35592 [sender.py:send():382] send: footer
+2025-02-21 12:55:17,597 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: defer
+2025-02-21 12:55:17,597 INFO    SenderThread:35592 [sender.py:send_request_defer():613] handle sender defer: 14
+2025-02-21 12:55:17,597 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: poll_exit
+2025-02-21 12:55:17,598 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: poll_exit
+2025-02-21 12:55:17,598 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: poll_exit
+2025-02-21 12:55:17,598 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: poll_exit
+2025-02-21 12:55:17,598 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: server_info
+2025-02-21 12:55:17,599 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: server_info
+2025-02-21 12:55:17,601 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: get_summary
+2025-02-21 12:55:17,601 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: sampled_history
+2025-02-21 12:55:17,601 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: internal_messages
+2025-02-21 12:55:17,601 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: job_info
+2025-02-21 12:55:17,659 DEBUG   SenderThread:35592 [sender.py:send_request():409] send_request: job_info
+2025-02-21 12:55:17,660 INFO    MainThread:35592 [wandb_run.py:_footer_history_summary_info():3837] rendering history
+2025-02-21 12:55:17,660 INFO    MainThread:35592 [wandb_run.py:_footer_history_summary_info():3869] rendering summary
+2025-02-21 12:55:17,660 INFO    MainThread:35592 [wandb_run.py:_footer_sync_info():3796] logging synced files
+2025-02-21 12:55:17,661 DEBUG   HandlerThread:35592 [handler.py:handle_request():146] handle_request: shutdown
+2025-02-21 12:55:17,661 INFO    HandlerThread:35592 [handler.py:finish():866] shutting down handler
+2025-02-21 12:55:18,607 INFO    WriterThread:35592 [datastore.py:close():294] close: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250221_125500-kwn625ff/run-kwn625ff.wandb
+2025-02-21 12:55:18,661 INFO    SenderThread:35592 [sender.py:finish():1548] shutting down sender
+2025-02-21 12:55:18,661 INFO    SenderThread:35592 [file_pusher.py:finish():175] shutting down file pusher
+2025-02-21 12:55:18,661 INFO    SenderThread:35592 [file_pusher.py:join():181] waiting for file pusher

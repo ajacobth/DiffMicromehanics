@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/main.py", line 32, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/train.py", line 40, in train_and_evaluate
+    model = models.MICRO_SURROGATE(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/models.py", line 20, in __init__
+    super().__init__(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/NN_surrogate/models.py", line 109, in __init__
+    self.state = _create_train_state(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/NN_surrogate/models.py", line 85, in _create_train_state
+    arch = _create_arch(config.arch)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/NN_surrogate/models.py", line 48, in _create_arch
+    arch = archs.Mlp(**config)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/kw_only_dataclasses.py", line 235, in init_wrapper
+    dataclass_init(self, *args, **kwargs)
+TypeError: __init__() got an unexpected keyword argument 'num_layers'
