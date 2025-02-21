@@ -103,7 +103,7 @@ def _create_train_state(config):
     return jax_utils.replicate(state)
 
 
-class PINN:
+class SURROGATE:
     def __init__(self, config):
         self.config = config
         self.state = _create_train_state(config)
@@ -154,7 +154,7 @@ class PINN:
 
         return w
     
-    #@partial(pmap,static_broadcasted_argnums=(0,))
+
     @partial(pmap, axis_name="batch", static_broadcasted_argnums=(0,))
     def update_weights(self, state, time_batch, batch_initial,*args):
         
@@ -164,7 +164,6 @@ class PINN:
         state = state.apply_weights(weights=weights)
         return state
     
-    #@partial(pmap, static_broadcasted_argnums=(0,))
     @partial(pmap, axis_name="batch", static_broadcasted_argnums=(0,))
     def step(self, state, time_batch, batch_initial, *args):
         
@@ -175,16 +174,3 @@ class PINN:
         return state
 
 
-class ForwardIVP(PINN):
-    def __init__(self, config):
-        super().__init__(config)
-
-        if config.weighting.use_causal:
-            self.tol = config.weighting.causal_tol
-            self.num_chunks = config.weighting.num_chunks
-            self.M = jnp.triu(jnp.ones((self.num_chunks, self.num_chunks)), k=1).T
-
-
-class ForwardBVP(PINN):
-    def __init__(self, config):
-        super().__init__(config)

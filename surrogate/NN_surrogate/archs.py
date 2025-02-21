@@ -1,8 +1,6 @@
 from functools import partial
 from typing import Any, Callable, Sequence, Tuple, Optional, Union, Dict
-
 from flax import linen as nn
-from flax.core.frozen_dict import freeze
 import jax
 from jax import random, jit, vmap
 import jax.numpy as jnp

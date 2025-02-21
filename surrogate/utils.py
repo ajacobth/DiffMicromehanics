@@ -1,10 +1,11 @@
-import scipy.io
 
+import jax.numpy as jnp
+import numpy as np
+import ml_collections
 
-def get_dataset():
-    data = scipy.io.loadmat("data/allen_cahn.mat")
-    u_ref = data["usol"]
-    t_star = data["t"].flatten()
-    x_star = data["x"].flatten()
-
-    return u_ref, t_star, x_star
+def get_dataset(config: ml_collections.ConfigDict):
+    # Load 2D array using standard numpy
+    numpy_array = np.load(config.data.path)
+    # Convert to JAX numpy array with float32 precision
+    dataset = jnp.array(numpy_array, dtype=jnp.float32)
+    return dataset
