@@ -19,7 +19,7 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.hidden_dim = (128, 128, 128)
+    arch.hidden_dim = (128, 128, 128, 128, 128, 128)
     arch.out_dim = 12
     arch.activation = "relu"
     
@@ -27,7 +27,7 @@ def get_config():
     #config.data.path = "data.csv"
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs =  10000
+    training.max_epochs =  20000
     training.batch_size = 2
 
     
@@ -54,7 +54,7 @@ def get_config():
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 100
+    logging.log_every_steps = 1000
     logging.log_errors = False # have to make validation dataset
     logging.log_losses = True
     logging.log_weights = True
@@ -64,7 +64,7 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_epoch = 5000
+    saving.save_epoch = 1000
     saving.num_keep_ckpts = 10
 
     # Input shape for initializing Flax models

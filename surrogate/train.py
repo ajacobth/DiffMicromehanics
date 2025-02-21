@@ -97,7 +97,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             model.state = model.step(model.state, batch_inputs, batch_targets)
 
             # Logging only on the main process
-            if jax.process_index() == 0 and (i % config.logging.log_every_steps == 0):
+            if jax.process_index() == 0 and (i % config.logging.log_every_steps== 0):
                 state = jax.device_get(jax.tree_map(lambda x: x[0], model.state))
                 log_dict = evaluator(state, batch_inputs, batch_targets)
                 wandb.log(log_dict, step=(epoch * num_batches + i))

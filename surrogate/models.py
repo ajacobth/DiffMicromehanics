@@ -37,7 +37,7 @@ class MICRO_SURROGATE(SURROGATE):
         batched_residuals = vmap(self.residual, in_axes=(None, 0, 0))(params, x, y_actual)
         mse_loss = jnp.mean(batched_residuals)
         
-        print(mse_loss)
+        #print(mse_loss)
         return {"mse": mse_loss}
 
 class MICRO_SURROGATE_Eval(BaseEvaluator):
