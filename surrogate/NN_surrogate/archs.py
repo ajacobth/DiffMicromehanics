@@ -5,7 +5,7 @@ import jax
 from jax import random, jit, vmap
 import jax.numpy as jnp
 from flax.linen.dtypes import promote_dtype
-from jax.nn.initializers import glorot_normal, normal, zeros, constant
+from jax.nn.initializers import glorot_normal, normal, zeros, constant, lecun_normal
 
 Dtype = Any # this could be any for now, lets just keep it for now
 
@@ -35,7 +35,7 @@ class FourierEmbs(nn.Module):
     @nn.compact
     def __call__(self, x):
         kernel = self.param(
-            "kernel", normal(self.embed_scale), (x.shape[-1], self.embed_dim // 2)
+            "kernel", lecun_normal(self.embed_scale), (x.shape[-1], self.embed_dim // 2)
         )
         y = jnp.concatenate(
             [jnp.cos(jnp.dot(x, kernel)), jnp.sin(jnp.dot(x, kernel))], axis=-1

@@ -1,0 +1,7 @@
+{"time":"2025-02-22T09:21:36.258946-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/offline-run-20250222_092135-p4fs6518/logs/debug-core.log"}
+{"time":"2025-02-22T09:21:36.364556-05:00","level":"INFO","msg":"created new stream","id":"p4fs6518"}
+{"time":"2025-02-22T09:21:36.364597-05:00","level":"INFO","msg":"stream: started","id":"p4fs6518"}
+{"time":"2025-02-22T09:21:36.364615-05:00","level":"INFO","msg":"handler: started","stream_id":"p4fs6518"}
+{"time":"2025-02-22T09:21:36.364615-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"p4fs6518"}
+{"time":"2025-02-22T09:21:36.364643-05:00","level":"INFO","msg":"sender: started","stream_id":"p4fs6518"}
+{"time":"2025-02-22T09:21:36.367002-05:00","level":"INFO","msg":"Starting system monitor"}

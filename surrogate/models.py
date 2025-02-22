@@ -27,7 +27,7 @@ class MICRO_SURROGATE(SURROGATE):
 
     def residual(self, params, x, y_actual):
         y_pred = self.u_net(params, x)
-        return jnp.linalg.norm(y_pred - y_actual)
+        return (y_pred - y_actual)**2
     
     def losses(self, params, batch_inputs, batch_targets, *args):
         x = batch_inputs

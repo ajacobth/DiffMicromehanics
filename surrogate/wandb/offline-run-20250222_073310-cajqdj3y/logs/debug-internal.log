@@ -1,0 +1,14 @@
+{"time":"2025-02-22T07:33:10.599023-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/offline-run-20250222_073310-cajqdj3y/logs/debug-core.log"}
+{"time":"2025-02-22T07:33:10.705074-05:00","level":"INFO","msg":"created new stream","id":"cajqdj3y"}
+{"time":"2025-02-22T07:33:10.705126-05:00","level":"INFO","msg":"stream: started","id":"cajqdj3y"}
+{"time":"2025-02-22T07:33:10.705134-05:00","level":"INFO","msg":"handler: started","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:33:10.705147-05:00","level":"INFO","msg":"sender: started","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:33:10.705164-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:33:10.707739-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-22T07:36:21.343558-05:00","level":"INFO","msg":"stream: closing","id":"cajqdj3y"}
+{"time":"2025-02-22T07:36:21.343589-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-22T07:36:21.343975-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-22T07:36:21.344057-05:00","level":"INFO","msg":"handler: closed","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:36:21.344073-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:36:21.344102-05:00","level":"INFO","msg":"sender: closed","stream_id":"cajqdj3y"}
+{"time":"2025-02-22T07:36:21.344283-05:00","level":"INFO","msg":"stream: closed","id":"cajqdj3y"}

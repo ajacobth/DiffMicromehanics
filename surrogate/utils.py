@@ -4,7 +4,7 @@ import ml_collections
 
 def get_dataset(config: ml_collections.ConfigDict):
     # Load dataset
-    numpy_array = np.genfromtxt("data.csv", delimiter=',', dtype=np.float32)
+    numpy_array = np.genfromtxt("two_variable_polynomial_dataset.csv", delimiter=',', skip_header=1)
     dataset = jnp.array(numpy_array)
 
     # Check expected shape

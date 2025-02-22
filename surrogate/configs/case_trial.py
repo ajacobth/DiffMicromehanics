@@ -19,16 +19,16 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.hidden_dim = (128, 128, 128, 128, 128, 128)
-    arch.out_dim = 12
+    arch.hidden_dim = (128, 64, 32)
+    arch.out_dim = 1
     arch.activation = "relu"
     
     # data file
     #config.data.path = "data.csv"
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs =  20000
-    training.batch_size = 2
+    training.max_epochs =  1000
+    training.batch_size = 512
 
     
     
@@ -49,26 +49,26 @@ def get_config():
     weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({ "mse":1.})
     weighting.momentum = 0.9
-    weighting.update_every_steps = 100000000
+    weighting.update_every_steps = 1000000000
 
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 1000
+    logging.log_every_steps = 2000
     logging.log_errors = False # have to make validation dataset
     logging.log_losses = True
     logging.log_weights = True
     logging.log_preds = False
-    logging.log_grads = True
+    logging.log_grads = False
     logging.log_ntk = False
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_epoch = 1000
+    saving.save_epoch = 500
     saving.num_keep_ckpts = 10
 
     # Input shape for initializing Flax models
-    config.input_dim = 3
+    config.input_dim = 2
     config.output_dim = arch.out_dim
 
     # Integer for PRNG random seed.
