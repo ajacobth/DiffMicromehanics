@@ -1,7 +1,0 @@
-{"time":"2025-02-22T09:20:38.426952-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/offline-run-20250222_092038-ao3t1but/logs/debug-core.log"}
-{"time":"2025-02-22T09:20:38.532908-05:00","level":"INFO","msg":"created new stream","id":"ao3t1but"}
-{"time":"2025-02-22T09:20:38.532953-05:00","level":"INFO","msg":"stream: started","id":"ao3t1but"}
-{"time":"2025-02-22T09:20:38.532968-05:00","level":"INFO","msg":"handler: started","stream_id":"ao3t1but"}
-{"time":"2025-02-22T09:20:38.532965-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"ao3t1but"}
-{"time":"2025-02-22T09:20:38.533028-05:00","level":"INFO","msg":"sender: started","stream_id":"ao3t1but"}
-{"time":"2025-02-22T09:20:38.53547-05:00","level":"INFO","msg":"Starting system monitor"}
