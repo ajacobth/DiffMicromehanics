@@ -73,7 +73,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                      output_mean=target_mean, output_std=target_std, 
                      x_val=test_inputs, y_val=test_targets)
         
-   
+    
     else:
         model = models.MICRO_SURROGATE(config)
 
