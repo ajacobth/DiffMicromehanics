@@ -1,4 +1,4 @@
-surrogate/wandb/
+surrogate/wandb/*
 
 composite_materials*.*
 
