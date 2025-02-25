@@ -1,0 +1,16 @@
+{"time":"2025-02-24T15:05:35.82739-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250224_150535-p9ql8uip/logs/debug-core.log"}
+{"time":"2025-02-24T15:05:35.934024-05:00","level":"INFO","msg":"created new stream","id":"p9ql8uip"}
+{"time":"2025-02-24T15:05:35.934066-05:00","level":"INFO","msg":"stream: started","id":"p9ql8uip"}
+{"time":"2025-02-24T15:05:35.934079-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:05:35.934105-05:00","level":"INFO","msg":"handler: started","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:05:35.934087-05:00","level":"INFO","msg":"sender: started","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:05:36.059648-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-24T15:08:06.17509-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": net/http: request canceled (Client.Timeout exceeded while awaiting headers)"}
+{"time":"2025-02-24T15:16:31.348864-05:00","level":"INFO","msg":"stream: closing","id":"p9ql8uip"}
+{"time":"2025-02-24T15:16:31.34889-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-24T15:16:31.349477-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-24T15:16:31.946994-05:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-24T15:16:32.070709-05:00","level":"INFO","msg":"handler: closed","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:16:32.07076-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:16:32.070808-05:00","level":"INFO","msg":"sender: closed","stream_id":"p9ql8uip"}
+{"time":"2025-02-24T15:16:32.071502-05:00","level":"INFO","msg":"stream: closed","id":"p9ql8uip"}

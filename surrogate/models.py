@@ -32,12 +32,14 @@ class MICRO_SURROGATE(SURROGATE):
     def losses(self, params, batch_inputs, batch_targets, *args):
         x = batch_inputs
         y_actual = batch_targets
-        
-        # Fixed parenthesis placement and added explicit in_axes
+    
+        # Compute squared error per output dimension
         batched_residuals = vmap(self.residual, in_axes=(None, 0, 0))(params, x, y_actual)
-        mse_loss = jnp.mean(batched_residuals)
         
-        #print(mse_loss)
+        # Take mean over batch and output dimensions separately
+        mse_loss_per_output = jnp.mean(batched_residuals, axis=0)  # Mean across batch
+        mse_loss = jnp.mean(mse_loss_per_output)  # Final mean across outputs
+    
         return {"mse": mse_loss}
 
 class MICRO_SURROGATE_Eval(BaseEvaluator):

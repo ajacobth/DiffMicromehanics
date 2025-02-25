@@ -1,0 +1,15 @@
+{"time":"2025-02-24T14:04:58.681598-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250224_140458-s20kdbpz/logs/debug-core.log"}
+{"time":"2025-02-24T14:04:58.788146-05:00","level":"INFO","msg":"created new stream","id":"s20kdbpz"}
+{"time":"2025-02-24T14:04:58.78823-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"s20kdbpz"}
+{"time":"2025-02-24T14:04:58.788242-05:00","level":"INFO","msg":"handler: started","stream_id":"s20kdbpz"}
+{"time":"2025-02-24T14:04:58.788269-05:00","level":"INFO","msg":"stream: started","id":"s20kdbpz"}
+{"time":"2025-02-24T14:04:58.788253-05:00","level":"INFO","msg":"sender: started","stream_id":"s20kdbpz"}
+{"time":"2025-02-24T14:04:58.973939-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-24T14:31:13.240964-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": read tcp 172.30.2.54:64466->35.186.228.49:443: read: operation timed out"}
+{"time":"2025-02-24T14:35:43.98752-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-02-24T14:36:43.069831-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-02-24T14:36:47.895194-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-02-24T14:36:57.798076-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-02-24T14:43:20.179562-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2025-02-24T15:01:18.550143-05:00","level":"ERROR","msg":"HTTP error","status":404,"method":"POST","url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream"}
+{"time":"2025-02-24T15:01:18.55058-05:00","level":"ERROR+4","msg":"filestream: fatal error: filestream: failed to upload: 404 Not Found path=files/ai4manufacturing/DIFFMICRO_SURR/s20kdbpz/file_stream: {\"error\":\"run DIFFMICRO_SURR/s20kdbpz not found while streaming file\"}"}

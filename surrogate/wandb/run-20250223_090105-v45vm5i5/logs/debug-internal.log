@@ -1,0 +1,9 @@
+{"time":"2025-02-23T09:01:05.91367-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250223_090105-v45vm5i5/logs/debug-core.log"}
+{"time":"2025-02-23T09:01:06.020085-05:00","level":"INFO","msg":"created new stream","id":"v45vm5i5"}
+{"time":"2025-02-23T09:01:06.020126-05:00","level":"INFO","msg":"stream: started","id":"v45vm5i5"}
+{"time":"2025-02-23T09:01:06.020166-05:00","level":"INFO","msg":"handler: started","stream_id":"v45vm5i5"}
+{"time":"2025-02-23T09:01:06.020159-05:00","level":"INFO","msg":"sender: started","stream_id":"v45vm5i5"}
+{"time":"2025-02-23T09:01:06.020166-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"v45vm5i5"}
+{"time":"2025-02-23T09:01:06.252513-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-23T09:02:36.612096-05:00","level":"ERROR","msg":"HTTP error","status":404,"method":"POST","url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO/v45vm5i5/file_stream"}
+{"time":"2025-02-23T09:02:36.612347-05:00","level":"ERROR+4","msg":"filestream: fatal error: filestream: failed to upload: 404 Not Found path=files/ai4manufacturing/DIFFMICRO/v45vm5i5/file_stream: {\"error\":\"run DIFFMICRO/v45vm5i5 not found while streaming file\"}"}

@@ -1,0 +1,9 @@
+{"time":"2025-02-23T16:02:23.219032-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250223_160223-fkoprghl/logs/debug-core.log"}
+{"time":"2025-02-23T16:02:23.326221-05:00","level":"INFO","msg":"created new stream","id":"fkoprghl"}
+{"time":"2025-02-23T16:02:23.326265-05:00","level":"INFO","msg":"stream: started","id":"fkoprghl"}
+{"time":"2025-02-23T16:02:23.326281-05:00","level":"INFO","msg":"sender: started","stream_id":"fkoprghl"}
+{"time":"2025-02-23T16:02:23.326279-05:00","level":"INFO","msg":"handler: started","stream_id":"fkoprghl"}
+{"time":"2025-02-23T16:02:23.326295-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"fkoprghl"}
+{"time":"2025-02-23T16:02:23.497619-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-23T16:04:38.795354-05:00","level":"ERROR","msg":"HTTP error","status":404,"method":"POST","url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO/fkoprghl/file_stream"}
+{"time":"2025-02-23T16:04:38.795483-05:00","level":"ERROR+4","msg":"filestream: fatal error: filestream: failed to upload: 404 Not Found path=files/ai4manufacturing/DIFFMICRO/fkoprghl/file_stream: {\"error\":\"run DIFFMICRO/fkoprghl not found while streaming file\"}"}

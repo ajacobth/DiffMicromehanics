@@ -1,0 +1,21 @@
+{"time":"2025-02-23T12:29:23.070625-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250223_122923-oee4j5zv/logs/debug-core.log"}
+{"time":"2025-02-23T12:29:23.179468-05:00","level":"INFO","msg":"created new stream","id":"oee4j5zv"}
+{"time":"2025-02-23T12:29:23.179516-05:00","level":"INFO","msg":"stream: started","id":"oee4j5zv"}
+{"time":"2025-02-23T12:29:23.179528-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T12:29:23.179538-05:00","level":"INFO","msg":"handler: started","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T12:29:23.17955-05:00","level":"INFO","msg":"sender: started","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T12:29:23.294029-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-23T13:09:21.828132-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO/oee4j5zv/file_stream\": dial tcp 35.186.228.49:443: connect: operation timed out"}
+{"time":"2025-02-23T13:09:22.338543-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.4.38:61995->35.186.228.49:443: read: connection reset by peer"}
+{"time":"2025-02-23T13:25:11.007403-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.4.38:63272->35.186.228.49:443: read: connection reset by peer"}
+{"time":"2025-02-23T13:41:21.623017-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.4.38:63342->35.186.228.49:443: read: connection reset by peer"}
+{"time":"2025-02-23T13:57:32.319564-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.4.38:63420->35.186.228.49:443: read: connection reset by peer"}
+{"time":"2025-02-23T14:31:28.90246-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 192.168.4.38:63478->35.186.228.49:443: read: operation timed out"}
+{"time":"2025-02-23T14:34:44.626359-05:00","level":"INFO","msg":"stream: closing","id":"oee4j5zv"}
+{"time":"2025-02-23T14:34:44.626547-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-23T14:34:44.626896-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-23T14:34:44.991243-05:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-23T14:34:45.101288-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T14:34:45.101321-05:00","level":"INFO","msg":"sender: closed","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T14:34:45.102375-05:00","level":"INFO","msg":"handler: closed","stream_id":"oee4j5zv"}
+{"time":"2025-02-23T14:34:45.102475-05:00","level":"INFO","msg":"stream: closed","id":"oee4j5zv"}

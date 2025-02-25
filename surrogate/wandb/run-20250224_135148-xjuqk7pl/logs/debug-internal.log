@@ -1,0 +1,12 @@
+{"time":"2025-02-24T13:51:48.392376-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/run-20250224_135148-xjuqk7pl/logs/debug-core.log"}
+{"time":"2025-02-24T13:51:48.499729-05:00","level":"INFO","msg":"created new stream","id":"xjuqk7pl"}
+{"time":"2025-02-24T13:51:48.49977-05:00","level":"INFO","msg":"stream: started","id":"xjuqk7pl"}
+{"time":"2025-02-24T13:51:48.499791-05:00","level":"INFO","msg":"handler: started","stream_id":"xjuqk7pl"}
+{"time":"2025-02-24T13:51:48.499783-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"xjuqk7pl"}
+{"time":"2025-02-24T13:51:48.499856-05:00","level":"INFO","msg":"sender: started","stream_id":"xjuqk7pl"}
+{"time":"2025-02-24T13:51:48.63537-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-24T13:56:44.691867-05:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/xjuqk7pl/file_stream\": read tcp 172.30.2.54:61915->35.186.228.49:443: read: operation timed out"}
+{"time":"2025-02-24T13:57:37.506323-05:00","level":"INFO","msg":"api: retrying HTTP error","status":500,"url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/xjuqk7pl/file_stream","body":"{\"error\":\"context deadline exceeded\"}"}
+{"time":"2025-02-24T13:57:44.712706-05:00","level":"INFO","msg":"api: retrying HTTP error","status":500,"url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/xjuqk7pl/file_stream","body":"{\"error\":\"context deadline exceeded\"}"}
+{"time":"2025-02-24T14:03:17.533656-05:00","level":"ERROR","msg":"HTTP error","status":404,"method":"POST","url":"https://api.wandb.ai/files/ai4manufacturing/DIFFMICRO_SURR/xjuqk7pl/file_stream"}
+{"time":"2025-02-24T14:03:17.534701-05:00","level":"ERROR+4","msg":"filestream: fatal error: filestream: failed to upload: 404 Not Found path=files/ai4manufacturing/DIFFMICRO_SURR/xjuqk7pl/file_stream: {\"error\":\"run DIFFMICRO_SURR/xjuqk7pl not found while streaming file\"}"}

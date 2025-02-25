@@ -1,8 +1,7 @@
 import os
 
 # Deterministic
-# os.environ["XLA_FLAGS"] = "--xla_gpu_deterministic_reductions --xla_gpu_autotune_level=0"
-os.environ["TF_CUDNN_DETERMINISTIC"] = "1"  # DETERMINISTIC
+os.environ["TF_CUDNN_DETERMINISTIC"] = "1"  # Ensures deterministic behavior
 
 from absl import app
 from absl import flags
@@ -13,7 +12,8 @@ from ml_collections import config_flags
 import jax
 
 import train
-#import eval
+import eval
+import gui_predict  # Import GUI script
 
 FLAGS = flags.FLAGS
 
@@ -26,7 +26,6 @@ config_flags.DEFINE_config_file(
     lock_config=True,
 )
 
-
 def main(argv):
     if FLAGS.config.mode == "train":
         train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
@@ -34,6 +33,8 @@ def main(argv):
     elif FLAGS.config.mode == "eval":
         eval.evaluate(FLAGS.config, FLAGS.workdir)
 
+    elif FLAGS.config.mode == "gui":
+        gui_predict.gui(FLAGS.config, FLAGS.workdir)  # Run GUI when mode is "gui"
 
 if __name__ == "__main__":
     flags.mark_flags_as_required(["config", "workdir"])

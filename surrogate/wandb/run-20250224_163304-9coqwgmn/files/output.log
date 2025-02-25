@@ -1,0 +1,1510 @@
+Normalizing dataset: Input mean (2,), Input std (2,)
+Target mean (1,), Target std (1,)
+Waiting for JIT...
+Using 1 devices for parallel training.
+Epoch 1/300, Num Batches: 3
+I0224 16:33:06.842714 8280885312 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0224 16:33:06.842877 8280885312 utils.py:160] NumExpr defaulting to 8 threads.
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   0    Time: 1.160
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     6.619e-01
+Saving checkpoint at: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/ckpt/case_1
+Epoch 2/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   1    Time: 0.039
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     5.094e-01
+Epoch 3/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   2    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     2.968e-01
+Epoch 4/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   3    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     2.126e-01
+Epoch 5/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   4    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.286e-01
+Epoch 6/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   5    Time: 0.023
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     7.206e-02
+Epoch 7/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   6    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     5.231e-02
+Epoch 8/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   7    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     4.997e-02
+Epoch 9/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   8    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     5.554e-02
+Epoch 10/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:   9    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     4.849e-02
+Epoch 11/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  10    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     3.691e-02
+Epoch 12/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  11    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     2.353e-02
+Epoch 13/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  12    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.957e-02
+Epoch 14/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  13    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     2.111e-02
+Epoch 15/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  14    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     2.144e-02
+Epoch 16/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  15    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.797e-02
+Epoch 17/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  16    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.468e-02
+Epoch 18/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  17    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.212e-02
+Epoch 19/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  18    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.170e-02
+Epoch 20/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  19    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     1.041e-02
+Epoch 21/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  20    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     9.463e-03
+Epoch 22/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  21    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     7.965e-03
+Epoch 23/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  22    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     8.657e-03
+Epoch 24/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  23    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     7.737e-03
+Epoch 25/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  24    Time: 0.021
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     6.212e-03
+Epoch 26/300, Num Batches: 3
+[16:33:07 - main - INFO] --------------------------
+[16:33:07 - main - INFO] Iter:  25    Time: 0.022
+[16:33:07 - main - INFO] -----------  -------------
+[16:33:07 - main - INFO] mse_loss     5.996e-03
+Epoch 27/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  26    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     5.751e-03
+Epoch 28/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  27    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     5.213e-03
+Epoch 29/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  28    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     6.014e-03
+Epoch 30/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  29    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.545e-03
+Epoch 31/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  30    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.926e-03
+Epoch 32/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  31    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.609e-03
+Epoch 33/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  32    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.855e-03
+Epoch 34/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  33    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.632e-03
+Epoch 35/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  34    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.231e-03
+Epoch 36/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  35    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     4.146e-03
+Epoch 37/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  36    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.626e-03
+Epoch 38/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  37    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.695e-03
+Epoch 39/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  38    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.615e-03
+Epoch 40/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  39    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.812e-03
+Epoch 41/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  40    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.578e-03
+Epoch 42/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  41    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.040e-03
+Epoch 43/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  42    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.300e-03
+Epoch 44/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  43    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     3.248e-03
+Epoch 45/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  44    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.815e-03
+Epoch 46/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  45    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.810e-03
+Epoch 47/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  46    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.585e-03
+Epoch 48/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  47    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.592e-03
+Epoch 49/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  48    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.596e-03
+Epoch 50/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  49    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.453e-03
+Epoch 51/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  50    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.310e-03
+Epoch 52/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  51    Time: 0.021
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.359e-03
+Epoch 53/300, Num Batches: 3
+[16:33:08 - main - INFO] --------------------------
+[16:33:08 - main - INFO] Iter:  52    Time: 0.022
+[16:33:08 - main - INFO] -----------  -------------
+[16:33:08 - main - INFO] mse_loss     2.155e-03
+Epoch 54/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  53    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     2.097e-03
+Epoch 55/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  54    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     2.060e-03
+Epoch 56/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  55    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.905e-03
+Epoch 57/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  56    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.700e-03
+Epoch 58/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  57    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.704e-03
+Epoch 59/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  58    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.672e-03
+Epoch 60/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  59    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.583e-03
+Epoch 61/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  60    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.461e-03
+Epoch 62/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  61    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.332e-03
+Epoch 63/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  62    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.285e-03
+Epoch 64/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  63    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.204e-03
+Epoch 65/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  64    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.134e-03
+Epoch 66/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  65    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     1.146e-03
+Epoch 67/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  66    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     9.525e-04
+Epoch 68/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  67    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     9.762e-04
+Epoch 69/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  68    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     8.531e-04
+Epoch 70/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  69    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     9.106e-04
+Epoch 71/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  70    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     8.378e-04
+Epoch 72/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  71    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     8.053e-04
+Epoch 73/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  72    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     6.973e-04
+Epoch 74/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  73    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     6.973e-04
+Epoch 75/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  74    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     6.514e-04
+Epoch 76/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  75    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     5.861e-04
+Epoch 77/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  76    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     6.360e-04
+Epoch 78/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  77    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     5.589e-04
+Epoch 79/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  78    Time: 0.021
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     5.615e-04
+Epoch 80/300, Num Batches: 3
+[16:33:09 - main - INFO] --------------------------
+[16:33:09 - main - INFO] Iter:  79    Time: 0.022
+[16:33:09 - main - INFO] -----------  -------------
+[16:33:09 - main - INFO] mse_loss     5.347e-04
+Epoch 81/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  80    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     5.545e-04
+Epoch 82/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  81    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     5.060e-04
+Epoch 83/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  82    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     5.401e-04
+Epoch 84/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  83    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     4.337e-04
+Epoch 85/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  84    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     4.438e-04
+Epoch 86/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  85    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     4.444e-04
+Epoch 87/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  86    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     4.123e-04
+Epoch 88/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  87    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.987e-04
+Epoch 89/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  88    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.657e-04
+Epoch 90/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  89    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.342e-04
+Epoch 91/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  90    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.492e-04
+Epoch 92/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  91    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.164e-04
+Epoch 93/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  92    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.678e-04
+Epoch 94/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  93    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.081e-04
+Epoch 95/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  94    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.013e-04
+Epoch 96/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  95    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     3.118e-04
+Epoch 97/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  96    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.813e-04
+Epoch 98/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  97    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.680e-04
+Epoch 99/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  98    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.228e-04
+Epoch 100/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter:  99    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.592e-04
+Saving checkpoint at: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/ckpt/case_1
+Epoch 101/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 100    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.438e-04
+Epoch 102/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 101    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.483e-04
+Epoch 103/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 102    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.211e-04
+Epoch 104/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 103    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.374e-04
+Epoch 105/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 104    Time: 0.021
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.749e-04
+Epoch 106/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 105    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.332e-04
+Epoch 107/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 106    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.132e-04
+Epoch 108/300, Num Batches: 3
+[16:33:10 - main - INFO] --------------------------
+[16:33:10 - main - INFO] Iter: 107    Time: 0.022
+[16:33:10 - main - INFO] -----------  -------------
+[16:33:10 - main - INFO] mse_loss     2.215e-04
+Epoch 109/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 108    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     2.286e-04
+Epoch 110/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 109    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     2.126e-04
+Epoch 111/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 110    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     2.012e-04
+Epoch 112/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 111    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     2.000e-04
+Epoch 113/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 112    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.974e-04
+Epoch 114/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 113    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.649e-04
+Epoch 115/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 114    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.548e-04
+Epoch 116/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 115    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.647e-04
+Epoch 117/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 116    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.755e-04
+Epoch 118/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 117    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.591e-04
+Epoch 119/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 118    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.683e-04
+Epoch 120/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 119    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.545e-04
+Epoch 121/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 120    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.622e-04
+Epoch 122/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 121    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.612e-04
+Epoch 123/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 122    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.618e-04
+Epoch 124/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 123    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.526e-04
+Epoch 125/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 124    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.397e-04
+Epoch 126/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 125    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.446e-04
+Epoch 127/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 126    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.389e-04
+Epoch 128/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 127    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.446e-04
+Epoch 129/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 128    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.333e-04
+Epoch 130/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 129    Time: 0.020
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.344e-04
+Epoch 131/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 130    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.256e-04
+Epoch 132/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 131    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.268e-04
+Epoch 133/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 132    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.188e-04
+Epoch 134/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 133    Time: 0.022
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.134e-04
+Epoch 135/300, Num Batches: 3
+[16:33:11 - main - INFO] --------------------------
+[16:33:11 - main - INFO] Iter: 134    Time: 0.021
+[16:33:11 - main - INFO] -----------  -------------
+[16:33:11 - main - INFO] mse_loss     1.249e-04
+Epoch 136/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 135    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.094e-04
+Epoch 137/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 136    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.182e-04
+Epoch 138/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 137    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.176e-04
+Epoch 139/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 138    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.075e-04
+Epoch 140/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 139    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.102e-04
+Epoch 141/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 140    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.086e-04
+Epoch 142/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 141    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.163e-04
+Epoch 143/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 142    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.791e-05
+Epoch 144/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 143    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.061e-04
+Epoch 145/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 144    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     1.033e-04
+Epoch 146/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 145    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.432e-05
+Epoch 147/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 146    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.639e-05
+Epoch 148/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 147    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.407e-05
+Epoch 149/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 148    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.101e-05
+Epoch 150/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 149    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.330e-05
+Epoch 151/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 150    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.400e-05
+Epoch 152/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 151    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.738e-05
+Epoch 153/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 152    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.878e-05
+Epoch 154/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 153    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.083e-05
+Epoch 155/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 154    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.364e-05
+Epoch 156/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 155    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.836e-05
+Epoch 157/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 156    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     9.253e-05
+Epoch 158/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 157    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.849e-05
+Epoch 159/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 158    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     8.232e-05
+Epoch 160/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 159    Time: 0.022
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     7.766e-05
+Epoch 161/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 160    Time: 0.021
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     7.201e-05
+Epoch 162/300, Num Batches: 3
+[16:33:12 - main - INFO] --------------------------
+[16:33:12 - main - INFO] Iter: 161    Time: 0.020
+[16:33:12 - main - INFO] -----------  -------------
+[16:33:12 - main - INFO] mse_loss     7.402e-05
+Epoch 163/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 162    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.797e-05
+Epoch 164/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 163    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.842e-05
+Epoch 165/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 164    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     8.609e-05
+Epoch 166/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 165    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.990e-05
+Epoch 167/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 166    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.933e-05
+Epoch 168/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 167    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.459e-05
+Epoch 169/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 168    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.827e-05
+Epoch 170/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 169    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.781e-05
+Epoch 171/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 170    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.701e-05
+Epoch 172/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 171    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.410e-05
+Epoch 173/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 172    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.677e-05
+Epoch 174/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 173    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.151e-05
+Epoch 175/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 174    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.030e-05
+Epoch 176/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 175    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.261e-05
+Epoch 177/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 176    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.455e-05
+Epoch 178/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 177    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.357e-05
+Epoch 179/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 178    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.925e-05
+Epoch 180/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 179    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.238e-05
+Epoch 181/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 180    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     7.138e-05
+Epoch 182/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 181    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.636e-05
+Epoch 183/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 182    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.344e-05
+Epoch 184/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 183    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.840e-05
+Epoch 185/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 184    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     5.903e-05
+Epoch 186/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 185    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.633e-05
+Epoch 187/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 186    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.337e-05
+Epoch 188/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 187    Time: 0.022
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.260e-05
+Epoch 189/300, Num Batches: 3
+[16:33:13 - main - INFO] --------------------------
+[16:33:13 - main - INFO] Iter: 188    Time: 0.021
+[16:33:13 - main - INFO] -----------  -------------
+[16:33:13 - main - INFO] mse_loss     6.262e-05
+Epoch 190/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 189    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     6.327e-05
+Epoch 191/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 190    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     6.171e-05
+Epoch 192/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 191    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     6.268e-05
+Epoch 193/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 192    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.929e-05
+Epoch 194/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 193    Time: 0.023
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.384e-05
+Epoch 195/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 194    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.664e-05
+Epoch 196/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 195    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.827e-05
+Epoch 197/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 196    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.978e-05
+Epoch 198/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 197    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.762e-05
+Epoch 199/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 198    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.380e-05
+Saving checkpoint at: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/ckpt/case_1
+Epoch 200/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 199    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.952e-05
+Epoch 201/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 200    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.353e-05
+Epoch 202/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 201    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.514e-05
+Epoch 203/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 202    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.561e-05
+Epoch 204/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 203    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.563e-05
+Epoch 205/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 204    Time: 0.023
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.837e-05
+Epoch 206/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 205    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.298e-05
+Epoch 207/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 206    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.491e-05
+Epoch 208/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 207    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.385e-05
+Epoch 209/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 208    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.586e-05
+Epoch 210/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 209    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.501e-05
+Epoch 211/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 210    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.432e-05
+Epoch 212/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 211    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.359e-05
+Epoch 213/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 212    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.407e-05
+Epoch 214/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 213    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     5.262e-05
+Epoch 215/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 214    Time: 0.021
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     4.978e-05
+Epoch 216/300, Num Batches: 3
+[16:33:14 - main - INFO] --------------------------
+[16:33:14 - main - INFO] Iter: 215    Time: 0.022
+[16:33:14 - main - INFO] -----------  -------------
+[16:33:14 - main - INFO] mse_loss     4.986e-05
+Epoch 217/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 216    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.914e-05
+Epoch 218/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 217    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     5.000e-05
+Epoch 219/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 218    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.650e-05
+Epoch 220/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 219    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.655e-05
+Epoch 221/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 220    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.849e-05
+Epoch 222/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 221    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.880e-05
+Epoch 223/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 222    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.792e-05
+Epoch 224/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 223    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.609e-05
+Epoch 225/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 224    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.821e-05
+Epoch 226/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 225    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.506e-05
+Epoch 227/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 226    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.757e-05
+Epoch 228/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 227    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.629e-05
+Epoch 229/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 228    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.764e-05
+Epoch 230/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 229    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.680e-05
+Epoch 231/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 230    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.244e-05
+Epoch 232/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 231    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.695e-05
+Epoch 233/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 232    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.703e-05
+Epoch 234/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 233    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.344e-05
+Epoch 235/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 234    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.561e-05
+Epoch 236/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 235    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.296e-05
+Epoch 237/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 236    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.319e-05
+Epoch 238/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 237    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.465e-05
+Epoch 239/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 238    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.287e-05
+Epoch 240/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 239    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.206e-05
+Epoch 241/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 240    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.629e-05
+Epoch 242/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 241    Time: 0.021
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.327e-05
+Epoch 243/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 242    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.026e-05
+Epoch 244/300, Num Batches: 3
+[16:33:15 - main - INFO] --------------------------
+[16:33:15 - main - INFO] Iter: 243    Time: 0.022
+[16:33:15 - main - INFO] -----------  -------------
+[16:33:15 - main - INFO] mse_loss     4.513e-05
+Epoch 245/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 244    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     5.027e-05
+Epoch 246/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 245    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     4.406e-05
+Epoch 247/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 246    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     4.182e-05
+Epoch 248/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 247    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.843e-05
+Epoch 249/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 248    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     4.121e-05
+Epoch 250/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 249    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.996e-05
+Epoch 251/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 250    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.826e-05
+Epoch 252/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 251    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.866e-05
+Epoch 253/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 252    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.797e-05
+Epoch 254/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 253    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.700e-05
+Epoch 255/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 254    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.831e-05
+Epoch 256/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 255    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.714e-05
+Epoch 257/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 256    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.690e-05
+Epoch 258/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 257    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.950e-05
+Epoch 259/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 258    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.887e-05
+Epoch 260/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 259    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     4.124e-05
+Epoch 261/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 260    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.422e-05
+Epoch 262/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 261    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.857e-05
+Epoch 263/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 262    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.904e-05
+Epoch 264/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 263    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.578e-05
+Epoch 265/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 264    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.491e-05
+Epoch 266/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 265    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.514e-05
+Epoch 267/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 266    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.754e-05
+Epoch 268/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 267    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.497e-05
+Epoch 269/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 268    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.789e-05
+Epoch 270/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 269    Time: 0.022
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     3.690e-05
+Epoch 271/300, Num Batches: 3
+[16:33:16 - main - INFO] --------------------------
+[16:33:16 - main - INFO] Iter: 270    Time: 0.021
+[16:33:16 - main - INFO] -----------  -------------
+[16:33:16 - main - INFO] mse_loss     4.209e-05
+Epoch 272/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 271    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.726e-05
+Epoch 273/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 272    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.522e-05
+Epoch 274/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 273    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.365e-05
+Epoch 275/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 274    Time: 0.022
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.455e-05
+Epoch 276/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 275    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     4.041e-05
+Epoch 277/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 276    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.798e-05
+Epoch 278/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 277    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.563e-05
+Epoch 279/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 278    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.558e-05
+Epoch 280/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 279    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.402e-05
+Epoch 281/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 280    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.548e-05
+Epoch 282/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 281    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.437e-05
+Epoch 283/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 282    Time: 0.022
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.300e-05
+Epoch 284/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 283    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.263e-05
+Epoch 285/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 284    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.369e-05
+Epoch 286/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 285    Time: 0.022
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.418e-05
+Epoch 287/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 286    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.031e-05
+Epoch 288/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 287    Time: 0.022
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.074e-05
+Epoch 289/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 288    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.361e-05
+Epoch 290/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 289    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.169e-05
+Epoch 291/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 290    Time: 0.020
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.946e-05
+Epoch 292/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 291    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.221e-05
+Epoch 293/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 292    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.391e-05
+Epoch 294/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 293    Time: 0.020
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.257e-05
+Epoch 295/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 294    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.245e-05
+Epoch 296/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 295    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     2.899e-05
+Epoch 297/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 296    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.170e-05
+Epoch 298/300, Num Batches: 3
+[16:33:17 - main - INFO] --------------------------
+[16:33:17 - main - INFO] Iter: 297    Time: 0.021
+[16:33:17 - main - INFO] -----------  -------------
+[16:33:17 - main - INFO] mse_loss     3.225e-05
+Saving checkpoint at: /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/ckpt/case_1
+Epoch 299/300, Num Batches: 3
+[16:33:18 - main - INFO] --------------------------
+[16:33:18 - main - INFO] Iter: 298    Time: 0.021
+[16:33:18 - main - INFO] -----------  -------------
+[16:33:18 - main - INFO] mse_loss     3.362e-05
+Epoch 300/300, Num Batches: 3
+[16:33:18 - main - INFO] --------------------------
+[16:33:18 - main - INFO] Iter: 299    Time: 0.024
+[16:33:18 - main - INFO] -----------  -------------
+[16:33:18 - main - INFO] mse_loss     3.129e-05
