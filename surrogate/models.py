@@ -16,10 +16,19 @@ from matplotlib import pyplot as plt
 
 
 class MICRO_SURROGATE(SURROGATE):
-    def __init__(self, config):
+    def __init__(self, config, input_mean=None, input_std=None, 
+                 output_mean=None, output_std=None, 
+                 x_val=None, y_val=None):
         super().__init__(config)
         self.n_inputs = config.input_dim
         self.n_outputs = config.output_dim  # Fixed typo: n_ouputs -> n_outputs
+        self.input_mean = input_mean
+        self.input_std = input_std
+        self.output_mean = output_mean
+        self.output_std = output_std
+        self.x_val = x_val
+        self.y_val = y_val
+        
         
     def u_net(self, params, x):
         u = self.state.apply_fn(params, x)
@@ -41,14 +50,29 @@ class MICRO_SURROGATE(SURROGATE):
         mse_loss = jnp.mean(mse_loss_per_output)  # Final mean across outputs
     
         return {"mse": mse_loss}
+    
+    @partial(jit, static_argnums=(0,))
+    def compute_validation_error(self, params):
+        # Normalize test inputs using stored stats
+        test_inputs = (self.x_val - self.input_mean) / self.input_std
+    
+        # Model predictions
+        test_preds = self.u_net(params, test_inputs)
+    
+        # Denormalize predictions to original scale
+        test_preds = (test_preds * self.output_std) + self.output_mean
+        
+        mse = jnp.mean((test_preds - self.y_val) ** 2)  # Mean Squared Error
+        
+        return mse
 
 class MICRO_SURROGATE_Eval(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
     def log_errors(self, params, u_ref):
-        l2_error = self.model.compute_l2_error(params, u_ref)
-        self.log_dict["l2_error"] = l2_error
+        val_error = self.model.compute_validation_error(params)
+        self.log_dict["val_error"] = val_error
 
     def log_preds(self, params):
         u_pred = self.model.u_pred_fn(params, self.model.t_star, self.model.x_star)

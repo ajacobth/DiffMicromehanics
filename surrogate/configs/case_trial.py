@@ -40,7 +40,7 @@ def get_config():
     optim.eps = 1e-8
     optim.learning_rate = 1e-3
     optim.decay_rate = 0.9
-    optim.decay_steps = 2000
+    optim.decay_steps = 10000
     optim.grad_accum_steps = 0
 
 
@@ -55,7 +55,7 @@ def get_config():
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
     logging.log_every_steps = 2000
-    logging.log_errors = False # have to make validation dataset
+    logging.log_errors = True # have to make validation dataset
     logging.log_losses = True
     logging.log_weights = True
     logging.log_preds = False

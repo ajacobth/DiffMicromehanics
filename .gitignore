@@ -1,0 +1,5 @@
+wandb/
+
+composite_materials*.*
+
+surrogate/lhs_samples.csv

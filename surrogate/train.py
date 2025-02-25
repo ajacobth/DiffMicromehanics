@@ -15,6 +15,7 @@ from NN_surrogate.utils import save_checkpoint
 import orbax 
 import models
 from utils import get_dataset
+import numpy as np
 
 
 def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -54,7 +55,27 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initialize logger
     logger = Logger()
     # Initialize model
-    model = models.MICRO_SURROGATE(config)
+    
+    if config.use_train_val_test_split:
+
+        # Load test dataset
+        test_data =np.genfromtxt("validation_data.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
+
+        # Get input and output sizes from config
+        input_dim = config.input_dim
+        output_dim = config.output_dim
+
+        # Extract inputs and targets from test data
+        test_inputs = test_data[:, :input_dim]
+        test_targets = test_data[:, input_dim:]
+        
+        model =  models.MICRO_SURROGATE(config, input_mean=input_mean, input_std=input_std, 
+                     output_mean=target_mean, output_std=target_std, 
+                     x_val=test_inputs, y_val=test_targets)
+        
+   
+    else:
+        model = models.MICRO_SURROGATE(config)
 
     path = os.path.join(workdir, "ckpt", config.wandb.name)
 
