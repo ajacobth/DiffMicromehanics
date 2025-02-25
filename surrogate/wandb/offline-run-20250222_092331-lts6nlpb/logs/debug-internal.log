@@ -1,7 +1,0 @@
-{"time":"2025-02-22T09:23:31.59448-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/surrogate/wandb/offline-run-20250222_092331-lts6nlpb/logs/debug-core.log"}
-{"time":"2025-02-22T09:23:31.700492-05:00","level":"INFO","msg":"created new stream","id":"lts6nlpb"}
-{"time":"2025-02-22T09:23:31.700543-05:00","level":"INFO","msg":"stream: started","id":"lts6nlpb"}
-{"time":"2025-02-22T09:23:31.700582-05:00","level":"INFO","msg":"sender: started","stream_id":"lts6nlpb"}
-{"time":"2025-02-22T09:23:31.700565-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"lts6nlpb"}
-{"time":"2025-02-22T09:23:31.70064-05:00","level":"INFO","msg":"handler: started","stream_id":"lts6nlpb"}
-{"time":"2025-02-22T09:23:31.703273-05:00","level":"INFO","msg":"Starting system monitor"}
