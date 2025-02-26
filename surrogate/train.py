@@ -54,6 +54,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize logger
     logger = Logger()
+    
     # Initialize model
     
     if config.use_train_val_test_split:
@@ -69,13 +70,28 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         test_inputs = test_data[:, :input_dim]
         test_targets = test_data[:, input_dim:]
         
-        model =  models.MICRO_SURROGATE(config, input_mean=input_mean, input_std=input_std, 
-                     output_mean=target_mean, output_std=target_std, 
-                     x_val=test_inputs, y_val=test_targets)
+        if config.use_l2reg:
+            
+            model =  models.MICRO_SURROGATE_L2(config, input_mean=input_mean, input_std=input_std, 
+                         output_mean=target_mean, output_std=target_std, 
+                         x_val=test_inputs, y_val=test_targets)
+        
+        else:
+            model =  models.MICRO_SURROGATE(config, input_mean=input_mean, input_std=input_std, 
+                         output_mean=target_mean, output_std=target_std, 
+                         x_val=test_inputs, y_val=test_targets)
         
     
     else:
-        model = models.MICRO_SURROGATE(config)
+        
+        if config.use_l2reg:
+            
+            model =  models.MICRO_SURROGATE_L2(config, input_mean=input_mean, input_std=input_std, 
+                         output_mean=target_mean, output_std=target_std, 
+                         x_val=test_inputs, y_val=test_targets)
+        
+        else:
+            model = models.MICRO_SURROGATE(config)
 
     path = os.path.join(workdir, "ckpt", config.wandb.name)
 
@@ -158,7 +174,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 end_time = time.time()
                 logger.log_iter(epoch, start_time, end_time, log_dict)
 
-        # Save checkpoint at the end of each epoch
+
         if epoch % config.saving.save_epoch == 0:
             abs_ckpt_path = os.path.abspath(path)  # Convert path to absolute
             print(f"Saving checkpoint at: {abs_ckpt_path}")  # Debugging print

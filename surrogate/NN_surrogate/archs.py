@@ -86,3 +86,29 @@ class Mlp(nn.Module):
         x = Dense(features=self.out_dim)(x)
         return x
 
+
+
+class BatchNorm_Mlp(nn.Module):
+    arch_name: Optional[str] = "Mlp"
+    hidden_dim: Sequence[int] = (256, 256, 256, 256)  # Default 4 layers
+    out_dim: int = 1
+    activation: str = "tanh"
+    fourier_emb: Union[None, Dict] = None
+    use_batchnorm: bool = True  # Add a flag for BatchNorm usage
+
+    def setup(self):
+        self.activation_fn = _get_activation(self.activation)
+
+    @nn.compact
+    def __call__(self, x):
+        if self.fourier_emb:
+            x = FourierEmbs(**self.fourier_emb)(x)
+
+        # Loop through each hidden layer
+        for dim in self.hidden_dim:
+            x = nn.Dense(features=dim)(x)
+            x = nn.BatchNorm(x)
+            x = self.activation_fn(x)
+
+        x = nn.Dense(features=self.out_dim)(x)
+        return x

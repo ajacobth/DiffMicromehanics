@@ -12,14 +12,14 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "B"
-    wandb.name = "case_2"
+    wandb.project = "MICRO_SURR_data12k"
+    wandb.name = "case_1"
     wandb.tag = None
     
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.hidden_dim = (256, 128, 128, 64, 64, 32, 32, 16, 16)
+    arch.hidden_dim = (128, 256, 128, 64)
     arch.out_dim = 9
     arch.activation = "relu"
     
@@ -27,8 +27,8 @@ def get_config():
     #config.data.path = "data.csv"
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs =  40000
-    training.batch_size = 4096
+    training.max_epochs =  20000
+    training.batch_size = 8192
 
     
     
@@ -47,9 +47,9 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = "grad_norm"
-    weighting.init_weights = ml_collections.ConfigDict({ "mse":1.})
+    weighting.init_weights = ml_collections.ConfigDict({ "mse":1., "l2":1e-4})
     weighting.momentum = 0.9
-    weighting.update_every_steps = 1000
+    weighting.update_every_steps = 10000000000
 
 
     # Logging
@@ -67,11 +67,12 @@ def get_config():
     saving.save_epoch = 99
     saving.num_keep_ckpts = 5
 
-    # Input shape for initializing Flax models
+    # Input shape for initializing Flax models and training split and regulari
     config.input_dim = 16
     config.output_dim = arch.out_dim
     config.use_train_test_split = True
     config.use_train_val_test_split = True
+    config.use_l2reg = True
 
     # Integer for PRNG random seed.
     config.seed = 101

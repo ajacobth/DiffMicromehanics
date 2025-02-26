@@ -7,7 +7,8 @@
 
 from functools import partial
 import jax.numpy as jnp
-from jax import jit, grad, vmap
+import jax
+from jax import jit, grad, vmap, tree_map
 
 from NN_surrogate.models import SURROGATE
 from NN_surrogate.evaluator import BaseEvaluator
@@ -48,8 +49,9 @@ class MICRO_SURROGATE(SURROGATE):
         # Take mean over batch and output dimensions separately
         mse_loss_per_output = jnp.mean(batched_residuals, axis=0)  # Mean across batch
         mse_loss = jnp.mean(mse_loss_per_output)  # Final mean across outputs
-    
+        
         return {"mse": mse_loss}
+    
     
     @partial(jit, static_argnums=(0,))
     def compute_validation_error(self, params):
@@ -60,9 +62,76 @@ class MICRO_SURROGATE(SURROGATE):
         test_preds = self.u_net(params, test_inputs)
     
         # Denormalize predictions to original scale
-        test_preds = (test_preds * self.output_std) + self.output_mean
+        y_scaled = (self.y_val - self.output_mean) / self.output_std
+        #test_preds = (test_preds * self.output_std) + self.output_mean
         
-        mse = jnp.mean((test_preds - self.y_val) ** 2)  # Mean Squared Error
+        mse = jnp.mean((test_preds - y_scaled) ** 2)  # Mean Squared Error
+        
+        return mse
+    
+    
+class MICRO_SURROGATE_L2(SURROGATE):
+    def __init__(self, config, input_mean=None, input_std=None, 
+                 output_mean=None, output_std=None, 
+                 x_val=None, y_val=None):
+        super().__init__(config)
+        self.n_inputs = config.input_dim
+        self.n_outputs = config.output_dim  # Fixed typo: n_ouputs -> n_outputs
+        self.input_mean = input_mean
+        self.input_std = input_std
+        self.output_mean = output_mean
+        self.output_std = output_std
+        self.x_val = x_val
+        self.y_val = y_val
+        
+        
+    def u_net(self, params, x):
+        u = self.state.apply_fn(params, x)
+        return u
+
+    def residual(self, params, x, y_actual):
+        y_pred = self.u_net(params, x)
+        return (y_pred - y_actual)**2
+    
+    def l2_regularization(self, params):
+        """Compute L2 regularization term for model parameters."""
+        return jnp.sum(jnp.array([
+            jnp.sum(p**2) for p in jax.tree_util.tree_leaves(params) if p.dtype == jnp.float32
+        ]))
+
+
+    
+    def losses(self, params, batch_inputs, batch_targets, *args):
+        x = batch_inputs
+        y_actual = batch_targets
+    
+        # Compute squared error per output dimension
+        batched_residuals = vmap(self.residual, in_axes=(None, 0, 0))(params, x, y_actual)
+        
+        # Take mean over batch and output dimensions separately
+        mse_loss_per_output = jnp.mean(batched_residuals, axis=0)  # Mean across batch
+        mse_loss = jnp.mean(mse_loss_per_output)  # Final mean across outputs
+    
+        
+    
+        l2_loss = self.l2_regularization(params)
+    
+        return {"mse": mse_loss, "l2":l2_loss}
+    
+    
+    @partial(jit, static_argnums=(0,))
+    def compute_validation_error(self, params):
+        # Normalize test inputs using stored stats
+        test_inputs = (self.x_val - self.input_mean) / self.input_std
+    
+        # Model predictions
+        test_preds = self.u_net(params, test_inputs)
+    
+        # Denormalize predictions to original scale
+        y_scaled = (self.y_val - self.output_mean) / self.output_std
+        #test_preds = (test_preds * self.output_std) + self.output_mean
+        
+        mse = jnp.mean((test_preds - y_scaled) ** 2)  # Mean Squared Error
         
         return mse
 

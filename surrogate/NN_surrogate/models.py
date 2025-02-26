@@ -47,11 +47,9 @@ def _create_arch(config):
     if config.arch_name == "Mlp":
         arch = archs.Mlp(**config)
 
-    elif config.arch_name == "ModifiedMlp":
-        arch = archs.ModifiedMlp(**config)
+    elif config.arch_name == "BatchNorm_Mlp":
+        arch = archs.BatchNorm_Mlp(**config)
 
-    elif config.arch_name == "DeepONet":
-        arch = archs.DeepONet(**config)
 
     else:
         raise NotImplementedError(f"Arch {config.arch_name} not supported yet!")
