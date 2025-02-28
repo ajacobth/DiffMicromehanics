@@ -4,7 +4,7 @@ import ml_collections
 
 def get_dataset(config: ml_collections.ConfigDict):
     # Load dataset
-    numpy_array = np.genfromtxt("composite_materials_v2.csv", delimiter=',', skip_header=1)
+    numpy_array = np.genfromtxt("composite_materials_v3.csv", delimiter=',', skip_header=1)
     dataset = jnp.array(numpy_array)
 
     # Check expected shape

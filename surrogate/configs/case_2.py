@@ -13,13 +13,13 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "MICRO_SURR_data12k"
-    wandb.name = "case_1"
+    wandb.name = "case_2"
     wandb.tag = None
     
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.hidden_dim = (128, 256, 128, 64)
+    arch.hidden_dim = (128, 256, 512, 256, 128, 64)
     arch.out_dim = 9
     arch.activation = "relu"
     
@@ -64,7 +64,7 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_epoch = 99
+    saving.save_epoch = 499
     saving.num_keep_ckpts = 5
 
     # Input shape for initializing Flax models and training split and regulari
