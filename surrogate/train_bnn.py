@@ -117,6 +117,14 @@ def train_and_evaluate_bnn(config: ml_collections.ConfigDict, workdir: str):
         if epoch % config.saving.save_epoch == 0:
             save_checkpoint(model.state, abs_ckpt_path, ckpt_mgr)
 
+    # Save final checkpoint and parameters
+    save_checkpoint(model.state, abs_ckpt_path, ckpt_mgr)
+    if jax.process_index() == 0:
+        final_state = jax.device_get(tree_map(lambda x: x[0], model.state))
+        param_path = os.path.join(abs_ckpt_path, "final_params.npz")
+        flat_params = jax.tree_util.tree_map(lambda x: np.array(x), final_state.params)
+        np.savez(param_path, **flat_params)
+
     with open("time_summary.txt", "a") as f:
         f.write("\n" + config.wandb.name + "--- %s seconds ---" % (time.time() - start_time_total))
 
