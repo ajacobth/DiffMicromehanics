@@ -50,6 +50,9 @@ def _create_arch(config):
     elif config.arch_name == "BatchNorm_Mlp":
         arch = archs.BatchNorm_Mlp(**config)
 
+    elif config.arch_name == "BayesianMlp":
+        arch = archs.BayesianMlp(**config)
+
 
     else:
         raise NotImplementedError(f"Arch {config.arch_name} not supported yet!")

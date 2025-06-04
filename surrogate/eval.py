@@ -9,6 +9,7 @@ import os
 import ml_collections
 from jax import vmap
 import jax.numpy as jnp
+import jax
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -23,7 +24,10 @@ plt.rcParams['text.usetex'] = True
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Restore model
-    model = models.MICRO_SURROGATE(config)
+    if getattr(config.arch, "arch_name", "") == "BayesianMlp":
+        model = models.MICRO_SURROGATE_BNN(config, dataset_size=1)
+    else:
+        model = models.MICRO_SURROGATE(config)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     state = restore_checkpoint(model.state, ckpt_path)
     params = state['params']  # Extract trained model parameters
@@ -52,7 +56,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     test_inputs = (test_inputs - input_mean) / input_std
 
     # Model predictions
-    test_preds = model.u_net(params, test_inputs)
+    if getattr(config.arch, "arch_name", "") == "BayesianMlp":
+        rng = jax.random.PRNGKey(0)
+        test_preds, _ = model.u_net(params, test_inputs, rng)
+    else:
+        test_preds = model.u_net(params, test_inputs)
 
     # Denormalize predictions to original scale
     test_preds = (test_preds * target_std) + target_mean
