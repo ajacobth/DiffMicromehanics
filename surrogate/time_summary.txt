@@ -58,3 +58,9 @@ case_1--- 1216.8723359107971 seconds ---
 case_2--- 1129.187931060791 seconds ---
 case_2--- 40765.91220021248 seconds ---
 case_2--- 1556.2010958194733 seconds ---
+case_3 — 548.2 s
+case_3 — 497.1 s
+case_3 — 324.2 s
+case_3 — 322.6 s
+case_3 — 316.9 s
+case_4 — 332.2 s

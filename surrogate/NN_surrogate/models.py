@@ -3,6 +3,8 @@ from typing import Any, Callable, Sequence, Tuple, Optional, Dict
 
 from flax.training import train_state
 from flax import jax_utils
+from flax import linen as nn
+from jax.nn.initializers import glorot_normal, normal, zeros, constant, lecun_normal
 
 import jax.numpy as jnp
 from jax import lax, jit, grad, pmap, random, tree_map, jacfwd, jacrev
@@ -12,6 +14,23 @@ import optax
 
 from NN_surrogate import archs
 from NN_surrogate.utils import flatten_pytree
+
+activation_fn = {
+    "relu": nn.relu,
+    "gelu": nn.gelu,
+    "swish": nn.swish,
+    "sigmoid": nn.sigmoid,
+    "tanh": jnp.tanh,
+    "sin": jnp.sin,
+}
+
+
+def _get_activation(str):
+    if str in activation_fn:
+        return activation_fn[str]
+
+    else:
+        raise NotImplementedError(f"Activation {str} not supported yet!")
 
 
 class TrainState(train_state.TrainState):
@@ -172,3 +191,62 @@ class SURROGATE:
         return state
 
 
+class BayesianDense(nn.Module):
+    """Bayesian dense layer with mean-field variational weights."""
+    features: int
+    prior_std: float = 1.0
+
+    @nn.compact
+    def __call__(self, x, rng):
+        in_dim = x.shape[-1]
+        k_mean = self.param("kernel_mean", normal(0.1), (in_dim, self.features))
+        k_log_std = self.param("kernel_log_std", constant(-3.0), (in_dim, self.features))
+        b_mean = self.param("bias_mean", normal(0.1), (self.features,))
+        b_log_std = self.param("bias_log_std", constant(-3.0), (self.features,))
+
+        k_eps = random.normal(rng, k_mean.shape)
+        b_eps = random.normal(rng, b_mean.shape)
+
+        kernel = k_mean + jnp.exp(k_log_std) * k_eps
+        bias = b_mean + jnp.exp(b_log_std) * b_eps
+
+        y = jnp.dot(x, kernel) + bias
+
+        kl = 0.5 * jnp.sum(
+            (jnp.exp(2 * k_log_std) + k_mean ** 2) / (self.prior_std ** 2)
+            - 1.0
+            + 2.0 * (jnp.log(self.prior_std) - k_log_std)
+        )
+        kl += 0.5 * jnp.sum(
+            (jnp.exp(2 * b_log_std) + b_mean ** 2) / (self.prior_std ** 2)
+            - 1.0
+            + 2.0 * (jnp.log(self.prior_std) - b_log_std)
+        )
+
+        return y, kl
+
+
+class BayesianMlp(nn.Module):
+    """Simple Bayesian MLP using variational dense layers."""
+    arch_name: Optional[str] = "BayesianMlp"
+    hidden_dim: Sequence[int] = (256, 256, 256, 256)
+    out_dim: int = 1
+    activation: str = "tanh"
+    prior_std: float = 1.0
+
+    def setup(self):
+        self.activation_fn = _get_activation(self.activation)
+
+    @nn.compact
+    def __call__(self, x, rng):
+        kl_sum = 0.0
+        for dim in self.hidden_dim:
+            rng, layer_rng = random.split(rng)
+            x, kl = BayesianDense(features=dim, prior_std=self.prior_std)(x, layer_rng)
+            kl_sum += kl
+            x = self.activation_fn(x)
+
+        rng, layer_rng = random.split(rng)
+        x, kl = BayesianDense(features=self.out_dim, prior_std=self.prior_std)(x, layer_rng)
+        kl_sum += kl
+        return x, kl_sum

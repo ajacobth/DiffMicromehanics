@@ -134,6 +134,45 @@ class MICRO_SURROGATE_L2(SURROGATE):
         mse = jnp.mean((test_preds - y_scaled) ** 2)  # Mean Squared Error
         
         return mse
+    
+class MICRO_SURROGATE_BNN(SURROGATE):
+    """Bayesian neural network surrogate using variational inference."""
+
+    def __init__(self, config, dataset_size, input_mean=None, input_std=None,
+                 output_mean=None, output_std=None,
+                 x_val=None, y_val=None):
+        super().__init__(config)
+        self.n_inputs = config.input_dim
+        self.n_outputs = config.output_dim
+        self.input_mean = input_mean
+        self.input_std = input_std
+        self.output_mean = output_mean
+        self.output_std = output_std
+        self.x_val = x_val
+        self.y_val = y_val
+        self.dataset_size = dataset_size
+        self.noise_std = getattr(config, "noise_std", 1.0)
+
+    def u_net(self, params, x, rng):
+        y, kl = self.state.apply_fn(params, x, rng)
+        return y, kl
+
+    def losses(self, params, batch_inputs, batch_targets, rng):
+        preds, kl = self.u_net(params, batch_inputs, rng)
+        mse = jnp.mean((preds - batch_targets) ** 2)
+        nll = mse / (2 * self.noise_std ** 2)
+        kl = kl / self.dataset_size
+        return {"nll": nll, "kl": kl}
+
+    @partial(jit, static_argnums=(0,))
+    def compute_validation_error(self, params):
+        test_inputs = (self.x_val - self.input_mean) / self.input_std
+        rng = jax.random.PRNGKey(0)
+        preds, _ = self.u_net(params, test_inputs, rng)
+        y_scaled = (self.y_val - self.output_mean) / self.output_std
+        mse = jnp.mean((preds - y_scaled) ** 2)
+        return mse
+
 
 class MICRO_SURROGATE_Eval(BaseEvaluator):
     def __init__(self, config, model):

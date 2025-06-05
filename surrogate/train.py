@@ -60,7 +60,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     if config.use_train_val_test_split:
 
         # Load test dataset
-        test_data =np.genfromtxt("validation_data.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
+        test_data =np.genfromtxt("composite_materials_validation_v3.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
 
         # Get input and output sizes from config
         input_dim = config.input_dim
@@ -83,6 +83,16 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         
     
     else:
+        # Load test dataset
+        test_data =np.genfromtxt("composite_materials_validation_v3.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
+
+        # Get input and output sizes from config
+        input_dim = config.input_dim
+        output_dim = config.output_dim
+
+        # Extract inputs and targets from test data
+        test_inputs = test_data[:, :input_dim]
+        test_targets = test_data[:, input_dim:]
         
         if config.use_l2reg:
             
@@ -104,6 +114,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize Checkpoint Manager with absolute path
     mgr_options = orbax.checkpoint.CheckpointManagerOptions(save_interval_steps=1, max_to_keep=3)
+    ckpt_dir = os.path.abspath(os.path.join(workdir, "ckpt", config.wandb.name))
+    os.makedirs(ckpt_dir, exist_ok=True)
     ckpt_mgr = orbax.checkpoint.CheckpointManager(
         abs_ckpt_path,
         orbax.checkpoint.Checkpointer(orbax.checkpoint.PyTreeCheckpointHandler()),
@@ -113,78 +125,77 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("Waiting for JIT...")
     start_time_total = time.time()
 
-    # Determine number of devices for pmap
     num_devices = jax.device_count()
-    print(f"Using {num_devices} devices for parallel training.")
+    print(f"Using {num_devices} device(s).")
 
-    # Ensure dataset is divisible by num_devices
-    num_samples = dataset.shape[0]
-    if num_samples % num_devices != 0:
-        new_size = (num_samples // num_devices) * num_devices  # Round down to nearest multiple
-        dataset = dataset[:new_size]  # Trim dataset to match devices
-        print(f"Trimmed dataset to {new_size} samples for device alignment.")
+    def trim_to_multiple(arr, multiple):
+        excess = arr.shape[0] % multiple
+        return arr if excess == 0 else arr[:-excess]
 
-    # Adjust batch size to be divisible by num_devices
+    # Align to devices first
+    dataset = trim_to_multiple(dataset, num_devices)
+
+    # Align to batch size *after* we possibly adjust batch size
     batch_size = config.training.batch_size
-    batch_size_per_device = batch_size // num_devices
     if batch_size % num_devices != 0:
-        print(f"Adjusting batch size: {batch_size} → {batch_size_per_device * num_devices} (divisible by {num_devices})")
-        batch_size = batch_size_per_device * num_devices
+        batch_size = (batch_size // num_devices) * num_devices
+        print(f"Adjusted batch size to {batch_size} for device divisibility.")
 
+    dataset = trim_to_multiple(dataset, batch_size)   # ensures reshape works
+    num_samples = dataset.shape[0]
     num_batches = num_samples // batch_size
+    bs_per_dev = batch_size // num_devices
+
+    # ------------------------------------------------------------------
+    # 5.  Training loop
+    # ------------------------------------------------------------------
+    rng = jax.random.PRNGKey(config.seed)
+    start_wall = time.time()
+
+    evaluator = models.MICRO_SURROGATE_Eval(config, model)
 
     for epoch in range(config.training.max_epochs):
-        start_time = time.time()
-        
-        # Shuffle dataset at the start of each epoch
-        key = jax.random.PRNGKey(epoch)
-        perm = jax.random.permutation(key, num_samples)
-        dataset_shuffled = dataset[perm]
+        epoch_start = time.time()
 
-        print(f"Epoch {epoch+1}/{config.training.max_epochs}, Num Batches: {num_batches}")
+        # shuffle once per epoch
+        rng, perm_key = jax.random.split(rng)
+        perm = jax.random.permutation(perm_key, num_samples)
+        perm = perm.reshape((num_batches, batch_size))   # safe: exact multiple
+
+        print(f"Epoch {epoch+1}/{config.training.max_epochs}")
 
         for i in range(num_batches):
-            batch_indices = jax.random.choice(
-                jax.random.PRNGKey(epoch * num_batches + i),
-                num_samples,
-                (batch_size,),
-                replace=False
+            batch_idx   = perm[i]
+            batch       = dataset[batch_idx]
+            batch_inputs, batch_targets = (
+                batch[:, :input_dim],
+                batch[:,  input_dim:],
             )
-            batch_data = dataset_shuffled[batch_indices]
 
-            # Split batch into inputs and targets
-            batch_inputs = batch_data[:, :input_dim]
-            batch_targets = batch_data[:, input_dim:]
+            # reshape for pmap → (devices, bs_per_dev, features)
+            batch_inputs  = batch_inputs.reshape(num_devices, bs_per_dev, input_dim)
+            batch_targets = batch_targets.reshape(num_devices, bs_per_dev, output_dim)
 
-            # Ensure batch is evenly split across devices
-            batch_size_per_device = batch_size // num_devices
-            
-            # Reshape batch correctly for `pmap` (devices, batch_size_per_device, features)
-            batch_inputs = jnp.reshape(batch_inputs, (num_devices, batch_size_per_device, -1))
-            batch_targets = jnp.reshape(batch_targets, (num_devices, batch_size_per_device, -1))
-
-            # Perform one step of training (pmap is already in model.step)
             model.state = model.step(model.state, batch_inputs, batch_targets)
 
-            # Logging only on the main process
-            if jax.process_index() == 0 and (i % config.logging.log_every_steps == 0):
-                state = jax.device_get(jax.tree_map(lambda x: x[0], model.state))
-                log_dict = evaluator(state, batch_inputs, batch_targets)
-                wandb.log(log_dict, step=(epoch * num_batches + i))
-                end_time = time.time()
-                logger.log_iter(epoch, start_time, end_time, log_dict)
+            global_step = epoch * num_batches + i
+            if (jax.process_index() == 0
+                    and global_step % config.logging.log_every_steps == 0):
+                state_host = jax.device_get(tree_map(lambda x: x[0], model.state))
+                log_dict   = evaluator(state_host, batch_inputs, batch_targets)
+                wandb.log(log_dict, step=global_step)
+                logger.log_iter(epoch, epoch_start, time.time(), log_dict)
 
-
+        # checkpoint
         if epoch % config.saving.save_epoch == 0:
-            abs_ckpt_path = os.path.abspath(path)  # Convert path to absolute
-            print(f"Saving checkpoint at: {abs_ckpt_path}")  # Debugging print
-            save_checkpoint(model.state, abs_ckpt_path, ckpt_mgr)
+            print(f"Saving checkpoint → {ckpt_dir}")
+            save_checkpoint(model.state, ckpt_dir, ckpt_mgr)
 
-    # Write summary time
+    # ------------------------------------------------------------------
+    # 6.  Wrap-up
+    # ------------------------------------------------------------------
     with open("time_summary.txt", "a") as f:
-        f.write("\n"+ config.wandb.name+"--- %s seconds ---" % (time.time() - start_time_total))
+        f.write(f"\n{config.wandb.name} — {time.time() - start_wall:.1f} s")
 
-    # Save normalization stats for future use (e.g., inference)
     jnp.savez(os.path.join(workdir, "normalization_stats.npz"), **norm_stats)
-
     return model

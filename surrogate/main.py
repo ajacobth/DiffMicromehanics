@@ -1,8 +1,7 @@
 import os
-
 # Deterministic
-os.environ["TF_CUDNN_DETERMINISTIC"] = "1"  # Ensures deterministic behavior
-
+#os.environ["TF_CUDNN_DETERMINISTIC"] = "1"  # Ensures deterministic behavior
+#os.environ["JAX_PLATFORM_NAME"] = "METAL"  # Must be uppercase!
 from absl import app
 from absl import flags
 from absl import logging
