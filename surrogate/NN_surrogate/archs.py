@@ -112,3 +112,64 @@ class BatchNorm_Mlp(nn.Module):
 
         x = nn.Dense(features=self.out_dim)(x)
         return x
+
+
+class BayesianDense(nn.Module):
+    """Bayesian dense layer with mean-field variational weights."""
+    features: int
+    prior_std: float = 1.0
+
+    @nn.compact
+    def __call__(self, x, rng):
+        in_dim = x.shape[-1]
+        k_mean = self.param("kernel_mean", normal(0.1), (in_dim, self.features))
+        k_log_std = self.param("kernel_log_std", constant(-3.0), (in_dim, self.features))
+        b_mean = self.param("bias_mean", normal(0.1), (self.features,))
+        b_log_std = self.param("bias_log_std", constant(-3.0), (self.features,))
+
+        k_eps = random.normal(rng, k_mean.shape)
+        b_eps = random.normal(rng, b_mean.shape)
+
+        kernel = k_mean + jnp.exp(k_log_std) * k_eps
+        bias = b_mean + jnp.exp(b_log_std) * b_eps
+
+        y = jnp.dot(x, kernel) + bias
+
+        kl = 0.5 * jnp.sum(
+            (jnp.exp(2 * k_log_std) + k_mean ** 2) / (self.prior_std ** 2)
+            - 1.0
+            + 2.0 * (jnp.log(self.prior_std) - k_log_std)
+        )
+        kl += 0.5 * jnp.sum(
+            (jnp.exp(2 * b_log_std) + b_mean ** 2) / (self.prior_std ** 2)
+            - 1.0
+            + 2.0 * (jnp.log(self.prior_std) - b_log_std)
+        )
+
+        return y, kl
+
+
+class BayesianMlp(nn.Module):
+    """Simple Bayesian MLP using variational dense layers."""
+    arch_name: Optional[str] = "BayesianMlp"
+    hidden_dim: Sequence[int] = (256, 256, 256, 256)
+    out_dim: int = 1
+    activation: str = "tanh"
+    prior_std: float = 1.0
+
+    def setup(self):
+        self.activation_fn = _get_activation(self.activation)
+
+    @nn.compact
+    def __call__(self, x, rng):
+        kl_sum = 0.0
+        for dim in self.hidden_dim:
+            rng, layer_rng = random.split(rng)
+            x, kl = BayesianDense(features=dim, prior_std=self.prior_std)(x, layer_rng)
+            kl_sum += kl
+            x = self.activation_fn(x)
+
+        rng, layer_rng = random.split(rng)
+        x, kl = BayesianDense(features=self.out_dim, prior_std=self.prior_std)(x, layer_rng)
+        kl_sum += kl
+        return x, kl_sum
