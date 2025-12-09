@@ -35,7 +35,7 @@ def get_config():
 
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "MICRO_SURR_data12k"
-    wandb.name    = "case_4"
+    wandb.name    = "case_3"
     wandb.tag     = None
 
     config.arch = arch = ml_collections.ConfigDict()

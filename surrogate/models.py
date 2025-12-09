@@ -95,9 +95,25 @@ class MICRO_SURROGATE_L2(SURROGATE):
     
     def l2_regularization(self, params):
         """Compute L2 regularization term for model parameters."""
-        return jnp.sum(jnp.array([
-            jnp.sum(p**2) for p in jax.tree_util.tree_leaves(params) if p.dtype == jnp.float32
-        ]))
+        #return jnp.sum(jnp.array([
+        #    jnp.sum(p**2) for p in jax.tree_util.tree_leaves(params) if p.dtype == jnp.float32
+        #]))
+        # This will be safely usable inside a jitted loss
+        def leaf_l2(p):
+            # Only act on floating-point arrays
+            if not jnp.issubdtype(p.dtype, jnp.floating):
+                return 0.0
+        
+            # Treat 1D arrays as biases (skip them)
+            if p.ndim == 1:
+                return 0.0
+        
+            return jnp.sum(p**2)
+        
+        # Map over the whole param tree
+        sq_sums_tree = jax.tree_util.tree_map(leaf_l2, params)
+        # Collect and sum
+        return jnp.sum(jnp.array(jax.tree_util.tree_leaves(sq_sums_tree)))
 
 
     
