@@ -138,7 +138,7 @@ def get_config():
     }
     
     # Solver hyper-params
-    inv.optim          = "lbfgs" # jaxopt for lbfgs  # or "adam" optax for optimization
+    inv.optim          = "adam" # jaxopt for lbfgs  # or "adam" optax for optimization
     inv.lbfgs_maxiter  = 200
     inv.lbfgs_tol      = 1e-6
     
