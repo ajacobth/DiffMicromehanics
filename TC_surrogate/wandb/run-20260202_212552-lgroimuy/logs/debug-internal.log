@@ -1,0 +1,7 @@
+{"time":"2026-02-02T21:25:52.212081-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/wandb/run-20260202_212552-lgroimuy/logs/debug-core.log"}
+{"time":"2026-02-02T21:25:52.321289-05:00","level":"INFO","msg":"created new stream","id":"lgroimuy"}
+{"time":"2026-02-02T21:25:52.32134-05:00","level":"INFO","msg":"stream: started","id":"lgroimuy"}
+{"time":"2026-02-02T21:25:52.321353-05:00","level":"INFO","msg":"handler: started","stream_id":"lgroimuy"}
+{"time":"2026-02-02T21:25:52.321391-05:00","level":"INFO","msg":"sender: started","stream_id":"lgroimuy"}
+{"time":"2026-02-02T21:25:52.321361-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"lgroimuy"}
+{"time":"2026-02-02T21:25:52.612956-05:00","level":"INFO","msg":"Starting system monitor"}

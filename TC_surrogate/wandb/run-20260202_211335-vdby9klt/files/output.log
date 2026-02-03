@@ -1,0 +1,1572 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Using 1 device(s).
+num_samples=65536, batch_size=8192, num_batches=8, total_steps=40000
+Waiting for JIT...
+
+Epoch 1/5000
+I0202 21:13:38.361634 8745951360 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0202 21:13:38.361797 8745951360 utils.py:160] NumExpr defaulting to 8 threads.
+[21:13:38 - main - INFO] --------------------------
+[21:13:38 - main - INFO] Iter:   0    Time: 1.312
+[21:13:38 - main - INFO] -----------  -------------
+[21:13:38 - main - INFO] mse_loss     9.522e-01
+[21:13:38 - main - INFO] l2_loss      1.109e+03
+[21:13:38 - main - INFO] val_error    9.782e-01
+
+Epoch 2/5000
+
+Epoch 3/5000
+
+Epoch 4/5000
+
+Epoch 5/5000
+
+Epoch 6/5000
+
+Epoch 7/5000
+
+Epoch 8/5000
+
+Epoch 9/5000
+
+Epoch 10/5000
+
+Epoch 11/5000
+
+Epoch 12/5000
+
+Epoch 13/5000
+
+Epoch 14/5000
+
+Epoch 15/5000
+
+Epoch 16/5000
+
+Epoch 17/5000
+
+Epoch 18/5000
+
+Epoch 19/5000
+
+Epoch 20/5000
+
+Epoch 21/5000
+
+Epoch 22/5000
+
+Epoch 23/5000
+
+Epoch 24/5000
+
+Epoch 25/5000
+
+Epoch 26/5000
+[21:13:40 - main - INFO] --------------------------
+[21:13:40 - main - INFO] Iter:  25    Time: 0.045
+[21:13:40 - main - INFO] -----------  -------------
+[21:13:40 - main - INFO] mse_loss     2.060e-02
+[21:13:40 - main - INFO] l2_loss      1.109e+03
+[21:13:40 - main - INFO] val_error    1.941e-02
+
+Epoch 27/5000
+
+Epoch 28/5000
+
+Epoch 29/5000
+
+Epoch 30/5000
+
+Epoch 31/5000
+
+Epoch 32/5000
+
+Epoch 33/5000
+
+Epoch 34/5000
+
+Epoch 35/5000
+
+Epoch 36/5000
+
+Epoch 37/5000
+
+Epoch 38/5000
+
+Epoch 39/5000
+
+Epoch 40/5000
+
+Epoch 41/5000
+
+Epoch 42/5000
+
+Epoch 43/5000
+
+Epoch 44/5000
+
+Epoch 45/5000
+
+Epoch 46/5000
+
+Epoch 47/5000
+
+Epoch 48/5000
+
+Epoch 49/5000
+
+Epoch 50/5000
+
+Epoch 51/5000
+[21:13:42 - main - INFO] --------------------------
+[21:13:42 - main - INFO] Iter:  50    Time: 0.041
+[21:13:42 - main - INFO] -----------  -------------
+[21:13:42 - main - INFO] mse_loss     1.521e-02
+[21:13:42 - main - INFO] l2_loss      1.101e+03
+[21:13:42 - main - INFO] val_error    1.399e-02
+
+Epoch 52/5000
+
+Epoch 53/5000
+
+Epoch 54/5000
+
+Epoch 55/5000
+
+Epoch 56/5000
+
+Epoch 57/5000
+
+Epoch 58/5000
+
+Epoch 59/5000
+
+Epoch 60/5000
+
+Epoch 61/5000
+
+Epoch 62/5000
+
+Epoch 63/5000
+
+Epoch 64/5000
+
+Epoch 65/5000
+
+Epoch 66/5000
+
+Epoch 67/5000
+
+Epoch 68/5000
+
+Epoch 69/5000
+
+Epoch 70/5000
+
+Epoch 71/5000
+
+Epoch 72/5000
+
+Epoch 73/5000
+
+Epoch 74/5000
+
+Epoch 75/5000
+
+Epoch 76/5000
+[21:13:44 - main - INFO] --------------------------
+[21:13:44 - main - INFO] Iter:  75    Time: 0.044
+[21:13:44 - main - INFO] -----------  -------------
+[21:13:44 - main - INFO] mse_loss     7.496e-03
+[21:13:44 - main - INFO] l2_loss      1.104e+03
+[21:13:44 - main - INFO] val_error    7.402e-03
+
+Epoch 77/5000
+
+Epoch 78/5000
+
+Epoch 79/5000
+
+Epoch 80/5000
+
+Epoch 81/5000
+
+Epoch 82/5000
+
+Epoch 83/5000
+
+Epoch 84/5000
+
+Epoch 85/5000
+
+Epoch 86/5000
+
+Epoch 87/5000
+
+Epoch 88/5000
+
+Epoch 89/5000
+
+Epoch 90/5000
+
+Epoch 91/5000
+
+Epoch 92/5000
+
+Epoch 93/5000
+
+Epoch 94/5000
+
+Epoch 95/5000
+
+Epoch 96/5000
+
+Epoch 97/5000
+
+Epoch 98/5000
+
+Epoch 99/5000
+
+Epoch 100/5000
+
+Epoch 101/5000
+[21:13:45 - main - INFO] --------------------------
+[21:13:45 - main - INFO] Iter: 100    Time: 0.041
+[21:13:45 - main - INFO] -----------  -------------
+[21:13:45 - main - INFO] mse_loss     5.141e-03
+[21:13:45 - main - INFO] l2_loss      1.111e+03
+[21:13:45 - main - INFO] val_error    5.021e-03
+
+Epoch 102/5000
+
+Epoch 103/5000
+
+Epoch 104/5000
+
+Epoch 105/5000
+
+Epoch 106/5000
+
+Epoch 107/5000
+
+Epoch 108/5000
+
+Epoch 109/5000
+
+Epoch 110/5000
+
+Epoch 111/5000
+
+Epoch 112/5000
+
+Epoch 113/5000
+
+Epoch 114/5000
+
+Epoch 115/5000
+
+Epoch 116/5000
+
+Epoch 117/5000
+
+Epoch 118/5000
+
+Epoch 119/5000
+
+Epoch 120/5000
+
+Epoch 121/5000
+
+Epoch 122/5000
+
+Epoch 123/5000
+
+Epoch 124/5000
+
+Epoch 125/5000
+
+Epoch 126/5000
+[21:13:47 - main - INFO] --------------------------
+[21:13:47 - main - INFO] Iter: 125    Time: 0.035
+[21:13:47 - main - INFO] -----------  -------------
+[21:13:47 - main - INFO] mse_loss     4.224e-03
+[21:13:47 - main - INFO] l2_loss      1.115e+03
+[21:13:47 - main - INFO] val_error    3.431e-03
+
+Epoch 127/5000
+
+Epoch 128/5000
+
+Epoch 129/5000
+
+Epoch 130/5000
+
+Epoch 131/5000
+
+Epoch 132/5000
+
+Epoch 133/5000
+
+Epoch 134/5000
+
+Epoch 135/5000
+
+Epoch 136/5000
+
+Epoch 137/5000
+
+Epoch 138/5000
+
+Epoch 139/5000
+
+Epoch 140/5000
+
+Epoch 141/5000
+
+Epoch 142/5000
+
+Epoch 143/5000
+
+Epoch 144/5000
+
+Epoch 145/5000
+
+Epoch 146/5000
+
+Epoch 147/5000
+
+Epoch 148/5000
+
+Epoch 149/5000
+
+Epoch 150/5000
+
+Epoch 151/5000
+[21:13:49 - main - INFO] --------------------------
+[21:13:49 - main - INFO] Iter: 150    Time: 0.038
+[21:13:49 - main - INFO] -----------  -------------
+[21:13:49 - main - INFO] mse_loss     3.644e-03
+[21:13:49 - main - INFO] l2_loss      1.116e+03
+[21:13:49 - main - INFO] val_error    3.361e-03
+
+Epoch 152/5000
+
+Epoch 153/5000
+
+Epoch 154/5000
+
+Epoch 155/5000
+
+Epoch 156/5000
+
+Epoch 157/5000
+
+Epoch 158/5000
+
+Epoch 159/5000
+
+Epoch 160/5000
+
+Epoch 161/5000
+
+Epoch 162/5000
+
+Epoch 163/5000
+
+Epoch 164/5000
+
+Epoch 165/5000
+
+Epoch 166/5000
+
+Epoch 167/5000
+
+Epoch 168/5000
+
+Epoch 169/5000
+
+Epoch 170/5000
+
+Epoch 171/5000
+
+Epoch 172/5000
+
+Epoch 173/5000
+
+Epoch 174/5000
+
+Epoch 175/5000
+
+Epoch 176/5000
+[21:13:51 - main - INFO] --------------------------
+[21:13:51 - main - INFO] Iter: 175    Time: 0.038
+[21:13:51 - main - INFO] -----------  -------------
+[21:13:51 - main - INFO] mse_loss     3.314e-03
+[21:13:51 - main - INFO] l2_loss      1.113e+03
+[21:13:51 - main - INFO] val_error    2.972e-03
+
+Epoch 177/5000
+
+Epoch 178/5000
+
+Epoch 179/5000
+
+Epoch 180/5000
+
+Epoch 181/5000
+
+Epoch 182/5000
+
+Epoch 183/5000
+
+Epoch 184/5000
+
+Epoch 185/5000
+
+Epoch 186/5000
+
+Epoch 187/5000
+
+Epoch 188/5000
+
+Epoch 189/5000
+
+Epoch 190/5000
+
+Epoch 191/5000
+
+Epoch 192/5000
+
+Epoch 193/5000
+
+Epoch 194/5000
+
+Epoch 195/5000
+
+Epoch 196/5000
+
+Epoch 197/5000
+
+Epoch 198/5000
+
+Epoch 199/5000
+
+Epoch 200/5000
+
+Epoch 201/5000
+[21:13:52 - main - INFO] --------------------------
+[21:13:52 - main - INFO] Iter: 200    Time: 0.037
+[21:13:52 - main - INFO] -----------  -------------
+[21:13:52 - main - INFO] mse_loss     2.544e-03
+[21:13:52 - main - INFO] l2_loss      1.108e+03
+[21:13:52 - main - INFO] val_error    2.227e-03
+
+Epoch 202/5000
+
+Epoch 203/5000
+
+Epoch 204/5000
+
+Epoch 205/5000
+
+Epoch 206/5000
+
+Epoch 207/5000
+
+Epoch 208/5000
+
+Epoch 209/5000
+
+Epoch 210/5000
+
+Epoch 211/5000
+
+Epoch 212/5000
+
+Epoch 213/5000
+
+Epoch 214/5000
+
+Epoch 215/5000
+
+Epoch 216/5000
+
+Epoch 217/5000
+
+Epoch 218/5000
+
+Epoch 219/5000
+
+Epoch 220/5000
+
+Epoch 221/5000
+
+Epoch 222/5000
+
+Epoch 223/5000
+
+Epoch 224/5000
+
+Epoch 225/5000
+
+Epoch 226/5000
+[21:13:54 - main - INFO] --------------------------
+[21:13:54 - main - INFO] Iter: 225    Time: 0.040
+[21:13:54 - main - INFO] -----------  -------------
+[21:13:54 - main - INFO] mse_loss     1.632e-03
+[21:13:54 - main - INFO] l2_loss      1.101e+03
+[21:13:54 - main - INFO] val_error    1.513e-03
+
+Epoch 227/5000
+
+Epoch 228/5000
+
+Epoch 229/5000
+
+Epoch 230/5000
+
+Epoch 231/5000
+
+Epoch 232/5000
+
+Epoch 233/5000
+
+Epoch 234/5000
+
+Epoch 235/5000
+
+Epoch 236/5000
+
+Epoch 237/5000
+
+Epoch 238/5000
+
+Epoch 239/5000
+
+Epoch 240/5000
+
+Epoch 241/5000
+
+Epoch 242/5000
+
+Epoch 243/5000
+
+Epoch 244/5000
+
+Epoch 245/5000
+
+Epoch 246/5000
+
+Epoch 247/5000
+
+Epoch 248/5000
+
+Epoch 249/5000
+
+Epoch 250/5000
+
+Epoch 251/5000
+[21:13:56 - main - INFO] --------------------------
+[21:13:56 - main - INFO] Iter: 250    Time: 0.042
+[21:13:56 - main - INFO] -----------  -------------
+[21:13:56 - main - INFO] mse_loss     2.385e-03
+[21:13:56 - main - INFO] l2_loss      1.094e+03
+[21:13:56 - main - INFO] val_error    2.165e-03
+
+Epoch 252/5000
+
+Epoch 253/5000
+
+Epoch 254/5000
+
+Epoch 255/5000
+
+Epoch 256/5000
+
+Epoch 257/5000
+
+Epoch 258/5000
+
+Epoch 259/5000
+
+Epoch 260/5000
+
+Epoch 261/5000
+
+Epoch 262/5000
+
+Epoch 263/5000
+
+Epoch 264/5000
+
+Epoch 265/5000
+
+Epoch 266/5000
+
+Epoch 267/5000
+
+Epoch 268/5000
+
+Epoch 269/5000
+
+Epoch 270/5000
+
+Epoch 271/5000
+
+Epoch 272/5000
+
+Epoch 273/5000
+
+Epoch 274/5000
+
+Epoch 275/5000
+
+Epoch 276/5000
+[21:13:57 - main - INFO] --------------------------
+[21:13:57 - main - INFO] Iter: 275    Time: 0.039
+[21:13:57 - main - INFO] -----------  -------------
+[21:13:57 - main - INFO] mse_loss     1.459e-03
+[21:13:57 - main - INFO] l2_loss      1.086e+03
+[21:13:57 - main - INFO] val_error    1.448e-03
+
+Epoch 277/5000
+
+Epoch 278/5000
+
+Epoch 279/5000
+
+Epoch 280/5000
+
+Epoch 281/5000
+
+Epoch 282/5000
+
+Epoch 283/5000
+
+Epoch 284/5000
+
+Epoch 285/5000
+
+Epoch 286/5000
+
+Epoch 287/5000
+
+Epoch 288/5000
+
+Epoch 289/5000
+
+Epoch 290/5000
+
+Epoch 291/5000
+
+Epoch 292/5000
+
+Epoch 293/5000
+
+Epoch 294/5000
+
+Epoch 295/5000
+
+Epoch 296/5000
+
+Epoch 297/5000
+
+Epoch 298/5000
+
+Epoch 299/5000
+
+Epoch 300/5000
+
+Epoch 301/5000
+[21:13:59 - main - INFO] --------------------------
+[21:13:59 - main - INFO] Iter: 300    Time: 0.041
+[21:13:59 - main - INFO] -----------  -------------
+[21:13:59 - main - INFO] mse_loss     1.288e-03
+[21:13:59 - main - INFO] l2_loss      1.078e+03
+[21:13:59 - main - INFO] val_error    1.203e-03
+
+Epoch 302/5000
+
+Epoch 303/5000
+
+Epoch 304/5000
+
+Epoch 305/5000
+
+Epoch 306/5000
+
+Epoch 307/5000
+
+Epoch 308/5000
+
+Epoch 309/5000
+
+Epoch 310/5000
+
+Epoch 311/5000
+
+Epoch 312/5000
+
+Epoch 313/5000
+
+Epoch 314/5000
+
+Epoch 315/5000
+
+Epoch 316/5000
+
+Epoch 317/5000
+
+Epoch 318/5000
+
+Epoch 319/5000
+
+Epoch 320/5000
+
+Epoch 321/5000
+
+Epoch 322/5000
+
+Epoch 323/5000
+
+Epoch 324/5000
+
+Epoch 325/5000
+
+Epoch 326/5000
+[21:14:01 - main - INFO] --------------------------
+[21:14:01 - main - INFO] Iter: 325    Time: 0.038
+[21:14:01 - main - INFO] -----------  -------------
+[21:14:01 - main - INFO] mse_loss     1.182e-03
+[21:14:01 - main - INFO] l2_loss      1.070e+03
+[21:14:01 - main - INFO] val_error    1.070e-03
+
+Epoch 327/5000
+
+Epoch 328/5000
+
+Epoch 329/5000
+
+Epoch 330/5000
+
+Epoch 331/5000
+
+Epoch 332/5000
+
+Epoch 333/5000
+
+Epoch 334/5000
+
+Epoch 335/5000
+
+Epoch 336/5000
+
+Epoch 337/5000
+
+Epoch 338/5000
+
+Epoch 339/5000
+
+Epoch 340/5000
+
+Epoch 341/5000
+
+Epoch 342/5000
+
+Epoch 343/5000
+
+Epoch 344/5000
+
+Epoch 345/5000
+
+Epoch 346/5000
+
+Epoch 347/5000
+
+Epoch 348/5000
+
+Epoch 349/5000
+
+Epoch 350/5000
+
+Epoch 351/5000
+[21:14:03 - main - INFO] --------------------------
+[21:14:03 - main - INFO] Iter: 350    Time: 0.038
+[21:14:03 - main - INFO] -----------  -------------
+[21:14:03 - main - INFO] mse_loss     1.093e-03
+[21:14:03 - main - INFO] l2_loss      1.062e+03
+[21:14:03 - main - INFO] val_error    9.930e-04
+
+Epoch 352/5000
+
+Epoch 353/5000
+
+Epoch 354/5000
+
+Epoch 355/5000
+
+Epoch 356/5000
+
+Epoch 357/5000
+
+Epoch 358/5000
+
+Epoch 359/5000
+
+Epoch 360/5000
+
+Epoch 361/5000
+
+Epoch 362/5000
+
+Epoch 363/5000
+
+Epoch 364/5000
+
+Epoch 365/5000
+
+Epoch 366/5000
+
+Epoch 367/5000
+
+Epoch 368/5000
+
+Epoch 369/5000
+
+Epoch 370/5000
+
+Epoch 371/5000
+
+Epoch 372/5000
+
+Epoch 373/5000
+
+Epoch 374/5000
+
+Epoch 375/5000
+
+Epoch 376/5000
+[21:14:04 - main - INFO] --------------------------
+[21:14:04 - main - INFO] Iter: 375    Time: 0.042
+[21:14:04 - main - INFO] -----------  -------------
+[21:14:04 - main - INFO] mse_loss     1.320e-03
+[21:14:04 - main - INFO] l2_loss      1.053e+03
+[21:14:04 - main - INFO] val_error    1.208e-03
+
+Epoch 377/5000
+
+Epoch 378/5000
+
+Epoch 379/5000
+
+Epoch 380/5000
+
+Epoch 381/5000
+
+Epoch 382/5000
+
+Epoch 383/5000
+
+Epoch 384/5000
+
+Epoch 385/5000
+
+Epoch 386/5000
+
+Epoch 387/5000
+
+Epoch 388/5000
+
+Epoch 389/5000
+
+Epoch 390/5000
+
+Epoch 391/5000
+
+Epoch 392/5000
+
+Epoch 393/5000
+
+Epoch 394/5000
+
+Epoch 395/5000
+
+Epoch 396/5000
+
+Epoch 397/5000
+
+Epoch 398/5000
+
+Epoch 399/5000
+
+Epoch 400/5000
+
+Epoch 401/5000
+[21:14:06 - main - INFO] --------------------------
+[21:14:06 - main - INFO] Iter: 400    Time: 0.037
+[21:14:06 - main - INFO] -----------  -------------
+[21:14:06 - main - INFO] mse_loss     1.155e-03
+[21:14:06 - main - INFO] l2_loss      1.045e+03
+[21:14:06 - main - INFO] val_error    1.097e-03
+
+Epoch 402/5000
+
+Epoch 403/5000
+
+Epoch 404/5000
+
+Epoch 405/5000
+
+Epoch 406/5000
+
+Epoch 407/5000
+
+Epoch 408/5000
+
+Epoch 409/5000
+
+Epoch 410/5000
+
+Epoch 411/5000
+
+Epoch 412/5000
+
+Epoch 413/5000
+
+Epoch 414/5000
+
+Epoch 415/5000
+
+Epoch 416/5000
+
+Epoch 417/5000
+
+Epoch 418/5000
+
+Epoch 419/5000
+
+Epoch 420/5000
+
+Epoch 421/5000
+
+Epoch 422/5000
+
+Epoch 423/5000
+
+Epoch 424/5000
+
+Epoch 425/5000
+
+Epoch 426/5000
+[21:14:08 - main - INFO] --------------------------
+[21:14:08 - main - INFO] Iter: 425    Time: 0.041
+[21:14:08 - main - INFO] -----------  -------------
+[21:14:08 - main - INFO] mse_loss     8.277e-04
+[21:14:08 - main - INFO] l2_loss      1.037e+03
+[21:14:08 - main - INFO] val_error    7.646e-04
+
+Epoch 427/5000
+
+Epoch 428/5000
+
+Epoch 429/5000
+
+Epoch 430/5000
+
+Epoch 431/5000
+
+Epoch 432/5000
+
+Epoch 433/5000
+
+Epoch 434/5000
+
+Epoch 435/5000
+
+Epoch 436/5000
+
+Epoch 437/5000
+
+Epoch 438/5000
+
+Epoch 439/5000
+
+Epoch 440/5000
+
+Epoch 441/5000
+
+Epoch 442/5000
+
+Epoch 443/5000
+
+Epoch 444/5000
+
+Epoch 445/5000
+
+Epoch 446/5000
+
+Epoch 447/5000
+
+Epoch 448/5000
+
+Epoch 449/5000
+
+Epoch 450/5000
+
+Epoch 451/5000
+[21:14:10 - main - INFO] --------------------------
+[21:14:10 - main - INFO] Iter: 450    Time: 0.038
+[21:14:10 - main - INFO] -----------  -------------
+[21:14:10 - main - INFO] mse_loss     8.870e-04
+[21:14:10 - main - INFO] l2_loss      1.028e+03
+[21:14:10 - main - INFO] val_error    8.912e-04
+
+Epoch 452/5000
+
+Epoch 453/5000
+
+Epoch 454/5000
+
+Epoch 455/5000
+
+Epoch 456/5000
+
+Epoch 457/5000
+
+Epoch 458/5000
+
+Epoch 459/5000
+
+Epoch 460/5000
+
+Epoch 461/5000
+
+Epoch 462/5000
+
+Epoch 463/5000
+
+Epoch 464/5000
+
+Epoch 465/5000
+
+Epoch 466/5000
+
+Epoch 467/5000
+
+Epoch 468/5000
+
+Epoch 469/5000
+
+Epoch 470/5000
+
+Epoch 471/5000
+
+Epoch 472/5000
+
+Epoch 473/5000
+
+Epoch 474/5000
+
+Epoch 475/5000
+
+Epoch 476/5000
+[21:14:11 - main - INFO] --------------------------
+[21:14:11 - main - INFO] Iter: 475    Time: 0.043
+[21:14:11 - main - INFO] -----------  -------------
+[21:14:11 - main - INFO] mse_loss     8.993e-04
+[21:14:11 - main - INFO] l2_loss      1.021e+03
+[21:14:11 - main - INFO] val_error    8.397e-04
+
+Epoch 477/5000
+
+Epoch 478/5000
+
+Epoch 479/5000
+
+Epoch 480/5000
+
+Epoch 481/5000
+
+Epoch 482/5000
+
+Epoch 483/5000
+
+Epoch 484/5000
+
+Epoch 485/5000
+
+Epoch 486/5000
+
+Epoch 487/5000
+
+Epoch 488/5000
+
+Epoch 489/5000
+
+Epoch 490/5000
+
+Epoch 491/5000
+
+Epoch 492/5000
+
+Epoch 493/5000
+
+Epoch 494/5000
+
+Epoch 495/5000
+
+Epoch 496/5000
+
+Epoch 497/5000
+
+Epoch 498/5000
+
+Epoch 499/5000
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_1
+
+Epoch 500/5000
+
+Epoch 501/5000
+[21:14:13 - main - INFO] --------------------------
+[21:14:13 - main - INFO] Iter: 500    Time: 0.038
+[21:14:13 - main - INFO] -----------  -------------
+[21:14:13 - main - INFO] mse_loss     8.342e-04
+[21:14:13 - main - INFO] l2_loss      1.012e+03
+[21:14:13 - main - INFO] val_error    7.984e-04
+
+Epoch 502/5000
+
+Epoch 503/5000
+
+Epoch 504/5000
+
+Epoch 505/5000
+
+Epoch 506/5000
+
+Epoch 507/5000
+
+Epoch 508/5000
+
+Epoch 509/5000
+
+Epoch 510/5000
+
+Epoch 511/5000
+
+Epoch 512/5000
+
+Epoch 513/5000
+
+Epoch 514/5000
+
+Epoch 515/5000
+
+Epoch 516/5000
+
+Epoch 517/5000
+
+Epoch 518/5000
+
+Epoch 519/5000
+
+Epoch 520/5000
+
+Epoch 521/5000
+
+Epoch 522/5000
+
+Epoch 523/5000
+
+Epoch 524/5000
+
+Epoch 525/5000
+
+Epoch 526/5000
+[21:14:15 - main - INFO] --------------------------
+[21:14:15 - main - INFO] Iter: 525    Time: 0.044
+[21:14:15 - main - INFO] -----------  -------------
+[21:14:15 - main - INFO] mse_loss     8.759e-04
+[21:14:15 - main - INFO] l2_loss      1.004e+03
+[21:14:15 - main - INFO] val_error    8.514e-04
+
+Epoch 527/5000
+
+Epoch 528/5000
+
+Epoch 529/5000
+
+Epoch 530/5000
+
+Epoch 531/5000
+
+Epoch 532/5000
+
+Epoch 533/5000
+
+Epoch 534/5000
+
+Epoch 535/5000
+
+Epoch 536/5000
+
+Epoch 537/5000
+
+Epoch 538/5000
+
+Epoch 539/5000
+
+Epoch 540/5000
+
+Epoch 541/5000
+
+Epoch 542/5000
+
+Epoch 543/5000
+
+Epoch 544/5000
+
+Epoch 545/5000
+
+Epoch 546/5000
+
+Epoch 547/5000
+
+Epoch 548/5000
+
+Epoch 549/5000
+
+Epoch 550/5000
+
+Epoch 551/5000
+[21:14:17 - main - INFO] --------------------------
+[21:14:17 - main - INFO] Iter: 550    Time: 0.042
+[21:14:17 - main - INFO] -----------  -------------
+[21:14:17 - main - INFO] mse_loss     7.295e-04
+[21:14:17 - main - INFO] l2_loss      9.963e+02
+[21:14:17 - main - INFO] val_error    7.368e-04
+
+Epoch 552/5000
+
+Epoch 553/5000
+
+Epoch 554/5000
+
+Epoch 555/5000
+
+Epoch 556/5000
+
+Epoch 557/5000
+
+Epoch 558/5000
+
+Epoch 559/5000
+
+Epoch 560/5000
+
+Epoch 561/5000
+
+Epoch 562/5000
+
+Epoch 563/5000
+
+Epoch 564/5000
+
+Epoch 565/5000
+
+Epoch 566/5000
+
+Epoch 567/5000
+
+Epoch 568/5000
+
+Epoch 569/5000
+
+Epoch 570/5000
+
+Epoch 571/5000
+
+Epoch 572/5000
+
+Epoch 573/5000
+
+Epoch 574/5000
+
+Epoch 575/5000
+
+Epoch 576/5000
+[21:14:19 - main - INFO] --------------------------
+[21:14:19 - main - INFO] Iter: 575    Time: 0.041
+[21:14:19 - main - INFO] -----------  -------------
+[21:14:19 - main - INFO] mse_loss     9.893e-04
+[21:14:19 - main - INFO] l2_loss      9.890e+02
+[21:14:19 - main - INFO] val_error    1.020e-03
+
+Epoch 577/5000
+
+Epoch 578/5000
+
+Epoch 579/5000
+
+Epoch 580/5000
+
+Epoch 581/5000
+
+Epoch 582/5000
+
+Epoch 583/5000
+
+Epoch 584/5000
+
+Epoch 585/5000
+
+Epoch 586/5000
+
+Epoch 587/5000
+
+Epoch 588/5000
+
+Epoch 589/5000
+
+Epoch 590/5000
+
+Epoch 591/5000
+
+Epoch 592/5000
+
+Epoch 593/5000
+
+Epoch 594/5000
+
+Epoch 595/5000
+
+Epoch 596/5000
+
+Epoch 597/5000
+
+Epoch 598/5000
+
+Epoch 599/5000
+
+Epoch 600/5000
+
+Epoch 601/5000
+[21:14:20 - main - INFO] --------------------------
+[21:14:20 - main - INFO] Iter: 600    Time: 0.036
+[21:14:20 - main - INFO] -----------  -------------
+[21:14:20 - main - INFO] mse_loss     1.143e-03
+[21:14:20 - main - INFO] l2_loss      9.812e+02
+[21:14:20 - main - INFO] val_error    1.115e-03
+
+Epoch 602/5000
+
+Epoch 603/5000
+
+Epoch 604/5000
+
+Epoch 605/5000
+
+Epoch 606/5000
+
+Epoch 607/5000
+
+Epoch 608/5000
+
+Epoch 609/5000
+
+Epoch 610/5000
+
+Epoch 611/5000
+
+Epoch 612/5000
+
+Epoch 613/5000
+
+Epoch 614/5000
+
+Epoch 615/5000
+
+Epoch 616/5000
+
+Epoch 617/5000
+
+Epoch 618/5000
+
+Epoch 619/5000
+
+Epoch 620/5000
+
+Epoch 621/5000
+
+Epoch 622/5000
+
+Epoch 623/5000
+
+Epoch 624/5000
+
+Epoch 625/5000
+
+Epoch 626/5000
+[21:14:22 - main - INFO] --------------------------
+[21:14:22 - main - INFO] Iter: 625    Time: 0.041
+[21:14:22 - main - INFO] -----------  -------------
+[21:14:22 - main - INFO] mse_loss     1.930e-03
+[21:14:22 - main - INFO] l2_loss      9.733e+02
+[21:14:22 - main - INFO] val_error    2.097e-03
+
+Epoch 627/5000
+
+Epoch 628/5000
+
+Epoch 629/5000
+
+Epoch 630/5000
+
+Epoch 631/5000
+
+Epoch 632/5000
+
+Epoch 633/5000
+
+Epoch 634/5000
+
+Epoch 635/5000
+
+Epoch 636/5000
+
+Epoch 637/5000
+
+Epoch 638/5000
+
+Epoch 639/5000
+
+Epoch 640/5000
+
+Epoch 641/5000
+
+Epoch 642/5000
+
+Epoch 643/5000
+
+Epoch 644/5000
+
+Epoch 645/5000
+
+Epoch 646/5000
+
+Epoch 647/5000
+
+Epoch 648/5000
+
+Epoch 649/5000
+
+Epoch 650/5000
+
+Epoch 651/5000
+[21:14:24 - main - INFO] --------------------------
+[21:14:24 - main - INFO] Iter: 650    Time: 0.044
+[21:14:24 - main - INFO] -----------  -------------
+[21:14:24 - main - INFO] mse_loss     7.637e-04
+[21:14:24 - main - INFO] l2_loss      9.659e+02
+[21:14:24 - main - INFO] val_error    7.812e-04
+
+Epoch 652/5000
+
+Epoch 653/5000
+
+Epoch 654/5000
+
+Epoch 655/5000
+
+Epoch 656/5000
+
+Epoch 657/5000
+
+Epoch 658/5000
+
+Epoch 659/5000
+
+Epoch 660/5000
+
+Epoch 661/5000
+
+Epoch 662/5000
+
+Epoch 663/5000
+
+Epoch 664/5000
+
+Epoch 665/5000
+
+Epoch 666/5000
+
+Epoch 667/5000
+
+Epoch 668/5000
+
+Epoch 669/5000
+
+Epoch 670/5000
+
+Epoch 671/5000
+
+Epoch 672/5000
+
+Epoch 673/5000
+
+Epoch 674/5000
+
+Epoch 675/5000
+
+Epoch 676/5000
+[21:14:26 - main - INFO] --------------------------
+[21:14:26 - main - INFO] Iter: 675    Time: 0.038
+[21:14:26 - main - INFO] -----------  -------------
+[21:14:26 - main - INFO] mse_loss     1.221e-03
+[21:14:26 - main - INFO] l2_loss      9.584e+02
+[21:14:26 - main - INFO] val_error    1.168e-03
+
+Epoch 677/5000
+
+Epoch 678/5000
+
+Epoch 679/5000
+
+Epoch 680/5000
+
+Epoch 681/5000
+
+Epoch 682/5000
+
+Epoch 683/5000
+
+Epoch 684/5000
+
+Epoch 685/5000
+
+Epoch 686/5000
+
+Epoch 687/5000
+
+Epoch 688/5000
+
+Epoch 689/5000
+
+Epoch 690/5000
+
+Epoch 691/5000
+
+Epoch 692/5000
+
+Epoch 693/5000
+
+Epoch 694/5000
+
+Epoch 695/5000
+
+Epoch 696/5000
+
+Epoch 697/5000
+
+Epoch 698/5000

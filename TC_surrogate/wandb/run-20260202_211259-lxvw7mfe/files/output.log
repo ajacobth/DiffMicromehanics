@@ -1,0 +1,65 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Using 1 device(s).
+num_samples=65536, batch_size=8192, num_batches=8, total_steps=40000
+Waiting for JIT...
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 903, in __getitem__
+    field = self._fields[key]
+KeyError: 'print_every_epochs'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 827, in __getattr__
+    return self[attribute]
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 909, in __getitem__
+    raise KeyError(self._generate_did_you_mean_message(key, str(e)))
+KeyError: "'print_every_epochs'"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 155, in train_and_evaluate
+    if epoch % int(config.logging.print_every_epochs) == 0:
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 829, in __getattr__
+    raise AttributeError(e)
+AttributeError: "'print_every_epochs'"
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 903, in __getitem__
+    field = self._fields[key]
+KeyError: 'print_every_epochs'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 827, in __getattr__
+    return self[attribute]
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 909, in __getitem__
+    raise KeyError(self._generate_did_you_mean_message(key, str(e)))
+KeyError: "'print_every_epochs'"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 155, in train_and_evaluate
+    if epoch % int(config.logging.print_every_epochs) == 0:
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/ml_collections/config_dict/config_dict.py", line 829, in __getattr__
+    raise AttributeError(e)
+AttributeError: "'print_every_epochs'"

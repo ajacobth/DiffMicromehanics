@@ -1,0 +1,48 @@
+{
+  "os":  "macOS-26.1-arm64-arm-64bit",
+  "python":  "CPython 3.9.18",
+  "startedAt":  "2026-02-03T02:12:59.983097Z",
+  "args":  [
+    "--config=configs/case_1.py",
+    "--config.mode=train"
+  ],
+  "program":  "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py",
+  "codePath":  "TC_surrogate/main.py",
+  "git":  {
+    "remote":  "https://github.com/ajacobth/DiffMicromehanics.git",
+    "commit":  "9dd4e2809cbc719480eeec5e5651ec88d5b35488"
+  },
+  "email":  "ajacobth@purdue.edu",
+  "root":  "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate",
+  "host":  "Akshays-MacBook-Pro-2.local",
+  "executable":  "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/bin/python",
+  "codePathLocal":  "main.py",
+  "cpu_count":  12,
+  "cpu_count_logical":  12,
+  "disk":  {
+    "/":  {
+      "total":  "994662584320",
+      "used":  "364166451200"
+    },
+    "/System/Volumes/Data":  {
+      "total":  "994662584320",
+      "used":  "364166451200"
+    }
+  },
+  "memory":  {
+    "total":  "34359738368"
+  },
+  "cpu":  {
+    "count":  12,
+    "countLogical":  12
+  },
+  "apple":  {
+    "name":  "Apple M2 Max",
+    "ecpuCores":  4,
+    "pcpuCores":  8,
+    "gpuCores":  30,
+    "memoryGb":  32,
+    "swapTotalBytes":  "2147483648",
+    "ramTotalBytes":  "34359738368"
+  }
+}

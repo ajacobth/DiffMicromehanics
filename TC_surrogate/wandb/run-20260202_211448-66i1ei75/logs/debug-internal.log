@@ -1,0 +1,7 @@
+{"time":"2026-02-02T21:14:48.455251-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/wandb/run-20260202_211448-66i1ei75/logs/debug-core.log"}
+{"time":"2026-02-02T21:14:48.564855-05:00","level":"INFO","msg":"created new stream","id":"66i1ei75"}
+{"time":"2026-02-02T21:14:48.564921-05:00","level":"INFO","msg":"stream: started","id":"66i1ei75"}
+{"time":"2026-02-02T21:14:48.564929-05:00","level":"INFO","msg":"handler: started","stream_id":"66i1ei75"}
+{"time":"2026-02-02T21:14:48.564934-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"66i1ei75"}
+{"time":"2026-02-02T21:14:48.564993-05:00","level":"INFO","msg":"sender: started","stream_id":"66i1ei75"}
+{"time":"2026-02-02T21:14:48.917968-05:00","level":"INFO","msg":"Starting system monitor"}

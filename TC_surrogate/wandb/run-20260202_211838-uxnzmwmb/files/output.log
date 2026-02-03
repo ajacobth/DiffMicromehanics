@@ -1,0 +1,105 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Using 1 device(s).
+num_samples=65536, batch_size=8192, num_batches=8, total_steps=40000
+num_samples=65536
+batch_size=8192
+num_batches=8
+steps_per_epoch=8
+Waiting for JIT...
+
+Epoch 1/5000
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 567, in _infer_params
+    avals.append(shaped_abstractify(a))
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/api_util.py", line 597, in shaped_abstractify
+    return handler(x) if handler is not None else _shaped_abstractify_slow(x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/api_util.py", line 623, in _python_scalar_abstractify
+    dtype = dtypes._scalar_type_to_dtype(typ, x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/dtypes.py", line 298, in _scalar_type_to_dtype
+    raise OverflowError(f"Python int {value} too large to convert to {dtype}")
+OverflowError: Python int 3000000000000 too large to convert to int32
+
+The above exception was the direct cause of the following exception:
+
+jax.errors.SimplifiedTraceback: For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 186, in train_and_evaluate
+    model.state = model.step(model.state, batch_inputs, batch_targets)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/NN_surrogate/models.py", line 193, in step
+    state = state.apply_gradients(grads=grads)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/training/train_state.py", line 102, in apply_gradients
+    updates, new_opt_state = self.tx.update(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/combine.py", line 59, in update_fn
+    updates, new_s = fn(updates, s, params, **extra_args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/base.py", line 311, in update
+    return tx.update(updates, state, params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/transform.py", line 805, in update_fn
+    step_size = step_size_fn(state.count)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/alias.py", line 38, in <lambda>
+    return transform.scale_by_schedule(lambda count: m * learning_rate(count))
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/schedule.py", line 196, in schedule
+    p = decreased_count / transition_steps
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 736, in op
+    return getattr(self.aval, f"_{name}")(self, *args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 264, in deferring_binary_op
+    return binary_op(*args)
+OverflowError: An overflow was encountered while parsing an argument to a jitted computation, whose argument path is x2.
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 567, in _infer_params
+    avals.append(shaped_abstractify(a))
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/api_util.py", line 597, in shaped_abstractify
+    return handler(x) if handler is not None else _shaped_abstractify_slow(x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/api_util.py", line 623, in _python_scalar_abstractify
+    dtype = dtypes._scalar_type_to_dtype(typ, x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/dtypes.py", line 298, in _scalar_type_to_dtype
+    raise OverflowError(f"Python int {value} too large to convert to {dtype}")
+OverflowError: Python int 3000000000000 too large to convert to int32
+
+The above exception was the direct cause of the following exception:
+
+jax.errors.SimplifiedTraceback: For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 186, in train_and_evaluate
+    model.state = model.step(model.state, batch_inputs, batch_targets)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/NN_surrogate/models.py", line 193, in step
+    state = state.apply_gradients(grads=grads)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/training/train_state.py", line 102, in apply_gradients
+    updates, new_opt_state = self.tx.update(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/combine.py", line 59, in update_fn
+    updates, new_s = fn(updates, s, params, **extra_args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/base.py", line 311, in update
+    return tx.update(updates, state, params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/transform.py", line 805, in update_fn
+    step_size = step_size_fn(state.count)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/alias.py", line 38, in <lambda>
+    return transform.scale_by_schedule(lambda count: m * learning_rate(count))
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/optax/_src/schedule.py", line 196, in schedule
+    p = decreased_count / transition_steps
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 736, in op
+    return getattr(self.aval, f"_{name}")(self, *args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/numpy/array_methods.py", line 264, in deferring_binary_op
+    return binary_op(*args)
+OverflowError: An overflow was encountered while parsing an argument to a jitted computation, whose argument path is x2.

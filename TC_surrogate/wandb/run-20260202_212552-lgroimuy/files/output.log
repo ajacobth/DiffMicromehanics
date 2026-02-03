@@ -1,0 +1,1489 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Using 1 device(s).
+num_samples=65536, batch_size=512, num_batches=128, total_steps=640000
+num_samples=65536
+batch_size=512
+num_batches=128
+steps_per_epoch=128
+Waiting for JIT...
+
+Epoch 1/5000
+I0202 21:25:55.440496 8745951360 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0202 21:25:55.440680 8745951360 utils.py:160] NumExpr defaulting to 8 threads.
+[21:25:55 - main - INFO] --------------------------
+[21:25:55 - main - INFO] Iter:   0    Time: 1.696
+[21:25:55 - main - INFO] -----------  -------------
+[21:25:55 - main - INFO] mse_loss     8.948e-01
+[21:25:55 - main - INFO] l2_loss      1.109e+03
+[21:25:55 - main - INFO] val_error    9.805e-01
+
+Epoch 2/5000
+[21:25:56 - main - INFO] --------------------------
+[21:25:56 - main - INFO] Iter:   1    Time: 0.380
+[21:25:56 - main - INFO] -----------  -------------
+[21:25:56 - main - INFO] mse_loss     2.186e-02
+[21:25:56 - main - INFO] l2_loss      1.104e+03
+[21:25:56 - main - INFO] val_error    2.559e-02
+
+Epoch 3/5000
+
+Epoch 4/5000
+[21:25:57 - main - INFO] --------------------------
+[21:25:57 - main - INFO] Iter:   3    Time: 0.110
+[21:25:57 - main - INFO] -----------  -------------
+[21:25:57 - main - INFO] mse_loss     1.956e-02
+[21:25:57 - main - INFO] l2_loss      1.087e+03
+[21:25:57 - main - INFO] val_error    1.810e-02
+
+Epoch 5/5000
+[21:25:58 - main - INFO] --------------------------
+[21:25:58 - main - INFO] Iter:   4    Time: 0.446
+[21:25:58 - main - INFO] -----------  -------------
+[21:25:58 - main - INFO] mse_loss     1.482e-02
+[21:25:58 - main - INFO] l2_loss      1.074e+03
+[21:25:58 - main - INFO] val_error    1.416e-02
+
+Epoch 6/5000
+
+Epoch 7/5000
+[21:25:59 - main - INFO] --------------------------
+[21:25:59 - main - INFO] Iter:   6    Time: 0.184
+[21:25:59 - main - INFO] -----------  -------------
+[21:25:59 - main - INFO] mse_loss     1.265e-02
+[21:25:59 - main - INFO] l2_loss      1.066e+03
+[21:25:59 - main - INFO] val_error    1.096e-02
+
+Epoch 8/5000
+[21:26:00 - main - INFO] --------------------------
+[21:26:00 - main - INFO] Iter:   7    Time: 0.521
+[21:26:00 - main - INFO] -----------  -------------
+[21:26:00 - main - INFO] mse_loss     7.596e-03
+[21:26:00 - main - INFO] l2_loss      1.059e+03
+[21:26:00 - main - INFO] val_error    9.259e-03
+
+Epoch 9/5000
+
+Epoch 10/5000
+[21:26:01 - main - INFO] --------------------------
+[21:26:01 - main - INFO] Iter:   9    Time: 0.259
+[21:26:01 - main - INFO] -----------  -------------
+[21:26:01 - main - INFO] mse_loss     6.366e-03
+[21:26:01 - main - INFO] l2_loss      1.056e+03
+[21:26:01 - main - INFO] val_error    6.597e-03
+
+Epoch 11/5000
+[21:26:02 - main - INFO] --------------------------
+[21:26:02 - main - INFO] Iter:  10    Time: 0.598
+[21:26:02 - main - INFO] -----------  -------------
+[21:26:02 - main - INFO] mse_loss     1.133e-02
+[21:26:02 - main - INFO] l2_loss      1.052e+03
+[21:26:02 - main - INFO] val_error    6.769e-03
+
+Epoch 12/5000
+
+Epoch 13/5000
+[21:26:03 - main - INFO] --------------------------
+[21:26:03 - main - INFO] Iter:  12    Time: 0.317
+[21:26:03 - main - INFO] -----------  -------------
+[21:26:03 - main - INFO] mse_loss     5.378e-03
+[21:26:03 - main - INFO] l2_loss      1.047e+03
+[21:26:03 - main - INFO] val_error    5.260e-03
+
+Epoch 14/5000
+
+Epoch 15/5000
+[21:26:04 - main - INFO] --------------------------
+[21:26:04 - main - INFO] Iter:  14    Time: 0.073
+[21:26:04 - main - INFO] -----------  -------------
+[21:26:04 - main - INFO] mse_loss     4.244e-03
+[21:26:04 - main - INFO] l2_loss      1.043e+03
+[21:26:04 - main - INFO] val_error    5.116e-03
+
+Epoch 16/5000
+[21:26:05 - main - INFO] --------------------------
+[21:26:05 - main - INFO] Iter:  15    Time: 0.408
+[21:26:05 - main - INFO] -----------  -------------
+[21:26:05 - main - INFO] mse_loss     4.484e-03
+[21:26:05 - main - INFO] l2_loss      1.039e+03
+[21:26:05 - main - INFO] val_error    4.681e-03
+
+Epoch 17/5000
+
+Epoch 18/5000
+[21:26:06 - main - INFO] --------------------------
+[21:26:06 - main - INFO] Iter:  17    Time: 0.149
+[21:26:06 - main - INFO] -----------  -------------
+[21:26:06 - main - INFO] mse_loss     4.977e-03
+[21:26:06 - main - INFO] l2_loss      1.036e+03
+[21:26:06 - main - INFO] val_error    5.072e-03
+
+Epoch 19/5000
+[21:26:07 - main - INFO] --------------------------
+[21:26:07 - main - INFO] Iter:  18    Time: 0.490
+[21:26:07 - main - INFO] -----------  -------------
+[21:26:07 - main - INFO] mse_loss     3.469e-03
+[21:26:07 - main - INFO] l2_loss      1.031e+03
+[21:26:07 - main - INFO] val_error    4.819e-03
+
+Epoch 20/5000
+
+Epoch 21/5000
+[21:26:08 - main - INFO] --------------------------
+[21:26:08 - main - INFO] Iter:  20    Time: 0.224
+[21:26:08 - main - INFO] -----------  -------------
+[21:26:08 - main - INFO] mse_loss     5.393e-03
+[21:26:08 - main - INFO] l2_loss      1.025e+03
+[21:26:08 - main - INFO] val_error    4.233e-03
+
+Epoch 22/5000
+[21:26:09 - main - INFO] --------------------------
+[21:26:09 - main - INFO] Iter:  21    Time: 0.568
+[21:26:09 - main - INFO] -----------  -------------
+[21:26:09 - main - INFO] mse_loss     3.089e-03
+[21:26:09 - main - INFO] l2_loss      1.022e+03
+[21:26:09 - main - INFO] val_error    3.870e-03
+
+Epoch 23/5000
+
+Epoch 24/5000
+[21:26:10 - main - INFO] --------------------------
+[21:26:10 - main - INFO] Iter:  23    Time: 0.314
+[21:26:10 - main - INFO] -----------  -------------
+[21:26:10 - main - INFO] mse_loss     2.997e-03
+[21:26:10 - main - INFO] l2_loss      1.016e+03
+[21:26:10 - main - INFO] val_error    2.689e-03
+
+Epoch 25/5000
+
+Epoch 26/5000
+[21:26:11 - main - INFO] --------------------------
+[21:26:11 - main - INFO] Iter:  25    Time: 0.039
+[21:26:11 - main - INFO] -----------  -------------
+[21:26:11 - main - INFO] mse_loss     4.970e-03
+[21:26:11 - main - INFO] l2_loss      1.011e+03
+[21:26:11 - main - INFO] val_error    9.332e-03
+
+Epoch 27/5000
+[21:26:11 - main - INFO] --------------------------
+[21:26:11 - main - INFO] Iter:  26    Time: 0.373
+[21:26:11 - main - INFO] -----------  -------------
+[21:26:11 - main - INFO] mse_loss     2.524e-03
+[21:26:11 - main - INFO] l2_loss      1.006e+03
+[21:26:11 - main - INFO] val_error    3.205e-03
+
+Epoch 28/5000
+
+Epoch 29/5000
+[21:26:12 - main - INFO] --------------------------
+[21:26:12 - main - INFO] Iter:  28    Time: 0.116
+[21:26:12 - main - INFO] -----------  -------------
+[21:26:12 - main - INFO] mse_loss     2.506e-03
+[21:26:12 - main - INFO] l2_loss      1.002e+03
+[21:26:12 - main - INFO] val_error    1.999e-03
+
+Epoch 30/5000
+[21:26:14 - main - INFO] --------------------------
+[21:26:14 - main - INFO] Iter:  29    Time: 0.501
+[21:26:14 - main - INFO] -----------  -------------
+[21:26:14 - main - INFO] mse_loss     2.381e-03
+[21:26:14 - main - INFO] l2_loss      9.978e+02
+[21:26:14 - main - INFO] val_error    2.986e-03
+
+Epoch 31/5000
+
+Epoch 32/5000
+[21:26:15 - main - INFO] --------------------------
+[21:26:15 - main - INFO] Iter:  31    Time: 0.190
+[21:26:15 - main - INFO] -----------  -------------
+[21:26:15 - main - INFO] mse_loss     2.110e-03
+[21:26:15 - main - INFO] l2_loss      9.912e+02
+[21:26:15 - main - INFO] val_error    2.388e-03
+
+Epoch 33/5000
+[21:26:16 - main - INFO] --------------------------
+[21:26:16 - main - INFO] Iter:  32    Time: 0.542
+[21:26:16 - main - INFO] -----------  -------------
+[21:26:16 - main - INFO] mse_loss     2.296e-03
+[21:26:16 - main - INFO] l2_loss      9.883e+02
+[21:26:16 - main - INFO] val_error    2.559e-03
+
+Epoch 34/5000
+
+Epoch 35/5000
+[21:26:17 - main - INFO] --------------------------
+[21:26:17 - main - INFO] Iter:  34    Time: 0.236
+[21:26:17 - main - INFO] -----------  -------------
+[21:26:17 - main - INFO] mse_loss     2.740e-03
+[21:26:17 - main - INFO] l2_loss      9.825e+02
+[21:26:17 - main - INFO] val_error    3.241e-03
+
+Epoch 36/5000
+[21:26:17 - main - INFO] --------------------------
+[21:26:17 - main - INFO] Iter:  35    Time: 0.600
+[21:26:17 - main - INFO] -----------  -------------
+[21:26:17 - main - INFO] mse_loss     1.771e-03
+[21:26:17 - main - INFO] l2_loss      9.788e+02
+[21:26:17 - main - INFO] val_error    2.145e-03
+
+Epoch 37/5000
+
+Epoch 38/5000
+[21:26:18 - main - INFO] --------------------------
+[21:26:18 - main - INFO] Iter:  37    Time: 0.338
+[21:26:18 - main - INFO] -----------  -------------
+[21:26:18 - main - INFO] mse_loss     1.732e-03
+[21:26:18 - main - INFO] l2_loss      9.734e+02
+[21:26:18 - main - INFO] val_error    2.425e-03
+
+Epoch 39/5000
+
+Epoch 40/5000
+[21:26:19 - main - INFO] --------------------------
+[21:26:19 - main - INFO] Iter:  39    Time: 0.072
+[21:26:19 - main - INFO] -----------  -------------
+[21:26:19 - main - INFO] mse_loss     2.585e-03
+[21:26:19 - main - INFO] l2_loss      9.688e+02
+[21:26:19 - main - INFO] val_error    2.840e-03
+
+Epoch 41/5000
+[21:26:20 - main - INFO] --------------------------
+[21:26:20 - main - INFO] Iter:  40    Time: 0.413
+[21:26:20 - main - INFO] -----------  -------------
+[21:26:20 - main - INFO] mse_loss     2.672e-03
+[21:26:20 - main - INFO] l2_loss      9.633e+02
+[21:26:20 - main - INFO] val_error    3.385e-03
+
+Epoch 42/5000
+
+Epoch 43/5000
+[21:26:21 - main - INFO] --------------------------
+[21:26:21 - main - INFO] Iter:  42    Time: 0.148
+[21:26:21 - main - INFO] -----------  -------------
+[21:26:21 - main - INFO] mse_loss     1.646e-03
+[21:26:21 - main - INFO] l2_loss      9.609e+02
+[21:26:21 - main - INFO] val_error    1.767e-03
+
+Epoch 44/5000
+[21:26:22 - main - INFO] --------------------------
+[21:26:22 - main - INFO] Iter:  43    Time: 0.488
+[21:26:22 - main - INFO] -----------  -------------
+[21:26:22 - main - INFO] mse_loss     2.386e-03
+[21:26:22 - main - INFO] l2_loss      9.535e+02
+[21:26:22 - main - INFO] val_error    1.912e-03
+
+Epoch 45/5000
+
+Epoch 46/5000
+[21:26:23 - main - INFO] --------------------------
+[21:26:23 - main - INFO] Iter:  45    Time: 0.236
+[21:26:23 - main - INFO] -----------  -------------
+[21:26:23 - main - INFO] mse_loss     2.098e-03
+[21:26:23 - main - INFO] l2_loss      9.551e+02
+[21:26:23 - main - INFO] val_error    2.289e-03
+
+Epoch 47/5000
+[21:26:24 - main - INFO] --------------------------
+[21:26:24 - main - INFO] Iter:  46    Time: 0.544
+[21:26:24 - main - INFO] -----------  -------------
+[21:26:24 - main - INFO] mse_loss     1.979e-03
+[21:26:24 - main - INFO] l2_loss      9.486e+02
+[21:26:24 - main - INFO] val_error    2.465e-03
+
+Epoch 48/5000
+
+Epoch 49/5000
+[21:26:25 - main - INFO] --------------------------
+[21:26:25 - main - INFO] Iter:  48    Time: 0.311
+[21:26:25 - main - INFO] -----------  -------------
+[21:26:25 - main - INFO] mse_loss     1.758e-03
+[21:26:25 - main - INFO] l2_loss      9.431e+02
+[21:26:25 - main - INFO] val_error    2.490e-03
+
+Epoch 50/5000
+
+Epoch 51/5000
+[21:26:26 - main - INFO] --------------------------
+[21:26:26 - main - INFO] Iter:  50    Time: 0.034
+[21:26:26 - main - INFO] -----------  -------------
+[21:26:26 - main - INFO] mse_loss     2.244e-03
+[21:26:26 - main - INFO] l2_loss      9.357e+02
+[21:26:26 - main - INFO] val_error    2.111e-03
+
+Epoch 52/5000
+[21:26:27 - main - INFO] --------------------------
+[21:26:27 - main - INFO] Iter:  51    Time: 0.371
+[21:26:27 - main - INFO] -----------  -------------
+[21:26:27 - main - INFO] mse_loss     1.892e-03
+[21:26:27 - main - INFO] l2_loss      9.319e+02
+[21:26:27 - main - INFO] val_error    1.774e-03
+
+Epoch 53/5000
+
+Epoch 54/5000
+[21:26:28 - main - INFO] --------------------------
+[21:26:28 - main - INFO] Iter:  53    Time: 0.108
+[21:26:28 - main - INFO] -----------  -------------
+[21:26:28 - main - INFO] mse_loss     2.119e-03
+[21:26:28 - main - INFO] l2_loss      9.265e+02
+[21:26:28 - main - INFO] val_error    2.984e-03
+
+Epoch 55/5000
+[21:26:29 - main - INFO] --------------------------
+[21:26:29 - main - INFO] Iter:  54    Time: 0.481
+[21:26:29 - main - INFO] -----------  -------------
+[21:26:29 - main - INFO] mse_loss     1.755e-03
+[21:26:29 - main - INFO] l2_loss      9.201e+02
+[21:26:29 - main - INFO] val_error    1.640e-03
+
+Epoch 56/5000
+
+Epoch 57/5000
+[21:26:30 - main - INFO] --------------------------
+[21:26:30 - main - INFO] Iter:  56    Time: 0.202
+[21:26:30 - main - INFO] -----------  -------------
+[21:26:30 - main - INFO] mse_loss     1.326e-03
+[21:26:30 - main - INFO] l2_loss      9.172e+02
+[21:26:30 - main - INFO] val_error    1.310e-03
+
+Epoch 58/5000
+[21:26:31 - main - INFO] --------------------------
+[21:26:31 - main - INFO] Iter:  57    Time: 0.542
+[21:26:31 - main - INFO] -----------  -------------
+[21:26:31 - main - INFO] mse_loss     1.266e-03
+[21:26:31 - main - INFO] l2_loss      9.087e+02
+[21:26:31 - main - INFO] val_error    1.581e-03
+
+Epoch 59/5000
+
+Epoch 60/5000
+[21:26:32 - main - INFO] --------------------------
+[21:26:32 - main - INFO] Iter:  59    Time: 0.280
+[21:26:32 - main - INFO] -----------  -------------
+[21:26:32 - main - INFO] mse_loss     1.599e-03
+[21:26:32 - main - INFO] l2_loss      9.048e+02
+[21:26:32 - main - INFO] val_error    1.560e-03
+
+Epoch 61/5000
+[21:26:33 - main - INFO] --------------------------
+[21:26:33 - main - INFO] Iter:  60    Time: 0.756
+[21:26:33 - main - INFO] -----------  -------------
+[21:26:33 - main - INFO] mse_loss     1.216e-03
+[21:26:33 - main - INFO] l2_loss      8.979e+02
+[21:26:33 - main - INFO] val_error    1.485e-03
+
+Epoch 62/5000
+
+Epoch 63/5000
+[21:26:34 - main - INFO] --------------------------
+[21:26:34 - main - INFO] Iter:  62    Time: 0.388
+[21:26:34 - main - INFO] -----------  -------------
+[21:26:34 - main - INFO] mse_loss     2.035e-03
+[21:26:34 - main - INFO] l2_loss      8.942e+02
+[21:26:34 - main - INFO] val_error    1.806e-03
+
+Epoch 64/5000
+
+Epoch 65/5000
+[21:26:35 - main - INFO] --------------------------
+[21:26:35 - main - INFO] Iter:  64    Time: 0.079
+[21:26:35 - main - INFO] -----------  -------------
+[21:26:35 - main - INFO] mse_loss     1.300e-03
+[21:26:35 - main - INFO] l2_loss      8.930e+02
+[21:26:35 - main - INFO] val_error    1.772e-03
+
+Epoch 66/5000
+[21:26:36 - main - INFO] --------------------------
+[21:26:36 - main - INFO] Iter:  65    Time: 0.423
+[21:26:36 - main - INFO] -----------  -------------
+[21:26:36 - main - INFO] mse_loss     1.619e-03
+[21:26:36 - main - INFO] l2_loss      8.865e+02
+[21:26:36 - main - INFO] val_error    1.632e-03
+
+Epoch 67/5000
+
+Epoch 68/5000
+[21:26:37 - main - INFO] --------------------------
+[21:26:37 - main - INFO] Iter:  67    Time: 0.153
+[21:26:37 - main - INFO] -----------  -------------
+[21:26:37 - main - INFO] mse_loss     9.658e-04
+[21:26:37 - main - INFO] l2_loss      8.781e+02
+[21:26:37 - main - INFO] val_error    1.111e-03
+
+Epoch 69/5000
+[21:26:38 - main - INFO] --------------------------
+[21:26:38 - main - INFO] Iter:  68    Time: 0.506
+[21:26:38 - main - INFO] -----------  -------------
+[21:26:38 - main - INFO] mse_loss     1.798e-03
+[21:26:38 - main - INFO] l2_loss      8.746e+02
+[21:26:38 - main - INFO] val_error    2.041e-03
+
+Epoch 70/5000
+
+Epoch 71/5000
+[21:26:40 - main - INFO] --------------------------
+[21:26:40 - main - INFO] Iter:  70    Time: 0.239
+[21:26:40 - main - INFO] -----------  -------------
+[21:26:40 - main - INFO] mse_loss     8.203e-04
+[21:26:40 - main - INFO] l2_loss      8.645e+02
+[21:26:40 - main - INFO] val_error    8.228e-04
+
+Epoch 72/5000
+[21:26:41 - main - INFO] --------------------------
+[21:26:41 - main - INFO] Iter:  71    Time: 0.626
+[21:26:41 - main - INFO] -----------  -------------
+[21:26:41 - main - INFO] mse_loss     2.445e-03
+[21:26:41 - main - INFO] l2_loss      8.570e+02
+[21:26:41 - main - INFO] val_error    2.914e-03
+
+Epoch 73/5000
+
+Epoch 74/5000
+[21:26:42 - main - INFO] --------------------------
+[21:26:42 - main - INFO] Iter:  73    Time: 0.325
+[21:26:42 - main - INFO] -----------  -------------
+[21:26:42 - main - INFO] mse_loss     1.592e-03
+[21:26:42 - main - INFO] l2_loss      8.523e+02
+[21:26:42 - main - INFO] val_error    2.286e-03
+
+Epoch 75/5000
+
+Epoch 76/5000
+[21:26:43 - main - INFO] --------------------------
+[21:26:43 - main - INFO] Iter:  75    Time: 0.038
+[21:26:43 - main - INFO] -----------  -------------
+[21:26:43 - main - INFO] mse_loss     1.071e-03
+[21:26:43 - main - INFO] l2_loss      8.496e+02
+[21:26:43 - main - INFO] val_error    1.551e-03
+
+Epoch 77/5000
+[21:26:44 - main - INFO] --------------------------
+[21:26:44 - main - INFO] Iter:  76    Time: 0.384
+[21:26:44 - main - INFO] -----------  -------------
+[21:26:44 - main - INFO] mse_loss     1.061e-03
+[21:26:44 - main - INFO] l2_loss      8.456e+02
+[21:26:44 - main - INFO] val_error    2.244e-03
+
+Epoch 78/5000
+
+Epoch 79/5000
+[21:26:45 - main - INFO] --------------------------
+[21:26:45 - main - INFO] Iter:  78    Time: 0.113
+[21:26:45 - main - INFO] -----------  -------------
+[21:26:45 - main - INFO] mse_loss     8.395e-04
+[21:26:45 - main - INFO] l2_loss      8.373e+02
+[21:26:45 - main - INFO] val_error    7.978e-04
+
+Epoch 80/5000
+[21:26:46 - main - INFO] --------------------------
+[21:26:46 - main - INFO] Iter:  79    Time: 0.457
+[21:26:46 - main - INFO] -----------  -------------
+[21:26:46 - main - INFO] mse_loss     1.828e-03
+[21:26:46 - main - INFO] l2_loss      8.326e+02
+[21:26:46 - main - INFO] val_error    1.341e-03
+
+Epoch 81/5000
+
+Epoch 82/5000
+[21:26:47 - main - INFO] --------------------------
+[21:26:47 - main - INFO] Iter:  81    Time: 0.186
+[21:26:47 - main - INFO] -----------  -------------
+[21:26:47 - main - INFO] mse_loss     1.504e-03
+[21:26:47 - main - INFO] l2_loss      8.271e+02
+[21:26:47 - main - INFO] val_error    1.580e-03
+
+Epoch 83/5000
+[21:26:48 - main - INFO] --------------------------
+[21:26:48 - main - INFO] Iter:  82    Time: 0.616
+[21:26:48 - main - INFO] -----------  -------------
+[21:26:48 - main - INFO] mse_loss     2.615e-03
+[21:26:48 - main - INFO] l2_loss      8.334e+02
+[21:26:48 - main - INFO] val_error    2.754e-03
+
+Epoch 84/5000
+
+Epoch 85/5000
+[21:26:49 - main - INFO] --------------------------
+[21:26:49 - main - INFO] Iter:  84    Time: 0.345
+[21:26:49 - main - INFO] -----------  -------------
+[21:26:49 - main - INFO] mse_loss     1.132e-03
+[21:26:49 - main - INFO] l2_loss      8.247e+02
+[21:26:49 - main - INFO] val_error    1.658e-03
+
+Epoch 86/5000
+[21:26:50 - main - INFO] --------------------------
+[21:26:50 - main - INFO] Iter:  85    Time: 0.644
+[21:26:50 - main - INFO] -----------  -------------
+[21:26:50 - main - INFO] mse_loss     8.074e-04
+[21:26:50 - main - INFO] l2_loss      8.141e+02
+[21:26:50 - main - INFO] val_error    1.010e-03
+
+Epoch 87/5000
+
+Epoch 88/5000
+[21:26:51 - main - INFO] --------------------------
+[21:26:51 - main - INFO] Iter:  87    Time: 0.342
+[21:26:51 - main - INFO] -----------  -------------
+[21:26:51 - main - INFO] mse_loss     1.612e-03
+[21:26:51 - main - INFO] l2_loss      8.061e+02
+[21:26:51 - main - INFO] val_error    2.033e-03
+
+Epoch 89/5000
+
+Epoch 90/5000
+[21:26:52 - main - INFO] --------------------------
+[21:26:52 - main - INFO] Iter:  89    Time: 0.107
+[21:26:52 - main - INFO] -----------  -------------
+[21:26:52 - main - INFO] mse_loss     1.515e-03
+[21:26:52 - main - INFO] l2_loss      8.058e+02
+[21:26:52 - main - INFO] val_error    1.255e-03
+
+Epoch 91/5000
+[21:26:53 - main - INFO] --------------------------
+[21:26:53 - main - INFO] Iter:  90    Time: 0.417
+[21:26:53 - main - INFO] -----------  -------------
+[21:26:53 - main - INFO] mse_loss     1.793e-03
+[21:26:53 - main - INFO] l2_loss      7.987e+02
+[21:26:53 - main - INFO] val_error    1.998e-03
+
+Epoch 92/5000
+
+Epoch 93/5000
+[21:26:54 - main - INFO] --------------------------
+[21:26:54 - main - INFO] Iter:  92    Time: 0.150
+[21:26:54 - main - INFO] -----------  -------------
+[21:26:54 - main - INFO] mse_loss     1.012e-03
+[21:26:54 - main - INFO] l2_loss      7.926e+02
+[21:26:54 - main - INFO] val_error    1.080e-03
+
+Epoch 94/5000
+[21:26:55 - main - INFO] --------------------------
+[21:26:55 - main - INFO] Iter:  93    Time: 0.475
+[21:26:55 - main - INFO] -----------  -------------
+[21:26:55 - main - INFO] mse_loss     1.149e-03
+[21:26:55 - main - INFO] l2_loss      7.896e+02
+[21:26:55 - main - INFO] val_error    1.329e-03
+
+Epoch 95/5000
+
+Epoch 96/5000
+[21:26:56 - main - INFO] --------------------------
+[21:26:56 - main - INFO] Iter:  95    Time: 0.234
+[21:26:56 - main - INFO] -----------  -------------
+[21:26:56 - main - INFO] mse_loss     1.175e-03
+[21:26:56 - main - INFO] l2_loss      7.815e+02
+[21:26:56 - main - INFO] val_error    1.069e-03
+
+Epoch 97/5000
+[21:26:57 - main - INFO] --------------------------
+[21:26:57 - main - INFO] Iter:  96    Time: 0.562
+[21:26:57 - main - INFO] -----------  -------------
+[21:26:57 - main - INFO] mse_loss     1.639e-03
+[21:26:57 - main - INFO] l2_loss      7.758e+02
+[21:26:57 - main - INFO] val_error    1.583e-03
+
+Epoch 98/5000
+
+Epoch 99/5000
+[21:26:58 - main - INFO] --------------------------
+[21:26:58 - main - INFO] Iter:  98    Time: 0.310
+[21:26:58 - main - INFO] -----------  -------------
+[21:26:58 - main - INFO] mse_loss     1.395e-03
+[21:26:58 - main - INFO] l2_loss      7.719e+02
+[21:26:58 - main - INFO] val_error    1.404e-03
+
+Epoch 100/5000
+
+Epoch 101/5000
+[21:26:59 - main - INFO] --------------------------
+[21:26:59 - main - INFO] Iter: 100    Time: 0.034
+[21:26:59 - main - INFO] -----------  -------------
+[21:26:59 - main - INFO] mse_loss     1.157e-03
+[21:26:59 - main - INFO] l2_loss      7.661e+02
+[21:26:59 - main - INFO] val_error    9.338e-04
+
+Epoch 102/5000
+[21:27:00 - main - INFO] --------------------------
+[21:27:00 - main - INFO] Iter: 101    Time: 0.382
+[21:27:00 - main - INFO] -----------  -------------
+[21:27:00 - main - INFO] mse_loss     2.440e-03
+[21:27:00 - main - INFO] l2_loss      7.697e+02
+[21:27:00 - main - INFO] val_error    2.852e-03
+
+Epoch 103/5000
+
+Epoch 104/5000
+[21:27:01 - main - INFO] --------------------------
+[21:27:01 - main - INFO] Iter: 103    Time: 0.110
+[21:27:01 - main - INFO] -----------  -------------
+[21:27:01 - main - INFO] mse_loss     1.059e-03
+[21:27:01 - main - INFO] l2_loss      7.663e+02
+[21:27:01 - main - INFO] val_error    1.027e-03
+
+Epoch 105/5000
+[21:27:02 - main - INFO] --------------------------
+[21:27:02 - main - INFO] Iter: 104    Time: 0.453
+[21:27:02 - main - INFO] -----------  -------------
+[21:27:02 - main - INFO] mse_loss     1.107e-03
+[21:27:02 - main - INFO] l2_loss      7.559e+02
+[21:27:02 - main - INFO] val_error    1.646e-03
+
+Epoch 106/5000
+
+Epoch 107/5000
+[21:27:03 - main - INFO] --------------------------
+[21:27:03 - main - INFO] Iter: 106    Time: 0.184
+[21:27:03 - main - INFO] -----------  -------------
+[21:27:03 - main - INFO] mse_loss     6.540e-04
+[21:27:03 - main - INFO] l2_loss      7.470e+02
+[21:27:03 - main - INFO] val_error    6.320e-04
+
+Epoch 108/5000
+[21:27:04 - main - INFO] --------------------------
+[21:27:04 - main - INFO] Iter: 107    Time: 0.524
+[21:27:04 - main - INFO] -----------  -------------
+[21:27:04 - main - INFO] mse_loss     5.837e-04
+[21:27:04 - main - INFO] l2_loss      7.374e+02
+[21:27:04 - main - INFO] val_error    6.830e-04
+
+Epoch 109/5000
+
+Epoch 110/5000
+[21:27:05 - main - INFO] --------------------------
+[21:27:05 - main - INFO] Iter: 109    Time: 0.264
+[21:27:05 - main - INFO] -----------  -------------
+[21:27:05 - main - INFO] mse_loss     1.125e-03
+[21:27:05 - main - INFO] l2_loss      7.315e+02
+[21:27:05 - main - INFO] val_error    1.283e-03
+
+Epoch 111/5000
+[21:27:06 - main - INFO] --------------------------
+[21:27:06 - main - INFO] Iter: 110    Time: 0.603
+[21:27:06 - main - INFO] -----------  -------------
+[21:27:06 - main - INFO] mse_loss     2.450e-03
+[21:27:06 - main - INFO] l2_loss      7.298e+02
+[21:27:06 - main - INFO] val_error    2.439e-03
+
+Epoch 112/5000
+
+Epoch 113/5000
+[21:27:07 - main - INFO] --------------------------
+[21:27:07 - main - INFO] Iter: 112    Time: 0.337
+[21:27:07 - main - INFO] -----------  -------------
+[21:27:07 - main - INFO] mse_loss     1.349e-03
+[21:27:07 - main - INFO] l2_loss      7.304e+02
+[21:27:07 - main - INFO] val_error    1.393e-03
+
+Epoch 114/5000
+
+Epoch 115/5000
+[21:27:08 - main - INFO] --------------------------
+[21:27:08 - main - INFO] Iter: 114    Time: 0.072
+[21:27:08 - main - INFO] -----------  -------------
+[21:27:08 - main - INFO] mse_loss     2.506e-03
+[21:27:08 - main - INFO] l2_loss      7.243e+02
+[21:27:08 - main - INFO] val_error    3.269e-03
+
+Epoch 116/5000
+[21:27:09 - main - INFO] --------------------------
+[21:27:09 - main - INFO] Iter: 115    Time: 0.409
+[21:27:09 - main - INFO] -----------  -------------
+[21:27:09 - main - INFO] mse_loss     1.382e-03
+[21:27:09 - main - INFO] l2_loss      7.220e+02
+[21:27:09 - main - INFO] val_error    1.431e-03
+
+Epoch 117/5000
+
+Epoch 118/5000
+[21:27:10 - main - INFO] --------------------------
+[21:27:10 - main - INFO] Iter: 117    Time: 0.148
+[21:27:10 - main - INFO] -----------  -------------
+[21:27:10 - main - INFO] mse_loss     1.008e-03
+[21:27:10 - main - INFO] l2_loss      7.187e+02
+[21:27:10 - main - INFO] val_error    1.021e-03
+
+Epoch 119/5000
+[21:27:11 - main - INFO] --------------------------
+[21:27:11 - main - INFO] Iter: 118    Time: 0.483
+[21:27:11 - main - INFO] -----------  -------------
+[21:27:11 - main - INFO] mse_loss     1.088e-03
+[21:27:11 - main - INFO] l2_loss      7.141e+02
+[21:27:11 - main - INFO] val_error    1.076e-03
+
+Epoch 120/5000
+
+Epoch 121/5000
+[21:27:12 - main - INFO] --------------------------
+[21:27:12 - main - INFO] Iter: 120    Time: 0.221
+[21:27:12 - main - INFO] -----------  -------------
+[21:27:12 - main - INFO] mse_loss     1.190e-03
+[21:27:12 - main - INFO] l2_loss      7.091e+02
+[21:27:12 - main - INFO] val_error    1.330e-03
+
+Epoch 122/5000
+[21:27:13 - main - INFO] --------------------------
+[21:27:13 - main - INFO] Iter: 121    Time: 0.560
+[21:27:13 - main - INFO] -----------  -------------
+[21:27:13 - main - INFO] mse_loss     8.839e-04
+[21:27:13 - main - INFO] l2_loss      7.011e+02
+[21:27:13 - main - INFO] val_error    8.926e-04
+
+Epoch 123/5000
+
+Epoch 124/5000
+[21:27:14 - main - INFO] --------------------------
+[21:27:14 - main - INFO] Iter: 123    Time: 0.350
+[21:27:14 - main - INFO] -----------  -------------
+[21:27:14 - main - INFO] mse_loss     7.132e-04
+[21:27:14 - main - INFO] l2_loss      6.950e+02
+[21:27:14 - main - INFO] val_error    7.608e-04
+
+Epoch 125/5000
+
+Epoch 126/5000
+[21:27:15 - main - INFO] --------------------------
+[21:27:15 - main - INFO] Iter: 125    Time: 0.036
+[21:27:15 - main - INFO] -----------  -------------
+[21:27:15 - main - INFO] mse_loss     1.584e-03
+[21:27:15 - main - INFO] l2_loss      7.059e+02
+[21:27:15 - main - INFO] val_error    1.729e-03
+
+Epoch 127/5000
+[21:27:16 - main - INFO] --------------------------
+[21:27:16 - main - INFO] Iter: 126    Time: 0.380
+[21:27:16 - main - INFO] -----------  -------------
+[21:27:16 - main - INFO] mse_loss     1.501e-03
+[21:27:16 - main - INFO] l2_loss      6.978e+02
+[21:27:16 - main - INFO] val_error    1.720e-03
+
+Epoch 128/5000
+
+Epoch 129/5000
+[21:27:17 - main - INFO] --------------------------
+[21:27:17 - main - INFO] Iter: 128    Time: 0.109
+[21:27:17 - main - INFO] -----------  -------------
+[21:27:17 - main - INFO] mse_loss     7.950e-04
+[21:27:17 - main - INFO] l2_loss      6.878e+02
+[21:27:17 - main - INFO] val_error    1.022e-03
+
+Epoch 130/5000
+[21:27:18 - main - INFO] --------------------------
+[21:27:18 - main - INFO] Iter: 129    Time: 0.441
+[21:27:18 - main - INFO] -----------  -------------
+[21:27:18 - main - INFO] mse_loss     1.080e-03
+[21:27:18 - main - INFO] l2_loss      6.802e+02
+[21:27:18 - main - INFO] val_error    1.059e-03
+
+Epoch 131/5000
+
+Epoch 132/5000
+[21:27:18 - main - INFO] --------------------------
+[21:27:18 - main - INFO] Iter: 131    Time: 0.184
+[21:27:18 - main - INFO] -----------  -------------
+[21:27:18 - main - INFO] mse_loss     7.040e-04
+[21:27:18 - main - INFO] l2_loss      6.753e+02
+[21:27:18 - main - INFO] val_error    6.913e-04
+
+Epoch 133/5000
+[21:27:19 - main - INFO] --------------------------
+[21:27:19 - main - INFO] Iter: 132    Time: 0.518
+[21:27:19 - main - INFO] -----------  -------------
+[21:27:19 - main - INFO] mse_loss     1.098e-03
+[21:27:19 - main - INFO] l2_loss      6.767e+02
+[21:27:19 - main - INFO] val_error    1.299e-03
+
+Epoch 134/5000
+
+Epoch 135/5000
+[21:27:20 - main - INFO] --------------------------
+[21:27:20 - main - INFO] Iter: 134    Time: 0.266
+[21:27:20 - main - INFO] -----------  -------------
+[21:27:20 - main - INFO] mse_loss     8.555e-04
+[21:27:20 - main - INFO] l2_loss      6.697e+02
+[21:27:20 - main - INFO] val_error    7.861e-04
+
+Epoch 136/5000
+[21:27:21 - main - INFO] --------------------------
+[21:27:21 - main - INFO] Iter: 135    Time: 0.617
+[21:27:21 - main - INFO] -----------  -------------
+[21:27:21 - main - INFO] mse_loss     1.455e-03
+[21:27:21 - main - INFO] l2_loss      6.620e+02
+[21:27:21 - main - INFO] val_error    1.310e-03
+
+Epoch 137/5000
+
+Epoch 138/5000
+[21:27:22 - main - INFO] --------------------------
+[21:27:22 - main - INFO] Iter: 137    Time: 0.333
+[21:27:22 - main - INFO] -----------  -------------
+[21:27:22 - main - INFO] mse_loss     1.066e-03
+[21:27:22 - main - INFO] l2_loss      6.632e+02
+[21:27:22 - main - INFO] val_error    9.134e-04
+
+Epoch 139/5000
+
+Epoch 140/5000
+[21:27:23 - main - INFO] --------------------------
+[21:27:23 - main - INFO] Iter: 139    Time: 0.073
+[21:27:23 - main - INFO] -----------  -------------
+[21:27:23 - main - INFO] mse_loss     6.997e-04
+[21:27:23 - main - INFO] l2_loss      6.584e+02
+[21:27:23 - main - INFO] val_error    1.179e-03
+
+Epoch 141/5000
+[21:27:24 - main - INFO] --------------------------
+[21:27:24 - main - INFO] Iter: 140    Time: 0.406
+[21:27:24 - main - INFO] -----------  -------------
+[21:27:24 - main - INFO] mse_loss     8.392e-04
+[21:27:24 - main - INFO] l2_loss      6.529e+02
+[21:27:24 - main - INFO] val_error    1.251e-03
+
+Epoch 142/5000
+
+Epoch 143/5000
+[21:27:25 - main - INFO] --------------------------
+[21:27:25 - main - INFO] Iter: 142    Time: 0.148
+[21:27:25 - main - INFO] -----------  -------------
+[21:27:25 - main - INFO] mse_loss     1.206e-03
+[21:27:25 - main - INFO] l2_loss      6.508e+02
+[21:27:25 - main - INFO] val_error    1.674e-03
+
+Epoch 144/5000
+[21:27:26 - main - INFO] --------------------------
+[21:27:26 - main - INFO] Iter: 143    Time: 0.482
+[21:27:26 - main - INFO] -----------  -------------
+[21:27:26 - main - INFO] mse_loss     9.875e-04
+[21:27:26 - main - INFO] l2_loss      6.503e+02
+[21:27:26 - main - INFO] val_error    1.344e-03
+
+Epoch 145/5000
+
+Epoch 146/5000
+[21:27:27 - main - INFO] --------------------------
+[21:27:27 - main - INFO] Iter: 145    Time: 0.221
+[21:27:27 - main - INFO] -----------  -------------
+[21:27:27 - main - INFO] mse_loss     1.359e-03
+[21:27:27 - main - INFO] l2_loss      6.524e+02
+[21:27:27 - main - INFO] val_error    1.695e-03
+
+Epoch 147/5000
+[21:27:28 - main - INFO] --------------------------
+[21:27:28 - main - INFO] Iter: 146    Time: 0.553
+[21:27:28 - main - INFO] -----------  -------------
+[21:27:28 - main - INFO] mse_loss     6.696e-04
+[21:27:28 - main - INFO] l2_loss      6.503e+02
+[21:27:28 - main - INFO] val_error    6.677e-04
+
+Epoch 148/5000
+
+Epoch 149/5000
+[21:27:29 - main - INFO] --------------------------
+[21:27:29 - main - INFO] Iter: 148    Time: 0.297
+[21:27:29 - main - INFO] -----------  -------------
+[21:27:29 - main - INFO] mse_loss     6.454e-04
+[21:27:29 - main - INFO] l2_loss      6.427e+02
+[21:27:29 - main - INFO] val_error    7.413e-04
+
+Epoch 150/5000
+
+Epoch 151/5000
+[21:27:30 - main - INFO] --------------------------
+[21:27:30 - main - INFO] Iter: 150    Time: 0.034
+[21:27:30 - main - INFO] -----------  -------------
+[21:27:30 - main - INFO] mse_loss     4.677e-04
+[21:27:30 - main - INFO] l2_loss      6.356e+02
+[21:27:30 - main - INFO] val_error    4.864e-04
+
+Epoch 152/5000
+[21:27:31 - main - INFO] --------------------------
+[21:27:31 - main - INFO] Iter: 151    Time: 0.372
+[21:27:31 - main - INFO] -----------  -------------
+[21:27:31 - main - INFO] mse_loss     5.847e-04
+[21:27:31 - main - INFO] l2_loss      6.310e+02
+[21:27:31 - main - INFO] val_error    6.608e-04
+
+Epoch 153/5000
+
+Epoch 154/5000
+[21:27:32 - main - INFO] --------------------------
+[21:27:32 - main - INFO] Iter: 153    Time: 0.111
+[21:27:32 - main - INFO] -----------  -------------
+[21:27:32 - main - INFO] mse_loss     6.627e-04
+[21:27:32 - main - INFO] l2_loss      6.246e+02
+[21:27:32 - main - INFO] val_error    8.371e-04
+
+Epoch 155/5000
+[21:27:33 - main - INFO] --------------------------
+[21:27:33 - main - INFO] Iter: 154    Time: 0.444
+[21:27:33 - main - INFO] -----------  -------------
+[21:27:33 - main - INFO] mse_loss     1.401e-03
+[21:27:33 - main - INFO] l2_loss      6.266e+02
+[21:27:33 - main - INFO] val_error    1.496e-03
+
+Epoch 156/5000
+
+Epoch 157/5000
+[21:27:34 - main - INFO] --------------------------
+[21:27:34 - main - INFO] Iter: 156    Time: 0.182
+[21:27:34 - main - INFO] -----------  -------------
+[21:27:34 - main - INFO] mse_loss     8.818e-04
+[21:27:34 - main - INFO] l2_loss      6.267e+02
+[21:27:34 - main - INFO] val_error    1.102e-03
+
+Epoch 158/5000
+[21:27:35 - main - INFO] --------------------------
+[21:27:35 - main - INFO] Iter: 157    Time: 0.522
+[21:27:35 - main - INFO] -----------  -------------
+[21:27:35 - main - INFO] mse_loss     5.988e-04
+[21:27:35 - main - INFO] l2_loss      6.186e+02
+[21:27:35 - main - INFO] val_error    7.774e-04
+
+Epoch 159/5000
+
+Epoch 160/5000
+[21:27:36 - main - INFO] --------------------------
+[21:27:36 - main - INFO] Iter: 159    Time: 0.257
+[21:27:36 - main - INFO] -----------  -------------
+[21:27:36 - main - INFO] mse_loss     7.669e-04
+[21:27:36 - main - INFO] l2_loss      6.158e+02
+[21:27:36 - main - INFO] val_error    8.758e-04
+
+Epoch 161/5000
+[21:27:37 - main - INFO] --------------------------
+[21:27:37 - main - INFO] Iter: 160    Time: 0.592
+[21:27:37 - main - INFO] -----------  -------------
+[21:27:37 - main - INFO] mse_loss     9.212e-04
+[21:27:37 - main - INFO] l2_loss      6.125e+02
+[21:27:37 - main - INFO] val_error    9.877e-04
+
+Epoch 162/5000
+
+Epoch 163/5000
+[21:27:38 - main - INFO] --------------------------
+[21:27:38 - main - INFO] Iter: 162    Time: 0.332
+[21:27:38 - main - INFO] -----------  -------------
+[21:27:38 - main - INFO] mse_loss     7.770e-04
+[21:27:38 - main - INFO] l2_loss      6.072e+02
+[21:27:38 - main - INFO] val_error    9.385e-04
+
+Epoch 164/5000
+
+Epoch 165/5000
+[21:27:39 - main - INFO] --------------------------
+[21:27:39 - main - INFO] Iter: 164    Time: 0.071
+[21:27:39 - main - INFO] -----------  -------------
+[21:27:39 - main - INFO] mse_loss     1.377e-03
+[21:27:39 - main - INFO] l2_loss      6.031e+02
+[21:27:39 - main - INFO] val_error    1.998e-03
+
+Epoch 166/5000
+[21:27:40 - main - INFO] --------------------------
+[21:27:40 - main - INFO] Iter: 165    Time: 0.404
+[21:27:40 - main - INFO] -----------  -------------
+[21:27:40 - main - INFO] mse_loss     1.334e-03
+[21:27:40 - main - INFO] l2_loss      6.035e+02
+[21:27:40 - main - INFO] val_error    1.722e-03
+
+Epoch 167/5000
+
+Epoch 168/5000
+[21:27:41 - main - INFO] --------------------------
+[21:27:41 - main - INFO] Iter: 167    Time: 0.147
+[21:27:41 - main - INFO] -----------  -------------
+[21:27:41 - main - INFO] mse_loss     8.278e-04
+[21:27:41 - main - INFO] l2_loss      5.997e+02
+[21:27:41 - main - INFO] val_error    1.119e-03
+
+Epoch 169/5000
+[21:27:42 - main - INFO] --------------------------
+[21:27:42 - main - INFO] Iter: 168    Time: 0.489
+[21:27:42 - main - INFO] -----------  -------------
+[21:27:42 - main - INFO] mse_loss     9.254e-04
+[21:27:42 - main - INFO] l2_loss      5.989e+02
+[21:27:42 - main - INFO] val_error    1.503e-03
+
+Epoch 170/5000
+
+Epoch 171/5000
+[21:27:43 - main - INFO] --------------------------
+[21:27:43 - main - INFO] Iter: 170    Time: 0.223
+[21:27:43 - main - INFO] -----------  -------------
+[21:27:43 - main - INFO] mse_loss     5.778e-04
+[21:27:43 - main - INFO] l2_loss      5.969e+02
+[21:27:43 - main - INFO] val_error    5.446e-04
+
+Epoch 172/5000
+[21:27:44 - main - INFO] --------------------------
+[21:27:44 - main - INFO] Iter: 171    Time: 0.563
+[21:27:44 - main - INFO] -----------  -------------
+[21:27:44 - main - INFO] mse_loss     5.516e-04
+[21:27:44 - main - INFO] l2_loss      5.882e+02
+[21:27:44 - main - INFO] val_error    6.416e-04
+
+Epoch 173/5000
+
+Epoch 174/5000
+[21:27:45 - main - INFO] --------------------------
+[21:27:45 - main - INFO] Iter: 173    Time: 0.300
+[21:27:45 - main - INFO] -----------  -------------
+[21:27:45 - main - INFO] mse_loss     8.666e-04
+[21:27:45 - main - INFO] l2_loss      5.819e+02
+[21:27:45 - main - INFO] val_error    7.982e-04
+
+Epoch 175/5000
+
+Epoch 176/5000
+[21:27:46 - main - INFO] --------------------------
+[21:27:46 - main - INFO] Iter: 175    Time: 0.035
+[21:27:46 - main - INFO] -----------  -------------
+[21:27:46 - main - INFO] mse_loss     1.075e-03
+[21:27:46 - main - INFO] l2_loss      5.814e+02
+[21:27:46 - main - INFO] val_error    1.539e-03
+
+Epoch 177/5000
+[21:27:47 - main - INFO] --------------------------
+[21:27:47 - main - INFO] Iter: 176    Time: 0.373
+[21:27:47 - main - INFO] -----------  -------------
+[21:27:47 - main - INFO] mse_loss     7.238e-04
+[21:27:47 - main - INFO] l2_loss      5.799e+02
+[21:27:47 - main - INFO] val_error    9.000e-04
+
+Epoch 178/5000
+
+Epoch 179/5000
+[21:27:48 - main - INFO] --------------------------
+[21:27:48 - main - INFO] Iter: 178    Time: 0.112
+[21:27:48 - main - INFO] -----------  -------------
+[21:27:48 - main - INFO] mse_loss     4.709e-04
+[21:27:48 - main - INFO] l2_loss      5.752e+02
+[21:27:48 - main - INFO] val_error    4.461e-04
+
+Epoch 180/5000
+[21:27:49 - main - INFO] --------------------------
+[21:27:49 - main - INFO] Iter: 179    Time: 0.450
+[21:27:49 - main - INFO] -----------  -------------
+[21:27:49 - main - INFO] mse_loss     7.727e-04
+[21:27:49 - main - INFO] l2_loss      5.726e+02
+[21:27:49 - main - INFO] val_error    1.036e-03
+
+Epoch 181/5000
+
+Epoch 182/5000
+[21:27:50 - main - INFO] --------------------------
+[21:27:50 - main - INFO] Iter: 181    Time: 0.184
+[21:27:50 - main - INFO] -----------  -------------
+[21:27:50 - main - INFO] mse_loss     6.510e-04
+[21:27:50 - main - INFO] l2_loss      5.684e+02
+[21:27:50 - main - INFO] val_error    6.100e-04
+
+Epoch 183/5000
+[21:27:51 - main - INFO] --------------------------
+[21:27:51 - main - INFO] Iter: 182    Time: 0.519
+[21:27:51 - main - INFO] -----------  -------------
+[21:27:51 - main - INFO] mse_loss     5.280e-04
+[21:27:51 - main - INFO] l2_loss      5.710e+02
+[21:27:51 - main - INFO] val_error    9.203e-04
+
+Epoch 184/5000
+
+Epoch 185/5000
+[21:27:51 - main - INFO] --------------------------
+[21:27:51 - main - INFO] Iter: 184    Time: 0.261
+[21:27:51 - main - INFO] -----------  -------------
+[21:27:51 - main - INFO] mse_loss     1.595e-03
+[21:27:51 - main - INFO] l2_loss      5.749e+02
+[21:27:51 - main - INFO] val_error    1.364e-03
+
+Epoch 186/5000
+[21:27:52 - main - INFO] --------------------------
+[21:27:52 - main - INFO] Iter: 185    Time: 0.595
+[21:27:52 - main - INFO] -----------  -------------
+[21:27:52 - main - INFO] mse_loss     8.056e-04
+[21:27:52 - main - INFO] l2_loss      5.724e+02
+[21:27:52 - main - INFO] val_error    7.812e-04
+
+Epoch 187/5000
+
+Epoch 188/5000
+[21:27:53 - main - INFO] --------------------------
+[21:27:53 - main - INFO] Iter: 187    Time: 0.338
+[21:27:53 - main - INFO] -----------  -------------
+[21:27:53 - main - INFO] mse_loss     5.902e-04
+[21:27:53 - main - INFO] l2_loss      5.676e+02
+[21:27:53 - main - INFO] val_error    7.077e-04
+
+Epoch 189/5000
+
+Epoch 190/5000
+[21:27:54 - main - INFO] --------------------------
+[21:27:54 - main - INFO] Iter: 189    Time: 0.072
+[21:27:54 - main - INFO] -----------  -------------
+[21:27:54 - main - INFO] mse_loss     4.198e-04
+[21:27:54 - main - INFO] l2_loss      5.606e+02
+[21:27:54 - main - INFO] val_error    3.912e-04
+
+Epoch 191/5000
+[21:27:55 - main - INFO] --------------------------
+[21:27:55 - main - INFO] Iter: 190    Time: 0.408
+[21:27:55 - main - INFO] -----------  -------------
+[21:27:55 - main - INFO] mse_loss     4.930e-04
+[21:27:55 - main - INFO] l2_loss      5.543e+02
+[21:27:55 - main - INFO] val_error    5.395e-04
+
+Epoch 192/5000
+
+Epoch 193/5000
+[21:27:56 - main - INFO] --------------------------
+[21:27:56 - main - INFO] Iter: 192    Time: 0.147
+[21:27:56 - main - INFO] -----------  -------------
+[21:27:56 - main - INFO] mse_loss     2.058e-03
+[21:27:56 - main - INFO] l2_loss      5.550e+02
+[21:27:56 - main - INFO] val_error    2.082e-03
+
+Epoch 194/5000
+[21:27:57 - main - INFO] --------------------------
+[21:27:57 - main - INFO] Iter: 193    Time: 0.488
+[21:27:57 - main - INFO] -----------  -------------
+[21:27:57 - main - INFO] mse_loss     6.450e-04
+[21:27:57 - main - INFO] l2_loss      5.610e+02
+[21:27:57 - main - INFO] val_error    8.172e-04
+
+Epoch 195/5000
+
+Epoch 196/5000
+[21:27:58 - main - INFO] --------------------------
+[21:27:58 - main - INFO] Iter: 195    Time: 0.224
+[21:27:58 - main - INFO] -----------  -------------
+[21:27:58 - main - INFO] mse_loss     6.223e-04
+[21:27:58 - main - INFO] l2_loss      5.541e+02
+[21:27:58 - main - INFO] val_error    7.023e-04
+
+Epoch 197/5000
+[21:27:59 - main - INFO] --------------------------
+[21:27:59 - main - INFO] Iter: 196    Time: 0.565
+[21:27:59 - main - INFO] -----------  -------------
+[21:27:59 - main - INFO] mse_loss     4.168e-04
+[21:27:59 - main - INFO] l2_loss      5.465e+02
+[21:27:59 - main - INFO] val_error    4.507e-04
+
+Epoch 198/5000
+
+Epoch 199/5000
+[21:28:00 - main - INFO] --------------------------
+[21:28:00 - main - INFO] Iter: 198    Time: 0.300
+[21:28:00 - main - INFO] -----------  -------------
+[21:28:00 - main - INFO] mse_loss     1.056e-03
+[21:28:00 - main - INFO] l2_loss      5.402e+02
+[21:28:00 - main - INFO] val_error    1.231e-03
+
+Epoch 200/5000
+
+Epoch 201/5000
+[21:28:01 - main - INFO] --------------------------
+[21:28:01 - main - INFO] Iter: 200    Time: 0.035
+[21:28:01 - main - INFO] -----------  -------------
+[21:28:01 - main - INFO] mse_loss     1.367e-03
+[21:28:01 - main - INFO] l2_loss      5.429e+02
+[21:28:01 - main - INFO] val_error    1.270e-03
+
+Epoch 202/5000
+[21:28:02 - main - INFO] --------------------------
+[21:28:02 - main - INFO] Iter: 201    Time: 0.374
+[21:28:02 - main - INFO] -----------  -------------
+[21:28:02 - main - INFO] mse_loss     6.085e-04
+[21:28:02 - main - INFO] l2_loss      5.440e+02
+[21:28:02 - main - INFO] val_error    8.318e-04
+
+Epoch 203/5000
+
+Epoch 204/5000
+[21:28:03 - main - INFO] --------------------------
+[21:28:03 - main - INFO] Iter: 203    Time: 0.126
+[21:28:03 - main - INFO] -----------  -------------
+[21:28:03 - main - INFO] mse_loss     5.526e-04
+[21:28:03 - main - INFO] l2_loss      5.451e+02
+[21:28:03 - main - INFO] val_error    7.132e-04
+
+Epoch 205/5000
+[21:28:04 - main - INFO] --------------------------
+[21:28:04 - main - INFO] Iter: 204    Time: 0.418
+[21:28:04 - main - INFO] -----------  -------------
+[21:28:04 - main - INFO] mse_loss     3.728e-04
+[21:28:04 - main - INFO] l2_loss      5.394e+02
+[21:28:04 - main - INFO] val_error    4.150e-04
+
+Epoch 206/5000
+
+Epoch 207/5000
+[21:28:05 - main - INFO] --------------------------
+[21:28:05 - main - INFO] Iter: 206    Time: 0.184
+[21:28:05 - main - INFO] -----------  -------------
+[21:28:05 - main - INFO] mse_loss     5.312e-04
+[21:28:05 - main - INFO] l2_loss      5.356e+02
+[21:28:05 - main - INFO] val_error    5.645e-04
+
+Epoch 208/5000
+[21:28:06 - main - INFO] --------------------------
+[21:28:06 - main - INFO] Iter: 207    Time: 0.531
+[21:28:06 - main - INFO] -----------  -------------
+[21:28:06 - main - INFO] mse_loss     6.349e-04
+[21:28:06 - main - INFO] l2_loss      5.336e+02
+[21:28:06 - main - INFO] val_error    6.108e-04
+
+Epoch 209/5000
+
+Epoch 210/5000
+[21:28:07 - main - INFO] --------------------------
+[21:28:07 - main - INFO] Iter: 209    Time: 0.242
+[21:28:07 - main - INFO] -----------  -------------
+[21:28:07 - main - INFO] mse_loss     5.941e-04
+[21:28:07 - main - INFO] l2_loss      5.299e+02
+[21:28:07 - main - INFO] val_error    7.553e-04
+
+Epoch 211/5000
+[21:28:08 - main - INFO] --------------------------
+[21:28:08 - main - INFO] Iter: 210    Time: 0.588
+[21:28:08 - main - INFO] -----------  -------------
+[21:28:08 - main - INFO] mse_loss     8.591e-04
+[21:28:08 - main - INFO] l2_loss      5.281e+02
+[21:28:08 - main - INFO] val_error    1.424e-03
+
+Epoch 212/5000
+
+Epoch 213/5000
+[21:28:09 - main - INFO] --------------------------
+[21:28:09 - main - INFO] Iter: 212    Time: 0.355
+[21:28:09 - main - INFO] -----------  -------------
+[21:28:09 - main - INFO] mse_loss     7.327e-04
+[21:28:09 - main - INFO] l2_loss      5.268e+02
+[21:28:09 - main - INFO] val_error    9.151e-04
+
+Epoch 214/5000
+
+Epoch 215/5000
+[21:28:10 - main - INFO] --------------------------
+[21:28:10 - main - INFO] Iter: 214    Time: 0.068
+[21:28:10 - main - INFO] -----------  -------------
+[21:28:10 - main - INFO] mse_loss     1.339e-03
+[21:28:10 - main - INFO] l2_loss      5.230e+02
+[21:28:10 - main - INFO] val_error    1.309e-03
+
+Epoch 216/5000
+[21:28:11 - main - INFO] --------------------------
+[21:28:11 - main - INFO] Iter: 215    Time: 0.428
+[21:28:11 - main - INFO] -----------  -------------
+[21:28:11 - main - INFO] mse_loss     1.505e-03
+[21:28:11 - main - INFO] l2_loss      5.265e+02
+[21:28:11 - main - INFO] val_error    1.520e-03
+
+Epoch 217/5000
+
+Epoch 218/5000
+[21:28:12 - main - INFO] --------------------------
+[21:28:12 - main - INFO] Iter: 217    Time: 0.155
+[21:28:12 - main - INFO] -----------  -------------
+[21:28:12 - main - INFO] mse_loss     9.484e-04
+[21:28:12 - main - INFO] l2_loss      5.292e+02
+[21:28:12 - main - INFO] val_error    1.217e-03
+
+Epoch 219/5000
+[21:28:13 - main - INFO] --------------------------
+[21:28:13 - main - INFO] Iter: 218    Time: 0.496
+[21:28:13 - main - INFO] -----------  -------------
+[21:28:13 - main - INFO] mse_loss     3.481e-04
+[21:28:13 - main - INFO] l2_loss      5.250e+02
+[21:28:13 - main - INFO] val_error    3.655e-04
+
+Epoch 220/5000
+
+Epoch 221/5000
+[21:28:14 - main - INFO] --------------------------
+[21:28:14 - main - INFO] Iter: 220    Time: 0.239
+[21:28:14 - main - INFO] -----------  -------------
+[21:28:14 - main - INFO] mse_loss     6.319e-04
+[21:28:14 - main - INFO] l2_loss      5.185e+02
+[21:28:14 - main - INFO] val_error    8.042e-04
+
+Epoch 222/5000
+[21:28:15 - main - INFO] --------------------------
+[21:28:15 - main - INFO] Iter: 221    Time: 0.605
+[21:28:15 - main - INFO] -----------  -------------
+[21:28:15 - main - INFO] mse_loss     7.021e-04
+[21:28:15 - main - INFO] l2_loss      5.160e+02
+[21:28:15 - main - INFO] val_error    1.022e-03
+
+Epoch 223/5000
+
+Epoch 224/5000
+[21:28:16 - main - INFO] --------------------------
+[21:28:16 - main - INFO] Iter: 223    Time: 0.317
+[21:28:16 - main - INFO] -----------  -------------
+[21:28:16 - main - INFO] mse_loss     5.253e-04
+[21:28:16 - main - INFO] l2_loss      5.115e+02
+[21:28:16 - main - INFO] val_error    5.426e-04
+
+Epoch 225/5000
+
+Epoch 226/5000
+[21:28:17 - main - INFO] --------------------------
+[21:28:17 - main - INFO] Iter: 225    Time: 0.034
+[21:28:17 - main - INFO] -----------  -------------
+[21:28:17 - main - INFO] mse_loss     5.895e-04
+[21:28:17 - main - INFO] l2_loss      5.083e+02
+[21:28:17 - main - INFO] val_error    9.753e-04
+
+Epoch 227/5000
+[21:28:18 - main - INFO] --------------------------
+[21:28:18 - main - INFO] Iter: 226    Time: 0.373
+[21:28:18 - main - INFO] -----------  -------------
+[21:28:18 - main - INFO] mse_loss     2.073e-03
+[21:28:18 - main - INFO] l2_loss      5.165e+02
+[21:28:18 - main - INFO] val_error    2.990e-03
+
+Epoch 228/5000
+
+Epoch 229/5000
+[21:28:19 - main - INFO] --------------------------
+[21:28:19 - main - INFO] Iter: 228    Time: 0.111
+[21:28:19 - main - INFO] -----------  -------------
+[21:28:19 - main - INFO] mse_loss     5.214e-04
+[21:28:19 - main - INFO] l2_loss      5.168e+02
+[21:28:19 - main - INFO] val_error    6.350e-04
+
+Epoch 230/5000
+[21:28:20 - main - INFO] --------------------------
+[21:28:20 - main - INFO] Iter: 229    Time: 0.484
+[21:28:20 - main - INFO] -----------  -------------
+[21:28:20 - main - INFO] mse_loss     5.731e-04
+[21:28:20 - main - INFO] l2_loss      5.087e+02
+[21:28:20 - main - INFO] val_error    5.964e-04
+
+Epoch 231/5000
+
+Epoch 232/5000
+[21:28:21 - main - INFO] --------------------------
+[21:28:21 - main - INFO] Iter: 231    Time: 0.198
+[21:28:21 - main - INFO] -----------  -------------
+[21:28:21 - main - INFO] mse_loss     5.237e-04
+[21:28:21 - main - INFO] l2_loss      5.034e+02
+[21:28:21 - main - INFO] val_error    5.835e-04
+
+Epoch 233/5000
+[21:28:22 - main - INFO] --------------------------
+[21:28:22 - main - INFO] Iter: 232    Time: 0.528
+[21:28:22 - main - INFO] -----------  -------------
+[21:28:22 - main - INFO] mse_loss     5.302e-04
+[21:28:22 - main - INFO] l2_loss      5.022e+02
+[21:28:22 - main - INFO] val_error    6.331e-04
+
+Epoch 234/5000
+
+Epoch 235/5000
+[21:28:24 - main - INFO] --------------------------
+[21:28:24 - main - INFO] Iter: 234    Time: 0.278
+[21:28:24 - main - INFO] -----------  -------------
+[21:28:24 - main - INFO] mse_loss     8.520e-04
+[21:28:24 - main - INFO] l2_loss      5.028e+02
+[21:28:24 - main - INFO] val_error    9.783e-04
+
+Epoch 236/5000
+[21:28:25 - main - INFO] --------------------------
+[21:28:25 - main - INFO] Iter: 235    Time: 0.635
+[21:28:25 - main - INFO] -----------  -------------
+[21:28:25 - main - INFO] mse_loss     5.815e-04
+[21:28:25 - main - INFO] l2_loss      4.982e+02
+[21:28:25 - main - INFO] val_error    5.961e-04
+
+Epoch 237/5000
+
+Epoch 238/5000
+[21:28:26 - main - INFO] --------------------------
+[21:28:26 - main - INFO] Iter: 237    Time: 0.373
+[21:28:26 - main - INFO] -----------  -------------
+[21:28:26 - main - INFO] mse_loss     6.888e-04
+[21:28:26 - main - INFO] l2_loss      5.011e+02
+[21:28:26 - main - INFO] val_error    1.094e-03
+
+Epoch 239/5000
+
+Epoch 240/5000
+[21:28:27 - main - INFO] --------------------------
+[21:28:27 - main - INFO] Iter: 239    Time: 0.073
+[21:28:27 - main - INFO] -----------  -------------
+[21:28:27 - main - INFO] mse_loss     5.750e-04
+[21:28:27 - main - INFO] l2_loss      4.965e+02
+[21:28:27 - main - INFO] val_error    5.691e-04
+
+Epoch 241/5000
+[21:28:28 - main - INFO] --------------------------
+[21:28:28 - main - INFO] Iter: 240    Time: 0.420
+[21:28:28 - main - INFO] -----------  -------------
+[21:28:28 - main - INFO] mse_loss     4.966e-04
+[21:28:28 - main - INFO] l2_loss      4.909e+02
+[21:28:28 - main - INFO] val_error    5.958e-04
+
+Epoch 242/5000
+
+Epoch 243/5000
+[21:28:29 - main - INFO] --------------------------
+[21:28:29 - main - INFO] Iter: 242    Time: 0.149
+[21:28:29 - main - INFO] -----------  -------------
+[21:28:29 - main - INFO] mse_loss     7.957e-04
+[21:28:29 - main - INFO] l2_loss      4.886e+02
+[21:28:29 - main - INFO] val_error    9.047e-04
+
+Epoch 244/5000
+[21:28:30 - main - INFO] --------------------------
+[21:28:30 - main - INFO] Iter: 243    Time: 0.492
+[21:28:30 - main - INFO] -----------  -------------
+[21:28:30 - main - INFO] mse_loss     5.133e-04
+[21:28:30 - main - INFO] l2_loss      4.846e+02
+[21:28:30 - main - INFO] val_error    6.605e-04
+
+Epoch 245/5000
+
+Epoch 246/5000
+[21:28:31 - main - INFO] --------------------------
+[21:28:31 - main - INFO] Iter: 245    Time: 0.225
+[21:28:31 - main - INFO] -----------  -------------
+[21:28:31 - main - INFO] mse_loss     2.860e-03
+[21:28:31 - main - INFO] l2_loss      4.930e+02
+[21:28:31 - main - INFO] val_error    2.905e-03
+
+Epoch 247/5000
+[21:28:32 - main - INFO] --------------------------
+[21:28:32 - main - INFO] Iter: 246    Time: 0.564
+[21:28:32 - main - INFO] -----------  -------------
+[21:28:32 - main - INFO] mse_loss     4.748e-04
+[21:28:32 - main - INFO] l2_loss      4.931e+02
+[21:28:32 - main - INFO] val_error    5.636e-04
+
+Epoch 248/5000
+
+Epoch 249/5000
+[21:28:33 - main - INFO] --------------------------
+[21:28:33 - main - INFO] Iter: 248    Time: 0.302
+[21:28:33 - main - INFO] -----------  -------------
+[21:28:33 - main - INFO] mse_loss     4.252e-04
+[21:28:33 - main - INFO] l2_loss      4.878e+02
+[21:28:33 - main - INFO] val_error    4.372e-04
+
+Epoch 250/5000
+
+Epoch 251/5000
+[21:28:34 - main - INFO] --------------------------
+[21:28:34 - main - INFO] Iter: 250    Time: 0.039
+[21:28:34 - main - INFO] -----------  -------------
+[21:28:34 - main - INFO] mse_loss     8.098e-04
+[21:28:34 - main - INFO] l2_loss      4.823e+02
+[21:28:34 - main - INFO] val_error    8.328e-04
+
+Epoch 252/5000
+[21:28:35 - main - INFO] --------------------------
+[21:28:35 - main - INFO] Iter: 251    Time: 0.377
+[21:28:35 - main - INFO] -----------  -------------
+[21:28:35 - main - INFO] mse_loss     5.777e-04
+[21:28:35 - main - INFO] l2_loss      4.806e+02
+[21:28:35 - main - INFO] val_error    6.446e-04
+
+Epoch 253/5000
