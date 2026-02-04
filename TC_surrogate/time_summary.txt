@@ -2,3 +2,7 @@
 case_1 — 39.1 s
 case_1 — 362.7 s
 case_1 — 360.8 s
+case_1 — 131.5 s
+case_1 — 126.4 s
+case_1 — 127.8 s
+case_1 — 125.4 s

@@ -68,7 +68,7 @@ def get_config():
 
     config.logging = logging = ml_collections.ConfigDict()
     logging.log_every_steps = 1 # 1
-    logging.print_every_epochs = 1.
+    logging.print_every_epochs = 1
     logging.log_errors      = True
     logging.log_losses      = True
     logging.log_weights     = True
@@ -77,7 +77,7 @@ def get_config():
     logging.log_ntk         = False
 
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_epoch      = 499
+    saving.save_epoch      = 24
     saving.num_keep_ckpts  = 5
 
     # Misc

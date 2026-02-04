@@ -1,0 +1,15 @@
+{"time":"2026-02-02T21:35:53.948612-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/wandb/run-20260202_213553-wwwawcll/logs/debug-core.log"}
+{"time":"2026-02-02T21:35:54.057594-05:00","level":"INFO","msg":"created new stream","id":"wwwawcll"}
+{"time":"2026-02-02T21:35:54.05763-05:00","level":"INFO","msg":"stream: started","id":"wwwawcll"}
+{"time":"2026-02-02T21:35:54.057651-05:00","level":"INFO","msg":"handler: started","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:35:54.057651-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:35:54.057665-05:00","level":"INFO","msg":"sender: started","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:35:54.453332-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-02-02T21:38:02.196442-05:00","level":"INFO","msg":"stream: closing","id":"wwwawcll"}
+{"time":"2026-02-02T21:38:02.196459-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-02-02T21:38:02.197686-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-02-02T21:38:02.618007-05:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-02-02T21:38:02.881059-05:00","level":"INFO","msg":"handler: closed","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:38:02.881059-05:00","level":"INFO","msg":"sender: closed","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:38:02.881051-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"wwwawcll"}
+{"time":"2026-02-02T21:38:02.881637-05:00","level":"INFO","msg":"stream: closed","id":"wwwawcll"}

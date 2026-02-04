@@ -20,3 +20,22 @@ config: {'_wandb': {}}
 2026-02-02 21:32:48,120 INFO    MainThread:10481 [wandb_run.py:_redirect():2292] Wrapping output streams.
 2026-02-02 21:32:48,120 INFO    MainThread:10481 [wandb_run.py:_redirect():2317] Redirects installed.
 2026-02-02 21:32:48,121 INFO    MainThread:10481 [wandb_init.py:init():1037] run started, returning control to user process
+2026-02-02 21:35:03,871 WARNING MsgRouterThr:10481 [router.py:message_loop():77] message_loop has been closed
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/wandb/sdk/interface/router_sock.py", line 28, in _read_message
+    resp = self._sock_client.read_server_response(timeout=1)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/wandb/sdk/lib/sock_client.py", line 285, in read_server_response
+    data = self._read_packet_bytes(timeout=timeout)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/wandb/sdk/lib/sock_client.py", line 270, in _read_packet_bytes
+    raise SockClientClosedError
+wandb.sdk.lib.sock_client.SockClientClosedError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/wandb/sdk/interface/router.py", line 70, in message_loop
+    msg = self._read_message()
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/wandb/sdk/interface/router_sock.py", line 30, in _read_message
+    raise MessageRouterClosedError from e
+wandb.sdk.interface.router.MessageRouterClosedError
+2026-02-02 21:35:03,873 INFO    MsgRouterThr:10481 [mailbox.py:close():115] Closing mailbox, abandoning 1 handles.
