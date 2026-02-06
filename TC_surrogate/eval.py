@@ -29,7 +29,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     params = state['params']  # Extract trained model parameters
     
     # Load test dataset
-    test_data =np.genfromtxt("composite_materials_test_v3.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
+    test_data =np.genfromtxt("TC_dataset_test.csv", delimiter=',', skip_header=1)  # Ensure dataset function loads test set
 
     # Get input and output sizes from config
     input_dim = config.input_dim

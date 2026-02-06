@@ -48,7 +48,7 @@ def get_config():
     arch.activation = "relu"
 
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs = 200
+    training.max_epochs = 301
     training.batch_size = 512
 
     config.optim = optim = ml_collections.ConfigDict()
@@ -77,7 +77,7 @@ def get_config():
     logging.log_ntk         = False
 
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_epoch      = 24
+    saving.save_epoch      = 25
     saving.num_keep_ckpts  = 5
 
     # Misc

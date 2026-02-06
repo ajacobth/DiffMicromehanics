@@ -6,3 +6,5 @@ case_1 — 131.5 s
 case_1 — 126.4 s
 case_1 — 127.8 s
 case_1 — 125.4 s
+case_1 — 127.6 s
+case_1 — 189.4 s
