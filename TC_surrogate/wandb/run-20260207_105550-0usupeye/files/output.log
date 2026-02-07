@@ -1,0 +1,38 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 64, in train_and_evaluate
+    test_data = np.genfromtxt("TCPSD_dataset_validate.csv", delimiter=",", skip_header=1)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/npyio.py", line 1980, in genfromtxt
+    fid = np.lib._datasource.open(fname, 'rt', encoding=encoding)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/_datasource.py", line 193, in open
+    return ds.open(path, mode, encoding=encoding, newline=newline)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/_datasource.py", line 533, in open
+    raise FileNotFoundError(f"{path} not found.")
+FileNotFoundError: TCPSD_dataset_validate.csv not found.
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/train.py", line 64, in train_and_evaluate
+    test_data = np.genfromtxt("TCPSD_dataset_validate.csv", delimiter=",", skip_header=1)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/npyio.py", line 1980, in genfromtxt
+    fid = np.lib._datasource.open(fname, 'rt', encoding=encoding)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/_datasource.py", line 193, in open
+    return ds.open(path, mode, encoding=encoding, newline=newline)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/numpy/lib/_datasource.py", line 533, in open
+    raise FileNotFoundError(f"{path} not found.")
+FileNotFoundError: TCPSD_dataset_validate.csv not found.

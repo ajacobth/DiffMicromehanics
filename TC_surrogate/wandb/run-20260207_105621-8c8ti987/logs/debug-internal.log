@@ -1,0 +1,15 @@
+{"time":"2026-02-07T10:56:21.675786-05:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/wandb/run-20260207_105621-8c8ti987/logs/debug-core.log"}
+{"time":"2026-02-07T10:56:21.785219-05:00","level":"INFO","msg":"created new stream","id":"8c8ti987"}
+{"time":"2026-02-07T10:56:21.78527-05:00","level":"INFO","msg":"stream: started","id":"8c8ti987"}
+{"time":"2026-02-07T10:56:21.785307-05:00","level":"INFO","msg":"sender: started","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:56:21.785292-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:56:21.785358-05:00","level":"INFO","msg":"handler: started","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:56:22.160292-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-02-07T10:59:48.092304-05:00","level":"INFO","msg":"stream: closing","id":"8c8ti987"}
+{"time":"2026-02-07T10:59:48.092323-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-02-07T10:59:48.0932-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-02-07T10:59:48.547355-05:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-02-07T10:59:48.767042-05:00","level":"INFO","msg":"handler: closed","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:59:48.767046-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:59:48.767062-05:00","level":"INFO","msg":"sender: closed","stream_id":"8c8ti987"}
+{"time":"2026-02-07T10:59:48.767422-05:00","level":"INFO","msg":"stream: closed","id":"8c8ti987"}

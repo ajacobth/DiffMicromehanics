@@ -48,7 +48,7 @@ def get_config():
     arch.activation = "relu"
 
     config.training = training = ml_collections.ConfigDict()
-    training.max_epochs = 301
+    training.max_epochs = 501
     training.batch_size = 512
 
     config.optim = optim = ml_collections.ConfigDict()
@@ -64,7 +64,7 @@ def get_config():
     weighting.scheme = "grad_norm" # None
     weighting.init_weights = ml_collections.ConfigDict({"mse": 1., "l2": 1e-6})
     weighting.momentum = 0.9
-    weighting.update_every_steps = 1e12 # This way wrights are not udpated
+    weighting.update_every_steps = 1e12 # This way weights are not udpated
 
     config.logging = logging = ml_collections.ConfigDict()
     logging.log_every_steps = 1 # 1

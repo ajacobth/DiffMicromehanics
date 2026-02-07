@@ -1,0 +1,4131 @@
+Normalizing dataset: input_mean (12,), input_std (12,)
+                    target_mean (6,), target_std (6,)
+Using 1 device(s).
+num_samples=65536, batch_size=512, num_batches=128, total_steps=64128
+steps_per_epoch=128
+Waiting for JIT...
+
+Epoch 1/501
+I0207 11:39:58.390078 8745951360 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0207 11:39:58.390239 8745951360 utils.py:160] NumExpr defaulting to 8 threads.
+[11:39:58 - main - INFO] ------------------------------
+[11:39:58 - main - INFO] Iter:   0        Time: 1.592
+[11:39:58 - main - INFO] ---------------  -------------
+[11:39:58 - main - INFO] train/mse_loss   7.008e-02
+[11:39:58 - main - INFO] train/l2_loss    5.163e+02
+[11:39:58 - main - INFO] train/val_error  7.510e-02
+
+Epoch 2/501
+[11:39:59 - main - INFO] ------------------------------
+[11:39:59 - main - INFO] Iter:   1        Time: 0.513
+[11:39:59 - main - INFO] ---------------  -------------
+[11:39:59 - main - INFO] train/mse_loss   4.636e-02
+[11:39:59 - main - INFO] train/l2_loss    5.220e+02
+[11:39:59 - main - INFO] train/val_error  5.825e-02
+
+Epoch 3/501
+[11:39:59 - main - INFO] ------------------------------
+[11:39:59 - main - INFO] Iter:   2        Time: 0.515
+[11:39:59 - main - INFO] ---------------  -------------
+[11:39:59 - main - INFO] train/mse_loss   4.761e-02
+[11:39:59 - main - INFO] train/l2_loss    5.269e+02
+[11:39:59 - main - INFO] train/val_error  4.915e-02
+
+Epoch 4/501
+[11:40:00 - main - INFO] ------------------------------
+[11:40:00 - main - INFO] Iter:   3        Time: 0.514
+[11:40:00 - main - INFO] ---------------  -------------
+[11:40:00 - main - INFO] train/mse_loss   3.987e-02
+[11:40:00 - main - INFO] train/l2_loss    5.322e+02
+[11:40:00 - main - INFO] train/val_error  4.427e-02
+
+Epoch 5/501
+[11:40:00 - main - INFO] ------------------------------
+[11:40:00 - main - INFO] Iter:   4        Time: 0.510
+[11:40:00 - main - INFO] ---------------  -------------
+[11:40:00 - main - INFO] train/mse_loss   4.642e-02
+[11:40:00 - main - INFO] train/l2_loss    5.367e+02
+[11:40:00 - main - INFO] train/val_error  3.804e-02
+
+Epoch 6/501
+[11:40:01 - main - INFO] ------------------------------
+[11:40:01 - main - INFO] Iter:   5        Time: 0.517
+[11:40:01 - main - INFO] ---------------  -------------
+[11:40:01 - main - INFO] train/mse_loss   2.952e-02
+[11:40:01 - main - INFO] train/l2_loss    5.423e+02
+[11:40:01 - main - INFO] train/val_error  3.214e-02
+
+Epoch 7/501
+[11:40:01 - main - INFO] ------------------------------
+[11:40:01 - main - INFO] Iter:   6        Time: 0.518
+[11:40:01 - main - INFO] ---------------  -------------
+[11:40:01 - main - INFO] train/mse_loss   2.879e-02
+[11:40:01 - main - INFO] train/l2_loss    5.481e+02
+[11:40:01 - main - INFO] train/val_error  2.948e-02
+
+Epoch 8/501
+[11:40:02 - main - INFO] ------------------------------
+[11:40:02 - main - INFO] Iter:   7        Time: 0.512
+[11:40:02 - main - INFO] ---------------  -------------
+[11:40:02 - main - INFO] train/mse_loss   1.869e-02
+[11:40:02 - main - INFO] train/l2_loss    5.547e+02
+[11:40:02 - main - INFO] train/val_error  2.269e-02
+
+Epoch 9/501
+[11:40:02 - main - INFO] ------------------------------
+[11:40:02 - main - INFO] Iter:   8        Time: 0.514
+[11:40:02 - main - INFO] ---------------  -------------
+[11:40:02 - main - INFO] train/mse_loss   1.603e-02
+[11:40:02 - main - INFO] train/l2_loss    5.616e+02
+[11:40:02 - main - INFO] train/val_error  2.131e-02
+
+Epoch 10/501
+[11:40:03 - main - INFO] ------------------------------
+[11:40:03 - main - INFO] Iter:   9        Time: 0.515
+[11:40:03 - main - INFO] ---------------  -------------
+[11:40:03 - main - INFO] train/mse_loss   1.878e-02
+[11:40:03 - main - INFO] train/l2_loss    5.675e+02
+[11:40:03 - main - INFO] train/val_error  1.864e-02
+
+Epoch 11/501
+[11:40:03 - main - INFO] ------------------------------
+[11:40:03 - main - INFO] Iter:  10        Time: 0.504
+[11:40:03 - main - INFO] ---------------  -------------
+[11:40:03 - main - INFO] train/mse_loss   1.428e-02
+[11:40:03 - main - INFO] train/l2_loss    5.734e+02
+[11:40:03 - main - INFO] train/val_error  1.684e-02
+
+Epoch 12/501
+[11:40:04 - main - INFO] ------------------------------
+[11:40:04 - main - INFO] Iter:  11        Time: 0.479
+[11:40:04 - main - INFO] ---------------  -------------
+[11:40:04 - main - INFO] train/mse_loss   1.375e-02
+[11:40:04 - main - INFO] train/l2_loss    5.790e+02
+[11:40:04 - main - INFO] train/val_error  1.683e-02
+
+Epoch 13/501
+[11:40:04 - main - INFO] ------------------------------
+[11:40:04 - main - INFO] Iter:  12        Time: 0.511
+[11:40:04 - main - INFO] ---------------  -------------
+[11:40:04 - main - INFO] train/mse_loss   1.297e-02
+[11:40:04 - main - INFO] train/l2_loss    5.841e+02
+[11:40:04 - main - INFO] train/val_error  1.420e-02
+
+Epoch 14/501
+[11:40:05 - main - INFO] ------------------------------
+[11:40:05 - main - INFO] Iter:  13        Time: 0.523
+[11:40:05 - main - INFO] ---------------  -------------
+[11:40:05 - main - INFO] train/mse_loss   9.242e-03
+[11:40:05 - main - INFO] train/l2_loss    5.886e+02
+[11:40:05 - main - INFO] train/val_error  1.252e-02
+
+Epoch 15/501
+[11:40:05 - main - INFO] ------------------------------
+[11:40:05 - main - INFO] Iter:  14        Time: 0.520
+[11:40:05 - main - INFO] ---------------  -------------
+[11:40:05 - main - INFO] train/mse_loss   1.049e-02
+[11:40:05 - main - INFO] train/l2_loss    5.929e+02
+[11:40:05 - main - INFO] train/val_error  1.281e-02
+
+Epoch 16/501
+[11:40:06 - main - INFO] ------------------------------
+[11:40:06 - main - INFO] Iter:  15        Time: 0.524
+[11:40:06 - main - INFO] ---------------  -------------
+[11:40:06 - main - INFO] train/mse_loss   9.458e-03
+[11:40:06 - main - INFO] train/l2_loss    5.964e+02
+[11:40:06 - main - INFO] train/val_error  1.121e-02
+
+Epoch 17/501
+[11:40:06 - main - INFO] ------------------------------
+[11:40:06 - main - INFO] Iter:  16        Time: 0.508
+[11:40:06 - main - INFO] ---------------  -------------
+[11:40:06 - main - INFO] train/mse_loss   1.001e-02
+[11:40:06 - main - INFO] train/l2_loss    5.998e+02
+[11:40:06 - main - INFO] train/val_error  1.009e-02
+
+Epoch 18/501
+[11:40:07 - main - INFO] ------------------------------
+[11:40:07 - main - INFO] Iter:  17        Time: 0.520
+[11:40:07 - main - INFO] ---------------  -------------
+[11:40:07 - main - INFO] train/mse_loss   1.074e-02
+[11:40:07 - main - INFO] train/l2_loss    6.036e+02
+[11:40:07 - main - INFO] train/val_error  1.079e-02
+
+Epoch 19/501
+[11:40:07 - main - INFO] ------------------------------
+[11:40:07 - main - INFO] Iter:  18        Time: 0.517
+[11:40:07 - main - INFO] ---------------  -------------
+[11:40:07 - main - INFO] train/mse_loss   6.947e-03
+[11:40:07 - main - INFO] train/l2_loss    6.063e+02
+[11:40:07 - main - INFO] train/val_error  1.008e-02
+
+Epoch 20/501
+[11:40:08 - main - INFO] ------------------------------
+[11:40:08 - main - INFO] Iter:  19        Time: 0.512
+[11:40:08 - main - INFO] ---------------  -------------
+[11:40:08 - main - INFO] train/mse_loss   5.988e-03
+[11:40:08 - main - INFO] train/l2_loss    6.097e+02
+[11:40:08 - main - INFO] train/val_error  8.982e-03
+
+Epoch 21/501
+[11:40:08 - main - INFO] ------------------------------
+[11:40:08 - main - INFO] Iter:  20        Time: 0.526
+[11:40:08 - main - INFO] ---------------  -------------
+[11:40:08 - main - INFO] train/mse_loss   6.401e-03
+[11:40:08 - main - INFO] train/l2_loss    6.126e+02
+[11:40:08 - main - INFO] train/val_error  8.675e-03
+
+Epoch 22/501
+[11:40:09 - main - INFO] ------------------------------
+[11:40:09 - main - INFO] Iter:  21        Time: 0.524
+[11:40:09 - main - INFO] ---------------  -------------
+[11:40:09 - main - INFO] train/mse_loss   5.890e-03
+[11:40:09 - main - INFO] train/l2_loss    6.155e+02
+[11:40:09 - main - INFO] train/val_error  8.507e-03
+
+Epoch 23/501
+[11:40:09 - main - INFO] ------------------------------
+[11:40:09 - main - INFO] Iter:  22        Time: 0.527
+[11:40:09 - main - INFO] ---------------  -------------
+[11:40:09 - main - INFO] train/mse_loss   6.319e-03
+[11:40:09 - main - INFO] train/l2_loss    6.178e+02
+[11:40:09 - main - INFO] train/val_error  8.366e-03
+
+Epoch 24/501
+[11:40:10 - main - INFO] ------------------------------
+[11:40:10 - main - INFO] Iter:  23        Time: 0.523
+[11:40:10 - main - INFO] ---------------  -------------
+[11:40:10 - main - INFO] train/mse_loss   7.563e-03
+[11:40:10 - main - INFO] train/l2_loss    6.203e+02
+[11:40:10 - main - INFO] train/val_error  8.155e-03
+
+Epoch 25/501
+[11:40:10 - main - INFO] ------------------------------
+[11:40:10 - main - INFO] Iter:  24        Time: 0.514
+[11:40:10 - main - INFO] ---------------  -------------
+[11:40:10 - main - INFO] train/mse_loss   5.735e-03
+[11:40:10 - main - INFO] train/l2_loss    6.228e+02
+[11:40:10 - main - INFO] train/val_error  7.707e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:40:10.955977 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200.orbax-checkpoint-tmp-1770482410945405/default.
+I0207 11:40:10.963372 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200.orbax-checkpoint-tmp-1770482410945405/default.orbax-checkpoint-tmp-1770482410956188 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200.orbax-checkpoint-tmp-1770482410945405/default
+I0207 11:40:10.963659 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200.orbax-checkpoint-tmp-1770482410945405/default`.
+I0207 11:40:10.965354 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200.orbax-checkpoint-tmp-1770482410945405 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/3200
+
+Epoch 26/501
+[11:40:11 - main - INFO] ------------------------------
+[11:40:11 - main - INFO] Iter:  25        Time: 0.512
+[11:40:11 - main - INFO] ---------------  -------------
+[11:40:11 - main - INFO] train/mse_loss   5.705e-03
+[11:40:11 - main - INFO] train/l2_loss    6.247e+02
+[11:40:11 - main - INFO] train/val_error  7.131e-03
+
+Epoch 27/501
+[11:40:11 - main - INFO] ------------------------------
+[11:40:11 - main - INFO] Iter:  26        Time: 0.519
+[11:40:11 - main - INFO] ---------------  -------------
+[11:40:11 - main - INFO] train/mse_loss   6.412e-03
+[11:40:11 - main - INFO] train/l2_loss    6.269e+02
+[11:40:11 - main - INFO] train/val_error  8.673e-03
+
+Epoch 28/501
+[11:40:12 - main - INFO] ------------------------------
+[11:40:12 - main - INFO] Iter:  27        Time: 0.488
+[11:40:12 - main - INFO] ---------------  -------------
+[11:40:12 - main - INFO] train/mse_loss   6.421e-03
+[11:40:12 - main - INFO] train/l2_loss    6.286e+02
+[11:40:12 - main - INFO] train/val_error  7.032e-03
+
+Epoch 29/501
+[11:40:12 - main - INFO] ------------------------------
+[11:40:12 - main - INFO] Iter:  28        Time: 0.511
+[11:40:12 - main - INFO] ---------------  -------------
+[11:40:12 - main - INFO] train/mse_loss   4.976e-03
+[11:40:12 - main - INFO] train/l2_loss    6.303e+02
+[11:40:12 - main - INFO] train/val_error  6.433e-03
+
+Epoch 30/501
+[11:40:13 - main - INFO] ------------------------------
+[11:40:13 - main - INFO] Iter:  29        Time: 0.515
+[11:40:13 - main - INFO] ---------------  -------------
+[11:40:13 - main - INFO] train/mse_loss   5.167e-03
+[11:40:13 - main - INFO] train/l2_loss    6.324e+02
+[11:40:13 - main - INFO] train/val_error  6.720e-03
+
+Epoch 31/501
+[11:40:14 - main - INFO] ------------------------------
+[11:40:14 - main - INFO] Iter:  30        Time: 0.520
+[11:40:14 - main - INFO] ---------------  -------------
+[11:40:14 - main - INFO] train/mse_loss   5.046e-03
+[11:40:14 - main - INFO] train/l2_loss    6.333e+02
+[11:40:14 - main - INFO] train/val_error  7.143e-03
+
+Epoch 32/501
+[11:40:14 - main - INFO] ------------------------------
+[11:40:14 - main - INFO] Iter:  31        Time: 0.539
+[11:40:14 - main - INFO] ---------------  -------------
+[11:40:14 - main - INFO] train/mse_loss   4.458e-03
+[11:40:14 - main - INFO] train/l2_loss    6.353e+02
+[11:40:14 - main - INFO] train/val_error  6.450e-03
+
+Epoch 33/501
+[11:40:15 - main - INFO] ------------------------------
+[11:40:15 - main - INFO] Iter:  32        Time: 0.544
+[11:40:15 - main - INFO] ---------------  -------------
+[11:40:15 - main - INFO] train/mse_loss   3.626e-03
+[11:40:15 - main - INFO] train/l2_loss    6.372e+02
+[11:40:15 - main - INFO] train/val_error  4.927e-03
+
+Epoch 34/501
+[11:40:15 - main - INFO] ------------------------------
+[11:40:15 - main - INFO] Iter:  33        Time: 0.524
+[11:40:15 - main - INFO] ---------------  -------------
+[11:40:15 - main - INFO] train/mse_loss   3.718e-03
+[11:40:15 - main - INFO] train/l2_loss    6.385e+02
+[11:40:15 - main - INFO] train/val_error  5.840e-03
+
+Epoch 35/501
+[11:40:16 - main - INFO] ------------------------------
+[11:40:16 - main - INFO] Iter:  34        Time: 0.460
+[11:40:16 - main - INFO] ---------------  -------------
+[11:40:16 - main - INFO] train/mse_loss   3.993e-03
+[11:40:16 - main - INFO] train/l2_loss    6.401e+02
+[11:40:16 - main - INFO] train/val_error  5.524e-03
+
+Epoch 36/501
+[11:40:16 - main - INFO] ------------------------------
+[11:40:16 - main - INFO] Iter:  35        Time: 0.455
+[11:40:16 - main - INFO] ---------------  -------------
+[11:40:16 - main - INFO] train/mse_loss   4.109e-03
+[11:40:16 - main - INFO] train/l2_loss    6.404e+02
+[11:40:16 - main - INFO] train/val_error  5.535e-03
+
+Epoch 37/501
+[11:40:17 - main - INFO] ------------------------------
+[11:40:17 - main - INFO] Iter:  36        Time: 0.548
+[11:40:17 - main - INFO] ---------------  -------------
+[11:40:17 - main - INFO] train/mse_loss   3.678e-03
+[11:40:17 - main - INFO] train/l2_loss    6.414e+02
+[11:40:17 - main - INFO] train/val_error  4.692e-03
+
+Epoch 38/501
+[11:40:17 - main - INFO] ------------------------------
+[11:40:17 - main - INFO] Iter:  37        Time: 0.600
+[11:40:17 - main - INFO] ---------------  -------------
+[11:40:17 - main - INFO] train/mse_loss   4.589e-03
+[11:40:17 - main - INFO] train/l2_loss    6.424e+02
+[11:40:17 - main - INFO] train/val_error  4.727e-03
+
+Epoch 39/501
+[11:40:18 - main - INFO] ------------------------------
+[11:40:18 - main - INFO] Iter:  38        Time: 0.571
+[11:40:18 - main - INFO] ---------------  -------------
+[11:40:18 - main - INFO] train/mse_loss   3.870e-03
+[11:40:18 - main - INFO] train/l2_loss    6.435e+02
+[11:40:18 - main - INFO] train/val_error  5.166e-03
+
+Epoch 40/501
+[11:40:18 - main - INFO] ------------------------------
+[11:40:18 - main - INFO] Iter:  39        Time: 0.532
+[11:40:18 - main - INFO] ---------------  -------------
+[11:40:18 - main - INFO] train/mse_loss   3.912e-03
+[11:40:18 - main - INFO] train/l2_loss    6.443e+02
+[11:40:18 - main - INFO] train/val_error  5.691e-03
+
+Epoch 41/501
+[11:40:19 - main - INFO] ------------------------------
+[11:40:19 - main - INFO] Iter:  40        Time: 0.485
+[11:40:19 - main - INFO] ---------------  -------------
+[11:40:19 - main - INFO] train/mse_loss   3.356e-03
+[11:40:19 - main - INFO] train/l2_loss    6.451e+02
+[11:40:19 - main - INFO] train/val_error  4.978e-03
+
+Epoch 42/501
+[11:40:19 - main - INFO] ------------------------------
+[11:40:19 - main - INFO] Iter:  41        Time: 0.508
+[11:40:19 - main - INFO] ---------------  -------------
+[11:40:19 - main - INFO] train/mse_loss   3.434e-03
+[11:40:19 - main - INFO] train/l2_loss    6.448e+02
+[11:40:19 - main - INFO] train/val_error  4.559e-03
+
+Epoch 43/501
+[11:40:20 - main - INFO] ------------------------------
+[11:40:20 - main - INFO] Iter:  42        Time: 0.546
+[11:40:20 - main - INFO] ---------------  -------------
+[11:40:20 - main - INFO] train/mse_loss   2.665e-03
+[11:40:20 - main - INFO] train/l2_loss    6.462e+02
+[11:40:20 - main - INFO] train/val_error  4.875e-03
+
+Epoch 44/501
+[11:40:20 - main - INFO] ------------------------------
+[11:40:20 - main - INFO] Iter:  43        Time: 0.578
+[11:40:20 - main - INFO] ---------------  -------------
+[11:40:20 - main - INFO] train/mse_loss   3.800e-03
+[11:40:20 - main - INFO] train/l2_loss    6.466e+02
+[11:40:20 - main - INFO] train/val_error  5.033e-03
+
+Epoch 45/501
+[11:40:21 - main - INFO] ------------------------------
+[11:40:21 - main - INFO] Iter:  44        Time: 0.495
+[11:40:21 - main - INFO] ---------------  -------------
+[11:40:21 - main - INFO] train/mse_loss   3.029e-03
+[11:40:21 - main - INFO] train/l2_loss    6.474e+02
+[11:40:21 - main - INFO] train/val_error  4.330e-03
+
+Epoch 46/501
+[11:40:22 - main - INFO] ------------------------------
+[11:40:22 - main - INFO] Iter:  45        Time: 0.585
+[11:40:22 - main - INFO] ---------------  -------------
+[11:40:22 - main - INFO] train/mse_loss   2.729e-03
+[11:40:22 - main - INFO] train/l2_loss    6.477e+02
+[11:40:22 - main - INFO] train/val_error  5.150e-03
+
+Epoch 47/501
+[11:40:22 - main - INFO] ------------------------------
+[11:40:22 - main - INFO] Iter:  46        Time: 0.522
+[11:40:22 - main - INFO] ---------------  -------------
+[11:40:22 - main - INFO] train/mse_loss   3.639e-03
+[11:40:22 - main - INFO] train/l2_loss    6.477e+02
+[11:40:22 - main - INFO] train/val_error  4.540e-03
+
+Epoch 48/501
+[11:40:23 - main - INFO] ------------------------------
+[11:40:23 - main - INFO] Iter:  47        Time: 0.517
+[11:40:23 - main - INFO] ---------------  -------------
+[11:40:23 - main - INFO] train/mse_loss   3.758e-03
+[11:40:23 - main - INFO] train/l2_loss    6.482e+02
+[11:40:23 - main - INFO] train/val_error  5.234e-03
+
+Epoch 49/501
+[11:40:23 - main - INFO] ------------------------------
+[11:40:23 - main - INFO] Iter:  48        Time: 0.513
+[11:40:23 - main - INFO] ---------------  -------------
+[11:40:23 - main - INFO] train/mse_loss   3.585e-03
+[11:40:23 - main - INFO] train/l2_loss    6.478e+02
+[11:40:23 - main - INFO] train/val_error  4.808e-03
+
+Epoch 50/501
+[11:40:24 - main - INFO] ------------------------------
+[11:40:24 - main - INFO] Iter:  49        Time: 0.524
+[11:40:24 - main - INFO] ---------------  -------------
+[11:40:24 - main - INFO] train/mse_loss   3.563e-03
+[11:40:24 - main - INFO] train/l2_loss    6.475e+02
+[11:40:24 - main - INFO] train/val_error  5.042e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:40:24.093615 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400.orbax-checkpoint-tmp-1770482424091001/default.
+I0207 11:40:24.100492 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400.orbax-checkpoint-tmp-1770482424091001/default.orbax-checkpoint-tmp-1770482424093754 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400.orbax-checkpoint-tmp-1770482424091001/default
+I0207 11:40:24.100744 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400.orbax-checkpoint-tmp-1770482424091001/default`.
+I0207 11:40:24.102209 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400.orbax-checkpoint-tmp-1770482424091001 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/6400
+
+Epoch 51/501
+[11:40:24 - main - INFO] ------------------------------
+[11:40:24 - main - INFO] Iter:  50        Time: 0.521
+[11:40:24 - main - INFO] ---------------  -------------
+[11:40:24 - main - INFO] train/mse_loss   4.658e-03
+[11:40:24 - main - INFO] train/l2_loss    6.473e+02
+[11:40:24 - main - INFO] train/val_error  5.469e-03
+
+Epoch 52/501
+[11:40:25 - main - INFO] ------------------------------
+[11:40:25 - main - INFO] Iter:  51        Time: 0.520
+[11:40:25 - main - INFO] ---------------  -------------
+[11:40:25 - main - INFO] train/mse_loss   3.193e-03
+[11:40:25 - main - INFO] train/l2_loss    6.479e+02
+[11:40:25 - main - INFO] train/val_error  4.484e-03
+
+Epoch 53/501
+[11:40:25 - main - INFO] ------------------------------
+[11:40:25 - main - INFO] Iter:  52        Time: 0.519
+[11:40:25 - main - INFO] ---------------  -------------
+[11:40:25 - main - INFO] train/mse_loss   3.094e-03
+[11:40:25 - main - INFO] train/l2_loss    6.478e+02
+[11:40:25 - main - INFO] train/val_error  3.683e-03
+
+Epoch 54/501
+[11:40:26 - main - INFO] ------------------------------
+[11:40:26 - main - INFO] Iter:  53        Time: 0.523
+[11:40:26 - main - INFO] ---------------  -------------
+[11:40:26 - main - INFO] train/mse_loss   2.417e-03
+[11:40:26 - main - INFO] train/l2_loss    6.475e+02
+[11:40:26 - main - INFO] train/val_error  3.973e-03
+
+Epoch 55/501
+[11:40:26 - main - INFO] ------------------------------
+[11:40:26 - main - INFO] Iter:  54        Time: 0.517
+[11:40:26 - main - INFO] ---------------  -------------
+[11:40:26 - main - INFO] train/mse_loss   2.791e-03
+[11:40:26 - main - INFO] train/l2_loss    6.474e+02
+[11:40:26 - main - INFO] train/val_error  3.873e-03
+
+Epoch 56/501
+[11:40:27 - main - INFO] ------------------------------
+[11:40:27 - main - INFO] Iter:  55        Time: 0.522
+[11:40:27 - main - INFO] ---------------  -------------
+[11:40:27 - main - INFO] train/mse_loss   3.143e-03
+[11:40:27 - main - INFO] train/l2_loss    6.483e+02
+[11:40:27 - main - INFO] train/val_error  4.430e-03
+
+Epoch 57/501
+[11:40:27 - main - INFO] ------------------------------
+[11:40:27 - main - INFO] Iter:  56        Time: 0.474
+[11:40:27 - main - INFO] ---------------  -------------
+[11:40:27 - main - INFO] train/mse_loss   2.831e-03
+[11:40:27 - main - INFO] train/l2_loss    6.473e+02
+[11:40:27 - main - INFO] train/val_error  4.541e-03
+
+Epoch 58/501
+[11:40:28 - main - INFO] ------------------------------
+[11:40:28 - main - INFO] Iter:  57        Time: 0.495
+[11:40:28 - main - INFO] ---------------  -------------
+[11:40:28 - main - INFO] train/mse_loss   3.428e-03
+[11:40:28 - main - INFO] train/l2_loss    6.469e+02
+[11:40:28 - main - INFO] train/val_error  3.971e-03
+
+Epoch 59/501
+[11:40:28 - main - INFO] ------------------------------
+[11:40:28 - main - INFO] Iter:  58        Time: 0.507
+[11:40:28 - main - INFO] ---------------  -------------
+[11:40:28 - main - INFO] train/mse_loss   2.956e-03
+[11:40:28 - main - INFO] train/l2_loss    6.474e+02
+[11:40:28 - main - INFO] train/val_error  3.655e-03
+
+Epoch 60/501
+[11:40:29 - main - INFO] ------------------------------
+[11:40:29 - main - INFO] Iter:  59        Time: 0.502
+[11:40:29 - main - INFO] ---------------  -------------
+[11:40:29 - main - INFO] train/mse_loss   2.194e-03
+[11:40:29 - main - INFO] train/l2_loss    6.479e+02
+[11:40:29 - main - INFO] train/val_error  3.299e-03
+
+Epoch 61/501
+[11:40:29 - main - INFO] ------------------------------
+[11:40:29 - main - INFO] Iter:  60        Time: 0.496
+[11:40:29 - main - INFO] ---------------  -------------
+[11:40:29 - main - INFO] train/mse_loss   3.598e-03
+[11:40:29 - main - INFO] train/l2_loss    6.475e+02
+[11:40:29 - main - INFO] train/val_error  5.030e-03
+
+Epoch 62/501
+[11:40:30 - main - INFO] ------------------------------
+[11:40:30 - main - INFO] Iter:  61        Time: 0.501
+[11:40:30 - main - INFO] ---------------  -------------
+[11:40:30 - main - INFO] train/mse_loss   3.061e-03
+[11:40:30 - main - INFO] train/l2_loss    6.467e+02
+[11:40:30 - main - INFO] train/val_error  4.017e-03
+
+Epoch 63/501
+[11:40:30 - main - INFO] ------------------------------
+[11:40:30 - main - INFO] Iter:  62        Time: 0.528
+[11:40:30 - main - INFO] ---------------  -------------
+[11:40:30 - main - INFO] train/mse_loss   3.888e-03
+[11:40:30 - main - INFO] train/l2_loss    6.466e+02
+[11:40:30 - main - INFO] train/val_error  6.304e-03
+
+Epoch 64/501
+[11:40:31 - main - INFO] ------------------------------
+[11:40:31 - main - INFO] Iter:  63        Time: 0.508
+[11:40:31 - main - INFO] ---------------  -------------
+[11:40:31 - main - INFO] train/mse_loss   4.469e-03
+[11:40:31 - main - INFO] train/l2_loss    6.462e+02
+[11:40:31 - main - INFO] train/val_error  4.794e-03
+
+Epoch 65/501
+[11:40:31 - main - INFO] ------------------------------
+[11:40:31 - main - INFO] Iter:  64        Time: 0.518
+[11:40:31 - main - INFO] ---------------  -------------
+[11:40:31 - main - INFO] train/mse_loss   2.777e-03
+[11:40:31 - main - INFO] train/l2_loss    6.461e+02
+[11:40:31 - main - INFO] train/val_error  5.646e-03
+
+Epoch 66/501
+[11:40:32 - main - INFO] ------------------------------
+[11:40:32 - main - INFO] Iter:  65        Time: 0.525
+[11:40:32 - main - INFO] ---------------  -------------
+[11:40:32 - main - INFO] train/mse_loss   2.258e-03
+[11:40:32 - main - INFO] train/l2_loss    6.448e+02
+[11:40:32 - main - INFO] train/val_error  3.269e-03
+
+Epoch 67/501
+[11:40:32 - main - INFO] ------------------------------
+[11:40:32 - main - INFO] Iter:  66        Time: 0.564
+[11:40:32 - main - INFO] ---------------  -------------
+[11:40:32 - main - INFO] train/mse_loss   2.100e-03
+[11:40:32 - main - INFO] train/l2_loss    6.448e+02
+[11:40:32 - main - INFO] train/val_error  3.420e-03
+
+Epoch 68/501
+[11:40:33 - main - INFO] ------------------------------
+[11:40:33 - main - INFO] Iter:  67        Time: 0.531
+[11:40:33 - main - INFO] ---------------  -------------
+[11:40:33 - main - INFO] train/mse_loss   2.145e-03
+[11:40:33 - main - INFO] train/l2_loss    6.442e+02
+[11:40:33 - main - INFO] train/val_error  3.076e-03
+
+Epoch 69/501
+[11:40:33 - main - INFO] ------------------------------
+[11:40:33 - main - INFO] Iter:  68        Time: 0.467
+[11:40:33 - main - INFO] ---------------  -------------
+[11:40:33 - main - INFO] train/mse_loss   2.640e-03
+[11:40:33 - main - INFO] train/l2_loss    6.436e+02
+[11:40:33 - main - INFO] train/val_error  4.144e-03
+
+Epoch 70/501
+[11:40:34 - main - INFO] ------------------------------
+[11:40:34 - main - INFO] Iter:  69        Time: 0.571
+[11:40:34 - main - INFO] ---------------  -------------
+[11:40:34 - main - INFO] train/mse_loss   2.317e-03
+[11:40:34 - main - INFO] train/l2_loss    6.425e+02
+[11:40:34 - main - INFO] train/val_error  3.288e-03
+
+Epoch 71/501
+[11:40:34 - main - INFO] ------------------------------
+[11:40:34 - main - INFO] Iter:  70        Time: 0.542
+[11:40:34 - main - INFO] ---------------  -------------
+[11:40:34 - main - INFO] train/mse_loss   3.614e-03
+[11:40:34 - main - INFO] train/l2_loss    6.426e+02
+[11:40:34 - main - INFO] train/val_error  4.297e-03
+
+Epoch 72/501
+[11:40:35 - main - INFO] ------------------------------
+[11:40:35 - main - INFO] Iter:  71        Time: 0.538
+[11:40:35 - main - INFO] ---------------  -------------
+[11:40:35 - main - INFO] train/mse_loss   2.739e-03
+[11:40:35 - main - INFO] train/l2_loss    6.414e+02
+[11:40:35 - main - INFO] train/val_error  4.028e-03
+
+Epoch 73/501
+[11:40:36 - main - INFO] ------------------------------
+[11:40:36 - main - INFO] Iter:  72        Time: 0.523
+[11:40:36 - main - INFO] ---------------  -------------
+[11:40:36 - main - INFO] train/mse_loss   3.114e-03
+[11:40:36 - main - INFO] train/l2_loss    6.405e+02
+[11:40:36 - main - INFO] train/val_error  4.177e-03
+
+Epoch 74/501
+[11:40:36 - main - INFO] ------------------------------
+[11:40:36 - main - INFO] Iter:  73        Time: 0.543
+[11:40:36 - main - INFO] ---------------  -------------
+[11:40:36 - main - INFO] train/mse_loss   2.509e-03
+[11:40:36 - main - INFO] train/l2_loss    6.401e+02
+[11:40:36 - main - INFO] train/val_error  3.793e-03
+
+Epoch 75/501
+[11:40:37 - main - INFO] ------------------------------
+[11:40:37 - main - INFO] Iter:  74        Time: 0.648
+[11:40:37 - main - INFO] ---------------  -------------
+[11:40:37 - main - INFO] train/mse_loss   1.793e-03
+[11:40:37 - main - INFO] train/l2_loss    6.397e+02
+[11:40:37 - main - INFO] train/val_error  3.109e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:40:37.225644 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600.orbax-checkpoint-tmp-1770482437222711/default.
+I0207 11:40:37.235602 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600.orbax-checkpoint-tmp-1770482437222711/default.orbax-checkpoint-tmp-1770482437225838 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600.orbax-checkpoint-tmp-1770482437222711/default
+I0207 11:40:37.235931 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600.orbax-checkpoint-tmp-1770482437222711/default`.
+I0207 11:40:37.238732 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600.orbax-checkpoint-tmp-1770482437222711 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/9600
+
+Epoch 76/501
+[11:40:37 - main - INFO] ------------------------------
+[11:40:37 - main - INFO] Iter:  75        Time: 0.660
+[11:40:37 - main - INFO] ---------------  -------------
+[11:40:37 - main - INFO] train/mse_loss   2.036e-03
+[11:40:37 - main - INFO] train/l2_loss    6.394e+02
+[11:40:37 - main - INFO] train/val_error  2.628e-03
+
+Epoch 77/501
+[11:40:38 - main - INFO] ------------------------------
+[11:40:38 - main - INFO] Iter:  76        Time: 0.561
+[11:40:38 - main - INFO] ---------------  -------------
+[11:40:38 - main - INFO] train/mse_loss   3.307e-03
+[11:40:38 - main - INFO] train/l2_loss    6.393e+02
+[11:40:38 - main - INFO] train/val_error  3.568e-03
+
+Epoch 78/501
+[11:40:39 - main - INFO] ------------------------------
+[11:40:39 - main - INFO] Iter:  77        Time: 0.671
+[11:40:39 - main - INFO] ---------------  -------------
+[11:40:39 - main - INFO] train/mse_loss   2.349e-03
+[11:40:39 - main - INFO] train/l2_loss    6.384e+02
+[11:40:39 - main - INFO] train/val_error  3.788e-03
+
+Epoch 79/501
+[11:40:39 - main - INFO] ------------------------------
+[11:40:39 - main - INFO] Iter:  78        Time: 0.575
+[11:40:39 - main - INFO] ---------------  -------------
+[11:40:39 - main - INFO] train/mse_loss   3.926e-03
+[11:40:39 - main - INFO] train/l2_loss    6.372e+02
+[11:40:39 - main - INFO] train/val_error  4.973e-03
+
+Epoch 80/501
+[11:40:40 - main - INFO] ------------------------------
+[11:40:40 - main - INFO] Iter:  79        Time: 0.518
+[11:40:40 - main - INFO] ---------------  -------------
+[11:40:40 - main - INFO] train/mse_loss   2.388e-03
+[11:40:40 - main - INFO] train/l2_loss    6.365e+02
+[11:40:40 - main - INFO] train/val_error  3.015e-03
+
+Epoch 81/501
+[11:40:40 - main - INFO] ------------------------------
+[11:40:40 - main - INFO] Iter:  80        Time: 0.456
+[11:40:40 - main - INFO] ---------------  -------------
+[11:40:40 - main - INFO] train/mse_loss   2.575e-03
+[11:40:40 - main - INFO] train/l2_loss    6.349e+02
+[11:40:40 - main - INFO] train/val_error  3.585e-03
+
+Epoch 82/501
+[11:40:41 - main - INFO] ------------------------------
+[11:40:41 - main - INFO] Iter:  81        Time: 0.469
+[11:40:41 - main - INFO] ---------------  -------------
+[11:40:41 - main - INFO] train/mse_loss   2.261e-03
+[11:40:41 - main - INFO] train/l2_loss    6.346e+02
+[11:40:41 - main - INFO] train/val_error  2.931e-03
+
+Epoch 83/501
+[11:40:41 - main - INFO] ------------------------------
+[11:40:41 - main - INFO] Iter:  82        Time: 0.544
+[11:40:41 - main - INFO] ---------------  -------------
+[11:40:41 - main - INFO] train/mse_loss   1.688e-03
+[11:40:41 - main - INFO] train/l2_loss    6.332e+02
+[11:40:41 - main - INFO] train/val_error  2.618e-03
+
+Epoch 84/501
+[11:40:42 - main - INFO] ------------------------------
+[11:40:42 - main - INFO] Iter:  83        Time: 0.530
+[11:40:42 - main - INFO] ---------------  -------------
+[11:40:42 - main - INFO] train/mse_loss   3.539e-03
+[11:40:42 - main - INFO] train/l2_loss    6.329e+02
+[11:40:42 - main - INFO] train/val_error  4.797e-03
+
+Epoch 85/501
+[11:40:42 - main - INFO] ------------------------------
+[11:40:42 - main - INFO] Iter:  84        Time: 0.511
+[11:40:42 - main - INFO] ---------------  -------------
+[11:40:42 - main - INFO] train/mse_loss   1.989e-03
+[11:40:42 - main - INFO] train/l2_loss    6.322e+02
+[11:40:42 - main - INFO] train/val_error  2.613e-03
+
+Epoch 86/501
+[11:40:43 - main - INFO] ------------------------------
+[11:40:43 - main - INFO] Iter:  85        Time: 0.523
+[11:40:43 - main - INFO] ---------------  -------------
+[11:40:43 - main - INFO] train/mse_loss   2.278e-03
+[11:40:43 - main - INFO] train/l2_loss    6.323e+02
+[11:40:43 - main - INFO] train/val_error  3.210e-03
+
+Epoch 87/501
+[11:40:43 - main - INFO] ------------------------------
+[11:40:43 - main - INFO] Iter:  86        Time: 0.527
+[11:40:43 - main - INFO] ---------------  -------------
+[11:40:43 - main - INFO] train/mse_loss   2.272e-03
+[11:40:43 - main - INFO] train/l2_loss    6.304e+02
+[11:40:43 - main - INFO] train/val_error  3.082e-03
+
+Epoch 88/501
+[11:40:44 - main - INFO] ------------------------------
+[11:40:44 - main - INFO] Iter:  87        Time: 0.526
+[11:40:44 - main - INFO] ---------------  -------------
+[11:40:44 - main - INFO] train/mse_loss   1.875e-03
+[11:40:44 - main - INFO] train/l2_loss    6.301e+02
+[11:40:44 - main - INFO] train/val_error  2.917e-03
+
+Epoch 89/501
+[11:40:44 - main - INFO] ------------------------------
+[11:40:44 - main - INFO] Iter:  88        Time: 0.519
+[11:40:44 - main - INFO] ---------------  -------------
+[11:40:44 - main - INFO] train/mse_loss   4.264e-03
+[11:40:44 - main - INFO] train/l2_loss    6.295e+02
+[11:40:44 - main - INFO] train/val_error  4.466e-03
+
+Epoch 90/501
+[11:40:45 - main - INFO] ------------------------------
+[11:40:45 - main - INFO] Iter:  89        Time: 0.541
+[11:40:45 - main - INFO] ---------------  -------------
+[11:40:45 - main - INFO] train/mse_loss   2.016e-03
+[11:40:45 - main - INFO] train/l2_loss    6.296e+02
+[11:40:45 - main - INFO] train/val_error  3.029e-03
+
+Epoch 91/501
+[11:40:45 - main - INFO] ------------------------------
+[11:40:45 - main - INFO] Iter:  90        Time: 0.564
+[11:40:45 - main - INFO] ---------------  -------------
+[11:40:45 - main - INFO] train/mse_loss   1.692e-03
+[11:40:45 - main - INFO] train/l2_loss    6.286e+02
+[11:40:45 - main - INFO] train/val_error  2.908e-03
+
+Epoch 92/501
+[11:40:46 - main - INFO] ------------------------------
+[11:40:46 - main - INFO] Iter:  91        Time: 0.578
+[11:40:46 - main - INFO] ---------------  -------------
+[11:40:46 - main - INFO] train/mse_loss   2.684e-03
+[11:40:46 - main - INFO] train/l2_loss    6.270e+02
+[11:40:46 - main - INFO] train/val_error  3.610e-03
+
+Epoch 93/501
+[11:40:47 - main - INFO] ------------------------------
+[11:40:47 - main - INFO] Iter:  92        Time: 0.561
+[11:40:47 - main - INFO] ---------------  -------------
+[11:40:47 - main - INFO] train/mse_loss   2.562e-03
+[11:40:47 - main - INFO] train/l2_loss    6.265e+02
+[11:40:47 - main - INFO] train/val_error  3.172e-03
+
+Epoch 94/501
+[11:40:47 - main - INFO] ------------------------------
+[11:40:47 - main - INFO] Iter:  93        Time: 0.522
+[11:40:47 - main - INFO] ---------------  -------------
+[11:40:47 - main - INFO] train/mse_loss   2.081e-03
+[11:40:47 - main - INFO] train/l2_loss    6.256e+02
+[11:40:47 - main - INFO] train/val_error  2.899e-03
+
+Epoch 95/501
+[11:40:48 - main - INFO] ------------------------------
+[11:40:48 - main - INFO] Iter:  94        Time: 0.611
+[11:40:48 - main - INFO] ---------------  -------------
+[11:40:48 - main - INFO] train/mse_loss   3.128e-03
+[11:40:48 - main - INFO] train/l2_loss    6.242e+02
+[11:40:48 - main - INFO] train/val_error  4.402e-03
+
+Epoch 96/501
+[11:40:48 - main - INFO] ------------------------------
+[11:40:48 - main - INFO] Iter:  95        Time: 0.540
+[11:40:48 - main - INFO] ---------------  -------------
+[11:40:48 - main - INFO] train/mse_loss   1.917e-03
+[11:40:48 - main - INFO] train/l2_loss    6.238e+02
+[11:40:48 - main - INFO] train/val_error  3.642e-03
+
+Epoch 97/501
+[11:40:49 - main - INFO] ------------------------------
+[11:40:49 - main - INFO] Iter:  96        Time: 0.530
+[11:40:49 - main - INFO] ---------------  -------------
+[11:40:49 - main - INFO] train/mse_loss   1.797e-03
+[11:40:49 - main - INFO] train/l2_loss    6.231e+02
+[11:40:49 - main - INFO] train/val_error  2.883e-03
+
+Epoch 98/501
+[11:40:49 - main - INFO] ------------------------------
+[11:40:49 - main - INFO] Iter:  97        Time: 0.527
+[11:40:49 - main - INFO] ---------------  -------------
+[11:40:49 - main - INFO] train/mse_loss   2.553e-03
+[11:40:49 - main - INFO] train/l2_loss    6.219e+02
+[11:40:49 - main - INFO] train/val_error  3.724e-03
+
+Epoch 99/501
+[11:40:50 - main - INFO] ------------------------------
+[11:40:50 - main - INFO] Iter:  98        Time: 0.524
+[11:40:50 - main - INFO] ---------------  -------------
+[11:40:50 - main - INFO] train/mse_loss   3.638e-03
+[11:40:50 - main - INFO] train/l2_loss    6.217e+02
+[11:40:50 - main - INFO] train/val_error  4.873e-03
+
+Epoch 100/501
+[11:40:50 - main - INFO] ------------------------------
+[11:40:50 - main - INFO] Iter:  99        Time: 0.525
+[11:40:50 - main - INFO] ---------------  -------------
+[11:40:50 - main - INFO] train/mse_loss   2.667e-03
+[11:40:50 - main - INFO] train/l2_loss    6.204e+02
+[11:40:50 - main - INFO] train/val_error  3.691e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:40:50.875023 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800.orbax-checkpoint-tmp-1770482450872427/default.
+I0207 11:40:50.882452 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800.orbax-checkpoint-tmp-1770482450872427/default.orbax-checkpoint-tmp-1770482450875189 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800.orbax-checkpoint-tmp-1770482450872427/default
+I0207 11:40:50.882746 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800.orbax-checkpoint-tmp-1770482450872427/default`.
+I0207 11:40:50.884255 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800.orbax-checkpoint-tmp-1770482450872427 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/12800
+
+Epoch 101/501
+[11:40:51 - main - INFO] ------------------------------
+[11:40:51 - main - INFO] Iter: 100        Time: 0.524
+[11:40:51 - main - INFO] ---------------  -------------
+[11:40:51 - main - INFO] train/mse_loss   2.078e-03
+[11:40:51 - main - INFO] train/l2_loss    6.202e+02
+[11:40:51 - main - INFO] train/val_error  2.602e-03
+
+Epoch 102/501
+[11:40:51 - main - INFO] ------------------------------
+[11:40:51 - main - INFO] Iter: 101        Time: 0.523
+[11:40:51 - main - INFO] ---------------  -------------
+[11:40:51 - main - INFO] train/mse_loss   1.917e-03
+[11:40:51 - main - INFO] train/l2_loss    6.199e+02
+[11:40:51 - main - INFO] train/val_error  2.518e-03
+
+Epoch 103/501
+[11:40:52 - main - INFO] ------------------------------
+[11:40:52 - main - INFO] Iter: 102        Time: 0.520
+[11:40:52 - main - INFO] ---------------  -------------
+[11:40:52 - main - INFO] train/mse_loss   2.008e-03
+[11:40:52 - main - INFO] train/l2_loss    6.194e+02
+[11:40:52 - main - INFO] train/val_error  2.831e-03
+
+Epoch 104/501
+[11:40:52 - main - INFO] ------------------------------
+[11:40:52 - main - INFO] Iter: 103        Time: 0.523
+[11:40:52 - main - INFO] ---------------  -------------
+[11:40:52 - main - INFO] train/mse_loss   1.391e-03
+[11:40:52 - main - INFO] train/l2_loss    6.177e+02
+[11:40:52 - main - INFO] train/val_error  2.499e-03
+
+Epoch 105/501
+[11:40:53 - main - INFO] ------------------------------
+[11:40:53 - main - INFO] Iter: 104        Time: 0.524
+[11:40:53 - main - INFO] ---------------  -------------
+[11:40:53 - main - INFO] train/mse_loss   4.528e-03
+[11:40:53 - main - INFO] train/l2_loss    6.167e+02
+[11:40:53 - main - INFO] train/val_error  4.828e-03
+
+Epoch 106/501
+[11:40:54 - main - INFO] ------------------------------
+[11:40:54 - main - INFO] Iter: 105        Time: 0.520
+[11:40:54 - main - INFO] ---------------  -------------
+[11:40:54 - main - INFO] train/mse_loss   1.901e-03
+[11:40:54 - main - INFO] train/l2_loss    6.156e+02
+[11:40:54 - main - INFO] train/val_error  3.277e-03
+
+Epoch 107/501
+[11:40:54 - main - INFO] ------------------------------
+[11:40:54 - main - INFO] Iter: 106        Time: 0.526
+[11:40:54 - main - INFO] ---------------  -------------
+[11:40:54 - main - INFO] train/mse_loss   2.465e-03
+[11:40:54 - main - INFO] train/l2_loss    6.138e+02
+[11:40:54 - main - INFO] train/val_error  3.214e-03
+
+Epoch 108/501
+[11:40:55 - main - INFO] ------------------------------
+[11:40:55 - main - INFO] Iter: 107        Time: 0.525
+[11:40:55 - main - INFO] ---------------  -------------
+[11:40:55 - main - INFO] train/mse_loss   2.497e-03
+[11:40:55 - main - INFO] train/l2_loss    6.129e+02
+[11:40:55 - main - INFO] train/val_error  3.759e-03
+
+Epoch 109/501
+[11:40:55 - main - INFO] ------------------------------
+[11:40:55 - main - INFO] Iter: 108        Time: 0.524
+[11:40:55 - main - INFO] ---------------  -------------
+[11:40:55 - main - INFO] train/mse_loss   1.745e-03
+[11:40:55 - main - INFO] train/l2_loss    6.128e+02
+[11:40:55 - main - INFO] train/val_error  2.700e-03
+
+Epoch 110/501
+[11:40:56 - main - INFO] ------------------------------
+[11:40:56 - main - INFO] Iter: 109        Time: 0.522
+[11:40:56 - main - INFO] ---------------  -------------
+[11:40:56 - main - INFO] train/mse_loss   2.047e-03
+[11:40:56 - main - INFO] train/l2_loss    6.115e+02
+[11:40:56 - main - INFO] train/val_error  2.829e-03
+
+Epoch 111/501
+[11:40:56 - main - INFO] ------------------------------
+[11:40:56 - main - INFO] Iter: 110        Time: 0.516
+[11:40:56 - main - INFO] ---------------  -------------
+[11:40:56 - main - INFO] train/mse_loss   2.372e-03
+[11:40:56 - main - INFO] train/l2_loss    6.114e+02
+[11:40:56 - main - INFO] train/val_error  3.277e-03
+
+Epoch 112/501
+[11:40:57 - main - INFO] ------------------------------
+[11:40:57 - main - INFO] Iter: 111        Time: 0.516
+[11:40:57 - main - INFO] ---------------  -------------
+[11:40:57 - main - INFO] train/mse_loss   1.492e-03
+[11:40:57 - main - INFO] train/l2_loss    6.108e+02
+[11:40:57 - main - INFO] train/val_error  2.436e-03
+
+Epoch 113/501
+[11:40:57 - main - INFO] ------------------------------
+[11:40:57 - main - INFO] Iter: 112        Time: 0.528
+[11:40:57 - main - INFO] ---------------  -------------
+[11:40:57 - main - INFO] train/mse_loss   2.036e-03
+[11:40:57 - main - INFO] train/l2_loss    6.089e+02
+[11:40:57 - main - INFO] train/val_error  3.335e-03
+
+Epoch 114/501
+[11:40:58 - main - INFO] ------------------------------
+[11:40:58 - main - INFO] Iter: 113        Time: 0.538
+[11:40:58 - main - INFO] ---------------  -------------
+[11:40:58 - main - INFO] train/mse_loss   1.456e-03
+[11:40:58 - main - INFO] train/l2_loss    6.083e+02
+[11:40:58 - main - INFO] train/val_error  2.378e-03
+
+Epoch 115/501
+[11:40:58 - main - INFO] ------------------------------
+[11:40:58 - main - INFO] Iter: 114        Time: 0.534
+[11:40:58 - main - INFO] ---------------  -------------
+[11:40:58 - main - INFO] train/mse_loss   1.635e-03
+[11:40:58 - main - INFO] train/l2_loss    6.073e+02
+[11:40:58 - main - INFO] train/val_error  2.407e-03
+
+Epoch 116/501
+[11:40:59 - main - INFO] ------------------------------
+[11:40:59 - main - INFO] Iter: 115        Time: 0.605
+[11:40:59 - main - INFO] ---------------  -------------
+[11:40:59 - main - INFO] train/mse_loss   1.836e-03
+[11:40:59 - main - INFO] train/l2_loss    6.062e+02
+[11:40:59 - main - INFO] train/val_error  2.568e-03
+
+Epoch 117/501
+[11:40:59 - main - INFO] ------------------------------
+[11:40:59 - main - INFO] Iter: 116        Time: 0.549
+[11:40:59 - main - INFO] ---------------  -------------
+[11:40:59 - main - INFO] train/mse_loss   1.518e-03
+[11:40:59 - main - INFO] train/l2_loss    6.055e+02
+[11:40:59 - main - INFO] train/val_error  2.281e-03
+
+Epoch 118/501
+[11:41:00 - main - INFO] ------------------------------
+[11:41:00 - main - INFO] Iter: 117        Time: 0.538
+[11:41:00 - main - INFO] ---------------  -------------
+[11:41:00 - main - INFO] train/mse_loss   1.802e-03
+[11:41:00 - main - INFO] train/l2_loss    6.046e+02
+[11:41:00 - main - INFO] train/val_error  2.520e-03
+
+Epoch 119/501
+[11:41:00 - main - INFO] ------------------------------
+[11:41:00 - main - INFO] Iter: 118        Time: 0.507
+[11:41:00 - main - INFO] ---------------  -------------
+[11:41:00 - main - INFO] train/mse_loss   2.023e-03
+[11:41:00 - main - INFO] train/l2_loss    6.036e+02
+[11:41:00 - main - INFO] train/val_error  2.641e-03
+
+Epoch 120/501
+[11:41:01 - main - INFO] ------------------------------
+[11:41:01 - main - INFO] Iter: 119        Time: 0.516
+[11:41:01 - main - INFO] ---------------  -------------
+[11:41:01 - main - INFO] train/mse_loss   1.917e-03
+[11:41:01 - main - INFO] train/l2_loss    6.029e+02
+[11:41:01 - main - INFO] train/val_error  2.623e-03
+
+Epoch 121/501
+[11:41:01 - main - INFO] ------------------------------
+[11:41:01 - main - INFO] Iter: 120        Time: 0.504
+[11:41:01 - main - INFO] ---------------  -------------
+[11:41:01 - main - INFO] train/mse_loss   2.388e-03
+[11:41:01 - main - INFO] train/l2_loss    6.016e+02
+[11:41:01 - main - INFO] train/val_error  3.378e-03
+
+Epoch 122/501
+[11:41:02 - main - INFO] ------------------------------
+[11:41:02 - main - INFO] Iter: 121        Time: 0.503
+[11:41:02 - main - INFO] ---------------  -------------
+[11:41:02 - main - INFO] train/mse_loss   1.572e-03
+[11:41:02 - main - INFO] train/l2_loss    6.016e+02
+[11:41:02 - main - INFO] train/val_error  2.378e-03
+
+Epoch 123/501
+[11:41:03 - main - INFO] ------------------------------
+[11:41:03 - main - INFO] Iter: 122        Time: 0.528
+[11:41:03 - main - INFO] ---------------  -------------
+[11:41:03 - main - INFO] train/mse_loss   2.258e-03
+[11:41:03 - main - INFO] train/l2_loss    6.003e+02
+[11:41:03 - main - INFO] train/val_error  3.227e-03
+
+Epoch 124/501
+[11:41:03 - main - INFO] ------------------------------
+[11:41:03 - main - INFO] Iter: 123        Time: 0.637
+[11:41:03 - main - INFO] ---------------  -------------
+[11:41:03 - main - INFO] train/mse_loss   1.885e-03
+[11:41:03 - main - INFO] train/l2_loss    5.988e+02
+[11:41:03 - main - INFO] train/val_error  2.577e-03
+
+Epoch 125/501
+[11:41:04 - main - INFO] ------------------------------
+[11:41:04 - main - INFO] Iter: 124        Time: 0.554
+[11:41:04 - main - INFO] ---------------  -------------
+[11:41:04 - main - INFO] train/mse_loss   2.975e-03
+[11:41:04 - main - INFO] train/l2_loss    5.979e+02
+[11:41:04 - main - INFO] train/val_error  4.375e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:41:04.208215 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000.orbax-checkpoint-tmp-1770482464205569/default.
+I0207 11:41:04.215137 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000.orbax-checkpoint-tmp-1770482464205569/default.orbax-checkpoint-tmp-1770482464208360 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000.orbax-checkpoint-tmp-1770482464205569/default
+I0207 11:41:04.215408 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000.orbax-checkpoint-tmp-1770482464205569/default`.
+I0207 11:41:04.216958 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000.orbax-checkpoint-tmp-1770482464205569 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/16000
+
+Epoch 126/501
+[11:41:04 - main - INFO] ------------------------------
+[11:41:04 - main - INFO] Iter: 125        Time: 0.536
+[11:41:04 - main - INFO] ---------------  -------------
+[11:41:04 - main - INFO] train/mse_loss   2.081e-03
+[11:41:04 - main - INFO] train/l2_loss    5.975e+02
+[11:41:04 - main - INFO] train/val_error  2.844e-03
+
+Epoch 127/501
+[11:41:05 - main - INFO] ------------------------------
+[11:41:05 - main - INFO] Iter: 126        Time: 0.513
+[11:41:05 - main - INFO] ---------------  -------------
+[11:41:05 - main - INFO] train/mse_loss   1.222e-03
+[11:41:05 - main - INFO] train/l2_loss    5.972e+02
+[11:41:05 - main - INFO] train/val_error  2.182e-03
+
+Epoch 128/501
+[11:41:05 - main - INFO] ------------------------------
+[11:41:05 - main - INFO] Iter: 127        Time: 0.525
+[11:41:05 - main - INFO] ---------------  -------------
+[11:41:05 - main - INFO] train/mse_loss   1.296e-03
+[11:41:05 - main - INFO] train/l2_loss    5.958e+02
+[11:41:05 - main - INFO] train/val_error  2.189e-03
+
+Epoch 129/501
+[11:41:06 - main - INFO] ------------------------------
+[11:41:06 - main - INFO] Iter: 128        Time: 0.516
+[11:41:06 - main - INFO] ---------------  -------------
+[11:41:06 - main - INFO] train/mse_loss   1.695e-03
+[11:41:06 - main - INFO] train/l2_loss    5.945e+02
+[11:41:06 - main - INFO] train/val_error  2.439e-03
+
+Epoch 130/501
+[11:41:06 - main - INFO] ------------------------------
+[11:41:06 - main - INFO] Iter: 129        Time: 0.564
+[11:41:06 - main - INFO] ---------------  -------------
+[11:41:06 - main - INFO] train/mse_loss   2.327e-03
+[11:41:06 - main - INFO] train/l2_loss    5.931e+02
+[11:41:06 - main - INFO] train/val_error  3.135e-03
+
+Epoch 131/501
+[11:41:07 - main - INFO] ------------------------------
+[11:41:07 - main - INFO] Iter: 130        Time: 0.519
+[11:41:07 - main - INFO] ---------------  -------------
+[11:41:07 - main - INFO] train/mse_loss   1.559e-03
+[11:41:07 - main - INFO] train/l2_loss    5.923e+02
+[11:41:07 - main - INFO] train/val_error  2.255e-03
+
+Epoch 132/501
+[11:41:07 - main - INFO] ------------------------------
+[11:41:07 - main - INFO] Iter: 131        Time: 0.510
+[11:41:07 - main - INFO] ---------------  -------------
+[11:41:07 - main - INFO] train/mse_loss   2.329e-03
+[11:41:07 - main - INFO] train/l2_loss    5.921e+02
+[11:41:07 - main - INFO] train/val_error  3.175e-03
+
+Epoch 133/501
+[11:41:08 - main - INFO] ------------------------------
+[11:41:08 - main - INFO] Iter: 132        Time: 0.516
+[11:41:08 - main - INFO] ---------------  -------------
+[11:41:08 - main - INFO] train/mse_loss   2.121e-03
+[11:41:08 - main - INFO] train/l2_loss    5.918e+02
+[11:41:08 - main - INFO] train/val_error  2.923e-03
+
+Epoch 134/501
+[11:41:08 - main - INFO] ------------------------------
+[11:41:08 - main - INFO] Iter: 133        Time: 0.517
+[11:41:08 - main - INFO] ---------------  -------------
+[11:41:08 - main - INFO] train/mse_loss   1.819e-03
+[11:41:08 - main - INFO] train/l2_loss    5.908e+02
+[11:41:08 - main - INFO] train/val_error  2.687e-03
+
+Epoch 135/501
+[11:41:09 - main - INFO] ------------------------------
+[11:41:09 - main - INFO] Iter: 134        Time: 0.547
+[11:41:09 - main - INFO] ---------------  -------------
+[11:41:09 - main - INFO] train/mse_loss   1.653e-03
+[11:41:09 - main - INFO] train/l2_loss    5.898e+02
+[11:41:09 - main - INFO] train/val_error  2.488e-03
+
+Epoch 136/501
+[11:41:10 - main - INFO] ------------------------------
+[11:41:10 - main - INFO] Iter: 135        Time: 0.637
+[11:41:10 - main - INFO] ---------------  -------------
+[11:41:10 - main - INFO] train/mse_loss   1.997e-03
+[11:41:10 - main - INFO] train/l2_loss    5.890e+02
+[11:41:10 - main - INFO] train/val_error  3.268e-03
+
+Epoch 137/501
+[11:41:10 - main - INFO] ------------------------------
+[11:41:10 - main - INFO] Iter: 136        Time: 0.509
+[11:41:10 - main - INFO] ---------------  -------------
+[11:41:10 - main - INFO] train/mse_loss   1.022e-03
+[11:41:10 - main - INFO] train/l2_loss    5.883e+02
+[11:41:10 - main - INFO] train/val_error  1.773e-03
+
+Epoch 138/501
+[11:41:11 - main - INFO] ------------------------------
+[11:41:11 - main - INFO] Iter: 137        Time: 0.498
+[11:41:11 - main - INFO] ---------------  -------------
+[11:41:11 - main - INFO] train/mse_loss   1.035e-03
+[11:41:11 - main - INFO] train/l2_loss    5.878e+02
+[11:41:11 - main - INFO] train/val_error  1.820e-03
+
+Epoch 139/501
+[11:41:11 - main - INFO] ------------------------------
+[11:41:11 - main - INFO] Iter: 138        Time: 0.556
+[11:41:11 - main - INFO] ---------------  -------------
+[11:41:11 - main - INFO] train/mse_loss   1.706e-03
+[11:41:11 - main - INFO] train/l2_loss    5.861e+02
+[11:41:11 - main - INFO] train/val_error  2.065e-03
+
+Epoch 140/501
+[11:41:12 - main - INFO] ------------------------------
+[11:41:12 - main - INFO] Iter: 139        Time: 0.540
+[11:41:12 - main - INFO] ---------------  -------------
+[11:41:12 - main - INFO] train/mse_loss   3.003e-03
+[11:41:12 - main - INFO] train/l2_loss    5.836e+02
+[11:41:12 - main - INFO] train/val_error  3.537e-03
+
+Epoch 141/501
+[11:41:12 - main - INFO] ------------------------------
+[11:41:12 - main - INFO] Iter: 140        Time: 0.509
+[11:41:12 - main - INFO] ---------------  -------------
+[11:41:12 - main - INFO] train/mse_loss   2.397e-03
+[11:41:12 - main - INFO] train/l2_loss    5.830e+02
+[11:41:12 - main - INFO] train/val_error  2.898e-03
+
+Epoch 142/501
+[11:41:13 - main - INFO] ------------------------------
+[11:41:13 - main - INFO] Iter: 141        Time: 0.524
+[11:41:13 - main - INFO] ---------------  -------------
+[11:41:13 - main - INFO] train/mse_loss   1.563e-03
+[11:41:13 - main - INFO] train/l2_loss    5.829e+02
+[11:41:13 - main - INFO] train/val_error  2.321e-03
+
+Epoch 143/501
+[11:41:13 - main - INFO] ------------------------------
+[11:41:13 - main - INFO] Iter: 142        Time: 0.524
+[11:41:13 - main - INFO] ---------------  -------------
+[11:41:13 - main - INFO] train/mse_loss   1.645e-03
+[11:41:13 - main - INFO] train/l2_loss    5.818e+02
+[11:41:13 - main - INFO] train/val_error  2.434e-03
+
+Epoch 144/501
+[11:41:14 - main - INFO] ------------------------------
+[11:41:14 - main - INFO] Iter: 143        Time: 0.523
+[11:41:14 - main - INFO] ---------------  -------------
+[11:41:14 - main - INFO] train/mse_loss   2.021e-03
+[11:41:14 - main - INFO] train/l2_loss    5.810e+02
+[11:41:14 - main - INFO] train/val_error  2.937e-03
+
+Epoch 145/501
+[11:41:14 - main - INFO] ------------------------------
+[11:41:14 - main - INFO] Iter: 144        Time: 0.526
+[11:41:14 - main - INFO] ---------------  -------------
+[11:41:14 - main - INFO] train/mse_loss   1.491e-03
+[11:41:14 - main - INFO] train/l2_loss    5.798e+02
+[11:41:14 - main - INFO] train/val_error  2.963e-03
+
+Epoch 146/501
+[11:41:15 - main - INFO] ------------------------------
+[11:41:15 - main - INFO] Iter: 145        Time: 0.521
+[11:41:15 - main - INFO] ---------------  -------------
+[11:41:15 - main - INFO] train/mse_loss   2.066e-03
+[11:41:15 - main - INFO] train/l2_loss    5.794e+02
+[11:41:15 - main - INFO] train/val_error  3.390e-03
+
+Epoch 147/501
+[11:41:15 - main - INFO] ------------------------------
+[11:41:15 - main - INFO] Iter: 146        Time: 0.519
+[11:41:15 - main - INFO] ---------------  -------------
+[11:41:15 - main - INFO] train/mse_loss   2.552e-03
+[11:41:15 - main - INFO] train/l2_loss    5.788e+02
+[11:41:15 - main - INFO] train/val_error  3.045e-03
+
+Epoch 148/501
+[11:41:16 - main - INFO] ------------------------------
+[11:41:16 - main - INFO] Iter: 147        Time: 0.522
+[11:41:16 - main - INFO] ---------------  -------------
+[11:41:16 - main - INFO] train/mse_loss   1.587e-03
+[11:41:16 - main - INFO] train/l2_loss    5.790e+02
+[11:41:16 - main - INFO] train/val_error  2.461e-03
+
+Epoch 149/501
+[11:41:16 - main - INFO] ------------------------------
+[11:41:16 - main - INFO] Iter: 148        Time: 0.524
+[11:41:16 - main - INFO] ---------------  -------------
+[11:41:16 - main - INFO] train/mse_loss   1.540e-03
+[11:41:16 - main - INFO] train/l2_loss    5.777e+02
+[11:41:16 - main - INFO] train/val_error  2.212e-03
+
+Epoch 150/501
+[11:41:17 - main - INFO] ------------------------------
+[11:41:17 - main - INFO] Iter: 149        Time: 0.517
+[11:41:17 - main - INFO] ---------------  -------------
+[11:41:17 - main - INFO] train/mse_loss   1.818e-03
+[11:41:17 - main - INFO] train/l2_loss    5.761e+02
+[11:41:17 - main - INFO] train/val_error  2.526e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:41:17.448776 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200.orbax-checkpoint-tmp-1770482477446290/default.
+I0207 11:41:17.455851 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200.orbax-checkpoint-tmp-1770482477446290/default.orbax-checkpoint-tmp-1770482477448905 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200.orbax-checkpoint-tmp-1770482477446290/default
+I0207 11:41:17.456127 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200.orbax-checkpoint-tmp-1770482477446290/default`.
+I0207 11:41:17.458112 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=3200 | time=2026-02-07 16:40:10.964655+00:00]: (Reason: old checkpoint).
+I0207 11:41:17.459079 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200.orbax-checkpoint-tmp-1770482477446290 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/19200
+
+Epoch 151/501
+[11:41:17 - main - INFO] ------------------------------
+[11:41:17 - main - INFO] Iter: 150        Time: 0.461
+[11:41:17 - main - INFO] ---------------  -------------
+[11:41:17 - main - INFO] train/mse_loss   1.442e-03
+[11:41:17 - main - INFO] train/l2_loss    5.751e+02
+[11:41:17 - main - INFO] train/val_error  2.186e-03
+
+Epoch 152/501
+[11:41:18 - main - INFO] ------------------------------
+[11:41:18 - main - INFO] Iter: 151        Time: 0.444
+[11:41:18 - main - INFO] ---------------  -------------
+[11:41:18 - main - INFO] train/mse_loss   9.582e-04
+[11:41:18 - main - INFO] train/l2_loss    5.740e+02
+[11:41:18 - main - INFO] train/val_error  2.148e-03
+
+Epoch 153/501
+[11:41:18 - main - INFO] ------------------------------
+[11:41:18 - main - INFO] Iter: 152        Time: 0.440
+[11:41:18 - main - INFO] ---------------  -------------
+[11:41:18 - main - INFO] train/mse_loss   1.223e-03
+[11:41:18 - main - INFO] train/l2_loss    5.729e+02
+[11:41:18 - main - INFO] train/val_error  1.606e-03
+
+Epoch 154/501
+[11:41:19 - main - INFO] ------------------------------
+[11:41:19 - main - INFO] Iter: 153        Time: 0.541
+[11:41:19 - main - INFO] ---------------  -------------
+[11:41:19 - main - INFO] train/mse_loss   1.571e-03
+[11:41:19 - main - INFO] train/l2_loss    5.712e+02
+[11:41:19 - main - INFO] train/val_error  2.933e-03
+
+Epoch 155/501
+[11:41:19 - main - INFO] ------------------------------
+[11:41:19 - main - INFO] Iter: 154        Time: 0.499
+[11:41:19 - main - INFO] ---------------  -------------
+[11:41:19 - main - INFO] train/mse_loss   1.397e-03
+[11:41:19 - main - INFO] train/l2_loss    5.704e+02
+[11:41:19 - main - INFO] train/val_error  2.208e-03
+
+Epoch 156/501
+[11:41:20 - main - INFO] ------------------------------
+[11:41:20 - main - INFO] Iter: 155        Time: 0.475
+[11:41:20 - main - INFO] ---------------  -------------
+[11:41:20 - main - INFO] train/mse_loss   1.119e-03
+[11:41:20 - main - INFO] train/l2_loss    5.704e+02
+[11:41:20 - main - INFO] train/val_error  1.932e-03
+
+Epoch 157/501
+[11:41:20 - main - INFO] ------------------------------
+[11:41:20 - main - INFO] Iter: 156        Time: 0.469
+[11:41:20 - main - INFO] ---------------  -------------
+[11:41:20 - main - INFO] train/mse_loss   1.603e-03
+[11:41:20 - main - INFO] train/l2_loss    5.692e+02
+[11:41:20 - main - INFO] train/val_error  2.405e-03
+
+Epoch 158/501
+[11:41:21 - main - INFO] ------------------------------
+[11:41:21 - main - INFO] Iter: 157        Time: 0.484
+[11:41:21 - main - INFO] ---------------  -------------
+[11:41:21 - main - INFO] train/mse_loss   1.667e-03
+[11:41:21 - main - INFO] train/l2_loss    5.681e+02
+[11:41:21 - main - INFO] train/val_error  2.156e-03
+
+Epoch 159/501
+[11:41:21 - main - INFO] ------------------------------
+[11:41:21 - main - INFO] Iter: 158        Time: 0.508
+[11:41:21 - main - INFO] ---------------  -------------
+[11:41:21 - main - INFO] train/mse_loss   1.595e-03
+[11:41:21 - main - INFO] train/l2_loss    5.663e+02
+[11:41:21 - main - INFO] train/val_error  2.317e-03
+
+Epoch 160/501
+[11:41:22 - main - INFO] ------------------------------
+[11:41:22 - main - INFO] Iter: 159        Time: 0.537
+[11:41:22 - main - INFO] ---------------  -------------
+[11:41:22 - main - INFO] train/mse_loss   1.179e-03
+[11:41:22 - main - INFO] train/l2_loss    5.656e+02
+[11:41:22 - main - INFO] train/val_error  2.050e-03
+
+Epoch 161/501
+[11:41:22 - main - INFO] ------------------------------
+[11:41:22 - main - INFO] Iter: 160        Time: 0.521
+[11:41:22 - main - INFO] ---------------  -------------
+[11:41:22 - main - INFO] train/mse_loss   1.549e-03
+[11:41:22 - main - INFO] train/l2_loss    5.648e+02
+[11:41:22 - main - INFO] train/val_error  2.096e-03
+
+Epoch 162/501
+[11:41:23 - main - INFO] ------------------------------
+[11:41:23 - main - INFO] Iter: 161        Time: 0.545
+[11:41:23 - main - INFO] ---------------  -------------
+[11:41:23 - main - INFO] train/mse_loss   1.768e-03
+[11:41:23 - main - INFO] train/l2_loss    5.647e+02
+[11:41:23 - main - INFO] train/val_error  2.769e-03
+
+Epoch 163/501
+[11:41:23 - main - INFO] ------------------------------
+[11:41:23 - main - INFO] Iter: 162        Time: 0.504
+[11:41:23 - main - INFO] ---------------  -------------
+[11:41:23 - main - INFO] train/mse_loss   1.255e-03
+[11:41:23 - main - INFO] train/l2_loss    5.634e+02
+[11:41:23 - main - INFO] train/val_error  1.845e-03
+
+Epoch 164/501
+[11:41:24 - main - INFO] ------------------------------
+[11:41:24 - main - INFO] Iter: 163        Time: 0.516
+[11:41:24 - main - INFO] ---------------  -------------
+[11:41:24 - main - INFO] train/mse_loss   1.495e-03
+[11:41:24 - main - INFO] train/l2_loss    5.620e+02
+[11:41:24 - main - INFO] train/val_error  2.359e-03
+
+Epoch 165/501
+[11:41:24 - main - INFO] ------------------------------
+[11:41:24 - main - INFO] Iter: 164        Time: 0.519
+[11:41:24 - main - INFO] ---------------  -------------
+[11:41:24 - main - INFO] train/mse_loss   4.289e-03
+[11:41:24 - main - INFO] train/l2_loss    5.612e+02
+[11:41:24 - main - INFO] train/val_error  4.402e-03
+
+Epoch 166/501
+[11:41:25 - main - INFO] ------------------------------
+[11:41:25 - main - INFO] Iter: 165        Time: 0.523
+[11:41:25 - main - INFO] ---------------  -------------
+[11:41:25 - main - INFO] train/mse_loss   1.102e-03
+[11:41:25 - main - INFO] train/l2_loss    5.616e+02
+[11:41:25 - main - INFO] train/val_error  1.806e-03
+
+Epoch 167/501
+[11:41:25 - main - INFO] ------------------------------
+[11:41:25 - main - INFO] Iter: 166        Time: 0.525
+[11:41:25 - main - INFO] ---------------  -------------
+[11:41:25 - main - INFO] train/mse_loss   1.331e-03
+[11:41:25 - main - INFO] train/l2_loss    5.610e+02
+[11:41:25 - main - INFO] train/val_error  1.790e-03
+
+Epoch 168/501
+[11:41:26 - main - INFO] ------------------------------
+[11:41:26 - main - INFO] Iter: 167        Time: 0.516
+[11:41:26 - main - INFO] ---------------  -------------
+[11:41:26 - main - INFO] train/mse_loss   1.468e-03
+[11:41:26 - main - INFO] train/l2_loss    5.598e+02
+[11:41:26 - main - INFO] train/val_error  2.181e-03
+
+Epoch 169/501
+[11:41:27 - main - INFO] ------------------------------
+[11:41:27 - main - INFO] Iter: 168        Time: 0.513
+[11:41:27 - main - INFO] ---------------  -------------
+[11:41:27 - main - INFO] train/mse_loss   1.489e-03
+[11:41:27 - main - INFO] train/l2_loss    5.582e+02
+[11:41:27 - main - INFO] train/val_error  2.264e-03
+
+Epoch 170/501
+[11:41:27 - main - INFO] ------------------------------
+[11:41:27 - main - INFO] Iter: 169        Time: 0.515
+[11:41:27 - main - INFO] ---------------  -------------
+[11:41:27 - main - INFO] train/mse_loss   2.368e-03
+[11:41:27 - main - INFO] train/l2_loss    5.576e+02
+[11:41:27 - main - INFO] train/val_error  2.908e-03
+
+Epoch 171/501
+[11:41:28 - main - INFO] ------------------------------
+[11:41:28 - main - INFO] Iter: 170        Time: 0.516
+[11:41:28 - main - INFO] ---------------  -------------
+[11:41:28 - main - INFO] train/mse_loss   1.374e-03
+[11:41:28 - main - INFO] train/l2_loss    5.560e+02
+[11:41:28 - main - INFO] train/val_error  2.235e-03
+
+Epoch 172/501
+[11:41:28 - main - INFO] ------------------------------
+[11:41:28 - main - INFO] Iter: 171        Time: 0.513
+[11:41:28 - main - INFO] ---------------  -------------
+[11:41:28 - main - INFO] train/mse_loss   1.078e-03
+[11:41:28 - main - INFO] train/l2_loss    5.557e+02
+[11:41:28 - main - INFO] train/val_error  1.842e-03
+
+Epoch 173/501
+[11:41:29 - main - INFO] ------------------------------
+[11:41:29 - main - INFO] Iter: 172        Time: 0.514
+[11:41:29 - main - INFO] ---------------  -------------
+[11:41:29 - main - INFO] train/mse_loss   1.814e-03
+[11:41:29 - main - INFO] train/l2_loss    5.545e+02
+[11:41:29 - main - INFO] train/val_error  2.953e-03
+
+Epoch 174/501
+[11:41:29 - main - INFO] ------------------------------
+[11:41:29 - main - INFO] Iter: 173        Time: 0.580
+[11:41:29 - main - INFO] ---------------  -------------
+[11:41:29 - main - INFO] train/mse_loss   2.355e-03
+[11:41:29 - main - INFO] train/l2_loss    5.534e+02
+[11:41:29 - main - INFO] train/val_error  2.945e-03
+
+Epoch 175/501
+[11:41:30 - main - INFO] ------------------------------
+[11:41:30 - main - INFO] Iter: 174        Time: 0.505
+[11:41:30 - main - INFO] ---------------  -------------
+[11:41:30 - main - INFO] train/mse_loss   1.096e-03
+[11:41:30 - main - INFO] train/l2_loss    5.523e+02
+[11:41:30 - main - INFO] train/val_error  2.080e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:41:30.162143 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400.orbax-checkpoint-tmp-1770482490159487/default.
+I0207 11:41:30.168922 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400.orbax-checkpoint-tmp-1770482490159487/default.orbax-checkpoint-tmp-1770482490162295 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400.orbax-checkpoint-tmp-1770482490159487/default
+I0207 11:41:30.169205 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400.orbax-checkpoint-tmp-1770482490159487/default`.
+I0207 11:41:30.171391 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=6400 | time=2026-02-07 16:40:24.101641+00:00]: (Reason: old checkpoint).
+I0207 11:41:30.172301 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400.orbax-checkpoint-tmp-1770482490159487 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/22400
+
+Epoch 176/501
+[11:41:30 - main - INFO] ------------------------------
+[11:41:30 - main - INFO] Iter: 175        Time: 0.464
+[11:41:30 - main - INFO] ---------------  -------------
+[11:41:30 - main - INFO] train/mse_loss   1.080e-03
+[11:41:30 - main - INFO] train/l2_loss    5.521e+02
+[11:41:30 - main - INFO] train/val_error  1.806e-03
+
+Epoch 177/501
+[11:41:31 - main - INFO] ------------------------------
+[11:41:31 - main - INFO] Iter: 176        Time: 0.481
+[11:41:31 - main - INFO] ---------------  -------------
+[11:41:31 - main - INFO] train/mse_loss   1.008e-03
+[11:41:31 - main - INFO] train/l2_loss    5.512e+02
+[11:41:31 - main - INFO] train/val_error  1.889e-03
+
+Epoch 178/501
+[11:41:31 - main - INFO] ------------------------------
+[11:41:31 - main - INFO] Iter: 177        Time: 0.510
+[11:41:31 - main - INFO] ---------------  -------------
+[11:41:31 - main - INFO] train/mse_loss   1.642e-03
+[11:41:31 - main - INFO] train/l2_loss    5.498e+02
+[11:41:31 - main - INFO] train/val_error  2.176e-03
+
+Epoch 179/501
+[11:41:32 - main - INFO] ------------------------------
+[11:41:32 - main - INFO] Iter: 178        Time: 0.497
+[11:41:32 - main - INFO] ---------------  -------------
+[11:41:32 - main - INFO] train/mse_loss   2.460e-03
+[11:41:32 - main - INFO] train/l2_loss    5.483e+02
+[11:41:32 - main - INFO] train/val_error  3.066e-03
+
+Epoch 180/501
+[11:41:32 - main - INFO] ------------------------------
+[11:41:32 - main - INFO] Iter: 179        Time: 0.489
+[11:41:32 - main - INFO] ---------------  -------------
+[11:41:32 - main - INFO] train/mse_loss   1.216e-03
+[11:41:32 - main - INFO] train/l2_loss    5.488e+02
+[11:41:32 - main - INFO] train/val_error  1.776e-03
+
+Epoch 181/501
+[11:41:33 - main - INFO] ------------------------------
+[11:41:33 - main - INFO] Iter: 180        Time: 0.521
+[11:41:33 - main - INFO] ---------------  -------------
+[11:41:33 - main - INFO] train/mse_loss   2.046e-03
+[11:41:33 - main - INFO] train/l2_loss    5.478e+02
+[11:41:33 - main - INFO] train/val_error  2.848e-03
+
+Epoch 182/501
+[11:41:33 - main - INFO] ------------------------------
+[11:41:33 - main - INFO] Iter: 181        Time: 0.493
+[11:41:33 - main - INFO] ---------------  -------------
+[11:41:33 - main - INFO] train/mse_loss   1.534e-03
+[11:41:33 - main - INFO] train/l2_loss    5.468e+02
+[11:41:33 - main - INFO] train/val_error  2.033e-03
+
+Epoch 183/501
+[11:41:34 - main - INFO] ------------------------------
+[11:41:34 - main - INFO] Iter: 182        Time: 0.528
+[11:41:34 - main - INFO] ---------------  -------------
+[11:41:34 - main - INFO] train/mse_loss   9.635e-04
+[11:41:34 - main - INFO] train/l2_loss    5.464e+02
+[11:41:34 - main - INFO] train/val_error  1.472e-03
+
+Epoch 184/501
+[11:41:34 - main - INFO] ------------------------------
+[11:41:34 - main - INFO] Iter: 183        Time: 0.521
+[11:41:34 - main - INFO] ---------------  -------------
+[11:41:34 - main - INFO] train/mse_loss   1.707e-03
+[11:41:34 - main - INFO] train/l2_loss    5.453e+02
+[11:41:34 - main - INFO] train/val_error  2.533e-03
+
+Epoch 185/501
+[11:41:35 - main - INFO] ------------------------------
+[11:41:35 - main - INFO] Iter: 184        Time: 0.521
+[11:41:35 - main - INFO] ---------------  -------------
+[11:41:35 - main - INFO] train/mse_loss   8.979e-04
+[11:41:35 - main - INFO] train/l2_loss    5.447e+02
+[11:41:35 - main - INFO] train/val_error  1.846e-03
+
+Epoch 186/501
+[11:41:35 - main - INFO] ------------------------------
+[11:41:35 - main - INFO] Iter: 185        Time: 0.524
+[11:41:35 - main - INFO] ---------------  -------------
+[11:41:35 - main - INFO] train/mse_loss   1.780e-03
+[11:41:35 - main - INFO] train/l2_loss    5.444e+02
+[11:41:35 - main - INFO] train/val_error  2.358e-03
+
+Epoch 187/501
+[11:41:36 - main - INFO] ------------------------------
+[11:41:36 - main - INFO] Iter: 186        Time: 0.525
+[11:41:36 - main - INFO] ---------------  -------------
+[11:41:36 - main - INFO] train/mse_loss   1.161e-03
+[11:41:36 - main - INFO] train/l2_loss    5.439e+02
+[11:41:36 - main - INFO] train/val_error  1.787e-03
+
+Epoch 188/501
+[11:41:36 - main - INFO] ------------------------------
+[11:41:36 - main - INFO] Iter: 187        Time: 0.496
+[11:41:36 - main - INFO] ---------------  -------------
+[11:41:36 - main - INFO] train/mse_loss   9.434e-04
+[11:41:36 - main - INFO] train/l2_loss    5.438e+02
+[11:41:36 - main - INFO] train/val_error  1.693e-03
+
+Epoch 189/501
+[11:41:37 - main - INFO] ------------------------------
+[11:41:37 - main - INFO] Iter: 188        Time: 0.522
+[11:41:37 - main - INFO] ---------------  -------------
+[11:41:37 - main - INFO] train/mse_loss   1.466e-03
+[11:41:37 - main - INFO] train/l2_loss    5.425e+02
+[11:41:37 - main - INFO] train/val_error  2.656e-03
+
+Epoch 190/501
+[11:41:37 - main - INFO] ------------------------------
+[11:41:37 - main - INFO] Iter: 189        Time: 0.523
+[11:41:37 - main - INFO] ---------------  -------------
+[11:41:37 - main - INFO] train/mse_loss   1.689e-03
+[11:41:37 - main - INFO] train/l2_loss    5.411e+02
+[11:41:37 - main - INFO] train/val_error  2.973e-03
+
+Epoch 191/501
+[11:41:38 - main - INFO] ------------------------------
+[11:41:38 - main - INFO] Iter: 190        Time: 0.520
+[11:41:38 - main - INFO] ---------------  -------------
+[11:41:38 - main - INFO] train/mse_loss   9.652e-04
+[11:41:38 - main - INFO] train/l2_loss    5.401e+02
+[11:41:38 - main - INFO] train/val_error  1.780e-03
+
+Epoch 192/501
+[11:41:38 - main - INFO] ------------------------------
+[11:41:38 - main - INFO] Iter: 191        Time: 0.518
+[11:41:38 - main - INFO] ---------------  -------------
+[11:41:38 - main - INFO] train/mse_loss   1.235e-03
+[11:41:38 - main - INFO] train/l2_loss    5.387e+02
+[11:41:38 - main - INFO] train/val_error  1.888e-03
+
+Epoch 193/501
+[11:41:39 - main - INFO] ------------------------------
+[11:41:39 - main - INFO] Iter: 192        Time: 0.591
+[11:41:39 - main - INFO] ---------------  -------------
+[11:41:39 - main - INFO] train/mse_loss   1.181e-03
+[11:41:39 - main - INFO] train/l2_loss    5.378e+02
+[11:41:39 - main - INFO] train/val_error  1.651e-03
+
+Epoch 194/501
+[11:41:39 - main - INFO] ------------------------------
+[11:41:39 - main - INFO] Iter: 193        Time: 0.532
+[11:41:39 - main - INFO] ---------------  -------------
+[11:41:39 - main - INFO] train/mse_loss   3.169e-03
+[11:41:39 - main - INFO] train/l2_loss    5.369e+02
+[11:41:39 - main - INFO] train/val_error  3.638e-03
+
+Epoch 195/501
+[11:41:40 - main - INFO] ------------------------------
+[11:41:40 - main - INFO] Iter: 194        Time: 0.499
+[11:41:40 - main - INFO] ---------------  -------------
+[11:41:40 - main - INFO] train/mse_loss   1.007e-03
+[11:41:40 - main - INFO] train/l2_loss    5.361e+02
+[11:41:40 - main - INFO] train/val_error  1.859e-03
+
+Epoch 196/501
+[11:41:40 - main - INFO] ------------------------------
+[11:41:40 - main - INFO] Iter: 195        Time: 0.509
+[11:41:40 - main - INFO] ---------------  -------------
+[11:41:40 - main - INFO] train/mse_loss   1.190e-03
+[11:41:40 - main - INFO] train/l2_loss    5.355e+02
+[11:41:40 - main - INFO] train/val_error  2.094e-03
+
+Epoch 197/501
+[11:41:41 - main - INFO] ------------------------------
+[11:41:41 - main - INFO] Iter: 196        Time: 0.524
+[11:41:41 - main - INFO] ---------------  -------------
+[11:41:41 - main - INFO] train/mse_loss   1.557e-03
+[11:41:41 - main - INFO] train/l2_loss    5.347e+02
+[11:41:41 - main - INFO] train/val_error  2.303e-03
+
+Epoch 198/501
+[11:41:41 - main - INFO] ------------------------------
+[11:41:41 - main - INFO] Iter: 197        Time: 0.495
+[11:41:41 - main - INFO] ---------------  -------------
+[11:41:41 - main - INFO] train/mse_loss   2.445e-03
+[11:41:41 - main - INFO] train/l2_loss    5.333e+02
+[11:41:41 - main - INFO] train/val_error  2.415e-03
+
+Epoch 199/501
+[11:41:42 - main - INFO] ------------------------------
+[11:41:42 - main - INFO] Iter: 198        Time: 0.512
+[11:41:42 - main - INFO] ---------------  -------------
+[11:41:42 - main - INFO] train/mse_loss   2.197e-03
+[11:41:42 - main - INFO] train/l2_loss    5.331e+02
+[11:41:42 - main - INFO] train/val_error  2.664e-03
+
+Epoch 200/501
+[11:41:42 - main - INFO] ------------------------------
+[11:41:42 - main - INFO] Iter: 199        Time: 0.494
+[11:41:42 - main - INFO] ---------------  -------------
+[11:41:42 - main - INFO] train/mse_loss   2.278e-03
+[11:41:42 - main - INFO] train/l2_loss    5.334e+02
+[11:41:42 - main - INFO] train/val_error  3.147e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:41:43.003481 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600.orbax-checkpoint-tmp-1770482503000696/default.
+I0207 11:41:43.010442 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600.orbax-checkpoint-tmp-1770482503000696/default.orbax-checkpoint-tmp-1770482503003613 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600.orbax-checkpoint-tmp-1770482503000696/default
+I0207 11:41:43.010696 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600.orbax-checkpoint-tmp-1770482503000696/default`.
+I0207 11:41:43.012625 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=9600 | time=2026-02-07 16:40:37.237261+00:00]: (Reason: old checkpoint).
+I0207 11:41:43.013663 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600.orbax-checkpoint-tmp-1770482503000696 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/25600
+
+Epoch 201/501
+[11:41:43 - main - INFO] ------------------------------
+[11:41:43 - main - INFO] Iter: 200        Time: 0.516
+[11:41:43 - main - INFO] ---------------  -------------
+[11:41:43 - main - INFO] train/mse_loss   1.563e-03
+[11:41:43 - main - INFO] train/l2_loss    5.330e+02
+[11:41:43 - main - INFO] train/val_error  2.624e-03
+
+Epoch 202/501
+[11:41:44 - main - INFO] ------------------------------
+[11:41:44 - main - INFO] Iter: 201        Time: 0.516
+[11:41:44 - main - INFO] ---------------  -------------
+[11:41:44 - main - INFO] train/mse_loss   7.881e-04
+[11:41:44 - main - INFO] train/l2_loss    5.321e+02
+[11:41:44 - main - INFO] train/val_error  1.515e-03
+
+Epoch 203/501
+[11:41:44 - main - INFO] ------------------------------
+[11:41:44 - main - INFO] Iter: 202        Time: 0.520
+[11:41:44 - main - INFO] ---------------  -------------
+[11:41:44 - main - INFO] train/mse_loss   1.023e-03
+[11:41:44 - main - INFO] train/l2_loss    5.309e+02
+[11:41:44 - main - INFO] train/val_error  1.469e-03
+
+Epoch 204/501
+[11:41:45 - main - INFO] ------------------------------
+[11:41:45 - main - INFO] Iter: 203        Time: 0.521
+[11:41:45 - main - INFO] ---------------  -------------
+[11:41:45 - main - INFO] train/mse_loss   1.010e-03
+[11:41:45 - main - INFO] train/l2_loss    5.302e+02
+[11:41:45 - main - INFO] train/val_error  1.546e-03
+
+Epoch 205/501
+[11:41:45 - main - INFO] ------------------------------
+[11:41:45 - main - INFO] Iter: 204        Time: 0.522
+[11:41:45 - main - INFO] ---------------  -------------
+[11:41:45 - main - INFO] train/mse_loss   1.541e-03
+[11:41:45 - main - INFO] train/l2_loss    5.291e+02
+[11:41:45 - main - INFO] train/val_error  2.198e-03
+
+Epoch 206/501
+[11:41:46 - main - INFO] ------------------------------
+[11:41:46 - main - INFO] Iter: 205        Time: 0.520
+[11:41:46 - main - INFO] ---------------  -------------
+[11:41:46 - main - INFO] train/mse_loss   9.265e-04
+[11:41:46 - main - INFO] train/l2_loss    5.288e+02
+[11:41:46 - main - INFO] train/val_error  1.564e-03
+
+Epoch 207/501
+[11:41:46 - main - INFO] ------------------------------
+[11:41:46 - main - INFO] Iter: 206        Time: 0.525
+[11:41:46 - main - INFO] ---------------  -------------
+[11:41:46 - main - INFO] train/mse_loss   8.365e-04
+[11:41:46 - main - INFO] train/l2_loss    5.279e+02
+[11:41:46 - main - INFO] train/val_error  1.854e-03
+
+Epoch 208/501
+[11:41:47 - main - INFO] ------------------------------
+[11:41:47 - main - INFO] Iter: 207        Time: 0.524
+[11:41:47 - main - INFO] ---------------  -------------
+[11:41:47 - main - INFO] train/mse_loss   9.224e-04
+[11:41:47 - main - INFO] train/l2_loss    5.269e+02
+[11:41:47 - main - INFO] train/val_error  1.475e-03
+
+Epoch 209/501
+[11:41:47 - main - INFO] ------------------------------
+[11:41:47 - main - INFO] Iter: 208        Time: 0.523
+[11:41:47 - main - INFO] ---------------  -------------
+[11:41:47 - main - INFO] train/mse_loss   1.973e-03
+[11:41:47 - main - INFO] train/l2_loss    5.252e+02
+[11:41:47 - main - INFO] train/val_error  3.186e-03
+
+Epoch 210/501
+[11:41:48 - main - INFO] ------------------------------
+[11:41:48 - main - INFO] Iter: 209        Time: 0.521
+[11:41:48 - main - INFO] ---------------  -------------
+[11:41:48 - main - INFO] train/mse_loss   1.002e-03
+[11:41:48 - main - INFO] train/l2_loss    5.249e+02
+[11:41:48 - main - INFO] train/val_error  1.548e-03
+
+Epoch 211/501
+[11:41:48 - main - INFO] ------------------------------
+[11:41:48 - main - INFO] Iter: 210        Time: 0.518
+[11:41:48 - main - INFO] ---------------  -------------
+[11:41:48 - main - INFO] train/mse_loss   1.193e-03
+[11:41:48 - main - INFO] train/l2_loss    5.239e+02
+[11:41:48 - main - INFO] train/val_error  1.739e-03
+
+Epoch 212/501
+[11:41:49 - main - INFO] ------------------------------
+[11:41:49 - main - INFO] Iter: 211        Time: 0.541
+[11:41:49 - main - INFO] ---------------  -------------
+[11:41:49 - main - INFO] train/mse_loss   1.314e-03
+[11:41:49 - main - INFO] train/l2_loss    5.229e+02
+[11:41:49 - main - INFO] train/val_error  1.716e-03
+
+Epoch 213/501
+[11:41:49 - main - INFO] ------------------------------
+[11:41:49 - main - INFO] Iter: 212        Time: 0.551
+[11:41:49 - main - INFO] ---------------  -------------
+[11:41:49 - main - INFO] train/mse_loss   1.682e-03
+[11:41:49 - main - INFO] train/l2_loss    5.221e+02
+[11:41:49 - main - INFO] train/val_error  2.361e-03
+
+Epoch 214/501
+[11:41:50 - main - INFO] ------------------------------
+[11:41:50 - main - INFO] Iter: 213        Time: 0.554
+[11:41:50 - main - INFO] ---------------  -------------
+[11:41:50 - main - INFO] train/mse_loss   1.104e-03
+[11:41:50 - main - INFO] train/l2_loss    5.216e+02
+[11:41:50 - main - INFO] train/val_error  1.581e-03
+
+Epoch 215/501
+[11:41:50 - main - INFO] ------------------------------
+[11:41:50 - main - INFO] Iter: 214        Time: 0.533
+[11:41:50 - main - INFO] ---------------  -------------
+[11:41:50 - main - INFO] train/mse_loss   1.076e-03
+[11:41:50 - main - INFO] train/l2_loss    5.206e+02
+[11:41:50 - main - INFO] train/val_error  1.846e-03
+
+Epoch 216/501
+[11:41:51 - main - INFO] ------------------------------
+[11:41:51 - main - INFO] Iter: 215        Time: 0.490
+[11:41:51 - main - INFO] ---------------  -------------
+[11:41:51 - main - INFO] train/mse_loss   9.840e-04
+[11:41:51 - main - INFO] train/l2_loss    5.196e+02
+[11:41:51 - main - INFO] train/val_error  1.737e-03
+
+Epoch 217/501
+[11:41:51 - main - INFO] ------------------------------
+[11:41:51 - main - INFO] Iter: 216        Time: 0.542
+[11:41:51 - main - INFO] ---------------  -------------
+[11:41:51 - main - INFO] train/mse_loss   9.755e-04
+[11:41:51 - main - INFO] train/l2_loss    5.199e+02
+[11:41:51 - main - INFO] train/val_error  1.350e-03
+
+Epoch 218/501
+[11:41:52 - main - INFO] ------------------------------
+[11:41:52 - main - INFO] Iter: 217        Time: 0.522
+[11:41:52 - main - INFO] ---------------  -------------
+[11:41:52 - main - INFO] train/mse_loss   8.115e-04
+[11:41:52 - main - INFO] train/l2_loss    5.190e+02
+[11:41:52 - main - INFO] train/val_error  1.426e-03
+
+Epoch 219/501
+[11:41:53 - main - INFO] ------------------------------
+[11:41:53 - main - INFO] Iter: 218        Time: 0.517
+[11:41:53 - main - INFO] ---------------  -------------
+[11:41:53 - main - INFO] train/mse_loss   1.325e-03
+[11:41:53 - main - INFO] train/l2_loss    5.183e+02
+[11:41:53 - main - INFO] train/val_error  1.582e-03
+
+Epoch 220/501
+[11:41:53 - main - INFO] ------------------------------
+[11:41:53 - main - INFO] Iter: 219        Time: 0.515
+[11:41:53 - main - INFO] ---------------  -------------
+[11:41:53 - main - INFO] train/mse_loss   2.179e-03
+[11:41:53 - main - INFO] train/l2_loss    5.176e+02
+[11:41:53 - main - INFO] train/val_error  2.637e-03
+
+Epoch 221/501
+[11:41:54 - main - INFO] ------------------------------
+[11:41:54 - main - INFO] Iter: 220        Time: 0.524
+[11:41:54 - main - INFO] ---------------  -------------
+[11:41:54 - main - INFO] train/mse_loss   1.494e-03
+[11:41:54 - main - INFO] train/l2_loss    5.175e+02
+[11:41:54 - main - INFO] train/val_error  1.974e-03
+
+Epoch 222/501
+[11:41:54 - main - INFO] ------------------------------
+[11:41:54 - main - INFO] Iter: 221        Time: 0.518
+[11:41:54 - main - INFO] ---------------  -------------
+[11:41:54 - main - INFO] train/mse_loss   1.174e-03
+[11:41:54 - main - INFO] train/l2_loss    5.159e+02
+[11:41:54 - main - INFO] train/val_error  1.880e-03
+
+Epoch 223/501
+[11:41:55 - main - INFO] ------------------------------
+[11:41:55 - main - INFO] Iter: 222        Time: 0.519
+[11:41:55 - main - INFO] ---------------  -------------
+[11:41:55 - main - INFO] train/mse_loss   1.746e-03
+[11:41:55 - main - INFO] train/l2_loss    5.147e+02
+[11:41:55 - main - INFO] train/val_error  1.809e-03
+
+Epoch 224/501
+[11:41:55 - main - INFO] ------------------------------
+[11:41:55 - main - INFO] Iter: 223        Time: 0.518
+[11:41:55 - main - INFO] ---------------  -------------
+[11:41:55 - main - INFO] train/mse_loss   1.378e-03
+[11:41:55 - main - INFO] train/l2_loss    5.140e+02
+[11:41:55 - main - INFO] train/val_error  1.869e-03
+
+Epoch 225/501
+[11:41:56 - main - INFO] ------------------------------
+[11:41:56 - main - INFO] Iter: 224        Time: 0.518
+[11:41:56 - main - INFO] ---------------  -------------
+[11:41:56 - main - INFO] train/mse_loss   1.264e-03
+[11:41:56 - main - INFO] train/l2_loss    5.135e+02
+[11:41:56 - main - INFO] train/val_error  2.089e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:41:56.123317 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800.orbax-checkpoint-tmp-1770482516121081/default.
+I0207 11:41:56.130524 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800.orbax-checkpoint-tmp-1770482516121081/default.orbax-checkpoint-tmp-1770482516123452 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800.orbax-checkpoint-tmp-1770482516121081/default
+I0207 11:41:56.130833 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800.orbax-checkpoint-tmp-1770482516121081/default`.
+I0207 11:41:56.132946 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=12800 | time=2026-02-07 16:40:50.883676+00:00]: (Reason: old checkpoint).
+I0207 11:41:56.134008 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800.orbax-checkpoint-tmp-1770482516121081 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/28800
+
+Epoch 226/501
+[11:41:56 - main - INFO] ------------------------------
+[11:41:56 - main - INFO] Iter: 225        Time: 0.516
+[11:41:56 - main - INFO] ---------------  -------------
+[11:41:56 - main - INFO] train/mse_loss   1.067e-03
+[11:41:56 - main - INFO] train/l2_loss    5.119e+02
+[11:41:56 - main - INFO] train/val_error  1.795e-03
+
+Epoch 227/501
+[11:41:57 - main - INFO] ------------------------------
+[11:41:57 - main - INFO] Iter: 226        Time: 0.523
+[11:41:57 - main - INFO] ---------------  -------------
+[11:41:57 - main - INFO] train/mse_loss   1.652e-03
+[11:41:57 - main - INFO] train/l2_loss    5.113e+02
+[11:41:57 - main - INFO] train/val_error  2.180e-03
+
+Epoch 228/501
+[11:41:57 - main - INFO] ------------------------------
+[11:41:57 - main - INFO] Iter: 227        Time: 0.519
+[11:41:57 - main - INFO] ---------------  -------------
+[11:41:57 - main - INFO] train/mse_loss   1.186e-03
+[11:41:57 - main - INFO] train/l2_loss    5.101e+02
+[11:41:57 - main - INFO] train/val_error  1.819e-03
+
+Epoch 229/501
+[11:41:58 - main - INFO] ------------------------------
+[11:41:58 - main - INFO] Iter: 228        Time: 0.486
+[11:41:58 - main - INFO] ---------------  -------------
+[11:41:58 - main - INFO] train/mse_loss   1.032e-03
+[11:41:58 - main - INFO] train/l2_loss    5.099e+02
+[11:41:58 - main - INFO] train/val_error  1.580e-03
+
+Epoch 230/501
+[11:41:58 - main - INFO] ------------------------------
+[11:41:58 - main - INFO] Iter: 229        Time: 0.525
+[11:41:58 - main - INFO] ---------------  -------------
+[11:41:58 - main - INFO] train/mse_loss   1.307e-03
+[11:41:58 - main - INFO] train/l2_loss    5.086e+02
+[11:41:58 - main - INFO] train/val_error  1.858e-03
+
+Epoch 231/501
+[11:41:59 - main - INFO] ------------------------------
+[11:41:59 - main - INFO] Iter: 230        Time: 0.586
+[11:41:59 - main - INFO] ---------------  -------------
+[11:41:59 - main - INFO] train/mse_loss   7.443e-04
+[11:41:59 - main - INFO] train/l2_loss    5.077e+02
+[11:41:59 - main - INFO] train/val_error  1.319e-03
+
+Epoch 232/501
+[11:41:59 - main - INFO] ------------------------------
+[11:41:59 - main - INFO] Iter: 231        Time: 0.559
+[11:41:59 - main - INFO] ---------------  -------------
+[11:41:59 - main - INFO] train/mse_loss   1.209e-03
+[11:41:59 - main - INFO] train/l2_loss    5.077e+02
+[11:41:59 - main - INFO] train/val_error  1.642e-03
+
+Epoch 233/501
+[11:42:00 - main - INFO] ------------------------------
+[11:42:00 - main - INFO] Iter: 232        Time: 0.544
+[11:42:00 - main - INFO] ---------------  -------------
+[11:42:00 - main - INFO] train/mse_loss   1.010e-03
+[11:42:00 - main - INFO] train/l2_loss    5.075e+02
+[11:42:00 - main - INFO] train/val_error  1.692e-03
+
+Epoch 234/501
+[11:42:00 - main - INFO] ------------------------------
+[11:42:00 - main - INFO] Iter: 233        Time: 0.493
+[11:42:00 - main - INFO] ---------------  -------------
+[11:42:00 - main - INFO] train/mse_loss   1.314e-03
+[11:42:00 - main - INFO] train/l2_loss    5.062e+02
+[11:42:00 - main - INFO] train/val_error  1.964e-03
+
+Epoch 235/501
+[11:42:01 - main - INFO] ------------------------------
+[11:42:01 - main - INFO] Iter: 234        Time: 0.491
+[11:42:01 - main - INFO] ---------------  -------------
+[11:42:01 - main - INFO] train/mse_loss   1.294e-03
+[11:42:01 - main - INFO] train/l2_loss    5.060e+02
+[11:42:01 - main - INFO] train/val_error  2.076e-03
+
+Epoch 236/501
+[11:42:01 - main - INFO] ------------------------------
+[11:42:01 - main - INFO] Iter: 235        Time: 0.516
+[11:42:01 - main - INFO] ---------------  -------------
+[11:42:01 - main - INFO] train/mse_loss   8.305e-04
+[11:42:01 - main - INFO] train/l2_loss    5.046e+02
+[11:42:01 - main - INFO] train/val_error  1.426e-03
+
+Epoch 237/501
+[11:42:02 - main - INFO] ------------------------------
+[11:42:02 - main - INFO] Iter: 236        Time: 0.539
+[11:42:02 - main - INFO] ---------------  -------------
+[11:42:02 - main - INFO] train/mse_loss   8.078e-04
+[11:42:02 - main - INFO] train/l2_loss    5.043e+02
+[11:42:02 - main - INFO] train/val_error  1.424e-03
+
+Epoch 238/501
+[11:42:02 - main - INFO] ------------------------------
+[11:42:02 - main - INFO] Iter: 237        Time: 0.518
+[11:42:02 - main - INFO] ---------------  -------------
+[11:42:02 - main - INFO] train/mse_loss   5.761e-04
+[11:42:02 - main - INFO] train/l2_loss    5.029e+02
+[11:42:02 - main - INFO] train/val_error  1.253e-03
+
+Epoch 239/501
+[11:42:03 - main - INFO] ------------------------------
+[11:42:03 - main - INFO] Iter: 238        Time: 0.510
+[11:42:03 - main - INFO] ---------------  -------------
+[11:42:03 - main - INFO] train/mse_loss   1.192e-03
+[11:42:03 - main - INFO] train/l2_loss    5.023e+02
+[11:42:03 - main - INFO] train/val_error  1.850e-03
+
+Epoch 240/501
+[11:42:03 - main - INFO] ------------------------------
+[11:42:03 - main - INFO] Iter: 239        Time: 0.512
+[11:42:03 - main - INFO] ---------------  -------------
+[11:42:03 - main - INFO] train/mse_loss   1.002e-03
+[11:42:03 - main - INFO] train/l2_loss    5.015e+02
+[11:42:03 - main - INFO] train/val_error  1.879e-03
+
+Epoch 241/501
+[11:42:04 - main - INFO] ------------------------------
+[11:42:04 - main - INFO] Iter: 240        Time: 0.518
+[11:42:04 - main - INFO] ---------------  -------------
+[11:42:04 - main - INFO] train/mse_loss   1.476e-03
+[11:42:04 - main - INFO] train/l2_loss    5.008e+02
+[11:42:04 - main - INFO] train/val_error  1.766e-03
+
+Epoch 242/501
+[11:42:05 - main - INFO] ------------------------------
+[11:42:05 - main - INFO] Iter: 241        Time: 0.517
+[11:42:05 - main - INFO] ---------------  -------------
+[11:42:05 - main - INFO] train/mse_loss   1.306e-03
+[11:42:05 - main - INFO] train/l2_loss    4.999e+02
+[11:42:05 - main - INFO] train/val_error  1.864e-03
+
+Epoch 243/501
+[11:42:05 - main - INFO] ------------------------------
+[11:42:05 - main - INFO] Iter: 242        Time: 0.514
+[11:42:05 - main - INFO] ---------------  -------------
+[11:42:05 - main - INFO] train/mse_loss   1.203e-03
+[11:42:05 - main - INFO] train/l2_loss    4.994e+02
+[11:42:05 - main - INFO] train/val_error  1.845e-03
+
+Epoch 244/501
+[11:42:06 - main - INFO] ------------------------------
+[11:42:06 - main - INFO] Iter: 243        Time: 0.515
+[11:42:06 - main - INFO] ---------------  -------------
+[11:42:06 - main - INFO] train/mse_loss   7.053e-04
+[11:42:06 - main - INFO] train/l2_loss    4.987e+02
+[11:42:06 - main - INFO] train/val_error  1.313e-03
+
+Epoch 245/501
+[11:42:06 - main - INFO] ------------------------------
+[11:42:06 - main - INFO] Iter: 244        Time: 0.517
+[11:42:06 - main - INFO] ---------------  -------------
+[11:42:06 - main - INFO] train/mse_loss   1.054e-03
+[11:42:06 - main - INFO] train/l2_loss    4.977e+02
+[11:42:06 - main - INFO] train/val_error  1.536e-03
+
+Epoch 246/501
+[11:42:07 - main - INFO] ------------------------------
+[11:42:07 - main - INFO] Iter: 245        Time: 0.517
+[11:42:07 - main - INFO] ---------------  -------------
+[11:42:07 - main - INFO] train/mse_loss   9.536e-04
+[11:42:07 - main - INFO] train/l2_loss    4.976e+02
+[11:42:07 - main - INFO] train/val_error  1.465e-03
+
+Epoch 247/501
+[11:42:07 - main - INFO] ------------------------------
+[11:42:07 - main - INFO] Iter: 246        Time: 0.520
+[11:42:07 - main - INFO] ---------------  -------------
+[11:42:07 - main - INFO] train/mse_loss   1.026e-03
+[11:42:07 - main - INFO] train/l2_loss    4.966e+02
+[11:42:07 - main - INFO] train/val_error  1.517e-03
+
+Epoch 248/501
+[11:42:08 - main - INFO] ------------------------------
+[11:42:08 - main - INFO] Iter: 247        Time: 0.522
+[11:42:08 - main - INFO] ---------------  -------------
+[11:42:08 - main - INFO] train/mse_loss   1.651e-03
+[11:42:08 - main - INFO] train/l2_loss    4.958e+02
+[11:42:08 - main - INFO] train/val_error  1.944e-03
+
+Epoch 249/501
+[11:42:08 - main - INFO] ------------------------------
+[11:42:08 - main - INFO] Iter: 248        Time: 0.520
+[11:42:08 - main - INFO] ---------------  -------------
+[11:42:08 - main - INFO] train/mse_loss   1.438e-03
+[11:42:08 - main - INFO] train/l2_loss    4.940e+02
+[11:42:08 - main - INFO] train/val_error  2.164e-03
+
+Epoch 250/501
+[11:42:09 - main - INFO] ------------------------------
+[11:42:09 - main - INFO] Iter: 249        Time: 0.524
+[11:42:09 - main - INFO] ---------------  -------------
+[11:42:09 - main - INFO] train/mse_loss   1.405e-03
+[11:42:09 - main - INFO] train/l2_loss    4.940e+02
+[11:42:09 - main - INFO] train/val_error  2.066e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:42:09.173735 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000.orbax-checkpoint-tmp-1770482529170522/default.
+I0207 11:42:09.183088 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000.orbax-checkpoint-tmp-1770482529170522/default.orbax-checkpoint-tmp-1770482529173893 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000.orbax-checkpoint-tmp-1770482529170522/default
+I0207 11:42:09.183483 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000.orbax-checkpoint-tmp-1770482529170522/default`.
+I0207 11:42:09.186875 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=16000 | time=2026-02-07 16:41:04.216358+00:00]: (Reason: old checkpoint).
+I0207 11:42:09.188061 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000.orbax-checkpoint-tmp-1770482529170522 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/32000
+
+Epoch 251/501
+[11:42:09 - main - INFO] ------------------------------
+[11:42:09 - main - INFO] Iter: 250        Time: 0.593
+[11:42:09 - main - INFO] ---------------  -------------
+[11:42:09 - main - INFO] train/mse_loss   1.116e-03
+[11:42:09 - main - INFO] train/l2_loss    4.935e+02
+[11:42:09 - main - INFO] train/val_error  1.589e-03
+
+Epoch 252/501
+[11:42:10 - main - INFO] ------------------------------
+[11:42:10 - main - INFO] Iter: 251        Time: 0.502
+[11:42:10 - main - INFO] ---------------  -------------
+[11:42:10 - main - INFO] train/mse_loss   1.065e-03
+[11:42:10 - main - INFO] train/l2_loss    4.933e+02
+[11:42:10 - main - INFO] train/val_error  1.606e-03
+
+Epoch 253/501
+[11:42:10 - main - INFO] ------------------------------
+[11:42:10 - main - INFO] Iter: 252        Time: 0.495
+[11:42:10 - main - INFO] ---------------  -------------
+[11:42:10 - main - INFO] train/mse_loss   1.229e-03
+[11:42:10 - main - INFO] train/l2_loss    4.917e+02
+[11:42:10 - main - INFO] train/val_error  1.736e-03
+
+Epoch 254/501
+[11:42:11 - main - INFO] ------------------------------
+[11:42:11 - main - INFO] Iter: 253        Time: 0.500
+[11:42:11 - main - INFO] ---------------  -------------
+[11:42:11 - main - INFO] train/mse_loss   1.040e-03
+[11:42:11 - main - INFO] train/l2_loss    4.919e+02
+[11:42:11 - main - INFO] train/val_error  1.772e-03
+
+Epoch 255/501
+[11:42:11 - main - INFO] ------------------------------
+[11:42:11 - main - INFO] Iter: 254        Time: 0.513
+[11:42:11 - main - INFO] ---------------  -------------
+[11:42:11 - main - INFO] train/mse_loss   9.621e-04
+[11:42:11 - main - INFO] train/l2_loss    4.912e+02
+[11:42:11 - main - INFO] train/val_error  1.505e-03
+
+Epoch 256/501
+[11:42:12 - main - INFO] ------------------------------
+[11:42:12 - main - INFO] Iter: 255        Time: 0.539
+[11:42:12 - main - INFO] ---------------  -------------
+[11:42:12 - main - INFO] train/mse_loss   1.150e-03
+[11:42:12 - main - INFO] train/l2_loss    4.903e+02
+[11:42:12 - main - INFO] train/val_error  1.656e-03
+
+Epoch 257/501
+[11:42:12 - main - INFO] ------------------------------
+[11:42:12 - main - INFO] Iter: 256        Time: 0.486
+[11:42:12 - main - INFO] ---------------  -------------
+[11:42:12 - main - INFO] train/mse_loss   3.671e-03
+[11:42:12 - main - INFO] train/l2_loss    4.903e+02
+[11:42:12 - main - INFO] train/val_error  3.758e-03
+
+Epoch 258/501
+[11:42:13 - main - INFO] ------------------------------
+[11:42:13 - main - INFO] Iter: 257        Time: 0.525
+[11:42:13 - main - INFO] ---------------  -------------
+[11:42:13 - main - INFO] train/mse_loss   9.671e-04
+[11:42:13 - main - INFO] train/l2_loss    4.904e+02
+[11:42:13 - main - INFO] train/val_error  1.261e-03
+
+Epoch 259/501
+[11:42:13 - main - INFO] ------------------------------
+[11:42:13 - main - INFO] Iter: 258        Time: 0.516
+[11:42:13 - main - INFO] ---------------  -------------
+[11:42:13 - main - INFO] train/mse_loss   1.393e-03
+[11:42:13 - main - INFO] train/l2_loss    4.899e+02
+[11:42:13 - main - INFO] train/val_error  2.201e-03
+
+Epoch 260/501
+[11:42:14 - main - INFO] ------------------------------
+[11:42:14 - main - INFO] Iter: 259        Time: 0.510
+[11:42:14 - main - INFO] ---------------  -------------
+[11:42:14 - main - INFO] train/mse_loss   1.029e-03
+[11:42:14 - main - INFO] train/l2_loss    4.892e+02
+[11:42:14 - main - INFO] train/val_error  1.764e-03
+
+Epoch 261/501
+[11:42:14 - main - INFO] ------------------------------
+[11:42:14 - main - INFO] Iter: 260        Time: 0.511
+[11:42:14 - main - INFO] ---------------  -------------
+[11:42:14 - main - INFO] train/mse_loss   8.574e-04
+[11:42:14 - main - INFO] train/l2_loss    4.880e+02
+[11:42:14 - main - INFO] train/val_error  1.268e-03
+
+Epoch 262/501
+[11:42:15 - main - INFO] ------------------------------
+[11:42:15 - main - INFO] Iter: 261        Time: 0.516
+[11:42:15 - main - INFO] ---------------  -------------
+[11:42:15 - main - INFO] train/mse_loss   1.052e-03
+[11:42:15 - main - INFO] train/l2_loss    4.876e+02
+[11:42:15 - main - INFO] train/val_error  1.370e-03
+
+Epoch 263/501
+[11:42:15 - main - INFO] ------------------------------
+[11:42:15 - main - INFO] Iter: 262        Time: 0.518
+[11:42:15 - main - INFO] ---------------  -------------
+[11:42:15 - main - INFO] train/mse_loss   7.240e-04
+[11:42:15 - main - INFO] train/l2_loss    4.870e+02
+[11:42:15 - main - INFO] train/val_error  1.128e-03
+
+Epoch 264/501
+[11:42:16 - main - INFO] ------------------------------
+[11:42:16 - main - INFO] Iter: 263        Time: 0.517
+[11:42:16 - main - INFO] ---------------  -------------
+[11:42:16 - main - INFO] train/mse_loss   6.812e-04
+[11:42:16 - main - INFO] train/l2_loss    4.856e+02
+[11:42:16 - main - INFO] train/val_error  1.291e-03
+
+Epoch 265/501
+[11:42:16 - main - INFO] ------------------------------
+[11:42:16 - main - INFO] Iter: 264        Time: 0.512
+[11:42:16 - main - INFO] ---------------  -------------
+[11:42:16 - main - INFO] train/mse_loss   1.293e-03
+[11:42:16 - main - INFO] train/l2_loss    4.852e+02
+[11:42:16 - main - INFO] train/val_error  1.976e-03
+
+Epoch 266/501
+[11:42:17 - main - INFO] ------------------------------
+[11:42:17 - main - INFO] Iter: 265        Time: 0.515
+[11:42:17 - main - INFO] ---------------  -------------
+[11:42:17 - main - INFO] train/mse_loss   8.600e-04
+[11:42:17 - main - INFO] train/l2_loss    4.849e+02
+[11:42:17 - main - INFO] train/val_error  1.563e-03
+
+Epoch 267/501
+[11:42:17 - main - INFO] ------------------------------
+[11:42:17 - main - INFO] Iter: 266        Time: 0.514
+[11:42:17 - main - INFO] ---------------  -------------
+[11:42:17 - main - INFO] train/mse_loss   8.508e-04
+[11:42:17 - main - INFO] train/l2_loss    4.842e+02
+[11:42:17 - main - INFO] train/val_error  1.629e-03
+
+Epoch 268/501
+[11:42:18 - main - INFO] ------------------------------
+[11:42:18 - main - INFO] Iter: 267        Time: 0.515
+[11:42:18 - main - INFO] ---------------  -------------
+[11:42:18 - main - INFO] train/mse_loss   1.940e-03
+[11:42:18 - main - INFO] train/l2_loss    4.837e+02
+[11:42:18 - main - INFO] train/val_error  2.568e-03
+
+Epoch 269/501
+[11:42:19 - main - INFO] ------------------------------
+[11:42:19 - main - INFO] Iter: 268        Time: 0.523
+[11:42:19 - main - INFO] ---------------  -------------
+[11:42:19 - main - INFO] train/mse_loss   1.453e-03
+[11:42:19 - main - INFO] train/l2_loss    4.843e+02
+[11:42:19 - main - INFO] train/val_error  2.349e-03
+
+Epoch 270/501
+[11:42:19 - main - INFO] ------------------------------
+[11:42:19 - main - INFO] Iter: 269        Time: 0.562
+[11:42:19 - main - INFO] ---------------  -------------
+[11:42:19 - main - INFO] train/mse_loss   8.068e-04
+[11:42:19 - main - INFO] train/l2_loss    4.838e+02
+[11:42:19 - main - INFO] train/val_error  1.384e-03
+
+Epoch 271/501
+[11:42:20 - main - INFO] ------------------------------
+[11:42:20 - main - INFO] Iter: 270        Time: 0.553
+[11:42:20 - main - INFO] ---------------  -------------
+[11:42:20 - main - INFO] train/mse_loss   1.662e-03
+[11:42:20 - main - INFO] train/l2_loss    4.827e+02
+[11:42:20 - main - INFO] train/val_error  2.471e-03
+
+Epoch 272/501
+[11:42:20 - main - INFO] ------------------------------
+[11:42:20 - main - INFO] Iter: 271        Time: 0.521
+[11:42:20 - main - INFO] ---------------  -------------
+[11:42:20 - main - INFO] train/mse_loss   1.073e-03
+[11:42:20 - main - INFO] train/l2_loss    4.822e+02
+[11:42:20 - main - INFO] train/val_error  1.910e-03
+
+Epoch 273/501
+[11:42:21 - main - INFO] ------------------------------
+[11:42:21 - main - INFO] Iter: 272        Time: 0.530
+[11:42:21 - main - INFO] ---------------  -------------
+[11:42:21 - main - INFO] train/mse_loss   2.184e-03
+[11:42:21 - main - INFO] train/l2_loss    4.802e+02
+[11:42:21 - main - INFO] train/val_error  2.800e-03
+
+Epoch 274/501
+[11:42:21 - main - INFO] ------------------------------
+[11:42:21 - main - INFO] Iter: 273        Time: 0.513
+[11:42:21 - main - INFO] ---------------  -------------
+[11:42:21 - main - INFO] train/mse_loss   1.139e-03
+[11:42:21 - main - INFO] train/l2_loss    4.806e+02
+[11:42:21 - main - INFO] train/val_error  1.486e-03
+
+Epoch 275/501
+[11:42:22 - main - INFO] ------------------------------
+[11:42:22 - main - INFO] Iter: 274        Time: 0.593
+[11:42:22 - main - INFO] ---------------  -------------
+[11:42:22 - main - INFO] train/mse_loss   1.006e-03
+[11:42:22 - main - INFO] train/l2_loss    4.800e+02
+[11:42:22 - main - INFO] train/val_error  1.485e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:42:22.299384 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200.orbax-checkpoint-tmp-1770482542296877/default.
+I0207 11:42:22.306406 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200.orbax-checkpoint-tmp-1770482542296877/default.orbax-checkpoint-tmp-1770482542299514 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200.orbax-checkpoint-tmp-1770482542296877/default
+I0207 11:42:22.306682 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200.orbax-checkpoint-tmp-1770482542296877/default`.
+I0207 11:42:22.308666 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=19200 | time=2026-02-07 16:41:17.457033+00:00]: (Reason: old checkpoint).
+I0207 11:42:22.309626 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200.orbax-checkpoint-tmp-1770482542296877 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/35200
+
+Epoch 276/501
+[11:42:22 - main - INFO] ------------------------------
+[11:42:22 - main - INFO] Iter: 275        Time: 0.518
+[11:42:22 - main - INFO] ---------------  -------------
+[11:42:22 - main - INFO] train/mse_loss   7.826e-04
+[11:42:22 - main - INFO] train/l2_loss    4.793e+02
+[11:42:22 - main - INFO] train/val_error  1.583e-03
+
+Epoch 277/501
+[11:42:23 - main - INFO] ------------------------------
+[11:42:23 - main - INFO] Iter: 276        Time: 0.523
+[11:42:23 - main - INFO] ---------------  -------------
+[11:42:23 - main - INFO] train/mse_loss   1.495e-03
+[11:42:23 - main - INFO] train/l2_loss    4.788e+02
+[11:42:23 - main - INFO] train/val_error  1.756e-03
+
+Epoch 278/501
+[11:42:23 - main - INFO] ------------------------------
+[11:42:23 - main - INFO] Iter: 277        Time: 0.519
+[11:42:23 - main - INFO] ---------------  -------------
+[11:42:23 - main - INFO] train/mse_loss   1.049e-03
+[11:42:23 - main - INFO] train/l2_loss    4.782e+02
+[11:42:23 - main - INFO] train/val_error  2.084e-03
+
+Epoch 279/501
+[11:42:24 - main - INFO] ------------------------------
+[11:42:24 - main - INFO] Iter: 278        Time: 0.523
+[11:42:24 - main - INFO] ---------------  -------------
+[11:42:24 - main - INFO] train/mse_loss   1.365e-03
+[11:42:24 - main - INFO] train/l2_loss    4.774e+02
+[11:42:24 - main - INFO] train/val_error  2.248e-03
+
+Epoch 280/501
+[11:42:24 - main - INFO] ------------------------------
+[11:42:24 - main - INFO] Iter: 279        Time: 0.520
+[11:42:24 - main - INFO] ---------------  -------------
+[11:42:24 - main - INFO] train/mse_loss   8.306e-04
+[11:42:24 - main - INFO] train/l2_loss    4.772e+02
+[11:42:24 - main - INFO] train/val_error  1.269e-03
+
+Epoch 281/501
+[11:42:25 - main - INFO] ------------------------------
+[11:42:25 - main - INFO] Iter: 280        Time: 0.520
+[11:42:25 - main - INFO] ---------------  -------------
+[11:42:25 - main - INFO] train/mse_loss   1.481e-03
+[11:42:25 - main - INFO] train/l2_loss    4.761e+02
+[11:42:25 - main - INFO] train/val_error  1.893e-03
+
+Epoch 282/501
+[11:42:25 - main - INFO] ------------------------------
+[11:42:25 - main - INFO] Iter: 281        Time: 0.517
+[11:42:25 - main - INFO] ---------------  -------------
+[11:42:25 - main - INFO] train/mse_loss   3.369e-03
+[11:42:25 - main - INFO] train/l2_loss    4.752e+02
+[11:42:25 - main - INFO] train/val_error  3.367e-03
+
+Epoch 283/501
+[11:42:26 - main - INFO] ------------------------------
+[11:42:26 - main - INFO] Iter: 282        Time: 0.519
+[11:42:26 - main - INFO] ---------------  -------------
+[11:42:26 - main - INFO] train/mse_loss   8.161e-04
+[11:42:26 - main - INFO] train/l2_loss    4.749e+02
+[11:42:26 - main - INFO] train/val_error  1.548e-03
+
+Epoch 284/501
+[11:42:26 - main - INFO] ------------------------------
+[11:42:26 - main - INFO] Iter: 283        Time: 0.517
+[11:42:26 - main - INFO] ---------------  -------------
+[11:42:26 - main - INFO] train/mse_loss   1.274e-03
+[11:42:26 - main - INFO] train/l2_loss    4.742e+02
+[11:42:26 - main - INFO] train/val_error  1.889e-03
+
+Epoch 285/501
+[11:42:27 - main - INFO] ------------------------------
+[11:42:27 - main - INFO] Iter: 284        Time: 0.514
+[11:42:27 - main - INFO] ---------------  -------------
+[11:42:27 - main - INFO] train/mse_loss   1.316e-03
+[11:42:27 - main - INFO] train/l2_loss    4.741e+02
+[11:42:27 - main - INFO] train/val_error  1.897e-03
+
+Epoch 286/501
+[11:42:28 - main - INFO] ------------------------------
+[11:42:28 - main - INFO] Iter: 285        Time: 0.516
+[11:42:28 - main - INFO] ---------------  -------------
+[11:42:28 - main - INFO] train/mse_loss   1.204e-03
+[11:42:28 - main - INFO] train/l2_loss    4.731e+02
+[11:42:28 - main - INFO] train/val_error  2.025e-03
+
+Epoch 287/501
+[11:42:28 - main - INFO] ------------------------------
+[11:42:28 - main - INFO] Iter: 286        Time: 0.518
+[11:42:28 - main - INFO] ---------------  -------------
+[11:42:28 - main - INFO] train/mse_loss   8.055e-04
+[11:42:28 - main - INFO] train/l2_loss    4.732e+02
+[11:42:28 - main - INFO] train/val_error  1.070e-03
+
+Epoch 288/501
+[11:42:29 - main - INFO] ------------------------------
+[11:42:29 - main - INFO] Iter: 287        Time: 0.515
+[11:42:29 - main - INFO] ---------------  -------------
+[11:42:29 - main - INFO] train/mse_loss   1.371e-03
+[11:42:29 - main - INFO] train/l2_loss    4.720e+02
+[11:42:29 - main - INFO] train/val_error  1.869e-03
+
+Epoch 289/501
+[11:42:29 - main - INFO] ------------------------------
+[11:42:29 - main - INFO] Iter: 288        Time: 0.542
+[11:42:29 - main - INFO] ---------------  -------------
+[11:42:29 - main - INFO] train/mse_loss   1.412e-03
+[11:42:29 - main - INFO] train/l2_loss    4.714e+02
+[11:42:29 - main - INFO] train/val_error  1.963e-03
+
+Epoch 290/501
+[11:42:30 - main - INFO] ------------------------------
+[11:42:30 - main - INFO] Iter: 289        Time: 0.488
+[11:42:30 - main - INFO] ---------------  -------------
+[11:42:30 - main - INFO] train/mse_loss   1.168e-03
+[11:42:30 - main - INFO] train/l2_loss    4.714e+02
+[11:42:30 - main - INFO] train/val_error  1.928e-03
+
+Epoch 291/501
+[11:42:30 - main - INFO] ------------------------------
+[11:42:30 - main - INFO] Iter: 290        Time: 0.494
+[11:42:30 - main - INFO] ---------------  -------------
+[11:42:30 - main - INFO] train/mse_loss   1.054e-03
+[11:42:30 - main - INFO] train/l2_loss    4.714e+02
+[11:42:30 - main - INFO] train/val_error  1.577e-03
+
+Epoch 292/501
+[11:42:31 - main - INFO] ------------------------------
+[11:42:31 - main - INFO] Iter: 291        Time: 0.515
+[11:42:31 - main - INFO] ---------------  -------------
+[11:42:31 - main - INFO] train/mse_loss   1.151e-03
+[11:42:31 - main - INFO] train/l2_loss    4.703e+02
+[11:42:31 - main - INFO] train/val_error  1.420e-03
+
+Epoch 293/501
+[11:42:31 - main - INFO] ------------------------------
+[11:42:31 - main - INFO] Iter: 292        Time: 0.508
+[11:42:31 - main - INFO] ---------------  -------------
+[11:42:31 - main - INFO] train/mse_loss   8.842e-04
+[11:42:31 - main - INFO] train/l2_loss    4.696e+02
+[11:42:31 - main - INFO] train/val_error  1.332e-03
+
+Epoch 294/501
+[11:42:32 - main - INFO] ------------------------------
+[11:42:32 - main - INFO] Iter: 293        Time: 0.533
+[11:42:32 - main - INFO] ---------------  -------------
+[11:42:32 - main - INFO] train/mse_loss   9.891e-04
+[11:42:32 - main - INFO] train/l2_loss    4.689e+02
+[11:42:32 - main - INFO] train/val_error  1.355e-03
+
+Epoch 295/501
+[11:42:32 - main - INFO] ------------------------------
+[11:42:32 - main - INFO] Iter: 294        Time: 0.529
+[11:42:32 - main - INFO] ---------------  -------------
+[11:42:32 - main - INFO] train/mse_loss   1.066e-03
+[11:42:32 - main - INFO] train/l2_loss    4.682e+02
+[11:42:32 - main - INFO] train/val_error  1.878e-03
+
+Epoch 296/501
+[11:42:33 - main - INFO] ------------------------------
+[11:42:33 - main - INFO] Iter: 295        Time: 0.525
+[11:42:33 - main - INFO] ---------------  -------------
+[11:42:33 - main - INFO] train/mse_loss   8.165e-04
+[11:42:33 - main - INFO] train/l2_loss    4.672e+02
+[11:42:33 - main - INFO] train/val_error  1.077e-03
+
+Epoch 297/501
+[11:42:33 - main - INFO] ------------------------------
+[11:42:33 - main - INFO] Iter: 296        Time: 0.502
+[11:42:33 - main - INFO] ---------------  -------------
+[11:42:33 - main - INFO] train/mse_loss   1.096e-03
+[11:42:33 - main - INFO] train/l2_loss    4.667e+02
+[11:42:33 - main - INFO] train/val_error  1.722e-03
+
+Epoch 298/501
+[11:42:34 - main - INFO] ------------------------------
+[11:42:34 - main - INFO] Iter: 297        Time: 0.525
+[11:42:34 - main - INFO] ---------------  -------------
+[11:42:34 - main - INFO] train/mse_loss   1.014e-03
+[11:42:34 - main - INFO] train/l2_loss    4.668e+02
+[11:42:34 - main - INFO] train/val_error  1.658e-03
+
+Epoch 299/501
+[11:42:34 - main - INFO] ------------------------------
+[11:42:34 - main - INFO] Iter: 298        Time: 0.526
+[11:42:34 - main - INFO] ---------------  -------------
+[11:42:34 - main - INFO] train/mse_loss   1.095e-03
+[11:42:34 - main - INFO] train/l2_loss    4.665e+02
+[11:42:34 - main - INFO] train/val_error  1.668e-03
+
+Epoch 300/501
+[11:42:35 - main - INFO] ------------------------------
+[11:42:35 - main - INFO] Iter: 299        Time: 0.528
+[11:42:35 - main - INFO] ---------------  -------------
+[11:42:35 - main - INFO] train/mse_loss   1.178e-03
+[11:42:35 - main - INFO] train/l2_loss    4.658e+02
+[11:42:35 - main - INFO] train/val_error  1.887e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:42:35.284873 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400.orbax-checkpoint-tmp-1770482555282463/default.
+I0207 11:42:35.291777 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400.orbax-checkpoint-tmp-1770482555282463/default.orbax-checkpoint-tmp-1770482555284995 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400.orbax-checkpoint-tmp-1770482555282463/default
+I0207 11:42:35.292062 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400.orbax-checkpoint-tmp-1770482555282463/default`.
+I0207 11:42:35.294125 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=22400 | time=2026-02-07 16:41:30.170151+00:00]: (Reason: old checkpoint).
+I0207 11:42:35.295084 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400.orbax-checkpoint-tmp-1770482555282463 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/38400
+
+Epoch 301/501
+[11:42:35 - main - INFO] ------------------------------
+[11:42:35 - main - INFO] Iter: 300        Time: 0.524
+[11:42:35 - main - INFO] ---------------  -------------
+[11:42:35 - main - INFO] train/mse_loss   6.374e-04
+[11:42:35 - main - INFO] train/l2_loss    4.653e+02
+[11:42:35 - main - INFO] train/val_error  1.171e-03
+
+Epoch 302/501
+[11:42:36 - main - INFO] ------------------------------
+[11:42:36 - main - INFO] Iter: 301        Time: 0.521
+[11:42:36 - main - INFO] ---------------  -------------
+[11:42:36 - main - INFO] train/mse_loss   5.814e-04
+[11:42:36 - main - INFO] train/l2_loss    4.649e+02
+[11:42:36 - main - INFO] train/val_error  1.141e-03
+
+Epoch 303/501
+[11:42:36 - main - INFO] ------------------------------
+[11:42:36 - main - INFO] Iter: 302        Time: 0.482
+[11:42:36 - main - INFO] ---------------  -------------
+[11:42:36 - main - INFO] train/mse_loss   1.216e-03
+[11:42:36 - main - INFO] train/l2_loss    4.644e+02
+[11:42:36 - main - INFO] train/val_error  1.886e-03
+
+Epoch 304/501
+[11:42:37 - main - INFO] ------------------------------
+[11:42:37 - main - INFO] Iter: 303        Time: 0.514
+[11:42:37 - main - INFO] ---------------  -------------
+[11:42:37 - main - INFO] train/mse_loss   6.610e-04
+[11:42:37 - main - INFO] train/l2_loss    4.645e+02
+[11:42:37 - main - INFO] train/val_error  1.200e-03
+
+Epoch 305/501
+[11:42:37 - main - INFO] ------------------------------
+[11:42:37 - main - INFO] Iter: 304        Time: 0.519
+[11:42:37 - main - INFO] ---------------  -------------
+[11:42:37 - main - INFO] train/mse_loss   1.437e-03
+[11:42:37 - main - INFO] train/l2_loss    4.630e+02
+[11:42:37 - main - INFO] train/val_error  1.500e-03
+
+Epoch 306/501
+[11:42:38 - main - INFO] ------------------------------
+[11:42:38 - main - INFO] Iter: 305        Time: 0.517
+[11:42:38 - main - INFO] ---------------  -------------
+[11:42:38 - main - INFO] train/mse_loss   1.409e-03
+[11:42:38 - main - INFO] train/l2_loss    4.623e+02
+[11:42:38 - main - INFO] train/val_error  1.928e-03
+
+Epoch 307/501
+[11:42:38 - main - INFO] ------------------------------
+[11:42:38 - main - INFO] Iter: 306        Time: 0.515
+[11:42:38 - main - INFO] ---------------  -------------
+[11:42:38 - main - INFO] train/mse_loss   8.832e-04
+[11:42:38 - main - INFO] train/l2_loss    4.620e+02
+[11:42:38 - main - INFO] train/val_error  1.321e-03
+
+Epoch 308/501
+[11:42:39 - main - INFO] ------------------------------
+[11:42:39 - main - INFO] Iter: 307        Time: 0.599
+[11:42:39 - main - INFO] ---------------  -------------
+[11:42:39 - main - INFO] train/mse_loss   1.149e-03
+[11:42:39 - main - INFO] train/l2_loss    4.618e+02
+[11:42:39 - main - INFO] train/val_error  1.469e-03
+
+Epoch 309/501
+[11:42:40 - main - INFO] ------------------------------
+[11:42:40 - main - INFO] Iter: 308        Time: 0.548
+[11:42:40 - main - INFO] ---------------  -------------
+[11:42:40 - main - INFO] train/mse_loss   1.082e-03
+[11:42:40 - main - INFO] train/l2_loss    4.616e+02
+[11:42:40 - main - INFO] train/val_error  1.572e-03
+
+Epoch 310/501
+[11:42:40 - main - INFO] ------------------------------
+[11:42:40 - main - INFO] Iter: 309        Time: 0.549
+[11:42:40 - main - INFO] ---------------  -------------
+[11:42:40 - main - INFO] train/mse_loss   1.034e-03
+[11:42:40 - main - INFO] train/l2_loss    4.606e+02
+[11:42:40 - main - INFO] train/val_error  1.460e-03
+
+Epoch 311/501
+[11:42:41 - main - INFO] ------------------------------
+[11:42:41 - main - INFO] Iter: 310        Time: 0.529
+[11:42:41 - main - INFO] ---------------  -------------
+[11:42:41 - main - INFO] train/mse_loss   7.335e-04
+[11:42:41 - main - INFO] train/l2_loss    4.607e+02
+[11:42:41 - main - INFO] train/val_error  1.057e-03
+
+Epoch 312/501
+[11:42:41 - main - INFO] ------------------------------
+[11:42:41 - main - INFO] Iter: 311        Time: 0.520
+[11:42:41 - main - INFO] ---------------  -------------
+[11:42:41 - main - INFO] train/mse_loss   7.723e-04
+[11:42:41 - main - INFO] train/l2_loss    4.590e+02
+[11:42:41 - main - INFO] train/val_error  1.221e-03
+
+Epoch 313/501
+[11:42:42 - main - INFO] ------------------------------
+[11:42:42 - main - INFO] Iter: 312        Time: 0.516
+[11:42:42 - main - INFO] ---------------  -------------
+[11:42:42 - main - INFO] train/mse_loss   5.442e-04
+[11:42:42 - main - INFO] train/l2_loss    4.586e+02
+[11:42:42 - main - INFO] train/val_error  1.002e-03
+
+Epoch 314/501
+[11:42:42 - main - INFO] ------------------------------
+[11:42:42 - main - INFO] Iter: 313        Time: 0.514
+[11:42:42 - main - INFO] ---------------  -------------
+[11:42:42 - main - INFO] train/mse_loss   9.330e-04
+[11:42:42 - main - INFO] train/l2_loss    4.585e+02
+[11:42:42 - main - INFO] train/val_error  1.434e-03
+
+Epoch 315/501
+[11:42:43 - main - INFO] ------------------------------
+[11:42:43 - main - INFO] Iter: 314        Time: 0.515
+[11:42:43 - main - INFO] ---------------  -------------
+[11:42:43 - main - INFO] train/mse_loss   8.766e-04
+[11:42:43 - main - INFO] train/l2_loss    4.576e+02
+[11:42:43 - main - INFO] train/val_error  1.182e-03
+
+Epoch 316/501
+[11:42:43 - main - INFO] ------------------------------
+[11:42:43 - main - INFO] Iter: 315        Time: 0.531
+[11:42:43 - main - INFO] ---------------  -------------
+[11:42:43 - main - INFO] train/mse_loss   8.100e-04
+[11:42:43 - main - INFO] train/l2_loss    4.561e+02
+[11:42:43 - main - INFO] train/val_error  1.311e-03
+
+Epoch 317/501
+[11:42:44 - main - INFO] ------------------------------
+[11:42:44 - main - INFO] Iter: 316        Time: 0.524
+[11:42:44 - main - INFO] ---------------  -------------
+[11:42:44 - main - INFO] train/mse_loss   9.931e-04
+[11:42:44 - main - INFO] train/l2_loss    4.563e+02
+[11:42:44 - main - INFO] train/val_error  1.550e-03
+
+Epoch 318/501
+[11:42:44 - main - INFO] ------------------------------
+[11:42:44 - main - INFO] Iter: 317        Time: 0.521
+[11:42:44 - main - INFO] ---------------  -------------
+[11:42:44 - main - INFO] train/mse_loss   1.041e-03
+[11:42:44 - main - INFO] train/l2_loss    4.563e+02
+[11:42:44 - main - INFO] train/val_error  1.365e-03
+
+Epoch 319/501
+[11:42:45 - main - INFO] ------------------------------
+[11:42:45 - main - INFO] Iter: 318        Time: 0.523
+[11:42:45 - main - INFO] ---------------  -------------
+[11:42:45 - main - INFO] train/mse_loss   7.299e-04
+[11:42:45 - main - INFO] train/l2_loss    4.555e+02
+[11:42:45 - main - INFO] train/val_error  1.225e-03
+
+Epoch 320/501
+[11:42:45 - main - INFO] ------------------------------
+[11:42:45 - main - INFO] Iter: 319        Time: 0.524
+[11:42:45 - main - INFO] ---------------  -------------
+[11:42:45 - main - INFO] train/mse_loss   6.608e-04
+[11:42:45 - main - INFO] train/l2_loss    4.550e+02
+[11:42:45 - main - INFO] train/val_error  1.142e-03
+
+Epoch 321/501
+[11:42:46 - main - INFO] ------------------------------
+[11:42:46 - main - INFO] Iter: 320        Time: 0.524
+[11:42:46 - main - INFO] ---------------  -------------
+[11:42:46 - main - INFO] train/mse_loss   1.273e-03
+[11:42:46 - main - INFO] train/l2_loss    4.545e+02
+[11:42:46 - main - INFO] train/val_error  1.816e-03
+
+Epoch 322/501
+[11:42:46 - main - INFO] ------------------------------
+[11:42:46 - main - INFO] Iter: 321        Time: 0.526
+[11:42:46 - main - INFO] ---------------  -------------
+[11:42:46 - main - INFO] train/mse_loss   8.409e-04
+[11:42:46 - main - INFO] train/l2_loss    4.540e+02
+[11:42:46 - main - INFO] train/val_error  1.200e-03
+
+Epoch 323/501
+[11:42:47 - main - INFO] ------------------------------
+[11:42:47 - main - INFO] Iter: 322        Time: 0.522
+[11:42:47 - main - INFO] ---------------  -------------
+[11:42:47 - main - INFO] train/mse_loss   7.946e-04
+[11:42:47 - main - INFO] train/l2_loss    4.534e+02
+[11:42:47 - main - INFO] train/val_error  1.085e-03
+
+Epoch 324/501
+[11:42:47 - main - INFO] ------------------------------
+[11:42:47 - main - INFO] Iter: 323        Time: 0.520
+[11:42:47 - main - INFO] ---------------  -------------
+[11:42:47 - main - INFO] train/mse_loss   7.692e-04
+[11:42:47 - main - INFO] train/l2_loss    4.533e+02
+[11:42:47 - main - INFO] train/val_error  1.170e-03
+
+Epoch 325/501
+[11:42:48 - main - INFO] ------------------------------
+[11:42:48 - main - INFO] Iter: 324        Time: 0.520
+[11:42:48 - main - INFO] ---------------  -------------
+[11:42:48 - main - INFO] train/mse_loss   9.013e-04
+[11:42:48 - main - INFO] train/l2_loss    4.531e+02
+[11:42:48 - main - INFO] train/val_error  1.996e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:42:48.434220 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600.orbax-checkpoint-tmp-1770482568431894/default.
+I0207 11:42:48.441003 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600.orbax-checkpoint-tmp-1770482568431894/default.orbax-checkpoint-tmp-1770482568434349 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600.orbax-checkpoint-tmp-1770482568431894/default
+I0207 11:42:48.441292 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600.orbax-checkpoint-tmp-1770482568431894/default`.
+I0207 11:42:48.443298 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=25600 | time=2026-02-07 16:41:43.011351+00:00]: (Reason: old checkpoint).
+I0207 11:42:48.444280 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600.orbax-checkpoint-tmp-1770482568431894 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/41600
+
+Epoch 326/501
+[11:42:48 - main - INFO] ------------------------------
+[11:42:48 - main - INFO] Iter: 325        Time: 0.521
+[11:42:48 - main - INFO] ---------------  -------------
+[11:42:48 - main - INFO] train/mse_loss   8.165e-04
+[11:42:48 - main - INFO] train/l2_loss    4.524e+02
+[11:42:48 - main - INFO] train/val_error  1.190e-03
+
+Epoch 327/501
+[11:42:49 - main - INFO] ------------------------------
+[11:42:49 - main - INFO] Iter: 326        Time: 0.540
+[11:42:49 - main - INFO] ---------------  -------------
+[11:42:49 - main - INFO] train/mse_loss   7.755e-04
+[11:42:49 - main - INFO] train/l2_loss    4.524e+02
+[11:42:49 - main - INFO] train/val_error  1.282e-03
+
+Epoch 328/501
+[11:42:50 - main - INFO] ------------------------------
+[11:42:50 - main - INFO] Iter: 327        Time: 0.532
+[11:42:50 - main - INFO] ---------------  -------------
+[11:42:50 - main - INFO] train/mse_loss   2.820e-03
+[11:42:50 - main - INFO] train/l2_loss    4.517e+02
+[11:42:50 - main - INFO] train/val_error  3.393e-03
+
+Epoch 329/501
+[11:42:50 - main - INFO] ------------------------------
+[11:42:50 - main - INFO] Iter: 328        Time: 0.570
+[11:42:50 - main - INFO] ---------------  -------------
+[11:42:50 - main - INFO] train/mse_loss   8.615e-04
+[11:42:50 - main - INFO] train/l2_loss    4.503e+02
+[11:42:50 - main - INFO] train/val_error  1.380e-03
+
+Epoch 330/501
+[11:42:51 - main - INFO] ------------------------------
+[11:42:51 - main - INFO] Iter: 329        Time: 0.542
+[11:42:51 - main - INFO] ---------------  -------------
+[11:42:51 - main - INFO] train/mse_loss   1.097e-03
+[11:42:51 - main - INFO] train/l2_loss    4.501e+02
+[11:42:51 - main - INFO] train/val_error  1.408e-03
+
+Epoch 331/501
+[11:42:51 - main - INFO] ------------------------------
+[11:42:51 - main - INFO] Iter: 330        Time: 0.506
+[11:42:51 - main - INFO] ---------------  -------------
+[11:42:51 - main - INFO] train/mse_loss   8.926e-04
+[11:42:51 - main - INFO] train/l2_loss    4.494e+02
+[11:42:51 - main - INFO] train/val_error  1.452e-03
+
+Epoch 332/501
+[11:42:52 - main - INFO] ------------------------------
+[11:42:52 - main - INFO] Iter: 331        Time: 0.529
+[11:42:52 - main - INFO] ---------------  -------------
+[11:42:52 - main - INFO] train/mse_loss   7.112e-04
+[11:42:52 - main - INFO] train/l2_loss    4.490e+02
+[11:42:52 - main - INFO] train/val_error  1.220e-03
+
+Epoch 333/501
+[11:42:52 - main - INFO] ------------------------------
+[11:42:52 - main - INFO] Iter: 332        Time: 0.534
+[11:42:52 - main - INFO] ---------------  -------------
+[11:42:52 - main - INFO] train/mse_loss   8.164e-04
+[11:42:52 - main - INFO] train/l2_loss    4.489e+02
+[11:42:52 - main - INFO] train/val_error  1.178e-03
+
+Epoch 334/501
+[11:42:53 - main - INFO] ------------------------------
+[11:42:53 - main - INFO] Iter: 333        Time: 0.512
+[11:42:53 - main - INFO] ---------------  -------------
+[11:42:53 - main - INFO] train/mse_loss   8.515e-04
+[11:42:53 - main - INFO] train/l2_loss    4.479e+02
+[11:42:53 - main - INFO] train/val_error  1.657e-03
+
+Epoch 335/501
+[11:42:53 - main - INFO] ------------------------------
+[11:42:53 - main - INFO] Iter: 334        Time: 0.516
+[11:42:53 - main - INFO] ---------------  -------------
+[11:42:53 - main - INFO] train/mse_loss   1.079e-03
+[11:42:53 - main - INFO] train/l2_loss    4.480e+02
+[11:42:53 - main - INFO] train/val_error  2.324e-03
+
+Epoch 336/501
+[11:42:54 - main - INFO] ------------------------------
+[11:42:54 - main - INFO] Iter: 335        Time: 0.521
+[11:42:54 - main - INFO] ---------------  -------------
+[11:42:54 - main - INFO] train/mse_loss   1.119e-03
+[11:42:54 - main - INFO] train/l2_loss    4.477e+02
+[11:42:54 - main - INFO] train/val_error  2.021e-03
+
+Epoch 337/501
+[11:42:54 - main - INFO] ------------------------------
+[11:42:54 - main - INFO] Iter: 336        Time: 0.518
+[11:42:54 - main - INFO] ---------------  -------------
+[11:42:54 - main - INFO] train/mse_loss   8.156e-04
+[11:42:54 - main - INFO] train/l2_loss    4.480e+02
+[11:42:54 - main - INFO] train/val_error  1.275e-03
+
+Epoch 338/501
+[11:42:55 - main - INFO] ------------------------------
+[11:42:55 - main - INFO] Iter: 337        Time: 0.515
+[11:42:55 - main - INFO] ---------------  -------------
+[11:42:55 - main - INFO] train/mse_loss   1.598e-03
+[11:42:55 - main - INFO] train/l2_loss    4.479e+02
+[11:42:55 - main - INFO] train/val_error  2.454e-03
+
+Epoch 339/501
+[11:42:55 - main - INFO] ------------------------------
+[11:42:55 - main - INFO] Iter: 338        Time: 0.516
+[11:42:55 - main - INFO] ---------------  -------------
+[11:42:55 - main - INFO] train/mse_loss   8.698e-04
+[11:42:55 - main - INFO] train/l2_loss    4.474e+02
+[11:42:55 - main - INFO] train/val_error  1.515e-03
+
+Epoch 340/501
+[11:42:56 - main - INFO] ------------------------------
+[11:42:56 - main - INFO] Iter: 339        Time: 0.519
+[11:42:56 - main - INFO] ---------------  -------------
+[11:42:56 - main - INFO] train/mse_loss   7.032e-04
+[11:42:56 - main - INFO] train/l2_loss    4.468e+02
+[11:42:56 - main - INFO] train/val_error  1.208e-03
+
+Epoch 341/501
+[11:42:56 - main - INFO] ------------------------------
+[11:42:56 - main - INFO] Iter: 340        Time: 0.522
+[11:42:56 - main - INFO] ---------------  -------------
+[11:42:56 - main - INFO] train/mse_loss   6.976e-04
+[11:42:56 - main - INFO] train/l2_loss    4.467e+02
+[11:42:56 - main - INFO] train/val_error  1.169e-03
+
+Epoch 342/501
+[11:42:57 - main - INFO] ------------------------------
+[11:42:57 - main - INFO] Iter: 341        Time: 0.526
+[11:42:57 - main - INFO] ---------------  -------------
+[11:42:57 - main - INFO] train/mse_loss   1.141e-03
+[11:42:57 - main - INFO] train/l2_loss    4.459e+02
+[11:42:57 - main - INFO] train/val_error  2.131e-03
+
+Epoch 343/501
+[11:42:57 - main - INFO] ------------------------------
+[11:42:57 - main - INFO] Iter: 342        Time: 0.526
+[11:42:57 - main - INFO] ---------------  -------------
+[11:42:57 - main - INFO] train/mse_loss   8.898e-04
+[11:42:57 - main - INFO] train/l2_loss    4.458e+02
+[11:42:57 - main - INFO] train/val_error  1.474e-03
+
+Epoch 344/501
+[11:42:58 - main - INFO] ------------------------------
+[11:42:58 - main - INFO] Iter: 343        Time: 0.522
+[11:42:58 - main - INFO] ---------------  -------------
+[11:42:58 - main - INFO] train/mse_loss   9.234e-04
+[11:42:58 - main - INFO] train/l2_loss    4.445e+02
+[11:42:58 - main - INFO] train/val_error  1.477e-03
+
+Epoch 345/501
+[11:42:58 - main - INFO] ------------------------------
+[11:42:58 - main - INFO] Iter: 344        Time: 0.524
+[11:42:58 - main - INFO] ---------------  -------------
+[11:42:58 - main - INFO] train/mse_loss   1.053e-03
+[11:42:58 - main - INFO] train/l2_loss    4.437e+02
+[11:42:58 - main - INFO] train/val_error  1.715e-03
+
+Epoch 346/501
+[11:42:59 - main - INFO] ------------------------------
+[11:42:59 - main - INFO] Iter: 345        Time: 0.604
+[11:42:59 - main - INFO] ---------------  -------------
+[11:42:59 - main - INFO] train/mse_loss   7.108e-04
+[11:42:59 - main - INFO] train/l2_loss    4.431e+02
+[11:42:59 - main - INFO] train/val_error  1.250e-03
+
+Epoch 347/501
+[11:43:00 - main - INFO] ------------------------------
+[11:43:00 - main - INFO] Iter: 346        Time: 0.555
+[11:43:00 - main - INFO] ---------------  -------------
+[11:43:00 - main - INFO] train/mse_loss   7.063e-04
+[11:43:00 - main - INFO] train/l2_loss    4.430e+02
+[11:43:00 - main - INFO] train/val_error  1.038e-03
+
+Epoch 348/501
+[11:43:00 - main - INFO] ------------------------------
+[11:43:00 - main - INFO] Iter: 347        Time: 0.543
+[11:43:00 - main - INFO] ---------------  -------------
+[11:43:00 - main - INFO] train/mse_loss   9.026e-04
+[11:43:00 - main - INFO] train/l2_loss    4.425e+02
+[11:43:00 - main - INFO] train/val_error  1.391e-03
+
+Epoch 349/501
+[11:43:01 - main - INFO] ------------------------------
+[11:43:01 - main - INFO] Iter: 348        Time: 0.520
+[11:43:01 - main - INFO] ---------------  -------------
+[11:43:01 - main - INFO] train/mse_loss   1.066e-03
+[11:43:01 - main - INFO] train/l2_loss    4.419e+02
+[11:43:01 - main - INFO] train/val_error  1.667e-03
+
+Epoch 350/501
+[11:43:01 - main - INFO] ------------------------------
+[11:43:01 - main - INFO] Iter: 349        Time: 0.550
+[11:43:01 - main - INFO] ---------------  -------------
+[11:43:01 - main - INFO] train/mse_loss   9.216e-04
+[11:43:01 - main - INFO] train/l2_loss    4.409e+02
+[11:43:01 - main - INFO] train/val_error  1.658e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:43:01.747953 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800.orbax-checkpoint-tmp-1770482581745263/default.
+I0207 11:43:01.755476 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800.orbax-checkpoint-tmp-1770482581745263/default.orbax-checkpoint-tmp-1770482581748106 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800.orbax-checkpoint-tmp-1770482581745263/default
+I0207 11:43:01.755760 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800.orbax-checkpoint-tmp-1770482581745263/default`.
+I0207 11:43:01.757519 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=28800 | time=2026-02-07 16:41:56.131802+00:00]: (Reason: old checkpoint).
+I0207 11:43:01.758944 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800.orbax-checkpoint-tmp-1770482581745263 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/44800
+
+Epoch 351/501
+[11:43:02 - main - INFO] ------------------------------
+[11:43:02 - main - INFO] Iter: 350        Time: 0.518
+[11:43:02 - main - INFO] ---------------  -------------
+[11:43:02 - main - INFO] train/mse_loss   1.187e-03
+[11:43:02 - main - INFO] train/l2_loss    4.406e+02
+[11:43:02 - main - INFO] train/val_error  1.504e-03
+
+Epoch 352/501
+[11:43:02 - main - INFO] ------------------------------
+[11:43:02 - main - INFO] Iter: 351        Time: 0.532
+[11:43:02 - main - INFO] ---------------  -------------
+[11:43:02 - main - INFO] train/mse_loss   1.135e-03
+[11:43:02 - main - INFO] train/l2_loss    4.401e+02
+[11:43:02 - main - INFO] train/val_error  1.499e-03
+
+Epoch 353/501
+[11:43:03 - main - INFO] ------------------------------
+[11:43:03 - main - INFO] Iter: 352        Time: 0.512
+[11:43:03 - main - INFO] ---------------  -------------
+[11:43:03 - main - INFO] train/mse_loss   6.628e-04
+[11:43:03 - main - INFO] train/l2_loss    4.397e+02
+[11:43:03 - main - INFO] train/val_error  1.241e-03
+
+Epoch 354/501
+[11:43:03 - main - INFO] ------------------------------
+[11:43:03 - main - INFO] Iter: 353        Time: 0.470
+[11:43:03 - main - INFO] ---------------  -------------
+[11:43:03 - main - INFO] train/mse_loss   6.465e-04
+[11:43:03 - main - INFO] train/l2_loss    4.395e+02
+[11:43:03 - main - INFO] train/val_error  1.487e-03
+
+Epoch 355/501
+[11:43:04 - main - INFO] ------------------------------
+[11:43:04 - main - INFO] Iter: 354        Time: 0.513
+[11:43:04 - main - INFO] ---------------  -------------
+[11:43:04 - main - INFO] train/mse_loss   6.169e-04
+[11:43:04 - main - INFO] train/l2_loss    4.387e+02
+[11:43:04 - main - INFO] train/val_error  1.163e-03
+
+Epoch 356/501
+[11:43:04 - main - INFO] ------------------------------
+[11:43:04 - main - INFO] Iter: 355        Time: 0.516
+[11:43:04 - main - INFO] ---------------  -------------
+[11:43:04 - main - INFO] train/mse_loss   7.937e-04
+[11:43:04 - main - INFO] train/l2_loss    4.381e+02
+[11:43:04 - main - INFO] train/val_error  1.300e-03
+
+Epoch 357/501
+[11:43:05 - main - INFO] ------------------------------
+[11:43:05 - main - INFO] Iter: 356        Time: 0.513
+[11:43:05 - main - INFO] ---------------  -------------
+[11:43:05 - main - INFO] train/mse_loss   8.881e-04
+[11:43:05 - main - INFO] train/l2_loss    4.376e+02
+[11:43:05 - main - INFO] train/val_error  1.202e-03
+
+Epoch 358/501
+[11:43:05 - main - INFO] ------------------------------
+[11:43:05 - main - INFO] Iter: 357        Time: 0.518
+[11:43:05 - main - INFO] ---------------  -------------
+[11:43:05 - main - INFO] train/mse_loss   9.305e-04
+[11:43:05 - main - INFO] train/l2_loss    4.373e+02
+[11:43:05 - main - INFO] train/val_error  1.372e-03
+
+Epoch 359/501
+[11:43:06 - main - INFO] ------------------------------
+[11:43:06 - main - INFO] Iter: 358        Time: 0.520
+[11:43:06 - main - INFO] ---------------  -------------
+[11:43:06 - main - INFO] train/mse_loss   9.544e-04
+[11:43:06 - main - INFO] train/l2_loss    4.361e+02
+[11:43:06 - main - INFO] train/val_error  1.520e-03
+
+Epoch 360/501
+[11:43:06 - main - INFO] ------------------------------
+[11:43:06 - main - INFO] Iter: 359        Time: 0.516
+[11:43:06 - main - INFO] ---------------  -------------
+[11:43:06 - main - INFO] train/mse_loss   1.639e-03
+[11:43:06 - main - INFO] train/l2_loss    4.364e+02
+[11:43:06 - main - INFO] train/val_error  2.073e-03
+
+Epoch 361/501
+[11:43:07 - main - INFO] ------------------------------
+[11:43:07 - main - INFO] Iter: 360        Time: 0.514
+[11:43:07 - main - INFO] ---------------  -------------
+[11:43:07 - main - INFO] train/mse_loss   1.371e-03
+[11:43:07 - main - INFO] train/l2_loss    4.357e+02
+[11:43:07 - main - INFO] train/val_error  1.586e-03
+
+Epoch 362/501
+[11:43:07 - main - INFO] ------------------------------
+[11:43:07 - main - INFO] Iter: 361        Time: 0.516
+[11:43:07 - main - INFO] ---------------  -------------
+[11:43:07 - main - INFO] train/mse_loss   6.233e-04
+[11:43:07 - main - INFO] train/l2_loss    4.355e+02
+[11:43:07 - main - INFO] train/val_error  1.057e-03
+
+Epoch 363/501
+[11:43:08 - main - INFO] ------------------------------
+[11:43:08 - main - INFO] Iter: 362        Time: 0.517
+[11:43:08 - main - INFO] ---------------  -------------
+[11:43:08 - main - INFO] train/mse_loss   1.005e-03
+[11:43:08 - main - INFO] train/l2_loss    4.349e+02
+[11:43:08 - main - INFO] train/val_error  1.971e-03
+
+Epoch 364/501
+[11:43:08 - main - INFO] ------------------------------
+[11:43:08 - main - INFO] Iter: 363        Time: 0.519
+[11:43:08 - main - INFO] ---------------  -------------
+[11:43:08 - main - INFO] train/mse_loss   1.196e-03
+[11:43:08 - main - INFO] train/l2_loss    4.340e+02
+[11:43:08 - main - INFO] train/val_error  1.547e-03
+
+Epoch 365/501
+[11:43:09 - main - INFO] ------------------------------
+[11:43:09 - main - INFO] Iter: 364        Time: 0.544
+[11:43:09 - main - INFO] ---------------  -------------
+[11:43:09 - main - INFO] train/mse_loss   9.517e-04
+[11:43:09 - main - INFO] train/l2_loss    4.348e+02
+[11:43:09 - main - INFO] train/val_error  1.621e-03
+
+Epoch 366/501
+[11:43:10 - main - INFO] ------------------------------
+[11:43:10 - main - INFO] Iter: 365        Time: 0.541
+[11:43:10 - main - INFO] ---------------  -------------
+[11:43:10 - main - INFO] train/mse_loss   1.698e-03
+[11:43:10 - main - INFO] train/l2_loss    4.346e+02
+[11:43:10 - main - INFO] train/val_error  1.638e-03
+
+Epoch 367/501
+[11:43:10 - main - INFO] ------------------------------
+[11:43:10 - main - INFO] Iter: 366        Time: 0.557
+[11:43:10 - main - INFO] ---------------  -------------
+[11:43:10 - main - INFO] train/mse_loss   8.626e-04
+[11:43:10 - main - INFO] train/l2_loss    4.337e+02
+[11:43:10 - main - INFO] train/val_error  1.190e-03
+
+Epoch 368/501
+[11:43:11 - main - INFO] ------------------------------
+[11:43:11 - main - INFO] Iter: 367        Time: 0.558
+[11:43:11 - main - INFO] ---------------  -------------
+[11:43:11 - main - INFO] train/mse_loss   1.018e-03
+[11:43:11 - main - INFO] train/l2_loss    4.330e+02
+[11:43:11 - main - INFO] train/val_error  1.353e-03
+
+Epoch 369/501
+[11:43:11 - main - INFO] ------------------------------
+[11:43:11 - main - INFO] Iter: 368        Time: 0.558
+[11:43:11 - main - INFO] ---------------  -------------
+[11:43:11 - main - INFO] train/mse_loss   1.047e-03
+[11:43:11 - main - INFO] train/l2_loss    4.319e+02
+[11:43:11 - main - INFO] train/val_error  1.419e-03
+
+Epoch 370/501
+[11:43:12 - main - INFO] ------------------------------
+[11:43:12 - main - INFO] Iter: 369        Time: 0.541
+[11:43:12 - main - INFO] ---------------  -------------
+[11:43:12 - main - INFO] train/mse_loss   5.870e-04
+[11:43:12 - main - INFO] train/l2_loss    4.312e+02
+[11:43:12 - main - INFO] train/val_error  9.814e-04
+
+Epoch 371/501
+[11:43:12 - main - INFO] ------------------------------
+[11:43:12 - main - INFO] Iter: 370        Time: 0.486
+[11:43:12 - main - INFO] ---------------  -------------
+[11:43:12 - main - INFO] train/mse_loss   8.365e-04
+[11:43:12 - main - INFO] train/l2_loss    4.313e+02
+[11:43:12 - main - INFO] train/val_error  1.282e-03
+
+Epoch 372/501
+[11:43:13 - main - INFO] ------------------------------
+[11:43:13 - main - INFO] Iter: 371        Time: 0.524
+[11:43:13 - main - INFO] ---------------  -------------
+[11:43:13 - main - INFO] train/mse_loss   6.389e-04
+[11:43:13 - main - INFO] train/l2_loss    4.303e+02
+[11:43:13 - main - INFO] train/val_error  1.090e-03
+
+Epoch 373/501
+[11:43:13 - main - INFO] ------------------------------
+[11:43:13 - main - INFO] Iter: 372        Time: 0.527
+[11:43:13 - main - INFO] ---------------  -------------
+[11:43:13 - main - INFO] train/mse_loss   8.624e-04
+[11:43:13 - main - INFO] train/l2_loss    4.292e+02
+[11:43:13 - main - INFO] train/val_error  1.250e-03
+
+Epoch 374/501
+[11:43:14 - main - INFO] ------------------------------
+[11:43:14 - main - INFO] Iter: 373        Time: 0.522
+[11:43:14 - main - INFO] ---------------  -------------
+[11:43:14 - main - INFO] train/mse_loss   1.244e-03
+[11:43:14 - main - INFO] train/l2_loss    4.304e+02
+[11:43:14 - main - INFO] train/val_error  1.460e-03
+
+Epoch 375/501
+[11:43:14 - main - INFO] ------------------------------
+[11:43:14 - main - INFO] Iter: 374        Time: 0.523
+[11:43:14 - main - INFO] ---------------  -------------
+[11:43:14 - main - INFO] train/mse_loss   7.957e-04
+[11:43:14 - main - INFO] train/l2_loss    4.305e+02
+[11:43:14 - main - INFO] train/val_error  1.205e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:43:14.855663 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000.orbax-checkpoint-tmp-1770482594853316/default.
+I0207 11:43:14.862859 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000.orbax-checkpoint-tmp-1770482594853316/default.orbax-checkpoint-tmp-1770482594855798 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000.orbax-checkpoint-tmp-1770482594853316/default
+I0207 11:43:14.863147 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000.orbax-checkpoint-tmp-1770482594853316/default`.
+I0207 11:43:14.865357 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=32000 | time=2026-02-07 16:42:09.184518+00:00]: (Reason: old checkpoint).
+I0207 11:43:14.866384 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000.orbax-checkpoint-tmp-1770482594853316 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/48000
+
+Epoch 376/501
+[11:43:15 - main - INFO] ------------------------------
+[11:43:15 - main - INFO] Iter: 375        Time: 0.520
+[11:43:15 - main - INFO] ---------------  -------------
+[11:43:15 - main - INFO] train/mse_loss   8.906e-04
+[11:43:15 - main - INFO] train/l2_loss    4.297e+02
+[11:43:15 - main - INFO] train/val_error  1.226e-03
+
+Epoch 377/501
+[11:43:15 - main - INFO] ------------------------------
+[11:43:15 - main - INFO] Iter: 376        Time: 0.515
+[11:43:15 - main - INFO] ---------------  -------------
+[11:43:15 - main - INFO] train/mse_loss   9.774e-04
+[11:43:15 - main - INFO] train/l2_loss    4.290e+02
+[11:43:15 - main - INFO] train/val_error  1.298e-03
+
+Epoch 378/501
+[11:43:16 - main - INFO] ------------------------------
+[11:43:16 - main - INFO] Iter: 377        Time: 0.514
+[11:43:16 - main - INFO] ---------------  -------------
+[11:43:16 - main - INFO] train/mse_loss   8.713e-04
+[11:43:16 - main - INFO] train/l2_loss    4.282e+02
+[11:43:16 - main - INFO] train/val_error  1.331e-03
+
+Epoch 379/501
+[11:43:16 - main - INFO] ------------------------------
+[11:43:16 - main - INFO] Iter: 378        Time: 0.515
+[11:43:16 - main - INFO] ---------------  -------------
+[11:43:16 - main - INFO] train/mse_loss   8.142e-04
+[11:43:16 - main - INFO] train/l2_loss    4.277e+02
+[11:43:16 - main - INFO] train/val_error  1.503e-03
+
+Epoch 380/501
+[11:43:17 - main - INFO] ------------------------------
+[11:43:17 - main - INFO] Iter: 379        Time: 0.516
+[11:43:17 - main - INFO] ---------------  -------------
+[11:43:17 - main - INFO] train/mse_loss   5.259e-04
+[11:43:17 - main - INFO] train/l2_loss    4.269e+02
+[11:43:17 - main - INFO] train/val_error  8.715e-04
+
+Epoch 381/501
+[11:43:17 - main - INFO] ------------------------------
+[11:43:17 - main - INFO] Iter: 380        Time: 0.512
+[11:43:17 - main - INFO] ---------------  -------------
+[11:43:17 - main - INFO] train/mse_loss   1.273e-03
+[11:43:17 - main - INFO] train/l2_loss    4.269e+02
+[11:43:17 - main - INFO] train/val_error  1.890e-03
+
+Epoch 382/501
+[11:43:18 - main - INFO] ------------------------------
+[11:43:18 - main - INFO] Iter: 381        Time: 0.519
+[11:43:18 - main - INFO] ---------------  -------------
+[11:43:18 - main - INFO] train/mse_loss   7.098e-04
+[11:43:18 - main - INFO] train/l2_loss    4.266e+02
+[11:43:18 - main - INFO] train/val_error  1.022e-03
+
+Epoch 383/501
+[11:43:18 - main - INFO] ------------------------------
+[11:43:18 - main - INFO] Iter: 382        Time: 0.506
+[11:43:18 - main - INFO] ---------------  -------------
+[11:43:18 - main - INFO] train/mse_loss   8.255e-04
+[11:43:18 - main - INFO] train/l2_loss    4.255e+02
+[11:43:18 - main - INFO] train/val_error  1.363e-03
+
+Epoch 384/501
+[11:43:19 - main - INFO] ------------------------------
+[11:43:19 - main - INFO] Iter: 383        Time: 0.588
+[11:43:19 - main - INFO] ---------------  -------------
+[11:43:19 - main - INFO] train/mse_loss   6.588e-04
+[11:43:19 - main - INFO] train/l2_loss    4.250e+02
+[11:43:19 - main - INFO] train/val_error  1.086e-03
+
+Epoch 385/501
+[11:43:20 - main - INFO] ------------------------------
+[11:43:20 - main - INFO] Iter: 384        Time: 0.501
+[11:43:20 - main - INFO] ---------------  -------------
+[11:43:20 - main - INFO] train/mse_loss   5.557e-04
+[11:43:20 - main - INFO] train/l2_loss    4.250e+02
+[11:43:20 - main - INFO] train/val_error  9.629e-04
+
+Epoch 386/501
+[11:43:20 - main - INFO] ------------------------------
+[11:43:20 - main - INFO] Iter: 385        Time: 0.547
+[11:43:20 - main - INFO] ---------------  -------------
+[11:43:20 - main - INFO] train/mse_loss   9.157e-04
+[11:43:20 - main - INFO] train/l2_loss    4.243e+02
+[11:43:20 - main - INFO] train/val_error  1.352e-03
+
+Epoch 387/501
+[11:43:21 - main - INFO] ------------------------------
+[11:43:21 - main - INFO] Iter: 386        Time: 0.497
+[11:43:21 - main - INFO] ---------------  -------------
+[11:43:21 - main - INFO] train/mse_loss   6.923e-04
+[11:43:21 - main - INFO] train/l2_loss    4.231e+02
+[11:43:21 - main - INFO] train/val_error  9.884e-04
+
+Epoch 388/501
+[11:43:21 - main - INFO] ------------------------------
+[11:43:21 - main - INFO] Iter: 387        Time: 0.516
+[11:43:21 - main - INFO] ---------------  -------------
+[11:43:21 - main - INFO] train/mse_loss   8.541e-04
+[11:43:21 - main - INFO] train/l2_loss    4.230e+02
+[11:43:21 - main - INFO] train/val_error  1.595e-03
+
+Epoch 389/501
+[11:43:22 - main - INFO] ------------------------------
+[11:43:22 - main - INFO] Iter: 388        Time: 0.544
+[11:43:22 - main - INFO] ---------------  -------------
+[11:43:22 - main - INFO] train/mse_loss   4.755e-04
+[11:43:22 - main - INFO] train/l2_loss    4.228e+02
+[11:43:22 - main - INFO] train/val_error  1.173e-03
+
+Epoch 390/501
+[11:43:22 - main - INFO] ------------------------------
+[11:43:22 - main - INFO] Iter: 389        Time: 0.522
+[11:43:22 - main - INFO] ---------------  -------------
+[11:43:22 - main - INFO] train/mse_loss   6.359e-04
+[11:43:22 - main - INFO] train/l2_loss    4.220e+02
+[11:43:22 - main - INFO] train/val_error  9.077e-04
+
+Epoch 391/501
+[11:43:23 - main - INFO] ------------------------------
+[11:43:23 - main - INFO] Iter: 390        Time: 0.527
+[11:43:23 - main - INFO] ---------------  -------------
+[11:43:23 - main - INFO] train/mse_loss   7.135e-04
+[11:43:23 - main - INFO] train/l2_loss    4.228e+02
+[11:43:23 - main - INFO] train/val_error  1.105e-03
+
+Epoch 392/501
+[11:43:23 - main - INFO] ------------------------------
+[11:43:23 - main - INFO] Iter: 391        Time: 0.526
+[11:43:23 - main - INFO] ---------------  -------------
+[11:43:23 - main - INFO] train/mse_loss   1.154e-03
+[11:43:23 - main - INFO] train/l2_loss    4.218e+02
+[11:43:23 - main - INFO] train/val_error  1.946e-03
+
+Epoch 393/501
+[11:43:24 - main - INFO] ------------------------------
+[11:43:24 - main - INFO] Iter: 392        Time: 0.526
+[11:43:24 - main - INFO] ---------------  -------------
+[11:43:24 - main - INFO] train/mse_loss   5.644e-04
+[11:43:24 - main - INFO] train/l2_loss    4.211e+02
+[11:43:24 - main - INFO] train/val_error  1.257e-03
+
+Epoch 394/501
+[11:43:24 - main - INFO] ------------------------------
+[11:43:24 - main - INFO] Iter: 393        Time: 0.529
+[11:43:24 - main - INFO] ---------------  -------------
+[11:43:24 - main - INFO] train/mse_loss   6.753e-04
+[11:43:24 - main - INFO] train/l2_loss    4.207e+02
+[11:43:24 - main - INFO] train/val_error  1.037e-03
+
+Epoch 395/501
+[11:43:25 - main - INFO] ------------------------------
+[11:43:25 - main - INFO] Iter: 394        Time: 0.522
+[11:43:25 - main - INFO] ---------------  -------------
+[11:43:25 - main - INFO] train/mse_loss   8.797e-04
+[11:43:25 - main - INFO] train/l2_loss    4.203e+02
+[11:43:25 - main - INFO] train/val_error  1.337e-03
+
+Epoch 396/501
+[11:43:25 - main - INFO] ------------------------------
+[11:43:25 - main - INFO] Iter: 395        Time: 0.525
+[11:43:25 - main - INFO] ---------------  -------------
+[11:43:25 - main - INFO] train/mse_loss   6.340e-04
+[11:43:25 - main - INFO] train/l2_loss    4.199e+02
+[11:43:25 - main - INFO] train/val_error  1.003e-03
+
+Epoch 397/501
+[11:43:26 - main - INFO] ------------------------------
+[11:43:26 - main - INFO] Iter: 396        Time: 0.524
+[11:43:26 - main - INFO] ---------------  -------------
+[11:43:26 - main - INFO] train/mse_loss   1.695e-03
+[11:43:26 - main - INFO] train/l2_loss    4.193e+02
+[11:43:26 - main - INFO] train/val_error  1.871e-03
+
+Epoch 398/501
+[11:43:26 - main - INFO] ------------------------------
+[11:43:26 - main - INFO] Iter: 397        Time: 0.525
+[11:43:26 - main - INFO] ---------------  -------------
+[11:43:26 - main - INFO] train/mse_loss   7.911e-04
+[11:43:26 - main - INFO] train/l2_loss    4.188e+02
+[11:43:26 - main - INFO] train/val_error  1.107e-03
+
+Epoch 399/501
+[11:43:27 - main - INFO] ------------------------------
+[11:43:27 - main - INFO] Iter: 398        Time: 0.522
+[11:43:27 - main - INFO] ---------------  -------------
+[11:43:27 - main - INFO] train/mse_loss   5.413e-04
+[11:43:27 - main - INFO] train/l2_loss    4.181e+02
+[11:43:27 - main - INFO] train/val_error  8.465e-04
+
+Epoch 400/501
+[11:43:27 - main - INFO] ------------------------------
+[11:43:27 - main - INFO] Iter: 399        Time: 0.518
+[11:43:27 - main - INFO] ---------------  -------------
+[11:43:27 - main - INFO] train/mse_loss   9.958e-04
+[11:43:27 - main - INFO] train/l2_loss    4.176e+02
+[11:43:27 - main - INFO] train/val_error  1.403e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:43:27.961340 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200.orbax-checkpoint-tmp-1770482607959055/default.
+I0207 11:43:27.968131 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200.orbax-checkpoint-tmp-1770482607959055/default.orbax-checkpoint-tmp-1770482607961465 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200.orbax-checkpoint-tmp-1770482607959055/default
+I0207 11:43:27.968387 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200.orbax-checkpoint-tmp-1770482607959055/default`.
+I0207 11:43:27.970456 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=35200 | time=2026-02-07 16:42:22.307619+00:00]: (Reason: old checkpoint).
+I0207 11:43:27.971415 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200.orbax-checkpoint-tmp-1770482607959055 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/51200
+
+Epoch 401/501
+[11:43:28 - main - INFO] ------------------------------
+[11:43:28 - main - INFO] Iter: 400        Time: 0.518
+[11:43:28 - main - INFO] ---------------  -------------
+[11:43:28 - main - INFO] train/mse_loss   1.486e-03
+[11:43:28 - main - INFO] train/l2_loss    4.179e+02
+[11:43:28 - main - INFO] train/val_error  1.965e-03
+
+Epoch 402/501
+[11:43:29 - main - INFO] ------------------------------
+[11:43:29 - main - INFO] Iter: 401        Time: 0.515
+[11:43:29 - main - INFO] ---------------  -------------
+[11:43:29 - main - INFO] train/mse_loss   6.385e-04
+[11:43:29 - main - INFO] train/l2_loss    4.171e+02
+[11:43:29 - main - INFO] train/val_error  1.012e-03
+
+Epoch 403/501
+[11:43:29 - main - INFO] ------------------------------
+[11:43:29 - main - INFO] Iter: 402        Time: 0.580
+[11:43:29 - main - INFO] ---------------  -------------
+[11:43:29 - main - INFO] train/mse_loss   1.608e-03
+[11:43:29 - main - INFO] train/l2_loss    4.169e+02
+[11:43:29 - main - INFO] train/val_error  2.051e-03
+
+Epoch 404/501
+[11:43:30 - main - INFO] ------------------------------
+[11:43:30 - main - INFO] Iter: 403        Time: 0.495
+[11:43:30 - main - INFO] ---------------  -------------
+[11:43:30 - main - INFO] train/mse_loss   8.889e-04
+[11:43:30 - main - INFO] train/l2_loss    4.174e+02
+[11:43:30 - main - INFO] train/val_error  1.114e-03
+
+Epoch 405/501
+[11:43:30 - main - INFO] ------------------------------
+[11:43:30 - main - INFO] Iter: 404        Time: 0.495
+[11:43:30 - main - INFO] ---------------  -------------
+[11:43:30 - main - INFO] train/mse_loss   6.757e-04
+[11:43:30 - main - INFO] train/l2_loss    4.166e+02
+[11:43:30 - main - INFO] train/val_error  9.693e-04
+
+Epoch 406/501
+[11:43:31 - main - INFO] ------------------------------
+[11:43:31 - main - INFO] Iter: 405        Time: 0.473
+[11:43:31 - main - INFO] ---------------  -------------
+[11:43:31 - main - INFO] train/mse_loss   1.477e-03
+[11:43:31 - main - INFO] train/l2_loss    4.156e+02
+[11:43:31 - main - INFO] train/val_error  1.748e-03
+
+Epoch 407/501
+[11:43:31 - main - INFO] ------------------------------
+[11:43:31 - main - INFO] Iter: 406        Time: 0.483
+[11:43:31 - main - INFO] ---------------  -------------
+[11:43:31 - main - INFO] train/mse_loss   1.097e-03
+[11:43:31 - main - INFO] train/l2_loss    4.156e+02
+[11:43:31 - main - INFO] train/val_error  1.449e-03
+
+Epoch 408/501
+[11:43:32 - main - INFO] ------------------------------
+[11:43:32 - main - INFO] Iter: 407        Time: 0.522
+[11:43:32 - main - INFO] ---------------  -------------
+[11:43:32 - main - INFO] train/mse_loss   5.112e-04
+[11:43:32 - main - INFO] train/l2_loss    4.147e+02
+[11:43:32 - main - INFO] train/val_error  9.044e-04
+
+Epoch 409/501
+[11:43:32 - main - INFO] ------------------------------
+[11:43:32 - main - INFO] Iter: 408        Time: 0.522
+[11:43:32 - main - INFO] ---------------  -------------
+[11:43:32 - main - INFO] train/mse_loss   6.211e-04
+[11:43:32 - main - INFO] train/l2_loss    4.141e+02
+[11:43:32 - main - INFO] train/val_error  9.823e-04
+
+Epoch 410/501
+[11:43:33 - main - INFO] ------------------------------
+[11:43:33 - main - INFO] Iter: 409        Time: 0.527
+[11:43:33 - main - INFO] ---------------  -------------
+[11:43:33 - main - INFO] train/mse_loss   1.195e-03
+[11:43:33 - main - INFO] train/l2_loss    4.138e+02
+[11:43:33 - main - INFO] train/val_error  1.510e-03
+
+Epoch 411/501
+[11:43:33 - main - INFO] ------------------------------
+[11:43:33 - main - INFO] Iter: 410        Time: 0.522
+[11:43:33 - main - INFO] ---------------  -------------
+[11:43:33 - main - INFO] train/mse_loss   7.429e-04
+[11:43:33 - main - INFO] train/l2_loss    4.141e+02
+[11:43:33 - main - INFO] train/val_error  1.235e-03
+
+Epoch 412/501
+[11:43:34 - main - INFO] ------------------------------
+[11:43:34 - main - INFO] Iter: 411        Time: 0.525
+[11:43:34 - main - INFO] ---------------  -------------
+[11:43:34 - main - INFO] train/mse_loss   8.390e-04
+[11:43:34 - main - INFO] train/l2_loss    4.140e+02
+[11:43:34 - main - INFO] train/val_error  1.303e-03
+
+Epoch 413/501
+[11:43:34 - main - INFO] ------------------------------
+[11:43:34 - main - INFO] Iter: 412        Time: 0.530
+[11:43:34 - main - INFO] ---------------  -------------
+[11:43:34 - main - INFO] train/mse_loss   1.968e-03
+[11:43:34 - main - INFO] train/l2_loss    4.136e+02
+[11:43:34 - main - INFO] train/val_error  2.884e-03
+
+Epoch 414/501
+[11:43:35 - main - INFO] ------------------------------
+[11:43:35 - main - INFO] Iter: 413        Time: 0.521
+[11:43:35 - main - INFO] ---------------  -------------
+[11:43:35 - main - INFO] train/mse_loss   7.710e-04
+[11:43:35 - main - INFO] train/l2_loss    4.140e+02
+[11:43:35 - main - INFO] train/val_error  8.323e-04
+
+Epoch 415/501
+[11:43:35 - main - INFO] ------------------------------
+[11:43:35 - main - INFO] Iter: 414        Time: 0.524
+[11:43:35 - main - INFO] ---------------  -------------
+[11:43:35 - main - INFO] train/mse_loss   3.875e-04
+[11:43:35 - main - INFO] train/l2_loss    4.136e+02
+[11:43:35 - main - INFO] train/val_error  7.647e-04
+
+Epoch 416/501
+[11:43:36 - main - INFO] ------------------------------
+[11:43:36 - main - INFO] Iter: 415        Time: 0.524
+[11:43:36 - main - INFO] ---------------  -------------
+[11:43:36 - main - INFO] train/mse_loss   5.420e-04
+[11:43:36 - main - INFO] train/l2_loss    4.125e+02
+[11:43:36 - main - INFO] train/val_error  8.716e-04
+
+Epoch 417/501
+[11:43:36 - main - INFO] ------------------------------
+[11:43:36 - main - INFO] Iter: 416        Time: 0.526
+[11:43:36 - main - INFO] ---------------  -------------
+[11:43:36 - main - INFO] train/mse_loss   9.996e-04
+[11:43:36 - main - INFO] train/l2_loss    4.114e+02
+[11:43:36 - main - INFO] train/val_error  1.518e-03
+
+Epoch 418/501
+[11:43:37 - main - INFO] ------------------------------
+[11:43:37 - main - INFO] Iter: 417        Time: 0.528
+[11:43:37 - main - INFO] ---------------  -------------
+[11:43:37 - main - INFO] train/mse_loss   7.225e-04
+[11:43:37 - main - INFO] train/l2_loss    4.114e+02
+[11:43:37 - main - INFO] train/val_error  1.143e-03
+
+Epoch 419/501
+[11:43:37 - main - INFO] ------------------------------
+[11:43:37 - main - INFO] Iter: 418        Time: 0.524
+[11:43:37 - main - INFO] ---------------  -------------
+[11:43:37 - main - INFO] train/mse_loss   6.283e-04
+[11:43:37 - main - INFO] train/l2_loss    4.111e+02
+[11:43:37 - main - INFO] train/val_error  9.650e-04
+
+Epoch 420/501
+[11:43:38 - main - INFO] ------------------------------
+[11:43:38 - main - INFO] Iter: 419        Time: 0.515
+[11:43:38 - main - INFO] ---------------  -------------
+[11:43:38 - main - INFO] train/mse_loss   9.259e-04
+[11:43:38 - main - INFO] train/l2_loss    4.110e+02
+[11:43:38 - main - INFO] train/val_error  1.630e-03
+
+Epoch 421/501
+[11:43:38 - main - INFO] ------------------------------
+[11:43:38 - main - INFO] Iter: 420        Time: 0.525
+[11:43:38 - main - INFO] ---------------  -------------
+[11:43:38 - main - INFO] train/mse_loss   9.031e-04
+[11:43:38 - main - INFO] train/l2_loss    4.109e+02
+[11:43:38 - main - INFO] train/val_error  1.199e-03
+
+Epoch 422/501
+[11:43:39 - main - INFO] ------------------------------
+[11:43:39 - main - INFO] Iter: 421        Time: 0.552
+[11:43:39 - main - INFO] ---------------  -------------
+[11:43:39 - main - INFO] train/mse_loss   7.091e-04
+[11:43:39 - main - INFO] train/l2_loss    4.114e+02
+[11:43:39 - main - INFO] train/val_error  1.110e-03
+
+Epoch 423/501
+[11:43:40 - main - INFO] ------------------------------
+[11:43:40 - main - INFO] Iter: 422        Time: 0.600
+[11:43:40 - main - INFO] ---------------  -------------
+[11:43:40 - main - INFO] train/mse_loss   6.645e-04
+[11:43:40 - main - INFO] train/l2_loss    4.112e+02
+[11:43:40 - main - INFO] train/val_error  1.214e-03
+
+Epoch 424/501
+[11:43:40 - main - INFO] ------------------------------
+[11:43:40 - main - INFO] Iter: 423        Time: 0.548
+[11:43:40 - main - INFO] ---------------  -------------
+[11:43:40 - main - INFO] train/mse_loss   1.318e-03
+[11:43:40 - main - INFO] train/l2_loss    4.108e+02
+[11:43:40 - main - INFO] train/val_error  1.922e-03
+
+Epoch 425/501
+[11:43:41 - main - INFO] ------------------------------
+[11:43:41 - main - INFO] Iter: 424        Time: 0.549
+[11:43:41 - main - INFO] ---------------  -------------
+[11:43:41 - main - INFO] train/mse_loss   6.305e-04
+[11:43:41 - main - INFO] train/l2_loss    4.106e+02
+[11:43:41 - main - INFO] train/val_error  7.929e-04
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:43:41.134977 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400.orbax-checkpoint-tmp-1770482621131996/default.
+I0207 11:43:41.142059 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400.orbax-checkpoint-tmp-1770482621131996/default.orbax-checkpoint-tmp-1770482621135135 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400.orbax-checkpoint-tmp-1770482621131996/default
+I0207 11:43:41.142324 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400.orbax-checkpoint-tmp-1770482621131996/default`.
+I0207 11:43:41.144046 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=38400 | time=2026-02-07 16:42:35.293034+00:00]: (Reason: old checkpoint).
+I0207 11:43:41.145071 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400.orbax-checkpoint-tmp-1770482621131996 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/54400
+
+Epoch 426/501
+[11:43:41 - main - INFO] ------------------------------
+[11:43:41 - main - INFO] Iter: 425        Time: 0.531
+[11:43:41 - main - INFO] ---------------  -------------
+[11:43:41 - main - INFO] train/mse_loss   5.394e-04
+[11:43:41 - main - INFO] train/l2_loss    4.099e+02
+[11:43:41 - main - INFO] train/val_error  9.122e-04
+
+Epoch 427/501
+[11:43:42 - main - INFO] ------------------------------
+[11:43:42 - main - INFO] Iter: 426        Time: 0.469
+[11:43:42 - main - INFO] ---------------  -------------
+[11:43:42 - main - INFO] train/mse_loss   6.299e-04
+[11:43:42 - main - INFO] train/l2_loss    4.087e+02
+[11:43:42 - main - INFO] train/val_error  7.449e-04
+
+Epoch 428/501
+[11:43:42 - main - INFO] ------------------------------
+[11:43:42 - main - INFO] Iter: 427        Time: 0.496
+[11:43:42 - main - INFO] ---------------  -------------
+[11:43:42 - main - INFO] train/mse_loss   9.479e-04
+[11:43:42 - main - INFO] train/l2_loss    4.084e+02
+[11:43:42 - main - INFO] train/val_error  1.443e-03
+
+Epoch 429/501
+[11:43:43 - main - INFO] ------------------------------
+[11:43:43 - main - INFO] Iter: 428        Time: 0.516
+[11:43:43 - main - INFO] ---------------  -------------
+[11:43:43 - main - INFO] train/mse_loss   7.152e-04
+[11:43:43 - main - INFO] train/l2_loss    4.079e+02
+[11:43:43 - main - INFO] train/val_error  1.142e-03
+
+Epoch 430/501
+[11:43:43 - main - INFO] ------------------------------
+[11:43:43 - main - INFO] Iter: 429        Time: 0.517
+[11:43:43 - main - INFO] ---------------  -------------
+[11:43:43 - main - INFO] train/mse_loss   9.786e-04
+[11:43:43 - main - INFO] train/l2_loss    4.080e+02
+[11:43:43 - main - INFO] train/val_error  1.416e-03
+
+Epoch 431/501
+[11:43:44 - main - INFO] ------------------------------
+[11:43:44 - main - INFO] Iter: 430        Time: 0.516
+[11:43:44 - main - INFO] ---------------  -------------
+[11:43:44 - main - INFO] train/mse_loss   6.756e-04
+[11:43:44 - main - INFO] train/l2_loss    4.074e+02
+[11:43:44 - main - INFO] train/val_error  1.074e-03
+
+Epoch 432/501
+[11:43:44 - main - INFO] ------------------------------
+[11:43:44 - main - INFO] Iter: 431        Time: 0.519
+[11:43:44 - main - INFO] ---------------  -------------
+[11:43:44 - main - INFO] train/mse_loss   7.152e-04
+[11:43:44 - main - INFO] train/l2_loss    4.082e+02
+[11:43:44 - main - INFO] train/val_error  1.302e-03
+
+Epoch 433/501
+[11:43:45 - main - INFO] ------------------------------
+[11:43:45 - main - INFO] Iter: 432        Time: 0.519
+[11:43:45 - main - INFO] ---------------  -------------
+[11:43:45 - main - INFO] train/mse_loss   7.868e-04
+[11:43:45 - main - INFO] train/l2_loss    4.074e+02
+[11:43:45 - main - INFO] train/val_error  1.268e-03
+
+Epoch 434/501
+[11:43:45 - main - INFO] ------------------------------
+[11:43:45 - main - INFO] Iter: 433        Time: 0.517
+[11:43:45 - main - INFO] ---------------  -------------
+[11:43:45 - main - INFO] train/mse_loss   1.026e-03
+[11:43:45 - main - INFO] train/l2_loss    4.067e+02
+[11:43:45 - main - INFO] train/val_error  1.317e-03
+
+Epoch 435/501
+[11:43:46 - main - INFO] ------------------------------
+[11:43:46 - main - INFO] Iter: 434        Time: 0.519
+[11:43:46 - main - INFO] ---------------  -------------
+[11:43:46 - main - INFO] train/mse_loss   5.809e-04
+[11:43:46 - main - INFO] train/l2_loss    4.069e+02
+[11:43:46 - main - INFO] train/val_error  9.375e-04
+
+Epoch 436/501
+[11:43:46 - main - INFO] ------------------------------
+[11:43:46 - main - INFO] Iter: 435        Time: 0.524
+[11:43:46 - main - INFO] ---------------  -------------
+[11:43:46 - main - INFO] train/mse_loss   8.740e-04
+[11:43:46 - main - INFO] train/l2_loss    4.057e+02
+[11:43:46 - main - INFO] train/val_error  1.356e-03
+
+Epoch 437/501
+[11:43:47 - main - INFO] ------------------------------
+[11:43:47 - main - INFO] Iter: 436        Time: 0.527
+[11:43:47 - main - INFO] ---------------  -------------
+[11:43:47 - main - INFO] train/mse_loss   5.230e-04
+[11:43:47 - main - INFO] train/l2_loss    4.055e+02
+[11:43:47 - main - INFO] train/val_error  8.272e-04
+
+Epoch 438/501
+[11:43:47 - main - INFO] ------------------------------
+[11:43:47 - main - INFO] Iter: 437        Time: 0.525
+[11:43:47 - main - INFO] ---------------  -------------
+[11:43:47 - main - INFO] train/mse_loss   1.014e-03
+[11:43:47 - main - INFO] train/l2_loss    4.048e+02
+[11:43:47 - main - INFO] train/val_error  1.390e-03
+
+Epoch 439/501
+[11:43:48 - main - INFO] ------------------------------
+[11:43:48 - main - INFO] Iter: 438        Time: 0.524
+[11:43:48 - main - INFO] ---------------  -------------
+[11:43:48 - main - INFO] train/mse_loss   1.032e-03
+[11:43:48 - main - INFO] train/l2_loss    4.047e+02
+[11:43:48 - main - INFO] train/val_error  1.283e-03
+
+Epoch 440/501
+[11:43:48 - main - INFO] ------------------------------
+[11:43:48 - main - INFO] Iter: 439        Time: 0.523
+[11:43:48 - main - INFO] ---------------  -------------
+[11:43:48 - main - INFO] train/mse_loss   6.234e-04
+[11:43:48 - main - INFO] train/l2_loss    4.043e+02
+[11:43:48 - main - INFO] train/val_error  1.180e-03
+
+Epoch 441/501
+[11:43:49 - main - INFO] ------------------------------
+[11:43:49 - main - INFO] Iter: 440        Time: 0.546
+[11:43:49 - main - INFO] ---------------  -------------
+[11:43:49 - main - INFO] train/mse_loss   9.065e-04
+[11:43:49 - main - INFO] train/l2_loss    4.037e+02
+[11:43:49 - main - INFO] train/val_error  1.175e-03
+
+Epoch 442/501
+[11:43:49 - main - INFO] ------------------------------
+[11:43:49 - main - INFO] Iter: 441        Time: 0.552
+[11:43:49 - main - INFO] ---------------  -------------
+[11:43:49 - main - INFO] train/mse_loss   7.328e-04
+[11:43:49 - main - INFO] train/l2_loss    4.036e+02
+[11:43:49 - main - INFO] train/val_error  1.152e-03
+
+Epoch 443/501
+[11:43:50 - main - INFO] ------------------------------
+[11:43:50 - main - INFO] Iter: 442        Time: 0.526
+[11:43:50 - main - INFO] ---------------  -------------
+[11:43:50 - main - INFO] train/mse_loss   8.351e-04
+[11:43:50 - main - INFO] train/l2_loss    4.030e+02
+[11:43:50 - main - INFO] train/val_error  1.128e-03
+
+Epoch 444/501
+[11:43:51 - main - INFO] ------------------------------
+[11:43:51 - main - INFO] Iter: 443        Time: 0.499
+[11:43:51 - main - INFO] ---------------  -------------
+[11:43:51 - main - INFO] train/mse_loss   1.287e-03
+[11:43:51 - main - INFO] train/l2_loss    4.024e+02
+[11:43:51 - main - INFO] train/val_error  1.564e-03
+
+Epoch 445/501
+[11:43:51 - main - INFO] ------------------------------
+[11:43:51 - main - INFO] Iter: 444        Time: 0.505
+[11:43:51 - main - INFO] ---------------  -------------
+[11:43:51 - main - INFO] train/mse_loss   1.088e-03
+[11:43:51 - main - INFO] train/l2_loss    4.021e+02
+[11:43:51 - main - INFO] train/val_error  1.700e-03
+
+Epoch 446/501
+[11:43:52 - main - INFO] ------------------------------
+[11:43:52 - main - INFO] Iter: 445        Time: 0.505
+[11:43:52 - main - INFO] ---------------  -------------
+[11:43:52 - main - INFO] train/mse_loss   7.394e-04
+[11:43:52 - main - INFO] train/l2_loss    4.020e+02
+[11:43:52 - main - INFO] train/val_error  1.062e-03
+
+Epoch 447/501
+[11:43:52 - main - INFO] ------------------------------
+[11:43:52 - main - INFO] Iter: 446        Time: 0.493
+[11:43:52 - main - INFO] ---------------  -------------
+[11:43:52 - main - INFO] train/mse_loss   8.920e-04
+[11:43:52 - main - INFO] train/l2_loss    4.020e+02
+[11:43:52 - main - INFO] train/val_error  1.072e-03
+
+Epoch 448/501
+[11:43:53 - main - INFO] ------------------------------
+[11:43:53 - main - INFO] Iter: 447        Time: 0.526
+[11:43:53 - main - INFO] ---------------  -------------
+[11:43:53 - main - INFO] train/mse_loss   8.923e-04
+[11:43:53 - main - INFO] train/l2_loss    4.018e+02
+[11:43:53 - main - INFO] train/val_error  1.481e-03
+
+Epoch 449/501
+[11:43:53 - main - INFO] ------------------------------
+[11:43:53 - main - INFO] Iter: 448        Time: 0.558
+[11:43:53 - main - INFO] ---------------  -------------
+[11:43:53 - main - INFO] train/mse_loss   9.654e-04
+[11:43:53 - main - INFO] train/l2_loss    4.013e+02
+[11:43:53 - main - INFO] train/val_error  1.448e-03
+
+Epoch 450/501
+[11:43:54 - main - INFO] ------------------------------
+[11:43:54 - main - INFO] Iter: 449        Time: 0.517
+[11:43:54 - main - INFO] ---------------  -------------
+[11:43:54 - main - INFO] train/mse_loss   6.644e-04
+[11:43:54 - main - INFO] train/l2_loss    4.007e+02
+[11:43:54 - main - INFO] train/val_error  7.176e-04
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:43:54.132506 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600.orbax-checkpoint-tmp-1770482634130187/default.
+I0207 11:43:54.139391 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600.orbax-checkpoint-tmp-1770482634130187/default.orbax-checkpoint-tmp-1770482634132632 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600.orbax-checkpoint-tmp-1770482634130187/default
+I0207 11:43:54.139650 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600.orbax-checkpoint-tmp-1770482634130187/default`.
+I0207 11:43:54.141765 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=41600 | time=2026-02-07 16:42:48.442208+00:00]: (Reason: old checkpoint).
+I0207 11:43:54.142757 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600.orbax-checkpoint-tmp-1770482634130187 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/57600
+
+Epoch 451/501
+[11:43:54 - main - INFO] ------------------------------
+[11:43:54 - main - INFO] Iter: 450        Time: 0.518
+[11:43:54 - main - INFO] ---------------  -------------
+[11:43:54 - main - INFO] train/mse_loss   1.046e-03
+[11:43:54 - main - INFO] train/l2_loss    3.995e+02
+[11:43:54 - main - INFO] train/val_error  1.346e-03
+
+Epoch 452/501
+[11:43:55 - main - INFO] ------------------------------
+[11:43:55 - main - INFO] Iter: 451        Time: 0.515
+[11:43:55 - main - INFO] ---------------  -------------
+[11:43:55 - main - INFO] train/mse_loss   7.246e-04
+[11:43:55 - main - INFO] train/l2_loss    3.998e+02
+[11:43:55 - main - INFO] train/val_error  1.203e-03
+
+Epoch 453/501
+[11:43:55 - main - INFO] ------------------------------
+[11:43:55 - main - INFO] Iter: 452        Time: 0.515
+[11:43:55 - main - INFO] ---------------  -------------
+[11:43:55 - main - INFO] train/mse_loss   5.669e-04
+[11:43:55 - main - INFO] train/l2_loss    4.000e+02
+[11:43:55 - main - INFO] train/val_error  1.137e-03
+
+Epoch 454/501
+[11:43:56 - main - INFO] ------------------------------
+[11:43:56 - main - INFO] Iter: 453        Time: 0.515
+[11:43:56 - main - INFO] ---------------  -------------
+[11:43:56 - main - INFO] train/mse_loss   1.965e-03
+[11:43:56 - main - INFO] train/l2_loss    3.991e+02
+[11:43:56 - main - INFO] train/val_error  2.385e-03
+
+Epoch 455/501
+[11:43:56 - main - INFO] ------------------------------
+[11:43:56 - main - INFO] Iter: 454        Time: 0.520
+[11:43:56 - main - INFO] ---------------  -------------
+[11:43:56 - main - INFO] train/mse_loss   8.975e-04
+[11:43:56 - main - INFO] train/l2_loss    3.989e+02
+[11:43:56 - main - INFO] train/val_error  1.292e-03
+
+Epoch 456/501
+[11:43:57 - main - INFO] ------------------------------
+[11:43:57 - main - INFO] Iter: 455        Time: 0.518
+[11:43:57 - main - INFO] ---------------  -------------
+[11:43:57 - main - INFO] train/mse_loss   5.270e-04
+[11:43:57 - main - INFO] train/l2_loss    3.987e+02
+[11:43:57 - main - INFO] train/val_error  7.813e-04
+
+Epoch 457/501
+[11:43:57 - main - INFO] ------------------------------
+[11:43:57 - main - INFO] Iter: 456        Time: 0.517
+[11:43:57 - main - INFO] ---------------  -------------
+[11:43:57 - main - INFO] train/mse_loss   4.893e-04
+[11:43:57 - main - INFO] train/l2_loss    3.991e+02
+[11:43:57 - main - INFO] train/val_error  9.224e-04
+
+Epoch 458/501
+[11:43:58 - main - INFO] ------------------------------
+[11:43:58 - main - INFO] Iter: 457        Time: 0.517
+[11:43:58 - main - INFO] ---------------  -------------
+[11:43:58 - main - INFO] train/mse_loss   6.490e-04
+[11:43:58 - main - INFO] train/l2_loss    3.989e+02
+[11:43:58 - main - INFO] train/val_error  1.151e-03
+
+Epoch 459/501
+[11:43:58 - main - INFO] ------------------------------
+[11:43:58 - main - INFO] Iter: 458        Time: 0.523
+[11:43:58 - main - INFO] ---------------  -------------
+[11:43:58 - main - INFO] train/mse_loss   1.538e-03
+[11:43:58 - main - INFO] train/l2_loss    3.983e+02
+[11:43:58 - main - INFO] train/val_error  1.772e-03
+
+Epoch 460/501
+[11:43:59 - main - INFO] ------------------------------
+[11:43:59 - main - INFO] Iter: 459        Time: 0.542
+[11:43:59 - main - INFO] ---------------  -------------
+[11:43:59 - main - INFO] train/mse_loss   6.094e-04
+[11:43:59 - main - INFO] train/l2_loss    3.981e+02
+[11:43:59 - main - INFO] train/val_error  9.272e-04
+
+Epoch 461/501
+[11:43:59 - main - INFO] ------------------------------
+[11:43:59 - main - INFO] Iter: 460        Time: 0.518
+[11:43:59 - main - INFO] ---------------  -------------
+[11:43:59 - main - INFO] train/mse_loss   8.947e-04
+[11:43:59 - main - INFO] train/l2_loss    3.978e+02
+[11:43:59 - main - INFO] train/val_error  1.399e-03
+
+Epoch 462/501
+[11:44:00 - main - INFO] ------------------------------
+[11:44:00 - main - INFO] Iter: 461        Time: 0.502
+[11:44:00 - main - INFO] ---------------  -------------
+[11:44:00 - main - INFO] train/mse_loss   1.343e-03
+[11:44:00 - main - INFO] train/l2_loss    3.969e+02
+[11:44:00 - main - INFO] train/val_error  1.634e-03
+
+Epoch 463/501
+[11:44:00 - main - INFO] ------------------------------
+[11:44:00 - main - INFO] Iter: 462        Time: 0.494
+[11:44:00 - main - INFO] ---------------  -------------
+[11:44:00 - main - INFO] train/mse_loss   1.108e-03
+[11:44:00 - main - INFO] train/l2_loss    3.979e+02
+[11:44:00 - main - INFO] train/val_error  1.270e-03
+
+Epoch 464/501
+[11:44:01 - main - INFO] ------------------------------
+[11:44:01 - main - INFO] Iter: 463        Time: 0.525
+[11:44:01 - main - INFO] ---------------  -------------
+[11:44:01 - main - INFO] train/mse_loss   7.354e-04
+[11:44:01 - main - INFO] train/l2_loss    3.974e+02
+[11:44:01 - main - INFO] train/val_error  1.090e-03
+
+Epoch 465/501
+[11:44:01 - main - INFO] ------------------------------
+[11:44:01 - main - INFO] Iter: 464        Time: 0.511
+[11:44:01 - main - INFO] ---------------  -------------
+[11:44:01 - main - INFO] train/mse_loss   5.623e-04
+[11:44:01 - main - INFO] train/l2_loss    3.969e+02
+[11:44:01 - main - INFO] train/val_error  1.170e-03
+
+Epoch 466/501
+[11:44:02 - main - INFO] ------------------------------
+[11:44:02 - main - INFO] Iter: 465        Time: 0.519
+[11:44:02 - main - INFO] ---------------  -------------
+[11:44:02 - main - INFO] train/mse_loss   9.870e-04
+[11:44:02 - main - INFO] train/l2_loss    3.962e+02
+[11:44:02 - main - INFO] train/val_error  1.249e-03
+
+Epoch 467/501
+[11:44:02 - main - INFO] ------------------------------
+[11:44:02 - main - INFO] Iter: 466        Time: 0.526
+[11:44:02 - main - INFO] ---------------  -------------
+[11:44:02 - main - INFO] train/mse_loss   5.571e-04
+[11:44:02 - main - INFO] train/l2_loss    3.956e+02
+[11:44:02 - main - INFO] train/val_error  8.664e-04
+
+Epoch 468/501
+[11:44:03 - main - INFO] ------------------------------
+[11:44:03 - main - INFO] Iter: 467        Time: 0.570
+[11:44:03 - main - INFO] ---------------  -------------
+[11:44:03 - main - INFO] train/mse_loss   1.003e-03
+[11:44:03 - main - INFO] train/l2_loss    3.950e+02
+[11:44:03 - main - INFO] train/val_error  1.627e-03
+
+Epoch 469/501
+[11:44:04 - main - INFO] ------------------------------
+[11:44:04 - main - INFO] Iter: 468        Time: 0.519
+[11:44:04 - main - INFO] ---------------  -------------
+[11:44:04 - main - INFO] train/mse_loss   1.318e-03
+[11:44:04 - main - INFO] train/l2_loss    3.952e+02
+[11:44:04 - main - INFO] train/val_error  1.222e-03
+
+Epoch 470/501
+[11:44:04 - main - INFO] ------------------------------
+[11:44:04 - main - INFO] Iter: 469        Time: 0.516
+[11:44:04 - main - INFO] ---------------  -------------
+[11:44:04 - main - INFO] train/mse_loss   9.105e-04
+[11:44:04 - main - INFO] train/l2_loss    3.961e+02
+[11:44:04 - main - INFO] train/val_error  1.267e-03
+
+Epoch 471/501
+[11:44:05 - main - INFO] ------------------------------
+[11:44:05 - main - INFO] Iter: 470        Time: 0.521
+[11:44:05 - main - INFO] ---------------  -------------
+[11:44:05 - main - INFO] train/mse_loss   8.357e-04
+[11:44:05 - main - INFO] train/l2_loss    3.953e+02
+[11:44:05 - main - INFO] train/val_error  1.197e-03
+
+Epoch 472/501
+[11:44:05 - main - INFO] ------------------------------
+[11:44:05 - main - INFO] Iter: 471        Time: 0.519
+[11:44:05 - main - INFO] ---------------  -------------
+[11:44:05 - main - INFO] train/mse_loss   9.163e-04
+[11:44:05 - main - INFO] train/l2_loss    3.951e+02
+[11:44:05 - main - INFO] train/val_error  1.176e-03
+
+Epoch 473/501
+[11:44:06 - main - INFO] ------------------------------
+[11:44:06 - main - INFO] Iter: 472        Time: 0.519
+[11:44:06 - main - INFO] ---------------  -------------
+[11:44:06 - main - INFO] train/mse_loss   5.481e-04
+[11:44:06 - main - INFO] train/l2_loss    3.952e+02
+[11:44:06 - main - INFO] train/val_error  8.082e-04
+
+Epoch 474/501
+[11:44:06 - main - INFO] ------------------------------
+[11:44:06 - main - INFO] Iter: 473        Time: 0.499
+[11:44:06 - main - INFO] ---------------  -------------
+[11:44:06 - main - INFO] train/mse_loss   9.046e-04
+[11:44:06 - main - INFO] train/l2_loss    3.944e+02
+[11:44:06 - main - INFO] train/val_error  1.304e-03
+
+Epoch 475/501
+[11:44:07 - main - INFO] ------------------------------
+[11:44:07 - main - INFO] Iter: 474        Time: 0.513
+[11:44:07 - main - INFO] ---------------  -------------
+[11:44:07 - main - INFO] train/mse_loss   1.589e-03
+[11:44:07 - main - INFO] train/l2_loss    3.940e+02
+[11:44:07 - main - INFO] train/val_error  2.061e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:44:07.135189 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800.orbax-checkpoint-tmp-1770482647132927/default.
+I0207 11:44:07.142150 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800.orbax-checkpoint-tmp-1770482647132927/default.orbax-checkpoint-tmp-1770482647135322 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800.orbax-checkpoint-tmp-1770482647132927/default
+I0207 11:44:07.142396 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800.orbax-checkpoint-tmp-1770482647132927/default`.
+I0207 11:44:07.144424 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=44800 | time=2026-02-07 16:43:01.756444+00:00]: (Reason: old checkpoint).
+I0207 11:44:07.145410 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800.orbax-checkpoint-tmp-1770482647132927 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/60800
+
+Epoch 476/501
+[11:44:07 - main - INFO] ------------------------------
+[11:44:07 - main - INFO] Iter: 475        Time: 0.516
+[11:44:07 - main - INFO] ---------------  -------------
+[11:44:07 - main - INFO] train/mse_loss   7.099e-04
+[11:44:07 - main - INFO] train/l2_loss    3.936e+02
+[11:44:07 - main - INFO] train/val_error  1.206e-03
+
+Epoch 477/501
+[11:44:08 - main - INFO] ------------------------------
+[11:44:08 - main - INFO] Iter: 476        Time: 0.520
+[11:44:08 - main - INFO] ---------------  -------------
+[11:44:08 - main - INFO] train/mse_loss   9.434e-04
+[11:44:08 - main - INFO] train/l2_loss    3.935e+02
+[11:44:08 - main - INFO] train/val_error  1.197e-03
+
+Epoch 478/501
+[11:44:08 - main - INFO] ------------------------------
+[11:44:08 - main - INFO] Iter: 477        Time: 0.514
+[11:44:08 - main - INFO] ---------------  -------------
+[11:44:08 - main - INFO] train/mse_loss   5.847e-04
+[11:44:08 - main - INFO] train/l2_loss    3.930e+02
+[11:44:08 - main - INFO] train/val_error  9.926e-04
+
+Epoch 479/501
+[11:44:09 - main - INFO] ------------------------------
+[11:44:09 - main - INFO] Iter: 478        Time: 0.519
+[11:44:09 - main - INFO] ---------------  -------------
+[11:44:09 - main - INFO] train/mse_loss   1.120e-03
+[11:44:09 - main - INFO] train/l2_loss    3.929e+02
+[11:44:09 - main - INFO] train/val_error  1.858e-03
+
+Epoch 480/501
+[11:44:09 - main - INFO] ------------------------------
+[11:44:09 - main - INFO] Iter: 479        Time: 0.547
+[11:44:09 - main - INFO] ---------------  -------------
+[11:44:09 - main - INFO] train/mse_loss   8.116e-04
+[11:44:09 - main - INFO] train/l2_loss    3.923e+02
+[11:44:09 - main - INFO] train/val_error  1.123e-03
+
+Epoch 481/501
+[11:44:10 - main - INFO] ------------------------------
+[11:44:10 - main - INFO] Iter: 480        Time: 0.524
+[11:44:10 - main - INFO] ---------------  -------------
+[11:44:10 - main - INFO] train/mse_loss   5.497e-04
+[11:44:10 - main - INFO] train/l2_loss    3.918e+02
+[11:44:10 - main - INFO] train/val_error  9.252e-04
+
+Epoch 482/501
+[11:44:10 - main - INFO] ------------------------------
+[11:44:10 - main - INFO] Iter: 481        Time: 0.480
+[11:44:10 - main - INFO] ---------------  -------------
+[11:44:10 - main - INFO] train/mse_loss   4.757e-04
+[11:44:10 - main - INFO] train/l2_loss    3.922e+02
+[11:44:10 - main - INFO] train/val_error  7.883e-04
+
+Epoch 483/501
+[11:44:11 - main - INFO] ------------------------------
+[11:44:11 - main - INFO] Iter: 482        Time: 0.520
+[11:44:11 - main - INFO] ---------------  -------------
+[11:44:11 - main - INFO] train/mse_loss   1.374e-03
+[11:44:11 - main - INFO] train/l2_loss    3.916e+02
+[11:44:11 - main - INFO] train/val_error  1.472e-03
+
+Epoch 484/501
+[11:44:11 - main - INFO] ------------------------------
+[11:44:11 - main - INFO] Iter: 483        Time: 0.488
+[11:44:11 - main - INFO] ---------------  -------------
+[11:44:11 - main - INFO] train/mse_loss   1.036e-03
+[11:44:11 - main - INFO] train/l2_loss    3.922e+02
+[11:44:11 - main - INFO] train/val_error  1.159e-03
+
+Epoch 485/501
+[11:44:12 - main - INFO] ------------------------------
+[11:44:12 - main - INFO] Iter: 484        Time: 0.519
+[11:44:12 - main - INFO] ---------------  -------------
+[11:44:12 - main - INFO] train/mse_loss   9.442e-04
+[11:44:12 - main - INFO] train/l2_loss    3.920e+02
+[11:44:12 - main - INFO] train/val_error  1.025e-03
+
+Epoch 486/501
+[11:44:12 - main - INFO] ------------------------------
+[11:44:12 - main - INFO] Iter: 485        Time: 0.506
+[11:44:12 - main - INFO] ---------------  -------------
+[11:44:12 - main - INFO] train/mse_loss   5.561e-04
+[11:44:12 - main - INFO] train/l2_loss    3.922e+02
+[11:44:12 - main - INFO] train/val_error  9.156e-04
+
+Epoch 487/501
+[11:44:13 - main - INFO] ------------------------------
+[11:44:13 - main - INFO] Iter: 486        Time: 0.529
+[11:44:13 - main - INFO] ---------------  -------------
+[11:44:13 - main - INFO] train/mse_loss   4.486e-04
+[11:44:13 - main - INFO] train/l2_loss    3.911e+02
+[11:44:13 - main - INFO] train/val_error  7.965e-04
+
+Epoch 488/501
+[11:44:13 - main - INFO] ------------------------------
+[11:44:13 - main - INFO] Iter: 487        Time: 0.523
+[11:44:13 - main - INFO] ---------------  -------------
+[11:44:13 - main - INFO] train/mse_loss   5.879e-04
+[11:44:13 - main - INFO] train/l2_loss    3.901e+02
+[11:44:13 - main - INFO] train/val_error  9.069e-04
+
+Epoch 489/501
+[11:44:14 - main - INFO] ------------------------------
+[11:44:14 - main - INFO] Iter: 488        Time: 0.525
+[11:44:14 - main - INFO] ---------------  -------------
+[11:44:14 - main - INFO] train/mse_loss   1.292e-03
+[11:44:14 - main - INFO] train/l2_loss    3.899e+02
+[11:44:14 - main - INFO] train/val_error  2.124e-03
+
+Epoch 490/501
+[11:44:14 - main - INFO] ------------------------------
+[11:44:14 - main - INFO] Iter: 489        Time: 0.529
+[11:44:14 - main - INFO] ---------------  -------------
+[11:44:14 - main - INFO] train/mse_loss   5.590e-04
+[11:44:14 - main - INFO] train/l2_loss    3.900e+02
+[11:44:14 - main - INFO] train/val_error  1.093e-03
+
+Epoch 491/501
+[11:44:15 - main - INFO] ------------------------------
+[11:44:15 - main - INFO] Iter: 490        Time: 0.527
+[11:44:15 - main - INFO] ---------------  -------------
+[11:44:15 - main - INFO] train/mse_loss   8.582e-04
+[11:44:15 - main - INFO] train/l2_loss    3.894e+02
+[11:44:15 - main - INFO] train/val_error  1.477e-03
+
+Epoch 492/501
+[11:44:15 - main - INFO] ------------------------------
+[11:44:15 - main - INFO] Iter: 491        Time: 0.525
+[11:44:15 - main - INFO] ---------------  -------------
+[11:44:15 - main - INFO] train/mse_loss   5.722e-04
+[11:44:15 - main - INFO] train/l2_loss    3.887e+02
+[11:44:15 - main - INFO] train/val_error  9.346e-04
+
+Epoch 493/501
+[11:44:16 - main - INFO] ------------------------------
+[11:44:16 - main - INFO] Iter: 492        Time: 0.526
+[11:44:16 - main - INFO] ---------------  -------------
+[11:44:16 - main - INFO] train/mse_loss   5.056e-04
+[11:44:16 - main - INFO] train/l2_loss    3.884e+02
+[11:44:16 - main - INFO] train/val_error  8.528e-04
+
+Epoch 494/501
+[11:44:17 - main - INFO] ------------------------------
+[11:44:17 - main - INFO] Iter: 493        Time: 0.522
+[11:44:17 - main - INFO] ---------------  -------------
+[11:44:17 - main - INFO] train/mse_loss   6.544e-04
+[11:44:17 - main - INFO] train/l2_loss    3.879e+02
+[11:44:17 - main - INFO] train/val_error  9.878e-04
+
+Epoch 495/501
+[11:44:17 - main - INFO] ------------------------------
+[11:44:17 - main - INFO] Iter: 494        Time: 0.522
+[11:44:17 - main - INFO] ---------------  -------------
+[11:44:17 - main - INFO] train/mse_loss   8.334e-04
+[11:44:17 - main - INFO] train/l2_loss    3.875e+02
+[11:44:17 - main - INFO] train/val_error  1.199e-03
+
+Epoch 496/501
+[11:44:18 - main - INFO] ------------------------------
+[11:44:18 - main - INFO] Iter: 495        Time: 0.515
+[11:44:18 - main - INFO] ---------------  -------------
+[11:44:18 - main - INFO] train/mse_loss   7.461e-04
+[11:44:18 - main - INFO] train/l2_loss    3.880e+02
+[11:44:18 - main - INFO] train/val_error  1.269e-03
+
+Epoch 497/501
+[11:44:18 - main - INFO] ------------------------------
+[11:44:18 - main - INFO] Iter: 496        Time: 0.516
+[11:44:18 - main - INFO] ---------------  -------------
+[11:44:18 - main - INFO] train/mse_loss   8.633e-04
+[11:44:18 - main - INFO] train/l2_loss    3.879e+02
+[11:44:18 - main - INFO] train/val_error  1.127e-03
+
+Epoch 498/501
+[11:44:19 - main - INFO] ------------------------------
+[11:44:19 - main - INFO] Iter: 497        Time: 0.523
+[11:44:19 - main - INFO] ---------------  -------------
+[11:44:19 - main - INFO] train/mse_loss   6.744e-04
+[11:44:19 - main - INFO] train/l2_loss    3.875e+02
+[11:44:19 - main - INFO] train/val_error  8.689e-04
+
+Epoch 499/501
+[11:44:19 - main - INFO] ------------------------------
+[11:44:19 - main - INFO] Iter: 498        Time: 0.603
+[11:44:19 - main - INFO] ---------------  -------------
+[11:44:19 - main - INFO] train/mse_loss   3.066e-03
+[11:44:19 - main - INFO] train/l2_loss    3.865e+02
+[11:44:19 - main - INFO] train/val_error  1.937e-03
+
+Epoch 500/501
+[11:44:20 - main - INFO] ------------------------------
+[11:44:20 - main - INFO] Iter: 499        Time: 0.551
+[11:44:20 - main - INFO] ---------------  -------------
+[11:44:20 - main - INFO] train/mse_loss   1.283e-03
+[11:44:20 - main - INFO] train/l2_loss    3.884e+02
+[11:44:20 - main - INFO] train/val_error  1.532e-03
+Saving checkpoint → /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2
+I0207 11:44:20.254544 8745951360 checkpointer.py:134] Saving item to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000.orbax-checkpoint-tmp-1770482660252052/default.
+I0207 11:44:20.321326 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000.orbax-checkpoint-tmp-1770482660252052/default.orbax-checkpoint-tmp-1770482660254689 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000.orbax-checkpoint-tmp-1770482660252052/default
+I0207 11:44:20.321659 8745951360 utils.py:573] Finished saving checkpoint to `/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000.orbax-checkpoint-tmp-1770482660252052/default`.
+I0207 11:44:20.323606 8745951360 checkpoint_manager.py:834] Deleting Checkpoint[step=48000 | time=2026-02-07 16:43:14.864261+00:00]: (Reason: old checkpoint).
+I0207 11:44:20.324754 8745951360 utils.py:529] Renaming /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000.orbax-checkpoint-tmp-1770482660252052 to /Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/ckpt/case_2/64000
+
+Epoch 501/501
+[11:44:20 - main - INFO] ------------------------------
+[11:44:20 - main - INFO] Iter: 500        Time: 0.538
+[11:44:20 - main - INFO] ---------------  -------------
+[11:44:20 - main - INFO] train/mse_loss   9.963e-04
+[11:44:20 - main - INFO] train/l2_loss    3.876e+02
+[11:44:20 - main - INFO] train/val_error  1.007e-03

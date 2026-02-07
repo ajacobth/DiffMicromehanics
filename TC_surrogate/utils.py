@@ -4,7 +4,7 @@ import ml_collections
 
 def get_dataset(config: ml_collections.ConfigDict):
     # Load dataset
-    numpy_array = np.genfromtxt("TC_dataset_train.csv", delimiter=',', skip_header=1)
+    numpy_array = np.genfromtxt("TCPSD_dataset_train.csv", delimiter=',', skip_header=1)
     dataset = jnp.array(numpy_array)
 
     # Check expected shape

@@ -61,7 +61,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # ------------------------------------------------------------
     # 3) Load validation/test set (raw). Model can normalize internally.
     # ------------------------------------------------------------
-    test_data = np.genfromtxt("TC_dataset_validate.csv", delimiter=",", skip_header=1)
+    test_data = np.genfromtxt("TCPSD_dataset_validate.csv", delimiter=",", skip_header=1)
     test_inputs = jnp.asarray(test_data[:, :input_dim])
     test_targets = jnp.asarray(test_data[:, input_dim:])
 

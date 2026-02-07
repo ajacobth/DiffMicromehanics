@@ -1,4 +1,4 @@
-"""inverse_model.py â€“ bounded Adam / L-BFGS / L-BFGS-B
+"""inverse_model.py â€==“ bounded Adam / L-BFGS / L-BFGS-B
 
 * Handles any jaxopt version (lower/upper, lower_bounds/upper_bounds, or
   bounds=(lo,hi)).
@@ -23,16 +23,22 @@ import models
 # -----------------------------------------------------------------------------
 # Feature maps (must match training)
 # -----------------------------------------------------------------------------
+
 INPUT_FIELD_NAMES = [
-    "fiber_e1", "fiber_e2", "fiber_g12", "fiber_nu12",
-    "fiber_nu23", "fiber_aspect", "fiber_massfrac", "fiber_density",
-    "matrix_modulus", "matrix_poissonratio", "matrix_density",
-    "a11", "a22", "a12", "a13", "a23",
+    "k_f1", "k_f2", "k_m", "ar_f",
+    "w_f", "rho_f", "rho_m",
+    "a11", "a22", "a12", "a13", "a23", # a33 = 1 - a11 - a22
 ]
+
+# The size of the inputs is automatically foudn during the code execution
+
+#k_f1	k_f2	k_m	ar_f	w_f	rho_f	rho_m	a11	a22	a12	a13	a23
+
+# k11	k12	k13	k22	k23	k33
 OUTPUT_FIELD_NAMES = [
-    "E1", "E2", "E3", "nu12", "nu13",
-    "G12", "G13", "G23", "nu23",
-]
+    "k11", "k12", "k13", "k22", "k23",
+    "k33"]
+
 IN_IDX  = {n: i for i, n in enumerate(INPUT_FIELD_NAMES)}
 OUT_IDX = {n: i for i, n in enumerate(OUTPUT_FIELD_NAMES)}
 
