@@ -14,3 +14,4 @@ case_1 — 329.4 s
 case_2 — 263.9 s
 case_1_noregul — 314.8 s
 case_1_swish — 320.2 s
+case_1_1e-5reg — 311.1 s
