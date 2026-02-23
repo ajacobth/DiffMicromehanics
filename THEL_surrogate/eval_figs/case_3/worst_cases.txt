@@ -1,0 +1,288 @@
+Top-15 worst samples by max abs error across outputs
+========================================================================
+
+[1] idx=4288
+  max|err|  = 3.7151
+  mean|err| = 0.322458
+    - E1 ($E_1$[GPa]): true=5.36222, pred=5.04704, abs_err=0.315173
+    - E2 ($E_2$[GPa]): true=10.7996, pred=11.0417, abs_err=0.242058
+    - E3 ($E_3$[GPa]): true=38.8123, pred=42.5274, abs_err=3.7151
+    - G12 ($G_{12}$[GPa]): true=2.22995, pred=2.35716, abs_err=0.127211
+    - G13 ($G_{13}$[GPa]): true=2.65146, pred=2.7658, abs_err=0.114337
+    - G23 ($G_{23}$[GPa]): true=6.55695, pred=6.26597, abs_err=0.290976
+    - nu12 ($\nu_{12}$[-]): true=0.14271, pred=0.144327, abs_err=0.00161683
+    - nu13 ($\nu_{13}$[-]): true=0.044456, pred=0.0260001, abs_err=0.0184559
+    - nu23 ($\nu_{23}$[-]): true=0.0955905, pred=0.107527, abs_err=0.0119369
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=3.4584e-05, pred=3.6091e-05, abs_err=1.50697e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=1.3126e-05, pred=1.24601e-05, abs_err=6.65943e-07
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=2.107e-06, pred=7.31416e-07, abs_err=1.37558e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-5.5572e-06, pred=-5.15003e-06, abs_err=4.0717e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=2.9227e-08, pred=2.56846e-07, abs_err=2.27619e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-1.7586e-06, pred=-8.89883e-07, abs_err=8.68717e-07
+
+[2] idx=6912
+  max|err|  = 2.80991
+  mean|err| = 0.540257
+    - E1 ($E_1$[GPa]): true=60.0312, pred=57.2213, abs_err=2.80991
+    - E2 ($E_2$[GPa]): true=7.14796, pred=7.24431, abs_err=0.0963458
+    - E3 ($E_3$[GPa]): true=8.06387, pred=9.39105, abs_err=1.32719
+    - G12 ($G_{12}$[GPa]): true=3.78917, pred=4.51142, abs_err=0.722254
+    - G13 ($G_{13}$[GPa]): true=4.71054, pred=6.0933, abs_err=1.38277
+    - G23 ($G_{23}$[GPa]): true=4.26767, pred=2.61144, abs_err=1.65622
+    - nu12 ($\nu_{12}$[-]): true=0.333341, pred=0.311695, abs_err=0.021646
+    - nu13 ($\nu_{13}$[-]): true=0.330754, pred=0.285265, abs_err=0.0454893
+    - nu23 ($\nu_{23}$[-]): true=0.323638, pred=0.365659, abs_err=0.0420208
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=5.5181e-06, pred=8.42467e-06, abs_err=2.90657e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=2.0142e-05, pred=2.08412e-05, abs_err=6.99208e-07
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=1.7366e-05, pred=1.30343e-05, abs_err=4.33172e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-6.2769e-07, pred=2.42712e-07, abs_err=8.70402e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=6.9563e-06, pred=7.95193e-06, abs_err=9.9563e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=1.7108e-06, pred=2.60226e-06, abs_err=8.91455e-07
+
+[3] idx=2167
+  max|err|  = 2.31463
+  mean|err| = 0.204575
+    - E1 ($E_1$[GPa]): true=12.536, pred=12.1314, abs_err=0.40464
+    - E2 ($E_2$[GPa]): true=20.9705, pred=23.2851, abs_err=2.31463
+    - E3 ($E_3$[GPa]): true=3.92804, pred=3.94036, abs_err=0.012324
+    - G12 ($G_{12}$[GPa]): true=6.27156, pred=6.27902, abs_err=0.00746593
+    - G13 ($G_{13}$[GPa]): true=1.0097, pred=1.10297, abs_err=0.0932635
+    - G23 ($G_{23}$[GPa]): true=1.11005, pred=1.28751, abs_err=0.177455
+    - nu12 ($\nu_{12}$[-]): true=0.187652, pred=0.180701, abs_err=0.00695101
+    - nu13 ($\nu_{13}$[-]): true=0.504275, pred=0.519997, abs_err=0.0157223
+    - nu23 ($\nu_{23}$[-]): true=0.470264, pred=0.434098, abs_err=0.0361657
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=2.461e-05, pred=2.41688e-05, abs_err=4.41241e-07
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=1.2807e-05, pred=9.95118e-06, abs_err=2.85582e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=0.0001629, pred=0.000160266, abs_err=2.63372e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-1.2649e-05, pred=-1.19266e-05, abs_err=7.22431e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-2.1454e-05, pred=-2.13849e-05, abs_err=6.90893e-08
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-2.2955e-06, pred=-1.96857e-06, abs_err=3.26935e-07
+
+[4] idx=5609
+  max|err|  = 1.85207
+  mean|err| = 0.227383
+    - E1 ($E_1$[GPa]): true=6.37796, pred=6.1885, abs_err=0.189459
+    - E2 ($E_2$[GPa]): true=19.127, pred=20.9791, abs_err=1.85207
+    - E3 ($E_3$[GPa]): true=6.33352, pred=6.5799, abs_err=0.246381
+    - G12 ($G_{12}$[GPa]): true=4.59137, pred=4.46554, abs_err=0.125823
+    - G13 ($G_{13}$[GPa]): true=2.41179, pred=2.72023, abs_err=0.308439
+    - G23 ($G_{23}$[GPa]): true=4.57143, pred=3.91786, abs_err=0.653564
+    - nu12 ($\nu_{12}$[-]): true=0.0901142, pred=0.0731855, abs_err=0.0169287
+    - nu13 ($\nu_{13}$[-]): true=0.318273, pred=0.302107, abs_err=0.0161658
+    - nu23 ($\nu_{23}$[-]): true=0.27103, pred=0.269124, abs_err=0.00190657
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=8.7954e-05, pred=9.08899e-05, abs_err=2.93587e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=3.3523e-05, pred=3.34684e-05, abs_err=5.46245e-08
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=8.8792e-05, pred=8.95918e-05, abs_err=7.99776e-07
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=1.3989e-07, pred=1.11808e-06, abs_err=9.78193e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=1.3623e-06, pred=1.35593e-06, abs_err=6.37141e-09
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=1.348e-06, pred=9.89759e-07, abs_err=3.58241e-07
+
+[5] idx=5993
+  max|err|  = 1.84151
+  mean|err| = 0.197008
+    - E1 ($E_1$[GPa]): true=5.59222, pred=5.79438, abs_err=0.202167
+    - E2 ($E_2$[GPa]): true=5.62019, pred=5.8028, abs_err=0.182615
+    - E3 ($E_3$[GPa]): true=18.6693, pred=20.5108, abs_err=1.84151
+    - G12 ($G_{12}$[GPa]): true=2.30958, pred=2.44908, abs_err=0.139501
+    - G13 ($G_{13}$[GPa]): true=4.48813, pred=4.14108, abs_err=0.347047
+    - G23 ($G_{23}$[GPa]): true=4.49984, pred=4.28648, abs_err=0.213361
+    - nu12 ($\nu_{12}$[-]): true=0.215602, pred=0.199649, abs_err=0.0159537
+    - nu13 ($\nu_{13}$[-]): true=0.0675148, pred=0.0600281, abs_err=0.00748671
+    - nu23 ($\nu_{23}$[-]): true=0.0681392, pred=0.0626676, abs_err=0.00547153
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=3.0452e-05, pred=3.20929e-05, abs_err=1.64092e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=3.0284e-05, pred=3.20865e-05, abs_err=1.80246e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=1.2858e-05, pred=1.2743e-05, abs_err=1.14995e-07
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=5.9522e-07, pred=1.05892e-06, abs_err=4.63704e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=1.9847e-07, pred=1.10801e-07, abs_err=8.76691e-08
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=6.3149e-07, pred=1.09388e-06, abs_err=4.6239e-07
+
+[6] idx=7856
+  max|err|  = 1.79905
+  mean|err| = 0.232931
+    - E1 ($E_1$[GPa]): true=20.1187, pred=18.3197, abs_err=1.79905
+    - E2 ($E_2$[GPa]): true=2.52653, pred=2.59404, abs_err=0.0675066
+    - E3 ($E_3$[GPa]): true=3.73888, pred=4.18339, abs_err=0.444514
+    - G12 ($G_{12}$[GPa]): true=1.75939, pred=2.01608, abs_err=0.25669
+    - G13 ($G_{13}$[GPa]): true=2.77562, pred=3.03772, abs_err=0.262097
+    - G23 ($G_{23}$[GPa]): true=1.33163, pred=0.734335, abs_err=0.597294
+    - nu12 ($\nu_{12}$[-]): true=0.380807, pred=0.365226, abs_err=0.0155808
+    - nu13 ($\nu_{13}$[-]): true=0.311619, pred=0.281262, abs_err=0.0303562
+    - nu23 ($\nu_{23}$[-]): true=0.24071, pred=0.261585, abs_err=0.020875
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=4.4467e-06, pred=6.4967e-06, abs_err=2.05e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=4.9996e-05, pred=5.19517e-05, abs_err=1.95574e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=2.8633e-05, pred=2.69825e-05, abs_err=1.65052e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-6.7003e-06, pred=-6.9284e-06, abs_err=2.28099e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=2.118e-05, pred=2.17925e-05, abs_err=6.12466e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-3.0056e-07, pred=2.9076e-07, abs_err=5.9132e-07
+
+[7] idx=4688
+  max|err|  = 1.75945
+  mean|err| = 0.28734
+    - E1 ($E_1$[GPa]): true=5.10882, pred=4.61479, abs_err=0.494026
+    - E2 ($E_2$[GPa]): true=15.0766, pred=15.6098, abs_err=0.533214
+    - E3 ($E_3$[GPa]): true=32.6744, pred=34.4339, abs_err=1.75945
+    - G12 ($G_{12}$[GPa]): true=3.02142, pred=3.3424, abs_err=0.320978
+    - G13 ($G_{13}$[GPa]): true=3.65818, pred=4.15335, abs_err=0.495174
+    - G23 ($G_{23}$[GPa]): true=8.32986, pred=7.66532, abs_err=0.664538
+    - nu12 ($\nu_{12}$[-]): true=0.125478, pred=0.123654, abs_err=0.00182322
+    - nu13 ($\nu_{13}$[-]): true=0.0620466, pred=0.044531, abs_err=0.0175156
+    - nu23 ($\nu_{23}$[-]): true=0.174858, pred=0.198231, abs_err=0.0233724
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=9.5784e-06, pred=1.38771e-05, abs_err=4.29871e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=8.2266e-06, pred=6.44365e-06, abs_err=1.78295e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=7.9822e-06, pred=4.50111e-06, abs_err=3.48109e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-1.1263e-07, pred=9.33096e-09, abs_err=1.21961e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=1.832e-08, pred=-6.44887e-08, abs_err=8.28087e-08
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=2.059e-07, pred=-1.75104e-08, abs_err=2.2341e-07
+
+[8] idx=3512
+  max|err|  = 1.70078
+  mean|err| = 0.210689
+    - E1 ($E_1$[GPa]): true=8.78194, pred=8.79068, abs_err=0.00873829
+    - E2 ($E_2$[GPa]): true=10.8661, pred=10.8128, abs_err=0.0533451
+    - E3 ($E_3$[GPa]): true=54.4929, pred=56.1937, abs_err=1.70078
+    - G12 ($G_{12}$[GPa]): true=3.96841, pred=3.55266, abs_err=0.415752
+    - G13 ($G_{13}$[GPa]): true=3.31159, pred=3.06542, abs_err=0.246169
+    - G23 ($G_{23}$[GPa]): true=5.60381, pred=6.30921, abs_err=0.705399
+    - nu12 ($\nu_{12}$[-]): true=0.299737, pred=0.295101, abs_err=0.00463597
+    - nu13 ($\nu_{13}$[-]): true=0.0445973, pred=0.0383989, abs_err=0.00619844
+    - nu23 ($\nu_{23}$[-]): true=0.0779167, pred=0.0585932, abs_err=0.0193236
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=2.7823e-05, pred=2.87051e-05, abs_err=8.82148e-07
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=2.1304e-05, pred=2.11942e-05, abs_err=1.09761e-07
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=9.1478e-06, pred=9.5887e-06, abs_err=4.40897e-07
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=1.4541e-06, pred=1.08792e-06, abs_err=3.66179e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-1.1331e-06, pred=-6.5766e-07, abs_err=4.7544e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-4.3027e-06, pred=-4.98462e-06, abs_err=6.81917e-07
+
+[9] idx=5872
+  max|err|  = 1.69216
+  mean|err| = 0.181636
+    - E1 ($E_1$[GPa]): true=7.48111, pred=9.17327, abs_err=1.69216
+    - E2 ($E_2$[GPa]): true=4.54194, pred=4.88687, abs_err=0.344924
+    - E3 ($E_3$[GPa]): true=3.26541, pred=3.52852, abs_err=0.263108
+    - G12 ($G_{12}$[GPa]): true=2.58278, pred=2.7249, abs_err=0.142124
+    - G13 ($G_{13}$[GPa]): true=1.85226, pred=1.99814, abs_err=0.145877
+    - G23 ($G_{23}$[GPa]): true=2.10917, pred=2.19008, abs_err=0.0809099
+    - nu12 ($\nu_{12}$[-]): true=0.254844, pred=0.272991, abs_err=0.018147
+    - nu13 ($\nu_{13}$[-]): true=0.573539, pred=0.543501, abs_err=0.0300381
+    - nu23 ($\nu_{23}$[-]): true=0.56093, pred=0.553676, abs_err=0.00725442
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=7.1327e-06, pred=7.61187e-06, abs_err=4.79174e-07
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=2.7446e-05, pred=2.85543e-05, abs_err=1.10826e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=4.9711e-05, pred=5.03752e-05, abs_err=6.64158e-07
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=2.3684e-05, pred=2.39782e-05, abs_err=2.94151e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=2.7626e-05, pred=2.63468e-05, abs_err=1.27916e-06
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=1.3373e-05, pred=1.30636e-05, abs_err=3.09406e-07
+
+[10] idx=7319
+  max|err|  = 1.66549
+  mean|err| = 0.20239
+    - E1 ($E_1$[GPa]): true=2.57872, pred=2.31993, abs_err=0.258788
+    - E2 ($E_2$[GPa]): true=40.5729, pred=42.2384, abs_err=1.66549
+    - E3 ($E_3$[GPa]): true=13.5862, pred=12.8814, abs_err=0.7048
+    - G12 ($G_{12}$[GPa]): true=1.5313, pred=1.55713, abs_err=0.0258272
+    - G13 ($G_{13}$[GPa]): true=1.13955, pred=1.17262, abs_err=0.033066
+    - G23 ($G_{23}$[GPa]): true=8.21558, pred=7.88368, abs_err=0.331897
+    - nu12 ($\nu_{12}$[-]): true=0.0129057, pred=0.00991428, abs_err=0.00299142
+    - nu13 ($\nu_{13}$[-]): true=0.0579618, pred=0.0688248, abs_err=0.010863
+    - nu23 ($\nu_{23}$[-]): true=0.460421, pred=0.458298, abs_err=0.0021227
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=6.4542e-05, pred=6.71188e-05, abs_err=2.57684e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=4.0002e-06, pred=2.7744e-06, abs_err=1.2258e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=9.4153e-06, pred=8.74982e-06, abs_err=6.65484e-07
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-2.8534e-06, pred=-2.74344e-06, abs_err=1.0996e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-2.6341e-07, pred=1.53668e-07, abs_err=4.17078e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-2.4576e-06, pred=-1.3716e-06, abs_err=1.086e-06
+
+[11] idx=6952
+  max|err|  = 1.63113
+  mean|err| = 0.361408
+    - E1 ($E_1$[GPa]): true=12.5557, pred=11.1979, abs_err=1.35778
+    - E2 ($E_2$[GPa]): true=25.1237, pred=25.5454, abs_err=0.421711
+    - E3 ($E_3$[GPa]): true=31.1497, pred=31.5448, abs_err=0.395064
+    - G12 ($G_{12}$[GPa]): true=4.55477, pred=5.18379, abs_err=0.629015
+    - G13 ($G_{13}$[GPa]): true=4.4615, pred=5.36188, abs_err=0.900379
+    - G23 ($G_{23}$[GPa]): true=10.9181, pred=9.28697, abs_err=1.63113
+    - nu12 ($\nu_{12}$[-]): true=0.189554, pred=0.172976, abs_err=0.0165781
+    - nu13 ($\nu_{13}$[-]): true=0.135275, pred=0.109909, abs_err=0.0253662
+    - nu23 ($\nu_{23}$[-]): true=0.260684, pred=0.30476, abs_err=0.0440761
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=1.8949e-05, pred=2.62791e-05, abs_err=7.33006e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=1.02e-06, pred=1.51179e-06, abs_err=4.91788e-07
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=-5.1526e-07, pred=-3.85911e-06, abs_err=3.34385e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=2.2176e-06, pred=2.78219e-06, abs_err=5.64595e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=1.4321e-06, pred=1.345e-06, abs_err=8.7098e-08
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=3.7062e-06, pred=3.8375e-06, abs_err=1.31303e-07
+
+[12] idx=4656
+  max|err|  = 1.62945
+  mean|err| = 0.272994
+    - E1 ($E_1$[GPa]): true=19.2164, pred=19.5595, abs_err=0.343143
+    - E2 ($E_2$[GPa]): true=15.4557, pred=15.1883, abs_err=0.267428
+    - E3 ($E_3$[GPa]): true=51.3031, pred=49.6736, abs_err=1.62945
+    - G12 ($G_{12}$[GPa]): true=6.08125, pred=5.76858, abs_err=0.312668
+    - G13 ($G_{13}$[GPa]): true=10.5899, pred=9.90746, abs_err=0.682392
+    - G23 ($G_{23}$[GPa]): true=8.15129, pred=8.9681, abs_err=0.816812
+    - nu12 ($\nu_{12}$[-]): true=0.423048, pred=0.418911, abs_err=0.00413679
+    - nu13 ($\nu_{13}$[-]): true=0.147514, pred=0.166468, abs_err=0.0189537
+    - nu23 ($\nu_{23}$[-]): true=0.11368, pred=0.0937646, abs_err=0.0199152
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=2.5593e-05, pred=2.40577e-05, abs_err=1.53525e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=4.3893e-05, pred=4.38907e-05, abs_err=2.31001e-09
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=3.8093e-07, pred=2.88862e-06, abs_err=2.50769e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=1.6602e-06, pred=1.35735e-06, abs_err=3.02847e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=9.5285e-09, pred=3.65308e-07, abs_err=3.55779e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=2.2239e-08, pred=6.14521e-07, abs_err=5.92282e-07
+
+[13] idx=676
+  max|err|  = 1.48642
+  mean|err| = 0.206267
+    - E1 ($E_1$[GPa]): true=2.98677, pred=3.25715, abs_err=0.270383
+    - E2 ($E_2$[GPa]): true=5.71788, pred=5.60704, abs_err=0.110837
+    - E3 ($E_3$[GPa]): true=34.1507, pred=32.6643, abs_err=1.48642
+    - G12 ($G_{12}$[GPa]): true=1.21114, pred=1.01448, abs_err=0.196657
+    - G13 ($G_{13}$[GPa]): true=1.32832, pred=0.944619, abs_err=0.383702
+    - G23 ($G_{23}$[GPa]): true=3.69535, pred=4.3162, abs_err=0.620844
+    - nu12 ($\nu_{12}$[-]): true=0.182719, pred=0.186716, abs_err=0.00399791
+    - nu13 ($\nu_{13}$[-]): true=0.0223177, pred=0.0285571, abs_err=0.00623933
+    - nu23 ($\nu_{23}$[-]): true=0.0880325, pred=0.0731116, abs_err=0.0149208
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=0.00012562, pred=0.000122686, abs_err=2.93394e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=4.8459e-05, pred=4.9496e-05, abs_err=1.03704e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=6.2077e-06, pred=8.29916e-06, abs_err=2.09146e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=5.6985e-07, pred=1.23376e-06, abs_err=6.63911e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-1.795e-06, pred=-1.77378e-06, abs_err=2.12242e-08
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-1.6408e-05, pred=-1.60356e-05, abs_err=3.72415e-07
+
+[14] idx=461
+  max|err|  = 1.38857
+  mean|err| = 0.330504
+    - E1 ($E_1$[GPa]): true=24.401, pred=23.0124, abs_err=1.38857
+    - E2 ($E_2$[GPa]): true=4.84943, pred=5.15665, abs_err=0.307221
+    - E3 ($E_3$[GPa]): true=5.65899, pred=6.51501, abs_err=0.856024
+    - G12 ($G_{12}$[GPa]): true=3.19908, pred=3.68305, abs_err=0.48397
+    - G13 ($G_{13}$[GPa]): true=3.69658, pred=4.36761, abs_err=0.671025
+    - G23 ($G_{23}$[GPa]): true=2.14994, pred=0.979541, abs_err=1.1704
+    - nu12 ($\nu_{12}$[-]): true=0.343102, pred=0.329402, abs_err=0.0137001
+    - nu13 ($\nu_{13}$[-]): true=0.376092, pred=0.350663, abs_err=0.0254285
+    - nu23 ($\nu_{23}$[-]): true=0.198802, pred=0.240028, abs_err=0.0412259
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=3.6808e-06, pred=7.99245e-06, abs_err=4.31165e-06
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=7.7267e-05, pred=7.52618e-05, abs_err=2.00516e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=6.1005e-05, pred=5.83699e-05, abs_err=2.63506e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=-2.0194e-06, pred=-1.62811e-06, abs_err=3.91293e-07
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-7.5454e-06, pred=-7.80164e-06, abs_err=2.56239e-07
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-2.0372e-06, pred=-1.92637e-06, abs_err=1.1083e-07
+
+[15] idx=2527
+  max|err|  = 1.37066
+  mean|err| = 0.20152
+    - E1 ($E_1$[GPa]): true=1.79459, pred=2.01975, abs_err=0.225157
+    - E2 ($E_2$[GPa]): true=2.35294, pred=2.98792, abs_err=0.634978
+    - E3 ($E_3$[GPa]): true=3.86757, pred=5.23823, abs_err=1.37066
+    - G12 ($G_{12}$[GPa]): true=1.30881, pred=1.54649, abs_err=0.237672
+    - G13 ($G_{13}$[GPa]): true=1.29127, pred=1.63117, abs_err=0.339896
+    - G23 ($G_{23}$[GPa]): true=1.59625, pred=1.73056, abs_err=0.134318
+    - nu12 ($\nu_{12}$[-]): true=0.283312, pred=0.245896, abs_err=0.0374161
+    - nu13 ($\nu_{13}$[-]): true=0.15473, pred=0.120147, abs_err=0.0345822
+    - nu23 ($\nu_{23}$[-]): true=0.140849, pred=0.132734, abs_err=0.00811563
+    - CTE11 ($\mathrm{CTE}_{11}$[$\mu$/K]): true=2.9285e-05, pred=2.83651e-05, abs_err=9.19936e-07
+    - CTE22 ($\mathrm{CTE}_{22}$[$\mu$/K]): true=2.1198e-05, pred=1.91584e-05, abs_err=2.03958e-06
+    - CTE33 ($\mathrm{CTE}_{33}$[$\mu$/K]): true=1.3958e-05, pred=1.14531e-05, abs_err=2.5049e-06
+    - CTE12 ($\mathrm{CTE}_{12}$[$\mu$/K]): true=1.3322e-05, pred=1.19608e-05, abs_err=1.36116e-06
+    - CTE13 ($\mathrm{CTE}_{13}$[$\mu$/K]): true=-1.0223e-05, pred=-8.7146e-06, abs_err=1.5084e-06
+    - CTE23 ($\mathrm{CTE}_{23}$[$\mu$/K]): true=-1.6912e-05, pred=-1.50578e-05, abs_err=1.85416e-06
+

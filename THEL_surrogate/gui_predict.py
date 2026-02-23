@@ -25,9 +25,9 @@ from NN_surrogate.utils import restore_checkpoint
 # ----------------------------------------------------------------------------
 
 INPUT_FIELD_NAMES = [
-    "e1", "e2", "g12", "f_nu12",
+    "e1", "e2", "g12", "f_nu12", "f_cte1",	"f_cte2",
     "f_nu23", "ar", "fiber_massfrac", "fiber_density", "matrix_modulus",
-    "matrix_poisson", "matrix_density",
+    "matrix_poisson", "matrix_density", "m_cte",
     "a11", "a22", "a12", "a13", "a23", # a33 = 1 - a11 - a22
 ]
 
@@ -37,7 +37,8 @@ INPUT_FIELD_NAMES = [
 
 # k11	k12	k13	k22	k23	k33
 OUTPUT_FIELD_NAMES = [
-    "E1", "E2", "E3", "G12", "G13", "G23", "nu12","nu13", "nu23"
+    "E1", "E2", "E3", "G12", "G13", "G23", "nu12","nu13", "nu23",
+    "CTE11",	"CTE22", "CTE33",	"CTE12",	"CTE13", "CTE23"
     ]
 
 
