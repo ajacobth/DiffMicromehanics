@@ -100,7 +100,21 @@ def get_config():
     # ----------------- W A R N I N G -------------
     # ============================================================
     
-    
+# INPUT_FIELD_NAMES = [
+#     "e1", "e2", "g12", "f_nu12",
+#     "f_nu23", "ar", "fiber_massfrac", "fiber_density", "matrix_modulus",
+#     "matrix_poisson", "matrix_density",
+#     "a11", "a22", "a12", "a13", "a23", # a33 = 1 - a11 - a22
+# ]
+
+# # The size of the inputs is automatically foudn during the code execution
+
+# #E1	E2	E3	G12	G13	G23	nu12	nu13	nu23
+
+# # k11	k12	k13	k22	k23	k33
+# OUTPUT_FIELD_NAMES = [
+#     "E1", "E2", "E3", "G12", "G13", "G23", "nu12","nu13", "nu23"
+#     ]
 # ------------NOT CONFIGURED YET -----------------
     # ============================================================
     # Inverse-design block – uses feature names, not indices
@@ -110,20 +124,20 @@ def get_config():
     # ---- ALL 16 inputs get a value ----
     inv.fixed_inputs = {
         # fibre
-        "fiber_e1":          240e3,
-        "fiber_e2":           14e3,
-        "fiber_g12":           28e3,
-        "fiber_nu12":          0.2,
-        "fiber_nu23":          0.25,
-        "fiber_aspect":        10.0,
+        "e1":          240e3,
+        "e2":           14e3,
+        "g12":           28e3,
+        "f_nu12":          0.2,
+        "f_nu23":          0.25,
+        "ar":        100.0,
         "fiber_massfrac":       0.25,
         "fiber_density":     1800.0,
         # matrix
-        "matrix_modulus":      2.34e3,
-        "matrix_poissonratio": 0.35,
-        "matrix_density":    1350.0,
+        "matrix_modulus":      4e3,
+        "matrix_poisson": 0.35,
+        "matrix_density":    1250.0,
         # coupling / angle terms  (free but still given as a *starting guess*)
-        "a11": 0.7,
+        "a11": 0.9,
         "a22": 0.2,
         "a12": 0.0,
         "a13": 0.0,
@@ -133,31 +147,27 @@ def get_config():
     # Names of inputs to optimise
     inv.free_inputs = [
                        "matrix_modulus",
-                       "matrix_poissonratio",
+                       "matrix_poisson",
                        "a11",
-                       "a12",
-                       "fiber_aspect",
-                       "a22"]
+                       "a22",
+                       ]
     # Bounds for each free variable (lo, hi)
     
-    inv.bounds = {"fiber_e1":(180e3, 300e3),
-        "matrix_modulus": (1.0e3, 5.0e3),
-        "matrix_poissonratio": (0.25, 0.4),
-        "fiber_aspect": (5., 30.),
-        "a11":            (0.3,    1.0),
-        "a22":            (0.0,    0.6),
-        "a12":(-0.1, 0.1)
+    inv.bounds = {"matrix_modulus": (3.0e3, 5.0e3),
+        "matrix_poisson": (0.25, 0.4),
+        "a11":            (0.5,    1.0),
+        "a22":            (0.01,    0.3),
     }
     # Desired surrogate outputs
     inv.target_outputs = {
-        "E1": 16.92e3,  # MPA
-        "E2": 4.85e3,
-        "nu13":  0.35,
+        "E1": 15.42e3,  # MPA
+        "E2": 5.14e3,
+        "E3": 4.12e3
     }
     
     # Solver hyper-params
     inv.optim          = "adam" # jaxopt for lbfgs  # or "adam" optax for optimization
-    inv.lbfgs_maxiter  = 200
+    inv.lbfgs_maxiter  = 1000
     inv.lbfgs_tol      = 1e-6
     
     

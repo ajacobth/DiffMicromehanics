@@ -42,15 +42,14 @@ flags.DEFINE_enum(
 )
 
 INPUT_FIELD_NAMES = [
-    "fiber_e1", "fiber_e2", "fiber_g12", "fiber_nu12",
-    "fiber_nu23", "fiber_aspect", "fiber_massfrac", "fiber_density",
-    "matrix_modulus", "matrix_poissonratio", "matrix_density",
-    "a11", "a22", "a12", "a13", "a23",
+    "e1", "e2", "g12", "f_nu12",
+    "f_nu23", "ar", "fiber_massfrac", "fiber_density", "matrix_modulus",
+    "matrix_poisson", "matrix_density",
+    "a11", "a22", "a12", "a13", "a23", # a33 = 1 - a11 - a22
 ]
 OUTPUT_FIELD_NAMES = [
-    "E1", "E2", "E3", "nu12", "nu13",
-    "G12", "G13", "G23", "nu23",
-]
+    "E1", "E2", "E3", "G12", "G13", "G23", "nu12","nu13", "nu23"
+    ]
 IN_IDX  = {n: i for i, n in enumerate(INPUT_FIELD_NAMES)}
 OUT_IDX = {n: i for i, n in enumerate(OUTPUT_FIELD_NAMES)}
 

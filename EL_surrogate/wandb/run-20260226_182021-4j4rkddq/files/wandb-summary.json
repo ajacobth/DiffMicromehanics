@@ -1,0 +1,1 @@
+{"train/mse_weight":1,"_timestamp":1.772148340839683e+09,"_step":500,"train/val_error":0.0005027595325373113,"_wandb":{"runtime":319},"train/l2_loss":385.3903503417969,"train/mse_loss":0.0003189056005794555,"train/l2_weight":9.999999974752427e-07,"_runtime":319.36879}

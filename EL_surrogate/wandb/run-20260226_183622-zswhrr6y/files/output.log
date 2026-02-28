@@ -1,0 +1,134 @@
+Normalizing dataset: input_mean (16,), input_std (16,)
+                    target_mean (9,), target_std (9,)
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/train.py", line 72, in train_and_evaluate
+    model = models.MICRO_SURROGATE_L2(
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/models.py", line 77, in __init__
+    super().__init__(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/models.py", line 129, in __init__
+    self.state = _create_train_state(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/models.py", line 107, in _create_train_state
+    params = arch.init(random.PRNGKey(config.seed), x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 2438, in init
+    _, v_out = self.init_with_output(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 2290, in init_with_output
+    return init_with_output(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/core/scope.py", line 1137, in wrapper
+    return apply(fn, mutable=mutable, flags=init_flags)(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/core/scope.py", line 1101, in wrapper
+    y = fn(root, *args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 3077, in scope_fn
+    return fn(module.clone(parent=scope, _deep_clone=True), *args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 701, in wrapped_module_method
+    return self._call_wrapped_method(fun, args, kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 1233, in _call_wrapped_method
+    y = run_fun(self, *args, **kwargs)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/archs.py", line 83, in __call__
+    x = Dense(features=dim)(x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 701, in wrapped_module_method
+    return self._call_wrapped_method(fun, args, kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 1233, in _call_wrapped_method
+    y = run_fun(self, *args, **kwargs)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/archs.py", line 60, in __call__
+    y = jnp.dot(x, kernel) + bias
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 298, in cache_miss
+    outs, out_flat, out_tree, args_flat, jaxpr, attrs_tracked = _python_pjit_helper(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 176, in _python_pjit_helper
+    out_flat = pjit_p.bind(*args_flat, **params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 2788, in bind
+    return self.bind_with_trace(top_trace, args, params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 425, in bind_with_trace
+    out = trace.process_primitive(self, map(trace.full_raise, args), params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 913, in process_primitive
+    return primitive.impl(*tracers, **params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1488, in _pjit_call_impl
+    return xc._xla.pjit(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1471, in call_impl_cache_miss
+    out_flat, compiled = _pjit_call_impl_python(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1427, in _pjit_call_impl_python
+    return compiled.unsafe_call(*args), compiled
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/profiler.py", line 335, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/interpreters/pxla.py", line 1213, in __call__
+    results = self.xla_executable.execute_sharded(input_bufs)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/main.py", line 40, in <module>
+    app.run(main)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 308, in run
+    _run_main(main, args)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/absl/app.py", line 254, in _run_main
+    sys.exit(main(argv))
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/main.py", line 30, in main
+    train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/train.py", line 72, in train_and_evaluate
+    model = models.MICRO_SURROGATE_L2(
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/models.py", line 77, in __init__
+    super().__init__(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/models.py", line 129, in __init__
+    self.state = _create_train_state(config)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/models.py", line 107, in _create_train_state
+    params = arch.init(random.PRNGKey(config.seed), x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 2438, in init
+    _, v_out = self.init_with_output(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 2290, in init_with_output
+    return init_with_output(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/core/scope.py", line 1137, in wrapper
+    return apply(fn, mutable=mutable, flags=init_flags)(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/core/scope.py", line 1101, in wrapper
+    y = fn(root, *args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 3077, in scope_fn
+    return fn(module.clone(parent=scope, _deep_clone=True), *args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 701, in wrapped_module_method
+    return self._call_wrapped_method(fun, args, kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 1233, in _call_wrapped_method
+    y = run_fun(self, *args, **kwargs)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/archs.py", line 83, in __call__
+    x = Dense(features=dim)(x)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 701, in wrapped_module_method
+    return self._call_wrapped_method(fun, args, kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/flax/linen/module.py", line 1233, in _call_wrapped_method
+    y = run_fun(self, *args, **kwargs)
+  File "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/EL_surrogate/NN_surrogate/archs.py", line 60, in __call__
+    y = jnp.dot(x, kernel) + bias
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/traceback_util.py", line 179, in reraise_with_filtered_traceback
+    return fun(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 298, in cache_miss
+    outs, out_flat, out_tree, args_flat, jaxpr, attrs_tracked = _python_pjit_helper(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 176, in _python_pjit_helper
+    out_flat = pjit_p.bind(*args_flat, **params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 2788, in bind
+    return self.bind_with_trace(top_trace, args, params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 425, in bind_with_trace
+    out = trace.process_primitive(self, map(trace.full_raise, args), params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/core.py", line 913, in process_primitive
+    return primitive.impl(*tracers, **params)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1488, in _pjit_call_impl
+    return xc._xla.pjit(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1471, in call_impl_cache_miss
+    out_flat, compiled = _pjit_call_impl_python(
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/pjit.py", line 1427, in _pjit_call_impl_python
+    return compiled.unsafe_call(*args), compiled
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/profiler.py", line 335, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/akshayjacobthomas/anaconda3/envs/jax_trial/lib/python3.9/site-packages/jax/_src/interpreters/pxla.py", line 1213, in __call__
+    results = self.xla_executable.execute_sharded(input_bufs)
+KeyboardInterrupt

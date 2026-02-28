@@ -1,0 +1,42 @@
+Normalizing dataset: input_mean (16,), input_std (16,)
+                    target_mean (9,), target_std (9,)
+Using 1 device(s).
+num_samples=65536, batch_size=512, num_batches=128, total_steps=64128
+steps_per_epoch=128
+Waiting for JIT...
+
+Epoch 1/501
+I0224 21:51:00.487841 8745951360 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0224 21:51:00.488069 8745951360 utils.py:160] NumExpr defaulting to 8 threads.
+[21:51:00 - main - INFO] ------------------------------
+[21:51:00 - main - INFO] Iter:   0        Time: 2.441
+[21:51:00 - main - INFO] ---------------  -------------
+[21:51:00 - main - INFO] train/mse_loss   7.198e-02
+[21:51:00 - main - INFO] train/l2_loss    1.277e+03
+[21:51:00 - main - INFO] train/val_error  6.812e-02
+
+Epoch 2/501
+[21:51:01 - main - INFO] ------------------------------
+[21:51:01 - main - INFO] Iter:   1        Time: 0.662
+[21:51:01 - main - INFO] ---------------  -------------
+[21:51:01 - main - INFO] train/mse_loss   2.595e-02
+[21:51:01 - main - INFO] train/l2_loss    1.312e+03
+[21:51:01 - main - INFO] train/val_error  2.713e-02
+
+Epoch 3/501
+[21:51:02 - main - INFO] ------------------------------
+[21:51:02 - main - INFO] Iter:   2        Time: 0.631
+[21:51:02 - main - INFO] ---------------  -------------
+[21:51:02 - main - INFO] train/mse_loss   1.623e-02
+[21:51:02 - main - INFO] train/l2_loss    1.329e+03
+[21:51:02 - main - INFO] train/val_error  1.622e-02
+
+Epoch 4/501
+[21:51:02 - main - INFO] ------------------------------
+[21:51:02 - main - INFO] Iter:   3        Time: 0.648
+[21:51:02 - main - INFO] ---------------  -------------
+[21:51:02 - main - INFO] train/mse_loss   1.166e-02
+[21:51:02 - main - INFO] train/l2_loss    1.337e+03
+[21:51:02 - main - INFO] train/val_error  1.204e-02
+
+Epoch 5/501
