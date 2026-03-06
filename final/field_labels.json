@@ -38,11 +38,11 @@
     "nu12":  "Poisson Ratio v12",
     "nu13":  "Poisson Ratio v13",
     "nu23":  "Poisson Ratio v23",
-    "CTE11": "CTE a11 (µ/K)",
-    "CTE22": "CTE a22 (µ/K)",
-    "CTE33": "CTE a33 (µ/K)",
-    "CTE12": "CTE a12 (µ/K)",
-    "CTE13": "CTE a13 (µ/K)",
-    "CTE23": "CTE a23 (µ/K)"
+    "CTE11": "CTE (µ/K)",
+    "CTE22": "CTE (µ/K)",
+    "CTE33": "CTE  (µ/K)",
+    "CTE12": "CTE  (µ/K)",
+    "CTE13": "CTE (µ/K)",
+    "CTE23": "CTE (µ/K)"
   }
 }

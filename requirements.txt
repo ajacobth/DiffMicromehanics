@@ -1,0 +1,31 @@
+# Core numerical / ML backend
+jax==0.4.26
+jaxlib==0.4.26
+jax-metal==0.1.0          # Apple Silicon GPU backend – remove on non-Mac platforms
+numpy==1.26.2
+scipy==1.11.4
+
+# Neural network layers & optimisers
+flax==0.8.3
+optax==0.1.7
+jaxopt==0.8.5
+chex==0.1.85
+ml-collections==0.1.1
+ml-dtypes==0.3.2
+orbax-checkpoint==0.4.8
+
+# Data & visualisation
+pandas==2.1.4
+matplotlib==3.8.2
+seaborn==0.12.2
+
+# Experiment tracking (training only)
+wandb==0.19.7
+
+# Utilities
+absl-py==2.0.0
+opt-einsum==3.3.0
+msgpack==1.0.7
+dm-tree==0.1.8
+etils==1.5.2
+toolz==0.12.0

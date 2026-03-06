@@ -1,46 +1,205 @@
-# DiffMicromehanics Surrogate Models
+# DiffMicromechanics – Composite Material Surrogate Models
 
-This repository provides neural network surrogates for predicting the effective elastic properties of composite materials. The `surrogate/` folder contains the training utilities, model definitions and example configuration files used to reproduce the results.
+This repository contains neural network surrogate models for predicting the effective mechanical and thermoelastic properties of short-fiber composite materials. The trained, ready-to-use deployment lives in the `final/` folder.
 
-## Training the Models
+---
 
-All training is driven by configuration files located under `surrogate/configs/`. Each file defines the network architecture, optimiser settings and dataset options. To start a run, supply the chosen configuration together with a working directory to store checkpoints and normalisation statistics.
+## Repository Structure
 
-Run the standard multilayer perceptron (without L2 regularisation):
-
-```bash
-python surrogate/main.py --config surrogate/configs/case_1.py --workdir <path>
+```
+DiffMicromechanics/
+├── final/                   <- Deployed surrogates (start here)
+├── EL_surrogate/            <- Elastic surrogate training code
+├── THEL_surrogate/          <- Thermoelastic surrogate training code
+├── TC_surrogate/            <- Thermal conductivity surrogate training code
+├── surrogate/               <- Shared training utilities, model definitions, configs
+├── diffmicro/               <- Core micromechanics library
+├── main.py                  <- Top-level training entry point
+└── README.md
 ```
 
-Run a model with L2 regularisation enabled (see `case_2.py`):
+---
 
-```bash
-python surrogate/main.py --config surrogate/configs/case_2.py --workdir <path>
+## Quickstart – `final/` Folder
+
+The `final/` folder contains everything needed to run forward predictions and inverse design without touching the training code.
+
+```
+final/
+├── gui.py               <- Forward evaluation GUI (Tkinter)
+├── gui_inverse.py       <- Inverse design GUI
+├── forward.py           <- Python API for scripting
+├── inverse.py           <- Inverse design solver (CLI)
+├── problem.json         <- Inverse problem definition (edit this)
+├── field_labels.json    <- Human-readable field name mappings
+└── models/
+    ├── elastic/         <- Elastic surrogate (9 outputs)
+    │   ├── model_config.json
+    │   ├── normalization_stats.npz
+    │   └── ckpt/case_5/
+    └── thermoelastic/   <- Thermoelastic surrogate (15 outputs)
+        ├── model_config.json
+        ├── normalization_stats.npz
+        └── ckpt/case_4/
 ```
 
-A Bayesian neural network variant can be trained with `train_bnn.py` and the `case_bnn.py` configuration:
+### Models
+
+| Model | Inputs | Outputs |
+|---|---|---|
+| `elastic` | 16 fiber/matrix/orientation parameters | E1, E2, E3, G12, G13, G23, nu12, nu13, nu23 |
+| `thermoelastic` | 19 parameters (elastic + CTE inputs) | 9 elastic + CTE11, CTE22, CTE33, CTE12, CTE13, CTE23 |
+
+All moduli are in **MPa**. CTE values are in **1/K**.
+
+---
+
+## Running the Forward Model
+
+### Option 1 – GUI
 
 ```bash
-python surrogate/train_bnn.py --config surrogate/configs/case_bnn.py --workdir <path>
+cd final
+python gui.py
 ```
 
-Checkpoints are written under `workdir/ckpt/<run_name>` and normalisation statistics are stored in `workdir/normalization_stats.npz`.
+1. Select **Elastic** or **Thermoelastic** using the radio buttons.
+2. Click **Load Model** – input and output panels populate automatically.
+3. Fill in all input fields and press **Enter** or click **Predict**.
+4. Predicted outputs appear on the right. A history plot tracks successive predictions.
+
+### Option 2 – Python API
+
+```python
+from forward import load_forward
+
+fwd, meta = load_forward("elastic")        # or "thermoelastic"
+
+outputs = fwd({
+    "e1": 240e3, "e2": 15e3, "g12": 28e3, "f_nu12": 0.2, "f_nu23": 0.4,
+    "ar": 20.0, "fiber_massfrac": 0.20, "fiber_density": 1780.0,
+    "matrix_modulus": 3100.0, "matrix_poisson": 0.37, "matrix_density": 1280.0,
+    "a11": 0.6, "a22": 0.1, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+})
+print(outputs["E1"])   # MPa
+
+print(meta.input_fields)   # ordered list of input names
+print(meta.output_fields)  # ordered list of output names
+```
+
+Run from the `final/` directory so that `forward.py` can resolve the model paths and the shared `EL_surrogate/` code.
+
+---
 
 ## Running the Inverse Design Solver
 
-The script `surrogate/run_inverse.py` solves an optimisation problem where selected input variables are adjusted so that the surrogate output matches user specified targets. The problem definition is read from the `inverse` section of the chosen configuration file.
+The inverse solver finds input parameters that produce a desired set of output properties. It uses the elastic surrogate by default.
 
-Example usage (using the inverse block from `case_2.py`):
+### Step 1 – Edit `problem.json`
 
-```bash
-python surrogate/run_inverse.py --config surrogate/configs/case_2.py --workdir <path>
+```jsonc
+{
+  // All 16 model inputs. Values for free variables serve as the initial guess.
+  "fixed_inputs": {
+    "e1": 240000.0,
+    "matrix_modulus": 3100.0,
+    ...
+  },
+
+  // Which inputs the solver is allowed to change.
+  "free_inputs": ["matrix_modulus", "matrix_poisson", "a11", "a22"],
+
+  // Optional per-variable box constraints [lo, hi].
+  "bounds": {
+    "matrix_modulus": [2000.0, 5000.0],
+    "a11": [0.2, 0.81]
+  },
+
+  // Target surrogate outputs to match.
+  "target_outputs": {
+    "E1": 15420.0,
+    "E2": 5140.0
+  },
+
+  // Solver settings.
+  "solver": {
+    "method": "lbfgs",      // "lbfgs" | "lbfgsb" | "adam"
+    "maxiter": 300,
+    "tol": 1e-6,
+    "constraint_penalty": 10000.0
+  }
+}
 ```
 
-The solver supports `adam`, `lbfgs` and `lbfgsb` (bounded L‑BFGS). Use `--optim` to override the optimiser defined in the config:
+**Notes:**
+- `fixed_inputs` must include **all** 16 model inputs. Free variable values act as the initial guess.
+- The constraint `a11 + a22 <= 1.0` is enforced automatically when both are free.
+
+### Step 2 – Run the solver
 
 ```bash
-python surrogate/run_inverse.py --config surrogate/configs/case_2.py --workdir <path> --optim lbfgsb
+cd final
+python inverse.py                           # uses problem.json
+python inverse.py --problem my_case.json    # custom problem file
 ```
 
-After optimisation the script prints the full input vector, the values found for each free variable and the predicted outputs alongside percentage errors with respect to the targets.
+Results are printed to the terminal and saved as `<problem_stem>_result.json`.
 
+### Solver methods
+
+| Method | Description |
+|---|---|
+| `lbfgs` | L-BFGS (default, unconstrained) |
+| `lbfgsb` | L-BFGS-B (bounded, uses `bounds` from JSON) |
+| `adam` | Adam gradient descent (use `lr` and `n_steps` options) |
+
+---
+
+## Training the Surrogates
+
+Training is driven by configuration files in each surrogate folder.
+
+### Elastic surrogate
+
+```bash
+python main.py --config EL_surrogate/configs/case_5.py --workdir EL_surrogate/
+```
+
+### Thermoelastic surrogate
+
+```bash
+python main.py --config THEL_surrogate/configs/case_4.py --workdir THEL_surrogate/
+```
+
+After training, export model artifacts into `final/models/`:
+
+```bash
+cd EL_surrogate
+python export_model.py --config configs/case_5.py --workdir .
+
+cd THEL_surrogate
+python export_model.py --config configs/case_4.py --workdir .
+```
+
+See `final/INSTRUCTIONS.md` for the full export and manual drop-in workflow.
+
+---
+
+## Requirements
+
+See `requirements.txt` for the full dependency list. Key packages:
+
+- `jax`, `jaxlib` – core numerical backend
+- `flax` – neural network layers
+- `optax` – optimisers
+- `jaxopt` – L-BFGS / L-BFGS-B solvers for inverse design
+- `orbax-checkpoint` – checkpoint save/restore
+- `ml-collections` – configuration management
+- `numpy`, `scipy`, `matplotlib`, `pandas`
+- `wandb` – experiment tracking (training only)
+
+Install with:
+
+```bash
+pip install -r requirements.txt
+```
