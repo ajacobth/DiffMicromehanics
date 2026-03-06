@@ -1,0 +1,45 @@
+{
+  "_note": "Generated from case_5. Update checkpoint_name if you retrain.",
+  "arch_name": "Mlp",
+  "hidden_dim": [
+    128,
+    512,
+    256,
+    256,
+    128,
+    64,
+    16
+  ],
+  "activation": "swish",
+  "use_l2reg": true,
+  "checkpoint_name": "case_5",
+  "input_fields": [
+    "e1",
+    "e2",
+    "g12",
+    "f_nu12",
+    "f_nu23",
+    "ar",
+    "fiber_massfrac",
+    "fiber_density",
+    "matrix_modulus",
+    "matrix_poisson",
+    "matrix_density",
+    "a11",
+    "a22",
+    "a12",
+    "a13",
+    "a23"
+  ],
+  "output_fields": [
+    "E1",
+    "E2",
+    "E3",
+    "G12",
+    "G13",
+    "G23",
+    "nu12",
+    "nu13",
+    "nu23"
+  ]
+}

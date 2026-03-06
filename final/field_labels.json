@@ -1,0 +1,48 @@
+{
+  "_comment": [
+    "Display name mappings for GUI input and output fields.",
+    "Edit the values here to change how field names appear in the GUI.",
+    "Keys must match the internal field names used by the model.",
+    "Any field not listed here will fall back to its raw internal name."
+  ],
+
+  "inputs": {
+    "e1":              "Fiber Modulus Longitudinal (MPa)",
+    "e2":              "Fiber Modulus Transverse (MPa)",
+    "g12":             "Fiber Shear Modulus G12 (MPa)",
+    "f_nu12":          "Fiber Poisson Ratio v12",
+    "f_nu23":          "Fiber Poisson Ratio v23",
+    "ar":              "Fiber Aspect Ratio",
+    "fiber_massfrac":  "Fiber Mass Fraction",
+    "fiber_density":   "Fiber Density (kg/m3)",
+    "matrix_modulus":  "Matrix Modulus (MPa)",
+    "matrix_poisson":  "Matrix Poisson Ratio",
+    "matrix_density":  "Matrix Density (kg/m3)",
+    "a11":             "Orientation Tensor A11",
+    "a22":             "Orientation Tensor A22",
+    "a12":             "Orientation Tensor A12",
+    "a13":             "Orientation Tensor A13",
+    "a23":             "Orientation Tensor A23",
+    "f_cte11":         "Fiber CTE a11 (1/K)",
+    "f_cte22":         "Fiber CTE a22 (1/K)",
+    "matrix_cte":      "Matrix CTE (1/K)"
+  },
+
+  "outputs": {
+    "E1":    "Longitudinal Modulus E1 (GPa)",
+    "E2":    "Transverse Modulus E2 (GPa)",
+    "E3":    "Transverse Modulus E3 (GPa)",
+    "G12":   "Shear Modulus G12 (GPa)",
+    "G13":   "Shear Modulus G13 (GPa)",
+    "G23":   "Shear Modulus G23 (GPa)",
+    "nu12":  "Poisson Ratio v12",
+    "nu13":  "Poisson Ratio v13",
+    "nu23":  "Poisson Ratio v23",
+    "CTE11": "CTE a11 (µ/K)",
+    "CTE22": "CTE a22 (µ/K)",
+    "CTE33": "CTE a33 (µ/K)",
+    "CTE12": "CTE a12 (µ/K)",
+    "CTE13": "CTE a13 (µ/K)",
+    "CTE23": "CTE a23 (µ/K)"
+  }
+}

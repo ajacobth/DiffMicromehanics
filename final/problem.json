@@ -1,0 +1,58 @@
+{
+  "_comment": [
+    "Inverse problem definition for the elastic surrogate.",
+    "fixed_inputs: all model inputs with their values. Free variables still need",
+    "              a value here — it is used as the initial guess.",
+    "free_inputs:  list of keys to optimise.",
+    "bounds:       optional per-variable (lo, hi) box constraints.",
+    "target_outputs: desired surrogate outputs to match.",
+    "solver.method: 'lbfgs' (default) | 'lbfgsb' | 'adam'",
+    "init_free:    optional explicit initial guess for free vars (overrides fixed_inputs values)."
+  ],
+
+  "fixed_inputs": {
+    "e1":              240000.0,
+    "e2":               15000.0,
+    "g12":              28000.0,
+    "f_nu12":               0.2,
+    "f_nu23":               0.4,
+    "ar":                  20.0,
+    "fiber_massfrac":       0.20,
+    "fiber_density":     1780.0,
+    "matrix_modulus":    3100.0,
+    "matrix_poisson":       0.37,
+    "matrix_density":    1280.0,
+    "a11":                  0.6,
+    "a22":                  0.1,
+    "a12":                  0.0,
+    "a13":                  0.0,
+    "a23":                  0.0
+  },
+
+  "free_inputs": ["matrix_modulus", "matrix_poisson", "a11", "a22"],
+
+  "bounds": {
+    "matrix_modulus":  [2000.0, 5000.0],
+    "matrix_poisson":  [0.33,   0.42],
+    "a11":             [0.2,    0.81],
+    "a22":             [0.01,   0.2]
+  },
+
+  "target_outputs": {
+    "E1": 15420.0,
+    "E2":  5140.0,
+    "E3":  4120.0
+  },
+
+  "solver": {
+    "method":             "lbfgs",
+    "maxiter":            300,
+    "tol":                1e-6,
+    "constraint_penalty": 10000.0,
+    "_adam_options": {
+      "_note": "Only used when method is 'adam'",
+      "lr":      0.01,
+      "n_steps": 5000
+    }
+  }
+}

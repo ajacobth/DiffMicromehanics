@@ -124,20 +124,20 @@ def get_config():
     # ---- ALL 16 inputs get a value ----
     inv.fixed_inputs = {
         # fibre
-        "e1":          276e3,
-        "e2":           20e3,
-        "g12":           25e3,
+        "e1":          240e3,
+        "e2":           17e3,
+        "g12":           22e3,
         "f_nu12":          0.2,
-        "f_nu23":          0.25,
-        "ar":        20.,
+        "f_nu23":          0.45,
+        "ar":        22.,
         "fiber_massfrac":       0.20,
         "fiber_density":     1780.0,
         # matrix
-        "matrix_modulus":      3e3,
-        "matrix_poisson": 0.32,
+        "matrix_modulus":      4e3,
+        "matrix_poisson": 0.37,
         "matrix_density":    1280.0,
         # coupling / angle terms  (free but still given as a *starting guess*)
-        "a11": 0.6,
+        "a11": 0.7,
         "a22": 0.1,
         "a12": 0.0,
         "a13": 0.0,
@@ -155,7 +155,7 @@ def get_config():
     
     inv.bounds = {"matrix_modulus": (2.0e3, 5.0e3),
         #"ar": (15., 30.),
-        "a11":            (0.2,    0.9),
+        "a11":            (0.2,    0.8),
         "a22":            (0.01,    0.3),
     }
     # Desired surrogate outputs

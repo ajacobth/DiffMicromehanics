@@ -22,6 +22,7 @@ from inverse_model import (
     InverseSolver,
     InverseProblem,
     assemble_x,
+    make_orientation_sum_constraint,
 )
 
 FLAGS = flags.FLAGS
@@ -62,10 +63,19 @@ _out = lambda k: k if isinstance(k,int) else OUT_IDX[k]
 
 def _problem_from_cfg(inv: ConfigDict) -> InverseProblem:
     tf = lambda m: {k: float(v) for k, v in m.items()}
+    free = [str(k) for k in inv.free_inputs]
+
+    constraints = []
+    c = make_orientation_sum_constraint(free)
+    if c is not None:
+        print("Constraint active: a11 + a22 <= 1.0")
+        constraints.append(c)
+
     return InverseProblem(
         fixed_inputs=tf(inv.fixed_inputs),
-        free_inputs=[str(k) for k in inv.free_inputs],
+        free_inputs=free,
         target_outputs=tf(inv.target_outputs),
+        constraints=tuple(constraints),
     )
 
 # ---------------------------------------------------------------------------
@@ -128,7 +138,10 @@ def main(_argv):
     print("\nOptimised free variables:")
     for k, v in opt_free.items():
         print(f"  {k:<20s}: {v:.4f}")
-    
+
+    if "a11" in opt_free and "a22" in opt_free:
+        print(f"  {'a11 + a22':<20s}: {opt_free['a11'] + opt_free['a22']:.4f}  (constraint: <= 1.0)")
+
     print("\nPredicted outputs + % error:")
     pct_err = {}
     for k, tgt in problem.target_outputs.items():

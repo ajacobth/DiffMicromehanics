@@ -25,8 +25,8 @@ from NN_surrogate.utils import restore_checkpoint
 # ----------------------------------------------------------------------------
 
 INPUT_FIELD_NAMES = [
-    "e1", "e2", "g12", "f_nu12", "f_cte1",	"f_cte2",
-    "f_nu23", "ar", "fiber_massfrac", "fiber_density", "matrix_modulus",
+    "e1", "e2", "g12", "f_nu12", "f_nu23", "f_cte1", "f_cte2",
+    "ar", "fiber_massfrac", "fiber_density", "matrix_modulus",
     "matrix_poisson", "matrix_density", "m_cte",
     "a11", "a22", "a12", "a13", "a23", # a33 = 1 - a11 - a22
 ]
@@ -40,6 +40,22 @@ OUTPUT_FIELD_NAMES = [
     "E1", "E2", "E3", "G12", "G13", "G23", "nu12","nu13", "nu23",
     "CTE11",	"CTE22", "CTE33",	"CTE12",	"CTE13", "CTE23"
     ]
+
+# Scale raw model output (MPa) to display units, matching eval.py
+OUTPUT_SCALES = {
+    "E1": 1e-3, "E2": 1e-3, "E3": 1e-3,
+    "G12": 1e-3, "G13": 1e-3, "G23": 1e-3,
+    "nu12": 1.0, "nu13": 1.0, "nu23": 1.0,
+    "CTE11": 1e6, "CTE22": 1e6, "CTE33": 1e6,
+    "CTE12": 1.0, "CTE13": 1.0, "CTE23": 1.0,
+}
+OUTPUT_UNITS = {
+    "E1": "GPa", "E2": "GPa", "E3": "GPa",
+    "G12": "GPa", "G13": "GPa", "G23": "GPa",
+    "nu12": "-", "nu13": "-", "nu23": "-",
+    "CTE11": "u/K", "CTE22": "u/K", "CTE33": "u/K",
+    "CTE12": "u/K", "CTE13": "u/K", "CTE23": "u/K",
+}
 
 
 # ----------------------------------------------------------------------------
@@ -190,13 +206,15 @@ class ModelGUI:
         # numeric labels
         for lbl, name, val in zip(self.output_labels,
                                   OUTPUT_FIELD_NAMES, y_vals):
-            lbl.config(text=f"{name}: {val:.4f}")
+            scale = OUTPUT_SCALES.get(name, 1.0)
+            unit  = OUTPUT_UNITS.get(name, "")
+            lbl.config(text=f"{name}: {val * scale:.4f} {unit}")
 
-        # history + plots
+        # history + plots (store in display units)
         step = len(self.step_idx) + 1
         self.step_idx.append(step)
-        for hist, val in zip(self.y_hist, y_vals):
-            hist.append(val)
+        for hist, name, val in zip(self.y_hist, OUTPUT_FIELD_NAMES, y_vals):
+            hist.append(val * OUTPUT_SCALES.get(name, 1.0))
 
         for line, ys, ax in zip(self.lines, self.y_hist, self.axes):
             line.set_data(self.step_idx, ys)
@@ -216,7 +234,10 @@ def gui(config: ml_collections.ConfigDict, workdir: str):
     force_close_tk()
 
     # --- restore model ----------------------------------------------------
-    model    = models.MICRO_SURROGATE(config)
+    if config.use_l2reg:
+        model = models.MICRO_SURROGATE_L2(config)
+    else:
+        model = models.MICRO_SURROGATE(config)
     ckpt_dir = os.path.join(workdir, "ckpt", config.wandb.name)
     if not os.path.exists(ckpt_dir):
         raise FileNotFoundError(f"No checkpoint dir: {ckpt_dir}")
