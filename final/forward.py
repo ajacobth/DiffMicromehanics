@@ -53,6 +53,8 @@ class ForwardModel(NamedTuple):
     output_fields: list
     in_idx:        dict       # field_name -> position in input vector
     out_idx:       dict       # field_name -> position in output vector
+    output_mean:   jnp.ndarray  # mu_out used to normalise targets for the loss
+    output_std:    jnp.ndarray  # sig_out used to normalise targets for the loss
 
 
 # ── internal helpers ─────────────────────────────────────────────────────────
@@ -157,4 +159,6 @@ def load_forward(model_name: str) -> ForwardModel:
         output_fields=output_fields,
         in_idx=in_idx,
         out_idx=out_idx,
+        output_mean=mu_out,
+        output_std=sig_out,
     )

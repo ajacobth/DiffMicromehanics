@@ -116,6 +116,11 @@ class SurrogateGUI:
                                      font=FONT_STATUS, fg="gray")
         self._load_status.grid(row=0, column=5, padx=10, sticky="w")
 
+        ttk.Button(top, text="Identifiability Check",
+                   command=self._open_identifiability).grid(
+            row=0, column=6, padx=(12, 4), sticky="e"
+        )
+
         ttk.Separator(root, orient="horizontal").grid(row=0, column=0, sticky="ew")
 
         # ── main area: inputs (left) + outputs (right) ───────────────────────
@@ -315,6 +320,11 @@ class SurrogateGUI:
         self._pred_status.config(text="")
         self._predict_btn.config(state="normal")
         messagebox.showerror("Prediction Error", msg)
+
+    # ── identifiability check ─────────────────────────────────────────────────
+    def _open_identifiability(self):
+        from gui_identifiability import open_identifiability_window
+        open_identifiability_window(self.root, model=self.model)
 
 
 # ── entry point ───────────────────────────────────────────────────────────────

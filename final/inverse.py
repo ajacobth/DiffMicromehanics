@@ -73,34 +73,141 @@ def _assemble_x(vec, prob: InverseProblem, in_idx: dict, n_inputs: int) -> jnp.n
 
 def _loss_fn(vec64, predict_array, prob: InverseProblem,
              in_idx: dict, out_idx: dict, n_inputs: int,
-             penalty: float = 1e4) -> jnp.ndarray:
+             sig_out: jnp.ndarray,
+             penalty: float = 1e4,
+             sigmas=None,
+             use_epsilon_loss: bool = False) -> jnp.ndarray:
     vec32 = vec64.astype(jnp.float32)
     x     = _assemble_x(vec32, prob, in_idx, n_inputs)
     y     = predict_array(x)
-    errs  = jnp.stack([(y[out_idx[k]] - t) ** 2 for k, t in prob.target_outputs.items()])
-    loss  = jnp.sum(errs)
+    # Compute loss in normalised (standardised) output space so that outputs
+    # with very different physical magnitudes contribute equally.
+    # When use_epsilon_loss is True and sigma_k > 0, residuals inside the
+    # dead-zone [−sigma_k, +sigma_k] contribute zero gradient.
+    errs = []
+    for i, (k, t) in enumerate(prob.target_outputs.items()):
+        pred  = y[out_idx[k]]
+        scale = sig_out[out_idx[k]]
+        if use_epsilon_loss and sigmas is not None and sigmas[i] > 0.0:
+            raw    = jnp.abs(pred - t)
+            excess = jnp.maximum(0.0, raw - sigmas[i])
+            errs.append((excess / scale) ** 2)
+        else:
+            errs.append(((pred - t) / scale) ** 2)
+    loss = jnp.sum(jnp.stack(errs))
     for c in prob.constraints:
         loss = loss + penalty * jnp.maximum(0.0, c(vec64)) ** 2
     return loss.astype(jnp.float64)
 
 
 # ── solvers ───────────────────────────────────────────────────────────────────
-def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
-           n_inputs: int, init64: jnp.ndarray,
-           bounds: Optional[dict], method: str, penalty: float, **kw):
 
-    loss = lambda v: _loss_fn(v, predict_array, prob, in_idx, out_idx, n_inputs, penalty)
+# Global optimisation methods (scipy-based, gradient-free).
+#
+# NOTE: these methods optimise the same squared-error loss as the local
+# solvers.  If the surrogate landscape is highly multimodal or the targets are
+# far from the training distribution you may want to experiment with a
+# different fitness function (e.g. relative error, log-space residuals).
+# Bounds are *required* for all global methods.
+
+_GLOBAL_METHODS = {"differential_evolution", "dual_annealing", "basinhopping"}
+
+
+def _solve_global(predict_array, prob: InverseProblem, in_idx: dict,
+                  out_idx: dict, n_inputs: int,
+                  sig_out: jnp.ndarray,
+                  lo: np.ndarray, hi: np.ndarray,
+                  method: str, penalty: float,
+                  sigmas_list=None, use_eps_loss: bool = False,
+                  **kw) -> tuple:
+    """Global optimisation via scipy.  Returns (free_vec_f32, final_loss)."""
+    from scipy.optimize import differential_evolution, dual_annealing, basinhopping
+
+    scipy_bounds = list(zip(lo.tolist(), hi.tolist()))
+
+    # Wrap JAX loss so scipy (numpy) can call it.
+    def np_loss(vec_np: np.ndarray) -> float:
+        vec64 = jnp.array(vec_np, dtype=jnp.float64)
+        return float(_loss_fn(vec64, predict_array, prob, in_idx, out_idx, n_inputs,
+                              sig_out, penalty, sigmas_list, use_eps_loss))
+
+    seed = int(kw.get("seed", 42))
+
+    if method == "differential_evolution":
+        # Stochastic population-based global method.  Good general-purpose
+        # choice; 'polish=True' runs L-BFGS-B on the best candidate at the end.
+        res = differential_evolution(
+            np_loss,
+            scipy_bounds,
+            maxiter=int(kw.get("maxiter", 1000)),
+            popsize=int(kw.get("popsize", 15)),
+            tol=float(kw.get("tol", 1e-7)),
+            seed=seed,
+            polish=True,
+        )
+        return jnp.array(res.x, dtype=jnp.float32), float(res.fun)
+
+    elif method == "dual_annealing":
+        # Combines classical simulated annealing with a local L-BFGS-B search.
+        # Often faster than DE for continuous low-dimensional problems.
+        res = dual_annealing(
+            np_loss,
+            scipy_bounds,
+            maxiter=int(kw.get("maxiter", 1000)),
+            seed=seed,
+        )
+        return jnp.array(res.x, dtype=jnp.float32), float(res.fun)
+
+    elif method == "basinhopping":
+        # Random perturbations + local minimisation; useful when the basin
+        # structure is known to be relatively simple.
+        x0 = (lo + hi) / 2.0
+        res = basinhopping(
+            np_loss,
+            x0,
+            niter=int(kw.get("n_iter", 200)),
+            stepsize=float(kw.get("stepsize", 0.1)),
+            minimizer_kwargs={"method": "L-BFGS-B", "bounds": scipy_bounds},
+            seed=seed,
+        )
+        return jnp.array(res.x, dtype=jnp.float32), float(res.fun)
+
+    else:
+        raise ValueError(f"Unknown global method: {method!r}")
+
+
+def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
+           n_inputs: int, sig_out: jnp.ndarray,
+           init64: jnp.ndarray,
+           bounds: Optional[dict], method: str, penalty: float,
+           sigmas_list=None, use_eps_loss: bool = False,
+           **kw):
+
+    loss = lambda v: _loss_fn(v, predict_array, prob, in_idx, out_idx, n_inputs,
+                               sig_out, penalty, sigmas_list, use_eps_loss)
 
     if bounds is not None:
-        lo = jnp.array([bounds[k][0] for k in prob.free_inputs], jnp.float64)
-        hi = jnp.array([bounds[k][1] for k in prob.free_inputs], jnp.float64)
+        lo = np.array([bounds[k][0] for k in prob.free_inputs], dtype=np.float64)
+        hi = np.array([bounds[k][1] for k in prob.free_inputs], dtype=np.float64)
+        lo_jax = jnp.array(lo, jnp.float64)
+        hi_jax = jnp.array(hi, jnp.float64)
     else:
-        lo, hi = None, None
+        lo, hi, lo_jax, hi_jax = None, None, None, None
 
+    # ── global methods ────────────────────────────────────────────────────────
+    if method in _GLOBAL_METHODS:
+        if lo is None:
+            raise ValueError(f"Method '{method}' requires bounds to be specified in the problem JSON.")
+        return _solve_global(predict_array, prob, in_idx, out_idx, n_inputs,
+                             sig_out, lo, hi, method, penalty,
+                             sigmas_list=sigmas_list, use_eps_loss=use_eps_loss,
+                             **kw)
+
+    # ── gradient-based methods ────────────────────────────────────────────────
     if method == "adam":
         lr    = kw.get("lr", 1e-2)
         steps = int(kw.get("n_steps", 5000))
-        proj  = (lambda v: jnp.clip(v, lo, hi)) if lo is not None else (lambda v: v)
+        proj  = (lambda v: jnp.clip(v, lo_jax, hi_jax)) if lo_jax is not None else (lambda v: v)
         vg    = jax.jit(jax.value_and_grad(loss))
         opt   = optax.adam(lr)
         state = opt.init(init64)
@@ -118,16 +225,16 @@ def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
     maxiter = int(kw.get("maxiter", 300))
     tol     = float(kw.get("tol", 1e-9))
 
-    if lo is not None:
+    if lo_jax is not None:
         for api_kwargs in (
-            dict(lower=lo, upper=hi),
-            dict(lower_bounds=lo, upper_bounds=hi),
+            dict(lower=lo_jax, upper=hi_jax),
+            dict(lower_bounds=lo_jax, upper_bounds=hi_jax),
             None,  # pass bounds via .run()
         ):
             try:
                 solver = LBFGSB(fun=loss, implicit_diff=False, maxiter=maxiter, tol=tol,
                                 **(api_kwargs or {}))
-                res = solver.run(init64, bounds=(lo, hi)) if api_kwargs is None else solver.run(init64)
+                res = solver.run(init64, bounds=(lo_jax, hi_jax)) if api_kwargs is None else solver.run(init64)
                 return res.params.astype(jnp.float32), float(res.state.error)
             except TypeError:
                 continue
@@ -179,9 +286,23 @@ def run(problem_path: str, model_dir: Optional[str] = None) -> dict:
         constraints=tuple(constraints),
     )
 
-    solver_cfg = prob_dict.get("solver", {})
-    method     = solver_cfg.get("method", "lbfgs")
-    penalty    = float(solver_cfg.get("constraint_penalty", 1e4))
+    solver_cfg    = prob_dict.get("solver", {})
+    method        = solver_cfg.get("method", "lbfgs")
+    penalty       = float(solver_cfg.get("constraint_penalty", 1e4))
+    use_eps_loss  = bool(solver_cfg.get("use_epsilon_loss", False))
+    epsilon_scale = float(solver_cfg.get("epsilon_scale", 1.0))
+
+    sigmas_dict = prob_dict.get("sigmas", {})
+    sigmas_list = [
+        float(sigmas_dict.get(k, 0.0)) * epsilon_scale
+        for k in targets.keys()
+    ]
+
+    if use_eps_loss:
+        print(f"ε-insensitive loss enabled (epsilon_scale={epsilon_scale}):")
+        for k, sigma_k in zip(targets.keys(), sigmas_list):
+            norm_val = sigma_k / float(model.output_std[model.out_idx[k]])
+            print(f"  {k:<6s}: ε = {sigma_k:.4f}  (normalised: {norm_val:.4f})")
 
     # initial guess: use fixed_inputs values for free vars (or explicit override)
     if "init_free" in prob_dict:
@@ -193,7 +314,10 @@ def run(problem_path: str, model_dir: Optional[str] = None) -> dict:
     free_vec, final_err = _solve(
         model.predict_array, prob,
         model.in_idx, model.out_idx, len(model.input_fields),
+        model.output_std,
         jnp.array(init, jnp.float64), bounds, method, penalty,
+        sigmas_list=sigmas_list,
+        use_eps_loss=use_eps_loss,
         maxiter=int(solver_cfg.get("maxiter", 300)),
         tol=float(solver_cfg.get("tol", 1e-9)),
         lr=float(solver_cfg.get("lr", 1e-2)),

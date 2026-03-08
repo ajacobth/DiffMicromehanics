@@ -44,11 +44,20 @@
     "E3":  4120.0
   },
 
+  "sigmas": {
+    "_comment": "Measurement noise per target output in physical (model) units. Defaults to 0.",
+    "E1": 0.0,
+    "E2": 0.0,
+    "E3": 0.0
+  },
+
   "solver": {
     "method":             "lbfgs",
     "maxiter":            300,
     "tol":                1e-6,
     "constraint_penalty": 10000.0,
+    "use_epsilon_loss":   false,
+    "epsilon_scale":      1.0,
     "_adam_options": {
       "_note": "Only used when method is 'adam'",
       "lr":      0.01,

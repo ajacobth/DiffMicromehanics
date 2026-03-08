@@ -175,11 +175,21 @@ class OutputRow:
         self._entry = tk.Entry(parent, width=16, font=FONT_ENTRY, state="disabled")
         self._entry.grid(row=row, column=2, padx=6, pady=2)
 
+        # σ (noise) entry — disabled until the row is checked
+        sigma_frame = ttk.Frame(parent)
+        sigma_frame.grid(row=row, column=3, padx=(4, 2), pady=2, sticky="w")
+        tk.Label(sigma_frame, text="σ:", font=FONT_SMALL).pack(side="left")
+        self._sigma_entry = tk.Entry(sigma_frame, width=10, font=FONT_ENTRY, state="disabled")
+        self._sigma_entry.insert(0, "0")
+        self._sigma_entry.pack(side="left", padx=(2, 0))
+
         tk.Label(parent, text="(raw model units)", font=FONT_SMALL,
-                 fg="gray").grid(row=row, column=3, sticky="w", padx=2)
+                 fg="gray").grid(row=row, column=4, sticky="w", padx=2)
 
     def _on_toggle(self):
-        self._entry.config(state="normal" if self._active.get() else "disabled")
+        state = "normal" if self._active.get() else "disabled"
+        self._entry.config(state=state)
+        self._sigma_entry.config(state=state)
 
     def is_active(self) -> bool:
         return self._active.get()
@@ -190,6 +200,13 @@ class OutputRow:
             raise ValueError(f"Target for '{self.display}' is empty.")
         return float(raw)
 
+    def get_sigma(self) -> float:
+        raw = self._sigma_entry.get().strip()
+        try:
+            return float(raw) if raw else 0.0
+        except ValueError:
+            return 0.0
+
 
 # ── main GUI ───────────────────────────────────────────────────────────────────
 class InverseGUI:
@@ -199,6 +216,7 @@ class InverseGUI:
         self.model        = None
         self._input_rows:  list[InputRow]  = []
         self._output_rows: list[OutputRow] = []
+        self._last_result: Optional[dict]  = None
 
         root.title("Composite Surrogate – Inverse Design")
         root.geometry("1700x1020")
@@ -292,8 +310,11 @@ class InverseGUI:
         tk.Label(sbar, text="Method:", font=FONT_LABEL).grid(row=0, column=1, padx=(0, 4))
         self._method_var = tk.StringVar(value="lbfgs")
         ttk.Combobox(sbar, textvariable=self._method_var,
-                     values=["lbfgs", "lbfgsb", "adam"],
-                     width=9, state="readonly").grid(row=0, column=2, padx=4)
+                     values=["lbfgs", "lbfgsb", "adam",
+                             "differential_evolution", "dual_annealing", "basinhopping"],
+                     width=22, state="readonly").grid(row=0, column=2, padx=4)
+        tk.Label(sbar, text="(global methods require bounds)",
+                 font=FONT_SMALL, fg="gray").grid(row=1, column=1, columnspan=3, sticky="w", padx=(0, 4))
 
         tk.Label(sbar, text="Max iter:", font=FONT_LABEL).grid(row=0, column=3, padx=(14, 4))
         self._maxiter_var = tk.StringVar(value="300")
@@ -310,11 +331,30 @@ class InverseGUI:
         tk.Entry(sbar, textvariable=self._penalty_var, width=9,
                  font=FONT_ENTRY).grid(row=0, column=8, padx=4)
 
+        tk.Label(sbar, text="Seed:", font=FONT_LABEL).grid(row=0, column=9, padx=(14, 4))
+        self._seed_var = tk.StringVar(value="42")
+        tk.Entry(sbar, textvariable=self._seed_var, width=6,
+                 font=FONT_ENTRY).grid(row=0, column=10, padx=4)
+
         self._solve_btn = ttk.Button(sbar, text="  SOLVE  ",
                                      command=self._on_solve, state="disabled")
-        self._solve_btn.grid(row=0, column=9, padx=(22, 8))
+        self._solve_btn.grid(row=0, column=11, padx=(22, 8))
+        self._export_btn = ttk.Button(sbar, text="Export Results",
+                                      command=self._on_export, state="disabled")
+        self._export_btn.grid(row=0, column=12, padx=(4, 8))
         self._solve_status = tk.Label(sbar, text="", font=FONT_STATUS, fg="orange")
-        self._solve_status.grid(row=0, column=10, sticky="w")
+        self._solve_status.grid(row=0, column=13, sticky="w")
+
+        # ε-insensitive loss options (row 1)
+        self._use_eps_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(sbar, text="Use ε-insensitive loss",
+                        variable=self._use_eps_var).grid(
+            row=1, column=4, columnspan=2, padx=(14, 4), sticky="w")
+        tk.Label(sbar, text="ε scale:", font=FONT_SMALL).grid(
+            row=1, column=6, padx=(10, 4), sticky="e")
+        self._eps_scale_var = tk.StringVar(value="1.0")
+        tk.Entry(sbar, textvariable=self._eps_scale_var, width=6,
+                 font=FONT_ENTRY).grid(row=1, column=7, padx=4)
 
         # ── results panel ─────────────────────────────────────────────────────
         ttk.Separator(root, orient="horizontal").grid(row=5, column=0, sticky="ew")
@@ -432,8 +472,10 @@ class InverseGUI:
         tk.Label(hdr, text="", font=FONT_BOLD).grid(row=0, column=0, padx=(8, 4))
         tk.Label(hdr, text="Output Field", font=FONT_BOLD, width=34, anchor="e").grid(
             row=0, column=1, padx=(0, 6), pady=(2, 6))
-        tk.Label(hdr, text="Target Value  (raw model units)", font=FONT_BOLD).grid(
+        tk.Label(hdr, text="Target Value", font=FONT_BOLD).grid(
             row=0, column=2, padx=6, pady=(2, 6))
+        tk.Label(hdr, text="σ (noise)", font=FONT_BOLD).grid(
+            row=0, column=3, padx=(4, 2), pady=(2, 6), sticky="w")
 
         for i, field in enumerate(model.output_fields):
             row = OutputRow(hdr, row=i + 1, field=field,
@@ -444,7 +486,7 @@ class InverseGUI:
         tk.Label(hdr,
                  text="Units for target entry: E/G in MPa · nu dimensionless · CTE in 1/K",
                  font=FONT_SMALL, fg="gray").grid(
-            row=n + 1, column=0, columnspan=4, sticky="w", padx=8, pady=(8, 2))
+            row=n + 1, column=0, columnspan=5, sticky="w", padx=8, pady=(8, 2))
 
     # ── input / target collection ─────────────────────────────────────────────
     def _collect_inputs(self):
@@ -478,13 +520,15 @@ class InverseGUI:
 
     def _collect_targets(self):
         targets: dict[str, float] = {}
+        sigmas:  dict[str, float] = {}
         for row in self._output_rows:
             if row.is_active():
                 try:
                     targets[row.field] = row.get_target()
                 except ValueError:
                     raise ValueError(f"Invalid or missing target for  '{row.display}'.")
-        return targets
+                sigmas[row.field] = row.get_sigma()
+        return targets, sigmas
 
     # ── solve ─────────────────────────────────────────────────────────────────
     def _on_solve(self):
@@ -493,7 +537,7 @@ class InverseGUI:
             return
         try:
             fixed, free, bounds, init = self._collect_inputs()
-            targets = self._collect_targets()
+            targets, sigmas = self._collect_targets()
         except ValueError as e:
             messagebox.showerror("Input error", str(e))
             return
@@ -513,6 +557,9 @@ class InverseGUI:
                 "maxiter":            int(self._maxiter_var.get()),
                 "tol":                float(self._tol_var.get()),
                 "constraint_penalty": float(self._penalty_var.get()),
+                "seed":               int(self._seed_var.get()),
+                "use_epsilon_loss":   self._use_eps_var.get(),
+                "epsilon_scale":      float(self._eps_scale_var.get()),
             }
         except ValueError as e:
             messagebox.showerror("Solver config error", str(e))
@@ -527,12 +574,12 @@ class InverseGUI:
 
         threading.Thread(
             target=self._solve_worker,
-            args=(fixed, free, bounds, init, targets, solver_cfg, tags),
+            args=(fixed, free, bounds, init, targets, sigmas, solver_cfg, tags),
             daemon=True,
         ).start()
 
     def _solve_worker(self, fixed_inputs, free_inputs, bounds, init_free,
-                      target_outputs, solver_cfg, tags):
+                      target_outputs, sigmas, solver_cfg, tags):
         try:
             import jax
             jax.config.update("jax_enable_x64", True)
@@ -559,16 +606,27 @@ class InverseGUI:
                 constraints    = tuple(constraints),
             )
 
-            method  = solver_cfg["method"]
-            penalty = float(solver_cfg["constraint_penalty"])
-            init64  = jnp.array(init_free, jnp.float64)
+            method        = solver_cfg["method"]
+            penalty       = float(solver_cfg["constraint_penalty"])
+            use_eps_loss  = bool(solver_cfg.get("use_epsilon_loss", False))
+            epsilon_scale = float(solver_cfg.get("epsilon_scale", 1.0))
+            init64        = jnp.array(init_free, jnp.float64)
+
+            sigmas_list = [
+                float(sigmas.get(k, 0.0)) * epsilon_scale
+                for k in target_outputs.keys()
+            ]
 
             free_vec, final_err = _solve(
                 model.predict_array, prob,
                 model.in_idx, model.out_idx, len(model.input_fields),
+                model.output_std,
                 init64, bounds, method, penalty,
+                sigmas_list  = sigmas_list,
+                use_eps_loss = use_eps_loss,
                 maxiter = int(solver_cfg["maxiter"]),
                 tol     = float(solver_cfg["tol"]),
+                seed    = int(solver_cfg.get("seed", 42)),
             )
 
             x_star = _assemble_x(free_vec, prob, model.in_idx, len(model.input_fields))
@@ -587,6 +645,7 @@ class InverseGUI:
                 "predicted_outputs":      {k: float(y_np[model.out_idx[k]])
                                            for k in model.output_fields},
                 "target_outputs":         target_outputs,
+                "sigmas":                 sigmas,
                 "final_optimiser_error":  final_err,
                 "solver":                 solver_cfg,
             }
@@ -655,13 +714,9 @@ class InverseGUI:
         lines.append("")
         self._write_results("\n".join(lines))
 
-        # ── save JSON ─────────────────────────────────────────────────────────
-        saved_path = self._save_result(result)
-
-        msg = "Done."
-        if saved_path:
-            msg = f"Done.   Saved → {os.path.basename(saved_path)}"
-        self._solve_status.config(text=msg, fg="green")
+        self._last_result = result
+        self._export_btn.config(state="normal")
+        self._solve_status.config(text="Done.", fg="green")
         self._solve_btn.config(state="normal")
 
     def _on_solve_err(self, msg: str, tb: str):
@@ -670,24 +725,47 @@ class InverseGUI:
         self._write_results(f"ERROR:\n{msg}\n\nTraceback:\n{tb}")
         messagebox.showerror("Solve Error", msg)
 
-    def _save_result(self, result: dict) -> Optional[str]:
+    def _on_export(self):
+        if self._last_result is None:
+            messagebox.showwarning("No results", "Run the solver first.")
+            return
+
+        tags = self._last_result.get("tags", {})
+        name_tag = tags.get("name", "").strip()
+        if not name_tag:
+            messagebox.showerror("Export error", "name tag missing")
+            return
+
         savedir = self._savedir_var.get().strip()
         if not savedir:
-            return None
+            messagebox.showwarning("No save directory", "Set a save directory first.")
+            return
+
         try:
             os.makedirs(savedir, exist_ok=True)
-            ts       = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            tags     = result.get("tags", {})
-            tag_slug = "_".join(f"{k}-{v}" for k, v in tags.items()) if tags else "notag"
-            fname    = f"inverse_{result['model']}_{tag_slug}_{ts}.json"
-            path     = os.path.join(savedir, fname)
-            with open(path, "w") as f:
-                json.dump(result, f, indent=2)
-            return path
         except Exception as exc:
-            messagebox.showwarning("Save warning",
-                                   f"Could not save result JSON:\n{exc}")
-            return None
+            messagebox.showwarning("Save warning", f"Could not create directory:\n{exc}")
+            return
+
+        model_name = self._last_result.get("model", "unknown")
+        fname = f"inverse_{model_name}_{name_tag}.json"
+        path  = os.path.join(savedir, fname)
+
+        if os.path.exists(path):
+            overwrite = messagebox.askyesno(
+                "File exists",
+                f"A result with name tag '{name_tag}' already exists:\n{fname}\n\nOverwrite?",
+            )
+            if not overwrite:
+                return
+
+        try:
+            with open(path, "w") as f:
+                json.dump(self._last_result, f, indent=2)
+            self._solve_status.config(
+                text=f"Saved → {fname}", fg="green")
+        except Exception as exc:
+            messagebox.showwarning("Save warning", f"Could not save result JSON:\n{exc}")
 
 
 # ── entry point ────────────────────────────────────────────────────────────────
