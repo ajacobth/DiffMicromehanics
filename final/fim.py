@@ -325,6 +325,13 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
     base_eigvals    = np.linalg.eigvalsh(F)
     lambda_min_base = max(float(np.min(base_eigvals)), 1e-12)
 
+    # When the baseline FIM is near-singular (any POOR parameter exists),
+    # ranking by improvement_factor = new/base is numerically unstable:
+    # dividing by ~1e-12 amplifies noise and produces meaningless huge ratios.
+    # Instead rank by new_min_eigenvalue directly (absolute E-optimality).
+    # This correctly identifies which experiment most improves the worst direction.
+    baseline_is_singular = lambda_min_base < 1.0
+
     current_keys = set(target_outputs.keys())
     candidates   = [n for n in valid_names if n not in current_keys]
 
@@ -340,7 +347,11 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
             "new_min_eigenvalue": lambda_min_new,
         })
 
-    recs.sort(key=lambda d: d["improvement_factor"], reverse=True)
+    if baseline_is_singular:
+        # Rank by absolute new_min_eigenvalue — more stable and physically correct
+        recs.sort(key=lambda d: d["new_min_eigenvalue"], reverse=True)
+    else:
+        recs.sort(key=lambda d: d["improvement_factor"], reverse=True)
 
     return {
         "status":                   status_dict,
@@ -372,6 +383,7 @@ def rank_candidate_experiments(predict_array, x_template, free_inputs,
     )
     base_eigvals    = np.linalg.eigvalsh(F_base)
     lambda_min_base = max(float(np.min(base_eigvals)), 1e-12)
+    baseline_is_singular = lambda_min_base < 1.0
 
     current_keys = set(current_targets.keys())
     candidates   = [n for n in all_output_names if n not in current_keys and n in out_idx]
@@ -398,5 +410,8 @@ def rank_candidate_experiments(predict_array, x_template, free_inputs,
             "new_min_eigenvalue": lambda_min_new,
         })
 
-    results.sort(key=lambda d: d["improvement_factor"], reverse=True)
+    if baseline_is_singular:
+        results.sort(key=lambda d: d["new_min_eigenvalue"], reverse=True)
+    else:
+        results.sort(key=lambda d: d["improvement_factor"], reverse=True)
     return results

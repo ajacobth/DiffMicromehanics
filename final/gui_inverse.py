@@ -62,6 +62,14 @@ OUTPUT_UNITS: dict[str, str] = {
     "CTE11": "µ/K", "CTE22": "µ/K", "CTE33": "µ/K",
     "CTE12": "µ/K", "CTE13": "µ/K", "CTE23": "µ/K",
 }
+# Units used for target/sigma *entry* (raw model units, no scaling)
+ENTRY_UNITS: dict[str, str] = {
+    "E1": "MPa",  "E2": "MPa",  "E3": "MPa",
+    "G12": "MPa", "G13": "MPa", "G23": "MPa",
+    "nu12": "",   "nu13": "",   "nu23": "",
+    "CTE11": "1/K", "CTE22": "1/K", "CTE33": "1/K",
+    "CTE12": "1/K", "CTE13": "1/K", "CTE23": "1/K",
+}
 
 FONT_TITLE  = ("Helvetica", 17, "bold")
 FONT_LABEL  = ("Helvetica", 14)
@@ -161,7 +169,7 @@ class InputRow:
 class OutputRow:
     """One row in the Targets panel (one model output field)."""
 
-    def __init__(self, parent: tk.Widget, row: int, field: str, display: str):
+    def __init__(self, parent: tk.Widget, row: int, field: str, display: str, unit: str = ""):
         self.field   = field
         self.display = display
         self._active = tk.BooleanVar(value=False)
@@ -182,8 +190,11 @@ class OutputRow:
         self._sigma_entry = tk.Entry(sigma_frame, width=10, font=FONT_ENTRY, state="disabled")
         self._sigma_entry.insert(0, "0")
         self._sigma_entry.pack(side="left", padx=(2, 0))
+        if unit:
+            tk.Label(sigma_frame, text=unit, font=FONT_SMALL, fg="gray").pack(side="left", padx=(3, 0))
 
-        tk.Label(parent, text="(raw model units)", font=FONT_SMALL,
+        unit_col_text = f"({unit})" if unit else "(dimensionless)"
+        tk.Label(parent, text=unit_col_text, font=FONT_SMALL,
                  fg="gray").grid(row=row, column=4, sticky="w", padx=2)
 
     def _on_toggle(self):
@@ -474,12 +485,13 @@ class InverseGUI:
             row=0, column=1, padx=(0, 6), pady=(2, 6))
         tk.Label(hdr, text="Target Value", font=FONT_BOLD).grid(
             row=0, column=2, padx=6, pady=(2, 6))
-        tk.Label(hdr, text="σ (noise)", font=FONT_BOLD).grid(
+        tk.Label(hdr, text="σ (noise, same units as target)", font=FONT_BOLD).grid(
             row=0, column=3, padx=(4, 2), pady=(2, 6), sticky="w")
 
         for i, field in enumerate(model.output_fields):
             row = OutputRow(hdr, row=i + 1, field=field,
-                            display=_label("outputs", field))
+                            display=_label("outputs", field),
+                            unit=ENTRY_UNITS.get(field, ""))
             self._output_rows.append(row)
 
         n = len(model.output_fields)

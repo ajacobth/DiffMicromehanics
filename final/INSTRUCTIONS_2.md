@@ -1,363 +1,304 @@
-# Instructions: Identifiability Analysis GUI
+# Instructions: Identifiability GUI & FIM Improvements
 
-## Goal
+## Files to modify
+| File | Changes |
+|------|---------|
+| `gui_identifiability.py` | σ visibility, fixed param editor, recommendation display |
+| `fim.py` | Consistent σ for recommendations, show λ_min not ratio |
 
-Create a new standalone GUI tab or window called **"Identifiability Check"**.
-The user selects which outputs they plan to measure (target variables) and
-which inputs they want to infer (free variables), then runs an identifiability
-analysis powered by `fim.py`. The GUI tells them clearly whether their chosen
-experiment set is sufficient to identify their chosen free variables, which
-free variables are problematic, and which additional experiments to run — in
-priority order. An optional **Advanced** section shows FIM eigenvalue plots
-for users who want deeper insight.
-
-This is a pre-inference planning tool. It does not run the optimisation.
+Do **not** modify `forward.py`, `inverse.py`, `gui.py`, `gui_inverse.py`, or `problem.json`.
 
 ---
 
-## FIM approach: use the normalised FIM
+## Change 1 — σ fields only visible when output is checked
 
-Do NOT use the raw FIM. Use the **normalised FIM** where:
-- Each Jacobian row is divided by the measurement noise `sigma_i` (physical units)
-- Each Jacobian column is multiplied by the parameter range `(hi_j - lo_j)`
+### Problem
+Currently σ entry fields are shown for all outputs regardless of whether the
+checkbox is ticked. This clutters the UI with irrelevant fields.
 
-```
-J_norm[i,j] = J[i,j] * (hi_j - lo_j) / sigma_i
-```
+### Fix in `gui_identifiability.py` — `_build_selection_panels`
 
-This makes the FIM eigenvalues **dimensionless** and gives a clean threshold:
-- `lambda < 1`  → parameter direction is **POOR** — cannot be identified within
-  the parameter range given measurement noise
-- `1 <= lambda < 100`  → **MARGINAL**
-- `lambda >= 100` → **WELL** identified
-
-This is better than the raw FIM because Em (GPa) and nu_m (dimensionless) have
-very different scales, which distorts raw eigenvalue comparisons. The normalised
-FIM treats all parameters and outputs fairly.
-
----
-
-## Update `fim.py`
-
-Replace or augment the existing `compute_fim` with a normalised version.
-Add the following function:
-
-### `compute_normalised_fim(predict_array, x_template, free_inputs, free_indices, target_outputs, out_idx, sigmas, bounds, N_samples=200)`
+For each output row, store a reference to `sig_frame` and the checkbox variable.
+Bind a trace on the `BooleanVar` so that when unchecked, `sig_frame` is hidden
+via `grid_remove()`, and when checked it is shown via `grid()`.
 
 ```python
-def compute_normalised_fim(predict_array, x_template, free_inputs,
-                            free_indices, target_outputs, out_idx,
-                            sigmas, bounds, N_samples=200):
-    """
-    Normalised FIM where eigenvalues are dimensionless.
+# After creating cb and sig_frame for each output:
+sig_frame_ref = sig_frame   # keep reference
 
-    J_norm[i,j] = J[i,j] * param_range[j] / sigma_i
+def _toggle_sigma(name=name, sf=sig_frame_ref, var=var):
+    if var.get():
+        sf.grid()
+    else:
+        sf.grid_remove()
 
-    eigenvalue < 1   -> POOR   (cannot identify within param range)
-    eigenvalue < 100 -> MARGINAL
-    eigenvalue >= 100 -> WELL
-
-    Parameters
-    ----------
-    sigmas : dict {output_name: float} measurement noise in physical units.
-             If a key is missing, uses 1.0 as fallback.
-    bounds : dict {param_name: (lo, hi)}
-    """
-    target_out_indices = [out_idx[k] for k in target_outputs.keys()]
-    n_free      = len(free_inputs)
-    F           = np.zeros((n_free, n_free))
-    samples     = sample_parameter_space(free_inputs, bounds, N=N_samples)
-    free_idx_arr = jnp.array(free_indices)
-
-    param_ranges = np.array([bounds[k][1] - bounds[k][0]
-                              for k in free_inputs])
-
-    for theta in samples:
-        x = x_template.at[free_idx_arr].set(
-            jnp.array(theta, dtype=x_template.dtype))
-        J = compute_jacobian(predict_array, x,
-                             free_indices, target_out_indices)  # (n_exp, n_free)
-
-        for i, k in enumerate(target_outputs.keys()):
-            sigma_i = float(sigmas.get(k, 1.0))
-            if sigma_i <= 0:
-                sigma_i = 1.0
-            # normalise: scale by param range / measurement noise
-            j_norm = J[i, :] * param_ranges / sigma_i
-            F     += np.outer(j_norm, j_norm)
-
-    return F / max(len(samples), 1)
+var.trace_add("write", lambda *_: _toggle_sigma())
+_toggle_sigma()  # apply initial state (unchecked → hidden)
 ```
 
-Also add a helper for the relative sensitivity matrix (used in the heatmap):
+Store `sig_frame_ref` in a dict `self._sigma_frames[name] = sig_frame_ref` so
+it can be shown/hidden from other methods (e.g. `_on_help`).
 
-### `compute_relative_sensitivity(predict_array, x_nominal, free_indices, all_out_indices, param_names, output_names)`
+In `_on_help`, after setting `var.set(name in target_in_problem)`, call
+`_toggle_sigma()` (or equivalent) so the σ field appears for pre-checked outputs.
+
+---
+
+## Change 2 — Editable fixed parameter values panel
+
+### Problem
+The FIM is always evaluated with fixed parameters taken from `problem.json`
+`fixed_inputs`. The user cannot check identifiability in a different region of
+the parameter space (e.g. higher fiber fraction, different orientation regime)
+without editing the JSON file manually.
+
+### Fix in `gui_identifiability.py`
+
+#### 2a. Add a collapsible "Fixed Parameter Values" panel
+
+Add this panel **below** the free/target selection panels (between
+`_build_selection_panels` and `_build_controls`), i.e. as a new row in
+`_main_frame`.
+
+```
+┌─ Fixed Parameter Values ──────────────────────────────┐
+│  ► Expand to edit                                       │
+│                                                         │
+│  (when expanded:)                                       │
+│  Fiber Modulus Longitudinal (MPa)   [ 240000.0 ]       │
+│  Fiber Modulus Transverse (MPa)     [  15000.0 ]       │
+│  ...all non-free model inputs...                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Use a `ttk.LabelFrame` with text `"Fixed Parameter Values"`.
+- Inside, place a toggle button `"► Expand to edit"` / `"▼ Collapse"`.
+- When expanded, show one row per model input field that is NOT currently
+  selected as free. Each row has a label (display name from `field_labels.json`)
+  and a `tk.Entry` pre-filled with the value from `problem.json fixed_inputs`.
+- Store the entry `tk.StringVar` in `self._fixed_override_vars: dict[str, tk.StringVar]`.
+- When a free variable checkbox is toggled, refresh the fixed panel so the
+  newly freed variable disappears from it and vice versa.
+
+#### 2b. Use edited values when building `x_template` in `_on_run`
+
+Replace the current block that reads from `self._problem["fixed_inputs"]`:
 
 ```python
-def compute_relative_sensitivity(predict_array, x_nominal, free_indices,
-                                  all_out_indices, param_names, output_names):
-    """
-    S[i,j] = |dyi/dthj| * |thj / yi|
-
-    Returns S as np.ndarray shape (n_outputs, n_free).
-    Used for the heatmap showing which outputs are sensitive to which params.
-    """
-    J     = compute_jacobian(predict_array, x_nominal,
-                             free_indices, all_out_indices)
-    theta = np.array(x_nominal)[free_indices]
-    y     = np.array(predict_array(x_nominal))[all_out_indices]
-    S     = np.abs(J) * np.abs(theta[np.newaxis, :]) / (np.abs(y[:, np.newaxis]) + 1e-12)
-    return S
-```
-
----
-
-## New GUI file: `gui_identifiability.py`
-
-Create this as a standalone window/tab that can be launched from the main
-`gui.py` menu (add a button or menu item: **"Identifiability Check"**).
-
-### Layout
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Identifiability Check                                       │
-├───────────────────────┬─────────────────────────────────────┤
-│  Free Variables       │  Target Outputs (experiments)        │
-│  (what to infer)      │  (what you will measure)            │
-│                       │                                     │
-│  [ ] Em               │  [ ] E1    σ: [0.30] GPa            │
-│  [ ] nu_m             │  [ ] E2    σ: [0.20] GPa            │
-│  [x] a11              │  [x] E3    σ: [0.20] GPa            │
-│  [x] a22              │  [ ] G12   σ: [0.15] GPa            │
-│                       │  [ ] G13   σ: [0.15] GPa            │
-│                       │  [ ] G23   σ: [0.15] GPa            │
-│                       │  [ ] nu21  σ: [0.015]               │
-│                       │  [ ] nu13  σ: [0.015]               │
-│                       │  [ ] nu23  σ: [0.015]               │
-│                       │                                     │
-│       N samples: [200]│  [ ] Advanced plots                 │
-│                       │                                     │
-│       [ Run Check ]   │                                     │
-├───────────────────────┴─────────────────────────────────────┤
-│  Results                                                    │
-│  ─────────────────────────────────────────────────────────  │
-│  (populated after Run Check)                                │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Left panel — Free Variables
-
-Checkboxes for every input field that appears in `model.in_idx` and is not
-a fixed fiber property. Read available free variable names from
-`field_labels.json` for display labels. When the user checks a variable,
-read its bounds from `problem.json` to use in the FIM computation.
-
-### Right panel — Target Outputs
-
-Checkboxes for every output field in `model.output_fields`. Next to each
-checkbox, show a small numeric input for σ (measurement noise, physical units).
-Pre-populate σ values from `problem.json["sigmas"]` if they exist, otherwise
-leave blank. The user must fill in at least a rough σ — if left blank, default
-to 1.0 with a tooltip: "Enter measurement standard deviation from repeat tests".
-
-Show output names using `field_labels.json` labels.
-
-### Controls
-
-- **N samples** numeric input (default 200): how many parameter space samples
-  to use for the Bayesian FIM average.
-- **Advanced plots** checkbox: when ticked, show the advanced section after
-  running (described below).
-- **Run Check** button: triggers the analysis.
-
----
-
-## Results section (always shown)
-
-After clicking Run Check, populate the results section with:
-
-### 1. Per-parameter status table
-
-```
-Parameter   Status      CR Uncertainty    Note
-─────────────────────────────────────────────────────────────
-Em          ✗ POOR      —                Cannot be identified
-nu_m        ✗ POOR      —                Cannot be identified
-a11         ✓ WELL      ±0.012           Reliably identified
-a22         ✓ WELL      ±0.009           Reliably identified
-```
-
-- Status uses color: green = WELL, orange = MARGINAL, red = POOR
-- CR Uncertainty = `sqrt(F_inv[j,j])` in physical parameter units
-  (units come from `field_labels.json`). Show "—" if POOR (CR bound is
-  meaningless when F is singular).
-- Note column: plain English — "Reliably identified", "Marginally identified",
-  "Cannot be identified".
-
-### 2. Recommended experiments (only shown if any POOR or MARGINAL)
-
-Show a ranked list of experiments NOT currently selected, ordered by how much
-each one improves the worst eigenvalue (E-optimality criterion):
-
-```
-To improve identifiability, consider adding:
-
-  1. nu13   — improves worst direction by 45×     [Panel A, no new specimens]
-  2. G13    — improves worst direction by 12×
-  3. nu21   — improves worst direction by 8×
-```
-
-The improvement factor is `lambda_min(F_new) / lambda_min(F_current)`.
-Include a brief note where the experiment comes from if it can be inferred
-from field labels (e.g. "Panel A" outputs vs "Panel B" outputs).
-
-Show at most 5 recommendations.
-
-### 3. Overall verdict (one line, prominent)
-
-```
-✓  Your experiment set can reliably identify all selected free variables.
-```
-or
-```
-⚠  2 free variable(s) cannot be reliably identified with this experiment set.
-   See recommendations below.
-```
-
-Place this at the TOP of the results section in large text, green or red.
-
----
-
-## Advanced section (shown only when "Advanced plots" is ticked)
-
-This section appears below the results when the checkbox is ticked.
-It contains three plots rendered with matplotlib embedded in the GUI.
-
-### Plot 1: FIM Eigenvalue Spectrum
-
-Bar chart (log scale y-axis) of the normalised FIM eigenvalues, sorted
-ascending. Each bar is labeled with the dominant parameter direction
-(the parameter name that eigenvector is most aligned with).
-
-- Draw a horizontal dashed red line at `lambda = 1` labeled "Identifiability threshold"
-- Draw a horizontal dashed orange line at `lambda = 100` labeled "Well-identified threshold"
-- Bars below the red line are red, between lines are orange, above are green
-- Title: "FIM Eigenvalue Spectrum — bars below red line indicate poor identifiability"
-
-### Plot 2: Relative Sensitivity Heatmap
-
-Heatmap showing `|dyi/dthj| * |thj/yi|` for all active target outputs
-(rows) vs all free parameters (cols). Use a yellow-orange-red colormap.
-Annotate each cell with the numeric value.
-
-- Rows = active target outputs (experiments selected by user)
-- Cols = free parameters selected by user
-- Title: "Relative Sensitivity — darker = stronger coupling between output and parameter"
-- This plot explains intuitively WHY certain experiments help: if a row has a
-  dark cell in the Em column, that experiment is sensitive to Em.
-
-### Plot 3: Eigenvalue Improvement per Candidate Experiment
-
-Horizontal bar chart showing, for each experiment NOT currently selected,
-how much it would improve the minimum FIM eigenvalue if added. Sort by
-improvement descending. Highlight the top recommendation in a different color.
-
-- X-axis: improvement factor (log scale)
-- Y-axis: experiment names
-- Title: "Recommended Next Experiment — improvement to worst-identified direction"
-- Draw a vertical dashed line at improvement = 1 (no improvement)
-
----
-
-## Integration into main `gui.py`
-
-Add a button to the main GUI toolbar or menu:
-
-```python
-btn_identifiability = tk.Button(toolbar, text="Identifiability Check",
-                                 command=open_identifiability_window)
-```
-
-The window opens independently and reads the current `problem.json` and
-loaded model to pre-populate its fields.
-
----
-
-## Integration into `fim.py`
-
-Add these two functions used by the GUI:
-
-### `run_identifiability_check(predict_array, x_template, free_inputs, free_indices, target_outputs, out_idx, sigmas, bounds, all_output_names, sig_out, N_samples=200)`
-
-Single entry point called by the GUI. Returns a structured dict:
-
-```python
-{
-    "status": {           # per free parameter
-        "Em":   "POOR",
-        "nu_m": "POOR",
-        "a11":  "WELL",
-        "a22":  "WELL",
-    },
-    "cramer_rao_std": {   # None if POOR
-        "Em":   None,
-        "nu_m": None,
-        "a11":  0.012,
-        "a22":  0.009,
-    },
-    "eigenvalues":    np.ndarray,   # normalised, ascending
-    "eigenvectors":   np.ndarray,
-    "dominant_params": list of str,
-    "condition_number": float,
-    "recommendations": [            # ranked by E-optimality improvement
-        {"name": "nu13", "improvement_factor": 45.2},
-        {"name": "G13",  "improvement_factor": 12.1},
-        ...
-    ],
-    "sensitivity_matrix": np.ndarray,   # (n_targets, n_free), relative sensitivity
-    "sensitivity_output_names": list,
-    "sensitivity_param_names":  list,
-    "F": np.ndarray,                # normalised FIM, for advanced plots
-}
-```
-
-### `rank_candidate_experiments(predict_array, x_template, free_inputs, free_indices, current_targets, out_idx, sigmas, bounds, all_output_names, N_samples=200)`
-
-Returns list of dicts sorted by E-optimality improvement:
-```python
-[
-    {"name": "nu13", "improvement_factor": 45.2, "new_min_eigenvalue": 65.6},
-    {"name": "G13",  "improvement_factor": 12.1, "new_min_eigenvalue": 17.3},
+# CURRENT (reads only from problem.json):
+fixed = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items() ...}
+x_np = np.zeros(...)
+for k, v in fixed.items():
+    if k in self.model.in_idx:
+        x_np[self.model.in_idx[k]] = v
+# Set free vars to midpoint of their bounds
+for k in free_inputs:
     ...
-]
+    x_np[self.model.in_idx[k]] = (lo + hi) / 2.0
+```
+
+With:
+
+```python
+# NEW: start from problem.json, then overlay user edits
+fixed_base = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
+              if not str(k).startswith("_")}
+x_np = np.zeros(len(self.model.input_fields), dtype=np.float32)
+
+for k, v in fixed_base.items():
+    if k in self.model.in_idx:
+        x_np[self.model.in_idx[k]] = v
+
+# Apply user overrides from the Fixed Parameter Values panel
+for k, svar in self._fixed_override_vars.items():
+    if k not in free_inputs and k in self.model.in_idx:
+        raw = svar.get().strip()
+        try:
+            x_np[self.model.in_idx[k]] = float(raw)
+        except ValueError:
+            pass  # keep problem.json value if invalid
+
+# Free vars: midpoint of bounds (overwritten at each LHS sample in fim.py)
+for k in free_inputs:
+    if k in bounds_raw and k in self.model.in_idx:
+        lo, hi = bounds_raw[k]
+        x_np[self.model.in_idx[k]] = (lo + hi) / 2.0
+
+x_template = jnp.array(x_np, dtype=jnp.float32)
 ```
 
 ---
 
-## Files to create / modify
+## Change 3 — Consistent σ for recommendations (fix in `fim.py`)
 
-| File | Action |
-|------|--------|
-| `fim.py` | **MODIFY** — add `compute_normalised_fim`, `compute_relative_sensitivity`, `run_identifiability_check`, `rank_candidate_experiments` |
-| `gui_identifiability.py` | **CREATE** — full identifiability GUI window |
-| `gui.py` | **MODIFY** — add "Identifiability Check" button that opens the new window |
+### Problem
+The recommendation ranking compares current targets (which may have σ=0,
+triggering the 2% fallback) against candidate experiments (which always use
+the 2% fallback because the user has not entered σ for them). This is
+inconsistent: a current target with σ=0 gets treated as noiseless (infinite
+information), making any candidate look relatively worse.
 
-Do not modify `inverse.py`, `forward.py`, or `field_labels.json`.
+The ranking should use a **uniform noise assumption** for all outputs when
+computing candidate FIM contributions, so the comparison is fair.
+
+### Fix in `fim.py` — `_precompute_all_output_contributions`
+
+The function already receives `sigmas` (the user-entered values). For outputs
+with `sigma <= 0`, it uses 2% of predicted value. This is correct for
+candidates. But the same function is also used to compute the baseline FIM
+(current targets) inside `compute_normalised_fim`, where σ=0 results in
+noiseless treatment.
+
+**Rule:** whenever σ is not entered (≤ 0) for any output — whether current
+target or candidate — always use the **2% fallback**. Never treat σ=0 as
+noiseless. The 2% fallback is already implemented; the fix is to ensure it
+is applied consistently in `compute_normalised_fim` as well.
+
+In `compute_normalised_fim`, change:
+
+```python
+# CURRENT — σ=0 falls through, causing noiseless treatment:
+sigma_i = float(sigmas.get(k, 0.0))
+if sigma_i <= 0:
+    y_pred = float(predict_array(...)[out_idx[k]])
+    sigma_i = max(abs(y_pred) * 0.02, 1e-12)
+```
+
+Confirm this block already exists (it does — lines 140–150 in the current
+`fim.py`). It is correct. **No change needed in `compute_normalised_fim`.**
+
+The actual inconsistency is in the GUI: the user can type `0.0` in a σ field
+and this is passed as `sigma=0.0` to `fim.py`, which then triggers the 2%
+fallback. This is fine. **Document this behaviour** with a tooltip or note
+near the σ field:
+
+> "Leave blank or enter 0 to use 2% of predicted value as noise estimate."
+
+Update the σ field placeholder text (the `Entry` widget) to show `"auto"` as
+placeholder when empty, so the user understands a default is being used.
 
 ---
 
-## Rules
+## Change 4 — Recommendation display: show λ_min not improvement ratio
 
-- Use the **normalised FIM** throughout — not the raw FIM.
-- The threshold for POOR is `lambda < 1`, MARGINAL is `1 <= lambda < 100`,
-  WELL is `lambda >= 100`. These are dimensionless and physically meaningful
-  for the normalised FIM.
-- σ values left blank by the user default to `1.0` internally — never crash.
-- Advanced plots only render when the checkbox is ticked — do not compute
-  them otherwise (they are slow for large N_samples).
-- The entire analysis must complete in under 10 seconds for N_samples=200.
-  If it takes longer, reduce N_samples or cache the Jacobian computation.
-- Use `jax.jacobian` for the Jacobian — never finite differences.
-- Read parameter bounds from `problem.json`. If bounds are missing for a
-  free variable, show an error: "Bounds required for identifiability analysis."
+### Problem
+The current display shows `"improves worst direction by {imp:.1f}×"`. This is:
+- Numerically unstable when the baseline λ_min ≈ 0 (ratios like 2,847,392× appear)
+- Uninformative: the ratio doesn't tell the user whether the result is WELL/MARGINAL/POOR
+- Misleading: a large ratio may still leave a parameter POOR
+
+### Fix in `gui_identifiability.py` — `_show_results`
+
+Replace the recommendation text block:
+
+```python
+# CURRENT:
+if has_issues and recs:
+    self._rec_text.insert("end", "To improve identifiability, consider adding:\n\n")
+    for rank, rec in enumerate(recs, 1):
+        name   = rec["name"]
+        imp    = rec["improvement_factor"]
+        disp   = _label(self._labels, "outputs", name)
+        line   = f"  {rank}. {name:8s}  ({disp})\n"
+        line  += f"        improves worst direction by {imp:.1f}×"
+        if imp < 1.01:
+            line += "  (no improvement)"
+        line += "\n\n"
+        self._rec_text.insert("end", line)
+```
+
+With:
+
+```python
+# NEW: show λ_min and status tag instead of improvement ratio
+def _lam_status(lam):
+    if lam >= 100:  return "WELL"
+    elif lam >= 1:  return "MARGINAL"
+    else:           return "POOR"
+
+if has_issues and recs:
+    self._rec_text.insert("end",
+        "Best additional experiments (ranked by information gain):\n"
+        "λ_min is the worst-direction eigenvalue after adding the experiment.\n"
+        "λ ≥ 100 = WELL  |  1 ≤ λ < 100 = MARGINAL  |  λ < 1 = POOR\n\n")
+    for rank, rec in enumerate(recs, 1):
+        name     = rec["name"]
+        lam_new  = rec["new_min_eigenvalue"]
+        disp     = _label(self._labels, "outputs", name)
+        status   = _lam_status(lam_new)
+        tag      = {"WELL": "✓", "MARGINAL": "~", "POOR": "✗"}[status]
+        line     = f"  {rank}. {name:<8s}  {disp}\n"
+        line    += f"        adding this → λ_min = {lam_new:.1f}  [{tag} {status}]\n\n"
+        self._rec_text.insert("end", line)
+```
+
+Also update **Plot 3** in `_show_advanced_plots` to use `new_min_eigenvalue`
+on the x-axis instead of `improvement_factor`. Add horizontal reference lines
+at x=1 (POOR boundary) and x=100 (WELL boundary). Change x-axis label to
+`"λ_min after adding experiment (log scale)"`.
+
+```python
+# In Plot 3:
+lams_r = [r["new_min_eigenvalue"] for r in recs]  # was: imps_r
+
+ax3.barh(y_pos, lams_r, color=colors3)             # was: imps_r
+ax3.axvline(1.0,   color="red",    linestyle="--", label="Identifiable threshold (λ=1)")
+ax3.axvline(100.0, color="orange", linestyle="--", label="Well-identified threshold (λ=100)")
+ax3.set_xlabel("λ_min after adding experiment (log scale)")
+ax3.set_title("Recommended Next Experiment — λ_min in worst-identified direction")
+```
+
+---
+
+## Change 5 — Always show recommendations (not only when issues exist)
+
+### Problem
+Recommendations are currently hidden when all parameters are WELL. But the user
+may still want to know which experiment is most informative, or which is
+redundant (adds no information).
+
+### Fix in `gui_identifiability.py` — `_show_results`
+
+Change the condition from `if has_issues and recs:` to always show
+recommendations, but with different header text:
+
+```python
+if recs:
+    if has_issues:
+        header = "Best additional experiments to fix identifiability issues:\n"
+    else:
+        header = "All parameters are well-identified. Additional experiments ranked by information gain:\n"
+    header += ("λ_min is the worst-direction eigenvalue after adding the experiment.\n"
+               "λ ≥ 100 = WELL  |  1 ≤ λ < 100 = MARGINAL  |  λ < 1 = POOR\n\n")
+    self._rec_text.insert("end", header)
+    for rank, rec in enumerate(recs, 1):
+        ...  # same as Change 4 above
+```
+
+---
+
+## Summary of what each change fixes
+
+| # | What was wrong | What it fixes |
+|---|---------------|---------------|
+| 1 | σ fields shown for unchecked outputs | Clean UI — σ only appears when relevant |
+| 2 | Fixed params locked to problem.json | User can probe identifiability at any point in parameter space |
+| 3 | σ=0 treated as noiseless for current targets | Fair comparison between current and candidate experiments |
+| 4 | Improvement ratio unstable, uninformative | λ_min + status tag is stable and directly interpretable |
+| 5 | Recommendations hidden when all WELL | Always shows ranked experiments for curiosity / redundancy analysis |
+
+---
+
+## Testing checklist
+
+After implementing, verify the following manually:
+
+1. **σ visibility**: check E1, confirm σ field appears. Uncheck E1, confirm σ field disappears. Recheck — σ field reappears with its previous value intact.
+
+2. **Fixed params panel**: expand the panel. Change `fiber_massfrac` from 0.20 to 0.30. Run check. Result should differ from default because the Jacobian is evaluated at the new fiber fraction.
+
+3. **σ=0 consistency**: check E1 and E3, leave σ blank (auto). Check that the result is MARGINAL for a22 (not WELL as would happen if σ=0 was treated as noiseless). The 2% fallback should be applied.
+
+4. **Recommendation display**: with only E1 checked and a11+a22 free, confirm recommendations show E2 ranked #1 with a large λ_min and WELL tag, not G12.
+
+5. **Plot 3**: confirm x-axis is λ_min, reference lines appear at 1 and 100, bars for POOR candidates are visibly below the red line.

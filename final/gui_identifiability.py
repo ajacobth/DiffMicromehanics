@@ -89,9 +89,11 @@ class IdentifiabilityWindow:
         self._result  = None
 
         # per-widget state
-        self._free_vars:   dict[str, tk.BooleanVar] = {}
-        self._target_vars: dict[str, tk.BooleanVar] = {}
-        self._sigma_vars:  dict[str, tk.StringVar]  = {}
+        self._free_vars:          dict[str, tk.BooleanVar] = {}
+        self._target_vars:        dict[str, tk.BooleanVar] = {}
+        self._sigma_vars:         dict[str, tk.StringVar]  = {}
+        self._sigma_frames:       dict[str, ttk.Frame]     = {}
+        self._fixed_override_vars: dict[str, tk.StringVar] = {}
         self._n_samples_var = tk.StringVar(value="200")
         self._advanced_var  = tk.BooleanVar(value=False)
 
@@ -186,6 +188,7 @@ class IdentifiabilityWindow:
                 display = _label(self._labels, "inputs", name)
                 cb = ttk.Checkbutton(lf, text=display, variable=var)
                 cb.grid(row=i, column=0, sticky="w", padx=4, pady=2)
+                var.trace_add("write", self._refresh_fixed_panel)
         else:
             tk.Label(lf, text="(load a model first)", font=FONT_STATUS, fg="gray").pack()
 
@@ -222,6 +225,8 @@ class IdentifiabilityWindow:
 
                 sig_frame = ttk.Frame(row_f)
                 sig_frame.grid(row=0, column=1, sticky="e", padx=(8, 0))
+                self._sigma_frames[name] = sig_frame
+                sig_frame.grid_remove()
 
                 tk.Label(sig_frame, text="σ:", font=FONT_SMALL).pack(side="left")
                 sig_ent = tk.Entry(sig_frame, textvariable=sigma_var,
@@ -229,8 +234,74 @@ class IdentifiabilityWindow:
                 sig_ent.pack(side="left", padx=2)
                 if unit_str:
                     tk.Label(sig_frame, text=unit_str, font=FONT_SMALL, fg="gray").pack(side="left")
+                tk.Label(sig_frame, text="(0=auto)", font=FONT_SMALL, fg="#aaaaaa").pack(side="left", padx=(2, 0))
+
+                var.trace_add("write", lambda *_, n=name: self._toggle_sigma(n))
         else:
             tk.Label(rf, text="(load a model first)", font=FONT_STATUS, fg="gray").pack()
+
+        # ── Fixed Parameter Values (collapsible) ───────────────────────────
+        fixed_frame = ttk.LabelFrame(panels, text="Fixed Parameter Values", padding=8)
+        fixed_frame.grid(row=1, column=0, sticky="nsew", padx=(0, 6), pady=(8, 0))
+        fixed_frame.grid_columnconfigure(0, weight=1)
+
+        self._fixed_collapsed = True
+        self._fixed_content   = ttk.Frame(fixed_frame)
+
+        self._fixed_toggle_btn = ttk.Button(
+            fixed_frame,
+            text="▶ Expand to edit",
+            command=self._toggle_fixed_panel,
+        )
+        self._fixed_toggle_btn.grid(row=0, column=0, sticky="w")
+
+        if self.model is not None:
+            fixed_inputs = self._problem.get("fixed_inputs", {})
+            for name in self.model.input_fields:
+                raw_val = fixed_inputs.get(name, "")
+                sv = tk.StringVar(value=str(raw_val) if raw_val != "" else "")
+                self._fixed_override_vars[name] = sv
+            self._refresh_fixed_panel()
+
+    def _toggle_fixed_panel(self):
+        if self._fixed_collapsed:
+            self._fixed_content.grid(row=1, column=0, sticky="ew")
+            self._fixed_toggle_btn.config(text="▼ Collapse")
+            self._fixed_collapsed = False
+        else:
+            self._fixed_content.grid_remove()
+            self._fixed_toggle_btn.config(text="▶ Expand to edit")
+            self._fixed_collapsed = True
+
+    def _refresh_fixed_panel(self, *_):
+        """Rebuild fixed panel rows, showing only inputs not currently selected as free."""
+        for w in self._fixed_content.winfo_children():
+            w.destroy()
+        if self.model is None:
+            return
+        free_now = {k for k, v in self._free_vars.items() if v.get()}
+        i = 0
+        for name in self.model.input_fields:
+            if name in free_now or name not in self._fixed_override_vars:
+                continue
+            display = _label(self._labels, "inputs", name)
+            sv = self._fixed_override_vars[name]
+            row_f = ttk.Frame(self._fixed_content)
+            row_f.grid(row=i, column=0, sticky="ew", pady=1)
+            row_f.grid_columnconfigure(1, weight=1)
+            tk.Label(row_f, text=display, font=FONT_SMALL, width=18, anchor="w").grid(
+                row=0, column=0, sticky="w", padx=(4, 6)
+            )
+            tk.Entry(row_f, textvariable=sv, width=14, font=FONT_ENTRY).grid(
+                row=0, column=1, sticky="ew"
+            )
+            i += 1
+
+    def _toggle_sigma(self, name):
+        if self._target_vars[name].get():
+            self._sigma_frames[name].grid()
+        else:
+            self._sigma_frames[name].grid_remove()
 
     def _build_controls(self, parent):
         ctrl = ttk.Frame(parent, padding=(10, 6))
@@ -387,15 +458,23 @@ class IdentifiabilityWindow:
 
         show_advanced = self._advanced_var.get()
 
-        # Build x_template from problem.json fixed_inputs
+        # Build x_template: start from problem.json fixed_inputs, overlay user edits
         import jax.numpy as jnp
-        fixed = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
-                 if not isinstance(k, str) or not k.startswith("_")}
+        fixed_base = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
+                      if not str(k).startswith("_")}
         x_np = np.zeros(len(self.model.input_fields), dtype=np.float32)
-        for k, v in fixed.items():
+        for k, v in fixed_base.items():
             if k in self.model.in_idx:
                 x_np[self.model.in_idx[k]] = v
-        # Set free vars to midpoint of their bounds
+        # Apply user overrides from the Fixed Parameter Values panel
+        for k, svar in self._fixed_override_vars.items():
+            if k not in free_inputs and k in self.model.in_idx:
+                raw = svar.get().strip()
+                try:
+                    x_np[self.model.in_idx[k]] = float(raw)
+                except ValueError:
+                    pass  # keep problem.json value if invalid
+        # Free vars: midpoint of bounds (overwritten at each LHS sample in fim.py)
         for k in free_inputs:
             if k in bounds_raw and k in self.model.in_idx:
                 lo, hi = bounds_raw[k]
@@ -523,21 +602,28 @@ class IdentifiabilityWindow:
         self._rec_text.config(state="normal")
         self._rec_text.delete("1.0", "end")
 
-        if has_issues and recs:
-            self._rec_text.insert("end", "To improve identifiability, consider adding:\n\n")
+        def _lam_status(lam):
+            if lam >= 100:  return "WELL"
+            elif lam >= 1:  return "MARGINAL"
+            else:           return "POOR"
+
+        if recs:
+            if has_issues:
+                header = "Best additional experiments to fix identifiability issues:\n"
+            else:
+                header = "All parameters are well-identified. Additional experiments ranked by information gain:\n"
+            header += ("λ_min is the worst-direction eigenvalue after adding the experiment.\n"
+                       "λ ≥ 100 = WELL  |  1 ≤ λ < 100 = MARGINAL  |  λ < 1 = POOR\n\n")
+            self._rec_text.insert("end", header)
             for rank, rec in enumerate(recs, 1):
-                name   = rec["name"]
-                imp    = rec["improvement_factor"]
-                disp   = _label(self._labels, "outputs", name)
-                line   = f"  {rank}. {name:8s}  ({disp})\n"
-                line  += f"        improves worst direction by {imp:.1f}×"
-                if imp < 1.01:
-                    line += "  (no improvement)"
-                line += "\n\n"
+                name    = rec["name"]
+                lam_new = rec["new_min_eigenvalue"]
+                disp    = _label(self._labels, "outputs", name)
+                status  = _lam_status(lam_new)
+                tag     = {"WELL": "✓", "MARGINAL": "~", "POOR": "✗"}[status]
+                line    = f"  {rank}. {name:<8s}  {disp}\n"
+                line   += f"        adding this → λ_min = {lam_new:.1f}  [{tag} {status}]\n\n"
                 self._rec_text.insert("end", line)
-        elif not has_issues:
-            self._rec_text.insert("end",
-                "All free variables are well-identified. No additional experiments needed.")
         else:
             self._rec_text.insert("end", "No candidate experiments available.")
 
@@ -638,26 +724,28 @@ class IdentifiabilityWindow:
             canvas2.get_tk_widget().grid(row=1, column=0, sticky="ew", pady=(0, 8))
             plt.close(fig2)
 
-        # ── Plot 3: Eigenvalue Improvement per Candidate Experiment ────────
+        # ── Plot 3: λ_min per Candidate Experiment ─────────────────────────
         recs = result.get("recommendations", [])
         if recs:
             names_r = [r["name"] for r in recs]
-            imps_r  = [r["improvement_factor"] for r in recs]
-            colors3 = ["#1f7a1f"] + ["#4a90d9"] * (len(names_r) - 1)
+            lams_r  = [r["new_min_eigenvalue"] for r in recs]
+            colors3 = ["#1f7a1f" if l >= 100 else "#cc7700" if l >= 1 else "#cc2222"
+                       for l in lams_r]
 
             fig3, ax3 = plt.subplots(figsize=(7, max(2.5, len(names_r) * 0.55)))
             y_pos = np.arange(len(names_r))
-            ax3.barh(y_pos, imps_r, color=colors3)
+            ax3.barh(y_pos, lams_r, color=colors3)
             ax3.set_xscale("log")
-            ax3.axvline(1.0, color="gray", linestyle="--", label="No improvement")
+            ax3.axvline(1.0,   color="red",    linestyle="--", label="Identifiable threshold (λ=1)")
+            ax3.axvline(100.0, color="orange", linestyle="--", label="Well-identified threshold (λ=100)")
             ax3.set_yticks(y_pos)
             ax3.set_yticklabels(
                 [f"{r['name']} ({_label(self._labels, 'outputs', r['name'])})"
                  for r in recs],
                 fontsize=9,
             )
-            ax3.set_xlabel("Improvement factor (log scale)")
-            ax3.set_title("Recommended Next Experiment — improvement to worst-identified direction")
+            ax3.set_xlabel("λ_min after adding experiment (log scale)")
+            ax3.set_title("Recommended Next Experiment — λ_min in worst-identified direction")
             ax3.legend(fontsize=8)
             ax3.invert_yaxis()
             fig3.tight_layout()

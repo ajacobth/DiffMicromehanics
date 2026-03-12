@@ -2,13 +2,19 @@
 
 This repository contains neural network surrogate models for predicting the effective mechanical and thermoelastic properties of short-fiber composite materials. The trained, ready-to-use deployment lives in the `final/` folder.
 
+> **New here? Read the setup guide first:**
+> **[SETUP_AND_RUN.md](SETUP_AND_RUN.md)** – step-by-step instructions for
+> installing Python, creating an environment, installing all dependencies
+> (Windows / Mac / Linux, CPU and GPU), and running both GUIs.
+
 ---
 
 ## Repository Structure
 
 ```
 DiffMicromechanics/
-├── final/                   <- Deployed surrogates (start here)
+├── SETUP_AND_RUN.md         <- Start here – full setup & GUI run guide
+├── final/                   <- Deployed surrogates (run the GUIs from here)
 ├── EL_surrogate/            <- Elastic surrogate training code
 ├── THEL_surrogate/          <- Thermoelastic surrogate training code
 ├── TC_surrogate/            <- Thermal conductivity surrogate training code
