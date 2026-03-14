@@ -1,4 +1,4 @@
-"""inverse_model.py â€==“ bounded Adam / L-BFGS / L-BFGS-B
+"""inverse_model.py ï¿½==ï¿½ bounded Adam / L-BFGS / L-BFGS-B
 
 * Handles any jaxopt version (lower/upper, lower_bounds/upper_bounds, or
   bounds=(lo,hi)).
@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 import os
-from typing import Mapping, Sequence, NamedTuple, Union
+from typing import Callable, Mapping, Optional, Sequence, NamedTuple, Union
 
 import jax
 import jax.numpy as jnp
@@ -49,6 +49,7 @@ class InverseProblem(NamedTuple):
     fixed_inputs: Mapping[InputKey, float]
     free_inputs:  Sequence[InputKey]
     target_outputs: Mapping[OutputKey, float]
+    constraints: Sequence[Callable] = ()  # each fn(vec) -> scalar, must be <= 0
 
 # -----------------------------------------------------------------------------
 # Predictor
@@ -77,16 +78,35 @@ _in  = lambda k: k if isinstance(k,int) else IN_IDX[k]
 _out = lambda k: k if isinstance(k,int) else OUT_IDX[k]
 
 def assemble_x(vec, prob):
-    x = jnp.zeros(16)
+    x = jnp.zeros(len(INPUT_FIELD_NAMES))
     for k,v in prob.fixed_inputs.items(): x = x.at[_in(k)].set(v)
     for i,k in enumerate(prob.free_inputs): x = x.at[_in(k)].set(vec[i])
     return x
 
-def loss_fn(vec64, fwd, prob):   # vec64 is float64 inside optimiser
+def loss_fn(vec64, fwd, prob, constraint_penalty=1e4):   # vec64 is float64 inside optimiser
     vec32 = vec64.astype(jnp.float32)
     y = fwd(assemble_x(vec32, prob))
     errs = [(y[_out(k)] - t)**2 for k,t in prob.target_outputs.items()]
-    return jnp.sum(jnp.stack(errs)).astype(jnp.float64)
+    loss = jnp.sum(jnp.stack(errs))
+    for c in prob.constraints:
+        loss = loss + constraint_penalty * jnp.maximum(0.0, c(vec64)) ** 2
+    return loss.astype(jnp.float64)
+
+
+def make_orientation_sum_constraint(free_inputs: Sequence[InputKey], limit: float = 1.0):
+    """Returns a constraint fn c(vec) <= 0 enforcing a11 + a22 <= limit.
+
+    Returns None if both a11 and a22 are not in free_inputs.
+    """
+    from typing import Optional, Callable
+    names = [str(k) for k in free_inputs]
+    if "a11" not in names or "a22" not in names:
+        return None
+    i11 = names.index("a11")
+    i22 = names.index("a22")
+    def c(vec):
+        return vec[i11] + vec[i22] - limit
+    return c
 
 def _bounds_vec(prob, b):
     lo, hi = [], []
@@ -98,9 +118,9 @@ def _bounds_vec(prob, b):
 # Optimisers
 # -----------------------------------------------------------------------------
 
-def _adam_proj(fwd, prob, init64, lr, steps, lo=None, hi=None):
+def _adam_proj(fwd, prob, init64, lr, steps, lo=None, hi=None, constraint_penalty=1e4):
     proj = (lambda v: jnp.clip(v, lo, hi)) if lo is not None else (lambda v: v)
-    vg   = jax.jit(jax.value_and_grad(lambda v: loss_fn(v, fwd, prob)))
+    vg   = jax.jit(jax.value_and_grad(lambda v: loss_fn(v, fwd, prob, constraint_penalty)))
     opt  = optax.adam(lr); state = opt.init(init64)
     def body(c,_):
         v,s = c; loss,g = vg(v); v = proj(optax.apply_updates(v, opt.update(g,s)[0])); return (v,s), loss
@@ -108,13 +128,13 @@ def _adam_proj(fwd, prob, init64, lr, steps, lo=None, hi=None):
     return v.astype(jnp.float32), losses[-1]
 
 
-def _lbfgs_unconstr(fwd, prob, init64, **kw):
-    res = LBFGS(fun=lambda v: loss_fn(v,fwd,prob), implicit_diff=False, **kw).run(init64)
+def _lbfgs_unconstr(fwd, prob, init64, constraint_penalty=1e4, **kw):
+    res = LBFGS(fun=lambda v: loss_fn(v, fwd, prob, constraint_penalty), implicit_diff=False, **kw).run(init64)
     return res.params.astype(jnp.float32), res.state.error
 
 
-def _lbfgs_box(fwd, prob, init64, lo64, hi64, **kw):
-    common = dict(fun=lambda v: loss_fn(v,fwd,prob), implicit_diff=False,
+def _lbfgs_box(fwd, prob, init64, lo64, hi64, constraint_penalty=1e4, **kw):
+    common = dict(fun=lambda v: loss_fn(v, fwd, prob, constraint_penalty), implicit_diff=False,
                   maxiter=kw.get("maxiter",200), tol=kw.get("tol",1e-9))
     # Try APIs --------------------------------------------------------------
     for args in (
@@ -137,21 +157,26 @@ class InverseSolver:
     def __init__(self, forward):
         self.fwd = forward
 
-    def solve(self, prob: InverseProblem, *, init=None, bounds=None, method="lbfgs", **kw):
+    def solve(self, prob: InverseProblem, *, init=None, bounds=None, method="lbfgs",
+              constraint_penalty=1e4, **kw):
         if init is None: init = jnp.zeros(len(prob.free_inputs), jnp.float32)
         init64 = init.astype(jnp.float64)
 
         if bounds is not None:
             lo64, hi64 = _bounds_vec(prob, bounds)
             if method in ("lbfgs", "lbfgsb"):
-                return _lbfgs_box(self.fwd, prob, init64, lo64, hi64, **kw)
+                return _lbfgs_box(self.fwd, prob, init64, lo64, hi64,
+                                  constraint_penalty=constraint_penalty, **kw)
             if method == "adam":
-                return _adam_proj(self.fwd, prob, init64, kw.get('lr',1e-2), kw.get('n_steps',5000), lo64, hi64)
+                return _adam_proj(self.fwd, prob, init64, kw.get('lr',1e-2), kw.get('n_steps',5000),
+                                  lo64, hi64, constraint_penalty=constraint_penalty)
             raise ValueError("Bounds supported for adam / lbfgs[b] only.")
 
         # no bounds
         if method == "lbfgs":
-            return _lbfgs_unconstr(self.fwd, prob, init64, **kw)
+            return _lbfgs_unconstr(self.fwd, prob, init64,
+                                   constraint_penalty=constraint_penalty, **kw)
         if method == "adam":
-            return _adam_proj(self.fwd, prob, init64, kw.get('lr',1e-2), kw.get('n_steps',500))
+            return _adam_proj(self.fwd, prob, init64, kw.get('lr',1e-2), kw.get('n_steps',500),
+                              constraint_penalty=constraint_penalty)
         raise ValueError(f"Unknown method {method!r}")

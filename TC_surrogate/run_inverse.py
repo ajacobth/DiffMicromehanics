@@ -1,4 +1,4 @@
-# run_inverse.py – now supports bounds + LBFGSB
+# run_inverse.py – TC surrogate inverse solver
 # ---------------------------------------------------------------------------
 # Loads surrogate + config, converts `config.inverse` to InverseProblem, builds
 # initial guess, *optionally reads `bounds`* (dict of name → (lo,hi)), and runs
@@ -11,17 +11,20 @@ os.environ["JAX_ENABLE_X64"] = "1"
 os.environ["JAX_PLATFORM_NAME"] = 'cpu'   # ▸ must appear before any JAX import
 import jax
 jax.config.update("jax_enable_x64", True)
-# Deterministic
 import numpy as np
 from absl import app, flags
 from ml_collections import config_flags, ConfigDict
-from typing import Any, Mapping
 
 from inverse_model import (
+    INPUT_FIELD_NAMES,
+    OUTPUT_FIELD_NAMES,
+    IN_IDX,
+    OUT_IDX,
     create_predictor,
     InverseSolver,
     InverseProblem,
     assemble_x,
+    make_orientation_sum_constraint,
 )
 
 FLAGS = flags.FLAGS
@@ -41,21 +44,8 @@ flags.DEFINE_enum(
     help="Override optimiser (else use config.inverse.optim).",
 )
 
-INPUT_FIELD_NAMES = [
-    "fiber_e1", "fiber_e2", "fiber_g12", "fiber_nu12",
-    "fiber_nu23", "fiber_aspect", "fiber_massfrac", "fiber_density",
-    "matrix_modulus", "matrix_poissonratio", "matrix_density",
-    "a11", "a22", "a12", "a13", "a23",
-]
-OUTPUT_FIELD_NAMES = [
-    "E1", "E2", "E3", "nu12", "nu13",
-    "G12", "G13", "G23", "nu23",
-]
-IN_IDX  = {n: i for i, n in enumerate(INPUT_FIELD_NAMES)}
-OUT_IDX = {n: i for i, n in enumerate(OUTPUT_FIELD_NAMES)}
-
-_in  = lambda k: k if isinstance(k,int) else IN_IDX[k]
-_out = lambda k: k if isinstance(k,int) else OUT_IDX[k]
+_in  = lambda k: k if isinstance(k, int) else IN_IDX[k]
+_out = lambda k: k if isinstance(k, int) else OUT_IDX[k]
 
 # ---------------------------------------------------------------------------
 # Helper – build InverseProblem
@@ -63,10 +53,19 @@ _out = lambda k: k if isinstance(k,int) else OUT_IDX[k]
 
 def _problem_from_cfg(inv: ConfigDict) -> InverseProblem:
     tf = lambda m: {k: float(v) for k, v in m.items()}
+    free = [str(k) for k in inv.free_inputs]
+
+    constraints = []
+    c = make_orientation_sum_constraint(free)
+    if c is not None:
+        print("Constraint active: a11 + a22 <= 1.0")
+        constraints.append(c)
+
     return InverseProblem(
         fixed_inputs=tf(inv.fixed_inputs),
-        free_inputs=[str(k) for k in inv.free_inputs],
+        free_inputs=free,
         target_outputs=tf(inv.target_outputs),
+        constraints=tuple(constraints),
     )
 
 # ---------------------------------------------------------------------------
@@ -123,20 +122,23 @@ def main(_argv):
 
     print("\n=== Inverse-design result ===")
     print("Optimised full input vector:")
-    for name, idx in zip(INPUT_FIELD_NAMES, range(16)):
-        print(f"  {name:<20s}: {x_star[idx]:.4f}")
-    
+    for name, idx in zip(INPUT_FIELD_NAMES, range(len(INPUT_FIELD_NAMES))):
+        print(f"  {name:<20s}: {x_star[idx]:.6f}")
+
     print("\nOptimised free variables:")
     for k, v in opt_free.items():
-        print(f"  {k:<20s}: {v:.4f}")
-    
+        print(f"  {k:<20s}: {v:.6f}")
+
+    if "a11" in opt_free and "a22" in opt_free:
+        print(f"  {'a11 + a22':<20s}: {opt_free['a11'] + opt_free['a22']:.4f}  (constraint: <= 1.0)")
+
     print("\nPredicted outputs + % error:")
-    pct_err = {}
     for k, tgt in problem.target_outputs.items():
         pred = float(y_star[_out(k)])
-        err  = 100.0 * abs(pred - tgt) / tgt
-        pct_err[k] = err
-        print(f"  {k:<5s}: pred = {pred:.4f}   target = {tgt:.4f}   Percent_error = {err:+6.4f}%")
+        err  = 100.0 * abs(pred - tgt) / tgt if tgt != 0.0 else float('nan')
+        print(f"  {k:<6s}: pred = {pred:.6f}   target = {tgt:.6f}   Percent_error = {err:+.4f}%")
+
+    print(f"\nFinal loss: {float(final_loss):.4e}")
 
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":

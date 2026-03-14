@@ -90,80 +90,64 @@ def get_config():
 
 
     # ============================================================
-    # ----------------- W A R N I N G -------------
-    # ============================================================
-    
-    
-    # ============================================================
-    # ----------------- W A R N I N G -------------
-    # ============================================================
-    
-    
-# ------------NOT CONFIGURED YET -----------------
-    # ============================================================
     # Inverse-design block – uses feature names, not indices
+    # Inputs:  k_f1, k_f2, k_m, ar_f, w_f, rho_f, rho_m, a11, a22, a12, a13, a23
+    # Outputs: k11, k12, k13, k22, k23, k33
     # ============================================================
     config.inverse = inv = ml_collections.ConfigDict()
-    
-    # ---- ALL 16 inputs get a value ----
-    inv.fixed_inputs = {
-        # fibre
-        "fiber_e1":          240e3,
-        "fiber_e2":           14e3,
-        "fiber_g12":           28e3,
-        "fiber_nu12":          0.2,
-        "fiber_nu23":          0.25,
-        "fiber_aspect":        10.0,
-        "fiber_massfrac":       0.25,
-        "fiber_density":     1800.0,
-        # matrix
-        "matrix_modulus":      2.34e3,
-        "matrix_poissonratio": 0.35,
-        "matrix_density":    1350.0,
-        # coupling / angle terms  (free but still given as a *starting guess*)
-        "a11": 0.7,
-        "a22": 0.2,
-        "a12": 0.0,
-        "a13": 0.0,
-        "a23": 0.0,
-    }
-    
-    # Names of inputs to optimise
-    inv.free_inputs = [
-                       "matrix_modulus",
-                       "matrix_poissonratio",
-                       "a11",
-                       "a12",
-                       "fiber_aspect",
-                       "a22"]
-    # Bounds for each free variable (lo, hi)
-    
-    inv.bounds = {"fiber_e1":(180e3, 300e3),
-        "matrix_modulus": (1.0e3, 5.0e3),
-        "matrix_poissonratio": (0.25, 0.4),
-        "fiber_aspect": (5., 30.),
-        "a11":            (0.3,    1.0),
-        "a22":            (0.0,    0.6),
-        "a12":(-0.1, 0.1)
-    }
-    # Desired surrogate outputs
-    inv.target_outputs = {
-        "E1": 16.92e3,  # MPA
-        "E2": 4.85e3,
-        "nu13":  0.35,
-    }
-    
-    # Solver hyper-params
-    inv.optim          = "adam" # jaxopt for lbfgs  # or "adam" optax for optimization
-    inv.lbfgs_maxiter  = 200
-    inv.lbfgs_tol      = 1e-6
-    
-    
-    # inv.init_free    = [0.0, 0.0, 0.0, 0.0]
-    # inv.adam_lr      = 1e-2
-    # inv.adam_steps   = 500
 
-    # Uncomment if you’ll only run inverse‑design
-    # config.mode = "inverse"
+    # ---- All 12 inputs must appear in either fixed_inputs or free_inputs ----
+    inv.fixed_inputs = {
+        # Densities (usually known from material datasheet)
+        "rho_f":  1800.0,   # kg/m^3 – fibre density
+        "rho_m":  1200.0,   # kg/m^3 – matrix density
+        # Orientation tensors (fixed; set by processing conditions)
+        "a11":  0.7,
+        "a22":  0.2,
+        "a12":  0.0,
+        "a13":  0.0,
+        "a23":  0.0,
+        # Starting guesses for free variables (also needed here so assemble_x works)
+        "k_f1": 10.0,
+        "k_f2":  5.0,
+        "k_m":   0.2,
+        "ar_f": 20.0,
+        "w_f":   0.30,
+    }
+
+    # Names of constituent properties to recover
+    inv.free_inputs = [
+        "k_f1",   # fibre thermal conductivity (axial)
+        "k_f2",   # fibre thermal conductivity (transverse)
+        "k_m",    # matrix thermal conductivity
+        "ar_f",   # fibre aspect ratio
+        "w_f",    # fibre weight fraction
+    ]
+
+    # Bounds for each free variable (lo, hi)
+    inv.bounds = {
+        "k_f1": (1.0,  200.0),   # W/(m·K)
+        "k_f2": (0.5,  100.0),
+        "k_m":  (0.01,   5.0),
+        "ar_f": (5.0,  500.0),
+        "w_f":  (0.01,   0.65),
+    }
+
+    # Target composite thermal conductivities (W/(m·K))
+    # These are the NN outputs you want to match
+    inv.target_outputs = {
+        "k11": 1.35,
+        "k22": 2.21,
+        "k33": 0.58,
+    }
+
+    # Solver hyper-params
+    inv.optim         = "lbfgsb"  # lbfgs / lbfgsb / adam
+    inv.lbfgs_maxiter = 300
+    inv.lbfgs_tol     = 1e-9
+
+    # inv.adam_lr    = 1e-2
+    # inv.adam_steps = 2000
+    # inv.init_free  = [10.0, 5.0, 0.2, 20.0, 0.30]  # override starting guess
 
     return config
