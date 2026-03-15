@@ -315,53 +315,55 @@ class InverseGUI:
         tk.Label(sbar, text="Solver:", font=FONT_BOLD).grid(row=0, column=0, padx=(0, 10))
 
         tk.Label(sbar, text="Method:", font=FONT_LABEL).grid(row=0, column=1, padx=(0, 4))
-        self._method_var = tk.StringVar(value="lbfgs")
+        self._method_var = tk.StringVar(value="lbfgsb")
         ttk.Combobox(sbar, textvariable=self._method_var,
                      values=["lbfgs", "lbfgsb", "adam",
                              "differential_evolution", "dual_annealing", "basinhopping"],
                      width=22, state="readonly").grid(row=0, column=2, padx=4)
+        ttk.Button(sbar, text="ℹ", width=2,
+                   command=self._show_optimizer_info).grid(row=0, column=3, padx=(2, 6))
         tk.Label(sbar, text="(global methods require bounds)",
-                 font=FONT_SMALL, fg="gray").grid(row=1, column=1, columnspan=3, sticky="w", padx=(0, 4))
+                 font=FONT_SMALL, fg="gray").grid(row=1, column=1, columnspan=4, sticky="w", padx=(0, 4))
 
-        tk.Label(sbar, text="Max iter:", font=FONT_LABEL).grid(row=0, column=3, padx=(14, 4))
+        tk.Label(sbar, text="Max iter:", font=FONT_LABEL).grid(row=0, column=4, padx=(14, 4))
         self._maxiter_var = tk.StringVar(value="300")
         tk.Entry(sbar, textvariable=self._maxiter_var, width=7,
-                 font=FONT_ENTRY).grid(row=0, column=4, padx=4)
+                 font=FONT_ENTRY).grid(row=0, column=5, padx=4)
 
-        tk.Label(sbar, text="Tol:", font=FONT_LABEL).grid(row=0, column=5, padx=(14, 4))
+        tk.Label(sbar, text="Tol:", font=FONT_LABEL).grid(row=0, column=6, padx=(14, 4))
         self._tol_var = tk.StringVar(value="1e-9")
         tk.Entry(sbar, textvariable=self._tol_var, width=9,
-                 font=FONT_ENTRY).grid(row=0, column=6, padx=4)
+                 font=FONT_ENTRY).grid(row=0, column=7, padx=4)
 
-        tk.Label(sbar, text="Penalty:", font=FONT_LABEL).grid(row=0, column=7, padx=(14, 4))
+        tk.Label(sbar, text="Penalty:", font=FONT_LABEL).grid(row=0, column=8, padx=(14, 4))
         self._penalty_var = tk.StringVar(value="10000")
         tk.Entry(sbar, textvariable=self._penalty_var, width=9,
-                 font=FONT_ENTRY).grid(row=0, column=8, padx=4)
+                 font=FONT_ENTRY).grid(row=0, column=9, padx=4)
 
-        tk.Label(sbar, text="Seed:", font=FONT_LABEL).grid(row=0, column=9, padx=(14, 4))
+        tk.Label(sbar, text="Seed:", font=FONT_LABEL).grid(row=0, column=10, padx=(14, 4))
         self._seed_var = tk.StringVar(value="42")
         tk.Entry(sbar, textvariable=self._seed_var, width=6,
-                 font=FONT_ENTRY).grid(row=0, column=10, padx=4)
+                 font=FONT_ENTRY).grid(row=0, column=11, padx=4)
 
         self._solve_btn = ttk.Button(sbar, text="  SOLVE  ",
                                      command=self._on_solve, state="disabled")
-        self._solve_btn.grid(row=0, column=11, padx=(22, 8))
+        self._solve_btn.grid(row=0, column=12, padx=(22, 8))
         self._export_btn = ttk.Button(sbar, text="Export Results",
                                       command=self._on_export, state="disabled")
-        self._export_btn.grid(row=0, column=12, padx=(4, 8))
+        self._export_btn.grid(row=0, column=13, padx=(4, 8))
         self._solve_status = tk.Label(sbar, text="", font=FONT_STATUS, fg="orange")
-        self._solve_status.grid(row=0, column=13, sticky="w")
+        self._solve_status.grid(row=0, column=14, sticky="w")
 
         # ε-insensitive loss options (row 1)
         self._use_eps_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(sbar, text="Use ε-insensitive loss",
                         variable=self._use_eps_var).grid(
-            row=1, column=4, columnspan=2, padx=(14, 4), sticky="w")
+            row=1, column=5, columnspan=2, padx=(14, 4), sticky="w")
         tk.Label(sbar, text="ε scale:", font=FONT_SMALL).grid(
-            row=1, column=6, padx=(10, 4), sticky="e")
+            row=1, column=7, padx=(10, 4), sticky="e")
         self._eps_scale_var = tk.StringVar(value="1.0")
         tk.Entry(sbar, textvariable=self._eps_scale_var, width=6,
-                 font=FONT_ENTRY).grid(row=1, column=7, padx=4)
+                 font=FONT_ENTRY).grid(row=1, column=8, padx=4)
 
         # ── results panel ─────────────────────────────────────────────────────
         ttk.Separator(root, orient="horizontal").grid(row=5, column=0, sticky="ew")
@@ -380,6 +382,42 @@ class InverseGUI:
         self._results_text.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
         hsb.grid(row=1, column=0, sticky="ew")
+
+    # ── optimizer info ────────────────────────────────────────────────────────
+    def _show_optimizer_info(self):
+        info = (
+            "Optimizer Guide\n"
+            "═══════════════════════════════════════════════════\n\n"
+            "★ RECOMMENDED: lbfgsb\n"
+            "   L-BFGS-B — bounded quasi-Newton method.\n"
+            "   Best choice for most problems: fast, gradient-\n"
+            "   based, and respects explicit variable bounds.\n"
+            "   Use this unless you have a specific reason not to.\n\n"
+            "lbfgs\n"
+            "   Unbounded L-BFGS. Similar speed to lbfgsb but\n"
+            "   does not enforce bounds; bounds are handled via\n"
+            "   a penalty term instead.\n\n"
+            "adam\n"
+            "   Stochastic gradient descent (Adam). Slower than\n"
+            "   L-BFGS-B but can escape shallow local minima.\n"
+            "   Useful if lbfgsb stalls at a poor solution.\n\n"
+            "differential_evolution  [requires bounds]\n"
+            "   Global population-based search. Thorough but\n"
+            "   slow. Use when the landscape has many local\n"
+            "   minima and bounds are known.\n\n"
+            "dual_annealing  [requires bounds]\n"
+            "   Simulated annealing variant. Global search,\n"
+            "   good for highly multimodal problems.\n\n"
+            "basinhopping\n"
+            "   Random restarts around a local minimum.\n"
+            "   Useful for escaping local optima without\n"
+            "   needing explicit bounds.\n\n"
+            "───────────────────────────────────────────────────\n"
+            "Tip: start with lbfgsb. If the result looks\n"
+            "wrong or the error is high, try differential_\n"
+            "evolution (with bounds) as a global search."
+        )
+        messagebox.showinfo("Optimizer Information", info)
 
     # ── helpers ───────────────────────────────────────────────────────────────
     def _scrollframe(self, parent) -> tuple[tk.Canvas, ttk.Frame]:
@@ -495,6 +533,11 @@ class InverseGUI:
                  text="Units for target entry: E/G in MPa · nu dimensionless · CTE in 1/K",
                  font=FONT_SMALL, fg="gray").grid(
             row=n + 1, column=0, columnspan=5, sticky="w", padx=8, pady=(8, 2))
+        tk.Label(hdr,
+                 text=("Note: Enter the standard deviation in the \u03c3 field.  "
+                       "If entering the standard deviation, remember to check the \u03b5-insensitive button."),
+                 font=FONT_SMALL, fg="#c07000").grid(
+            row=n + 2, column=0, columnspan=5, sticky="w", padx=8, pady=(0, 6))
 
     # ── input / target collection ─────────────────────────────────────────────
     def _collect_inputs(self):
