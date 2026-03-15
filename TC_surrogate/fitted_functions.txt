@@ -1,0 +1,19 @@
+Fitted constituent thermal conductivity functions
+==============================================================
+Reference: Thomas et al. (2024), Comput. Methods Appl. Mech. Eng.
+
+Polymer (matrix)  — Sec. 4.2:
+  K_polymer(T) = p1 * sqrt(T / 1.0) + p2
+    p1 = 0.0051747654  W/(m·°C)
+    p2 = 0.079999991  W/(m·°C)
+
+Fiber longitudinal (temperature-independent):
+  K_f_long = l2  (constant)
+    l2 = 14.863453  W/(m·°C)
+
+Fiber transverse:
+  K_f_trans = l2 / t  (constant)
+    t  = 1.8865215  (dimensionless)
+
+Parameter vector [p1, p2, l2, t]:
+  [0.0051747653826983726, 0.07999999096459273, 14.863453482168937, 1.8865215468067695]

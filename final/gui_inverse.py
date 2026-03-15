@@ -13,7 +13,6 @@ from __future__ import annotations
 import datetime
 import json
 import os
-import sys
 import threading
 from typing import Optional
 
@@ -22,10 +21,7 @@ from tkinter import ttk, messagebox, filedialog
 
 import numpy as np
 
-_HERE   = os.path.dirname(os.path.abspath(__file__))
-_EL_DIR = os.path.normpath(os.path.join(_HERE, "..", "EL_surrogate"))
-if _EL_DIR not in sys.path:
-    sys.path.insert(0, _EL_DIR)
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
 os.environ.setdefault("JAX_ENABLE_X64",    "1")
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")

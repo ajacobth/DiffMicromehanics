@@ -150,4 +150,36 @@ def get_config():
     # inv.adam_steps = 2000
     # inv.init_free  = [10.0, 5.0, 0.2, 20.0, 0.30]  # override starting guess
 
+    # ============================================================
+    # Inverse-temp block — constituent conductivity vs. temperature
+    # Used by run_inverse_temp.py
+    # ============================================================
+    config.inverse_temp = it = ml_collections.ConfigDict()
+
+    # Path to the measurement CSV/Excel file [Temperature, K11, K22, K33]
+    it.data = "sample_data.csv"
+
+    # Second-order fiber orientation tensor (diagonal components; a33 = 1-a11-a22)
+    it.a11 = 0.77   # fiber alignment in direction 1 (flow direction)
+    it.a22 = 0.16
+    it.a33 = 0.07   # verified only; NN uses a11, a22 implicitly
+
+    # Fixed structural parameters
+    it.aspect_ratio = 20.0    # average fiber aspect ratio
+    it.vf           = 0.174   # fiber volume fraction (~25 wt% CF in PESU)
+    it.rho_f        = 1800.0  # fiber density  [kg/m³]
+    it.rho_m        = 1200.0  # matrix density [kg/m³]
+
+    # Off-diagonal orientation tensor terms (assumed zero)
+    it.a12 = 0.0
+    it.a13 = 0.0
+    it.a23 = 0.0
+
+    # Optimisation settings
+    it.n_restarts = 10    # number of independent L-BFGS-B random restarts
+    it.seed       = 0     # random seed for restart initialisation
+
+    # Output directory for estimated_conductivities.csv, fit_comparison.png, etc.
+    it.output_dir = "."
+
     return config

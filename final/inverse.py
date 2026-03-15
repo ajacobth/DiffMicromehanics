@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 from typing import Callable, Mapping, NamedTuple, Optional, Sequence, Union
 
 # X64 must be set before any JAX import
@@ -30,11 +29,6 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 from jaxopt import LBFGS, LBFGSB
-
-_HERE   = os.path.dirname(os.path.abspath(__file__))
-_EL_DIR = os.path.normpath(os.path.join(_HERE, "..", "EL_surrogate"))
-if _EL_DIR not in sys.path:
-    sys.path.insert(0, _EL_DIR)
 
 from forward import load_forward, MODELS_DIR
 

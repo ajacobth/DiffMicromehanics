@@ -24,24 +24,17 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 from typing import Callable, NamedTuple
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
-# ── shared NN_surrogate code lives in EL_surrogate ──────────────────────────
-_HERE   = os.path.dirname(os.path.abspath(__file__))
-_EL_DIR = os.path.normpath(os.path.join(_HERE, "..", "EL_surrogate"))
-if _EL_DIR not in sys.path:
-    sys.path.insert(0, _EL_DIR)
-
 import ml_collections
 from NN_surrogate.utils import restore_checkpoint
 import models as _model_module
 
-MODELS_DIR = os.path.join(_HERE, "models")
+MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 
 
 # ── public types ─────────────────────────────────────────────────────────────

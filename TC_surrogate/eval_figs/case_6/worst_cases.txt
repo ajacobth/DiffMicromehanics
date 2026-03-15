@@ -1,0 +1,153 @@
+Top-15 worst samples by max abs error across outputs
+========================================================================
+
+[1] idx=3794
+  max|err|  = 0.3248
+  mean|err| = 0.139137
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=2.9354, pred=2.87117, abs_err=0.0642261
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.34722, pred=0.219104, abs_err=0.128116
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=0.036579, pred=0.0411595, abs_err=0.00458046
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=2.2715, pred=2.5963, abs_err=0.3248
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.34284, pred=0.218259, abs_err=0.124581
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=3.0632, pred=2.87468, abs_err=0.188516
+
+[2] idx=6463
+  max|err|  = 0.273174
+  mean|err| = 0.0539962
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=3.4368, pred=3.47388, abs_err=0.0370808
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-0.08282, pred=-0.0878018, abs_err=0.00498176
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=0.068959, pred=0.0695395, abs_err=0.000580547
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=6.3345, pred=6.60767, abs_err=0.273174
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-0.08282, pred=-0.0897732, abs_err=0.00695324
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=3.572, pred=3.57321, abs_err=0.00120714
+
+[3] idx=2347
+  max|err|  = 0.233917
+  mean|err| = 0.100315
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=3.7574, pred=3.99132, abs_err=0.233917
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-0.049796, pred=-0.0553413, abs_err=0.00554531
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.28087, pred=-0.261781, abs_err=0.0190895
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=3.9982, pred=4.13988, abs_err=0.141675
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-0.049796, pred=-0.0601375, abs_err=0.0103415
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=3.005, pred=3.19632, abs_err=0.191321
+
+[4] idx=3980
+  max|err|  = 0.220944
+  mean|err| = 0.126986
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=5.5303, pred=5.46248, abs_err=0.0678218
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-2.3176, pred=-2.15179, abs_err=0.165808
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=2.0121, pred=1.79116, abs_err=0.220944
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=5.7731, pred=5.71147, abs_err=0.0616346
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-2.3176, pred=-2.14186, abs_err=0.17574
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=4.7125, pred=4.64254, abs_err=0.0699648
+
+[5] idx=4680
+  max|err|  = 0.218892
+  mean|err| = 0.0943927
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=0.60059, pred=0.381698, abs_err=0.218892
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.0041121, pred=0.0087801, abs_err=0.004668
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.31947, pred=-0.217022, abs_err=0.102448
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=0.21391, pred=0.138236, abs_err=0.0756737
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.0041121, pred=0.00765129, abs_err=0.00353919
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=0.47943, pred=0.318295, abs_err=0.161135
+
+[6] idx=6076
+  max|err|  = 0.209335
+  mean|err| = 0.0466646
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=0.051451, pred=0.0510766, abs_err=0.000374409
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-0.0020703, pred=0.0143844, abs_err=0.0164547
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.045699, pred=-0.0695681, abs_err=0.0238691
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=0.042381, pred=0.0548663, abs_err=0.0124853
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-0.0020703, pred=0.0153986, abs_err=0.0174689
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=0.27143, pred=0.480765, abs_err=0.209335
+
+[7] idx=651
+  max|err|  = 0.207871
+  mean|err| = 0.0549529
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=2.2694, pred=2.30603, abs_err=0.0366331
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.035587, pred=0.0409428, abs_err=0.00535581
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.033144, pred=-0.0502856, abs_err=0.0171416
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=2.1843, pred=2.23957, abs_err=0.0552701
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.035587, pred=0.0430329, abs_err=0.00744587
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=4.683, pred=4.47513, abs_err=0.207871
+
+[8] idx=2083
+  max|err|  = 0.204584
+  mean|err| = 0.0919967
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=0.8602, pred=1.06478, abs_err=0.204584
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.32307, pred=0.3576, abs_err=0.03453
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-1.3526, pred=-1.34596, abs_err=0.00664165
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=1.4652, pred=1.55465, abs_err=0.089452
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.32307, pred=0.359045, abs_err=0.0359754
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=4.9997, pred=4.8189, abs_err=0.180797
+
+[9] idx=4875
+  max|err|  = 0.204293
+  mean|err| = 0.0602089
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=4.7098, pred=4.62611, abs_err=0.083689
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.80132, pred=0.785306, abs_err=0.0160136
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.2292, pred=-0.253544, abs_err=0.024344
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=3.5878, pred=3.56995, abs_err=0.0178489
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.80132, pred=0.786255, abs_err=0.0150648
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=1.0591, pred=1.26339, abs_err=0.204293
+
+[10] idx=492
+  max|err|  = 0.200982
+  mean|err| = 0.111003
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=2.1324, pred=2.31425, abs_err=0.181851
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-1.8641, pred=-1.82374, abs_err=0.0403623
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=1.5755, pred=1.4712, abs_err=0.104299
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=2.5024, pred=2.70338, abs_err=0.200982
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-1.8035, pred=-1.71363, abs_err=0.0898681
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=1.91, pred=1.86135, abs_err=0.048654
+
+[11] idx=6255
+  max|err|  = 0.19031
+  mean|err| = 0.0726684
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=2.6277, pred=2.74204, abs_err=0.114344
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-0.25697, pred=-0.256397, abs_err=0.000572693
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.92535, pred=-0.895997, abs_err=0.0293528
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=2.3449, pred=2.53521, abs_err=0.19031
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-0.25697, pred=-0.260411, abs_err=0.00344079
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=4.1789, pred=4.27689, abs_err=0.0979903
+
+[12] idx=7748
+  max|err|  = 0.183869
+  mean|err| = 0.0800048
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=4.244, pred=4.42787, abs_err=0.183869
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=-1.1954, pred=-1.27286, abs_err=0.0774579
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=0.12552, pred=0.100539, abs_err=0.0249806
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=4.2514, pred=4.35973, abs_err=0.108334
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=-1.1912, pred=-1.22563, abs_err=0.0344299
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=4.2047, pred=4.25566, abs_err=0.0509572
+
+[13] idx=4976
+  max|err|  = 0.176786
+  mean|err| = 0.0597045
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=5.0026, pred=5.17939, abs_err=0.176786
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.47373, pred=0.495555, abs_err=0.0218253
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.1489, pred=-0.17494, abs_err=0.0260399
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=2.583, pred=2.63001, abs_err=0.0470101
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.38534, pred=0.431025, abs_err=0.0456847
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=2.4021, pred=2.36122, abs_err=0.0408806
+
+[14] idx=6412
+  max|err|  = 0.175404
+  mean|err| = 0.0523692
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=4.5544, pred=4.56844, abs_err=0.0140423
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.89864, pred=0.917678, abs_err=0.0190376
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=-0.5474, pred=-0.537823, abs_err=0.0095768
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=3.0435, pred=3.2189, abs_err=0.175404
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.77262, pred=0.806169, abs_err=0.0335486
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=3.1627, pred=3.22531, abs_err=0.0626063
+
+[15] idx=2772
+  max|err|  = 0.17424
+  mean|err| = 0.0756292
+    - k11 ($k_{11}$[W/(m$\cdot$K)]): true=0.59445, pred=0.444187, abs_err=0.150263
+    - k12 ($k_{12}$[W/(m$\cdot$K)]): true=0.056241, pred=0.0459136, abs_err=0.0103274
+    - k13 ($k_{13}$[W/(m$\cdot$K)]): true=0.11662, pred=0.0753476, abs_err=0.0412724
+    - k22 ($k_{22}$[W/(m$\cdot$K)]): true=0.55972, pred=0.38548, abs_err=0.17424
+    - k23 ($k_{23}$[W/(m$\cdot$K)]): true=0.056241, pred=0.0469857, abs_err=0.00925533
+    - k33 ($k_{33}$[W/(m$\cdot$K)]): true=0.20376, pred=0.135342, abs_err=0.068418
+

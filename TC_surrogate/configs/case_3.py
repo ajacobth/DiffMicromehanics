@@ -166,4 +166,25 @@ def get_config():
     # Uncomment if you’ll only run inverse‑design
     # config.mode = "inverse"
 
+    # ============================================================
+    # Inverse-temp block — constituent conductivity vs. temperature
+    # Used by run_inverse_temp.py
+    # ============================================================
+    config.inverse_temp = it = ml_collections.ConfigDict()
+
+    it.data         = "sample_data.csv"   # [Temperature, K11, K22, K33]
+    it.a11          = 0.77
+    it.a22          = 0.16
+    it.a33          = 0.07
+    it.a12          = 0.0
+    it.a13          = 0.0
+    it.a23          = 0.0
+    it.aspect_ratio = 20.0
+    it.vf           = 0.174
+    it.rho_f        = 1800.0
+    it.rho_m        = 1200.0
+    it.n_restarts   = 10
+    it.seed         = 0
+    it.output_dir   = "."
+
     return config

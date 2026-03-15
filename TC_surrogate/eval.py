@@ -317,7 +317,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     state = restore_checkpoint(model.state, ckpt_path)
     params = state["params"]
 
-    test_data = np.genfromtxt("TCPSD_dataset_test.csv", delimiter=",", skip_header=1)
+    test_data = np.genfromtxt("TCPSD_dataset_test_v2.csv", delimiter=",", skip_header=1)
     input_dim = int(config.input_dim)
     output_dim = int(config.output_dim)
 

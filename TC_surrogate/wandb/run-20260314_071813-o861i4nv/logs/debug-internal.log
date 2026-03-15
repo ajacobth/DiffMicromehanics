@@ -1,0 +1,15 @@
+{"time":"2026-03-14T07:18:14.012836-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/TC_surrogate/wandb/run-20260314_071813-o861i4nv/logs/debug-core.log"}
+{"time":"2026-03-14T07:18:14.223879-04:00","level":"INFO","msg":"created new stream","id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.223938-04:00","level":"INFO","msg":"stream: started","id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.223974-04:00","level":"INFO","msg":"handler: started","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.223975-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.224111-04:00","level":"INFO","msg":"sender: started","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.61185-04:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-03-14T07:18:14.863981-04:00","level":"INFO","msg":"stream: closing","id":"o861i4nv"}
+{"time":"2026-03-14T07:18:14.864031-04:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-03-14T07:18:14.864612-04:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-03-14T07:18:15.46265-04:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-14T07:18:15.772258-04:00","level":"INFO","msg":"sender: closed","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:15.772266-04:00","level":"INFO","msg":"handler: closed","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:15.772238-04:00","level":"INFO","msg":"writer: Close: closed","stream_id":"o861i4nv"}
+{"time":"2026-03-14T07:18:15.773218-04:00","level":"INFO","msg":"stream: closed","id":"o861i4nv"}

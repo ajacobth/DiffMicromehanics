@@ -8,9 +8,7 @@ Usage
     python gui.py
 
 Requires that model artifacts have been exported into models/{elastic,thermoelastic}/.
-Run the export scripts first if the folders are empty:
-    cd ../EL_surrogate   && python export_model.py --config configs/case_5.py
-    cd ../THEL_surrogate && python export_model.py --config configs/case_4.py
+Run the export scripts in the training folders first if those folders are empty.
 
 Field labels
 ------------
@@ -21,7 +19,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import threading
 
 import tkinter as tk
@@ -29,13 +26,8 @@ from tkinter import ttk, messagebox
 
 import numpy as np
 
-_HERE   = os.path.dirname(os.path.abspath(__file__))
-_EL_DIR = os.path.normpath(os.path.join(_HERE, "..", "EL_surrogate"))
-if _EL_DIR not in sys.path:
-    sys.path.insert(0, _EL_DIR)
-
 # ── field label mapping ───────────────────────────────────────────────────────
-_LABELS_FILE = os.path.join(_HERE, "field_labels.json")
+_LABELS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "field_labels.json")
 
 def _load_field_labels() -> dict:
     """Load field_labels.json if present; silently return empty dict on failure."""

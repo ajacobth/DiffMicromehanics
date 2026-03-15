@@ -159,12 +159,10 @@ check(
     "Make sure you are running this script from the final/ folder"
 )
 
-el_dir = os.path.normpath(os.path.join(_HERE, "..", "EL_surrogate"))
 check(
-    "EL_surrogate/ folder found (sibling of final/)",
-    os.path.isdir(el_dir),
-    f"Expected at: {el_dir}\n"
-    "         Make sure you cloned the FULL repository, not just the final/ folder"
+    "NN_surrogate/ found in final/",
+    os.path.isdir(os.path.join(_HERE, "NN_surrogate")),
+    "NN_surrogate/ is missing from the final/ folder."
 )
 
 check(
@@ -203,7 +201,6 @@ print("\n=== 7. Load surrogate models (end-to-end test) ===")
 
 try:
     sys.path.insert(0, _HERE)
-    sys.path.insert(0, el_dir)
 
     os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
