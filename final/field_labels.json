@@ -25,7 +25,14 @@
     "a23":             "Orientation Tensor A23",
     "f_cte11":         "Fiber CTE a11 (1/K)",
     "f_cte22":         "Fiber CTE a22 (1/K)",
-    "matrix_cte":      "Matrix CTE (1/K)"
+    "matrix_cte":      "Matrix CTE (1/K)",
+    "k_f1":            "Fiber Conductivity Longitudinal (W/m·K)",
+    "k_f2":            "Fiber Conductivity Transverse (W/m·K)",
+    "k_m":             "Matrix Conductivity (W/m·K)",
+    "ar_f":            "Fiber Aspect Ratio",
+    "w_f":             "Fiber Weight Fraction",
+    "rho_f":           "Fiber Density (kg/m3)",
+    "rho_m":           "Matrix Density (kg/m3)"
   },
 
   "outputs": {
@@ -43,6 +50,12 @@
     "CTE33": "CTE  (µ/K)",
     "CTE12": "CTE  (µ/K)",
     "CTE13": "CTE (µ/K)",
-    "CTE23": "CTE (µ/K)"
+    "CTE23": "CTE (µ/K)",
+    "k11":   "Composite Conductivity K11 (W/m·K)",
+    "k12":   "Composite Conductivity K12 (W/m·K)",
+    "k13":   "Composite Conductivity K13 (W/m·K)",
+    "k22":   "Composite Conductivity K22 (W/m·K)",
+    "k23":   "Composite Conductivity K23 (W/m·K)",
+    "k33":   "Composite Conductivity K33 (W/m·K)"
   }
 }

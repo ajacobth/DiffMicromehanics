@@ -33,12 +33,13 @@ Follow the section for your operating system.
 
 ### Get the code
 
-You need the **entire repository**, not just the `final/` folder. The GUIs
-load model code from a sibling folder called `EL_surrogate/`. If you only have
-`final/`, they will not work.
+You only need the `final/` folder. Everything required to run the GUIs
+(model code, neural network utilities, and trained model files) is contained
+within it.
 
-**Download the full repository** from GitHub (ask your supervisor for the link)
-by clicking the green **Code** button → **Download ZIP**, then unzip it.
+**Download the `final/` folder** from GitHub (ask your supervisor for the link)
+by clicking the green **Code** button → **Download ZIP**, then unzip it and
+navigate into the `final/` folder.
 Or if you have Git installed:
 
 ```
@@ -48,21 +49,18 @@ git clone <repository-url>
 After downloading, you should have a folder structure like this:
 
 ```
-DiffMicromehanics/
-├── EL_surrogate/           ← required (loaded automatically)
-├── THEL_surrogate/
-├── final/                  ← this is where you will work
-│   ├── gui.py              ← forward GUI
-│   ├── gui_inverse.py      ← inverse GUI
-│   ├── test_setup.py       ← run this to check your setup
-│   └── models/
-│       ├── elastic/
-│       └── thermoelastic/
-└── ...
+final/
+├── gui.py              ← forward GUI
+├── gui_inverse.py      ← inverse GUI
+├── test_setup.py       ← run this to check your setup
+├── forward.py
+├── inverse.py
+├── models.py
+├── NN_surrogate/       ← neural network utilities (included)
+└── models/
+    ├── elastic/
+    └── thermoelastic/
 ```
-
-> **Important:** Do NOT move `final/` out of the main `DiffMicromehanics/`
-> folder. The code needs the parent folder structure to find its model files.
 
 ---
 
@@ -525,7 +523,7 @@ python test_setup.py
 
 === 6. Folder structure ===
   [PASS]  final/ folder found
-  [PASS]  EL_surrogate/ folder found (sibling of final/)
+  [PASS]  NN_surrogate/ found inside final/
   [PASS]  models/elastic/ exists
   [PASS]  models/thermoelastic/ exists
   ...
@@ -816,8 +814,14 @@ python gui.py
 
 ### "No module named 'NN_surrogate'" or "No module named 'models'"
 
-The `EL_surrogate/` folder is missing. You likely only downloaded `final/`.
-Download the full repository.
+You are running the script from the wrong folder. Make sure you `cd` into the
+`final/` folder before running any commands — `NN_surrogate/` and `models.py`
+must be in your current working directory.
+
+```bash
+cd /path/to/final
+python gui.py
+```
 
 ### "ModuleNotFoundError: No module named '_tkinter'"
 

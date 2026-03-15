@@ -1,0 +1,39 @@
+{
+  "_note": "Generated from TC_surrogate case_6.",
+  "arch_name": "Mlp",
+  "hidden_dim": [
+    128,
+    256,
+    512,
+    256,
+    256,
+    128,
+    64,
+    16
+  ],
+  "activation": "relu",
+  "use_l2reg": true,
+  "checkpoint_name": "case_6",
+  "input_fields": [
+    "k_f1",
+    "k_f2",
+    "k_m",
+    "ar_f",
+    "w_f",
+    "rho_f",
+    "rho_m",
+    "a11",
+    "a22",
+    "a12",
+    "a13",
+    "a23"
+  ],
+  "output_fields": [
+    "k11",
+    "k12",
+    "k13",
+    "k22",
+    "k23",
+    "k33"
+  ]
+}

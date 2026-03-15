@@ -53,6 +53,9 @@ OUTPUT_SCALES: dict[str, float] = {
     "nu12": 1.0, "nu13": 1.0, "nu23": 1.0,
     "CTE11": 1e6, "CTE22": 1e6, "CTE33": 1e6,
     "CTE12": 1e6, "CTE13": 1e6, "CTE23": 1e6,
+    # thermal conductivity outputs (W/m·K) – no scaling needed
+    "k11": 1.0, "k12": 1.0, "k13": 1.0,
+    "k22": 1.0, "k23": 1.0, "k33": 1.0,
 }
 
 FONT_TITLE  = ("Helvetica", 17, "bold")
@@ -61,7 +64,7 @@ FONT_BOLD   = ("Helvetica", 15, "bold")
 FONT_STATUS = ("Helvetica", 13, "italic")
 FONT_ENTRY  = ("Helvetica", 15)
 
-MODEL_NAMES = ["elastic", "thermoelastic"]
+MODEL_NAMES = ["elastic", "thermoelastic", "thermal"]
 
 
 # ── main GUI class ────────────────────────────────────────────────────────────
@@ -89,7 +92,7 @@ class SurrogateGUI:
         # ── top bar ──────────────────────────────────────────────────────────
         top = ttk.Frame(root, padding=(12, 10))
         top.grid(row=0, column=0, sticky="ew")
-        top.grid_columnconfigure(5, weight=1)
+        top.grid_columnconfigure(6, weight=1)
 
         tk.Label(top, text="Composite Surrogate Predictor",
                  font=FONT_TITLE).grid(row=0, column=0, sticky="w", padx=(0, 24))
@@ -102,15 +105,15 @@ class SurrogateGUI:
                             value=name).grid(row=0, column=2 + i, padx=6)
 
         self._load_btn = ttk.Button(top, text="Load Model", command=self._on_load)
-        self._load_btn.grid(row=0, column=4, padx=(18, 6), sticky="w")
+        self._load_btn.grid(row=0, column=5, padx=(18, 6), sticky="w")
 
         self._load_status = tk.Label(top, text="No model loaded.",
                                      font=FONT_STATUS, fg="gray")
-        self._load_status.grid(row=0, column=5, padx=10, sticky="w")
+        self._load_status.grid(row=0, column=6, padx=10, sticky="w")
 
         ttk.Button(top, text="Identifiability Check",
                    command=self._open_identifiability).grid(
-            row=0, column=6, padx=(12, 4), sticky="e"
+            row=0, column=7, padx=(12, 4), sticky="e"
         )
 
         ttk.Separator(root, orient="horizontal").grid(row=0, column=0, sticky="ew")
