@@ -619,6 +619,34 @@ class InverseGUI:
         tag_str = self._tag_var.get().strip()
         tags    = parse_tags(tag_str) if tag_str else {}
 
+        # ── orientation tensor PSD check ──────────────────────────────────────
+        _OT_FIELDS = ("a11", "a22", "a12", "a13", "a23")
+        all_inputs = dict(fixed)
+        all_inputs.update({k: v for k, v in zip(free, init)})
+        if all(f in all_inputs for f in _OT_FIELDS):
+            a11 = all_inputs["a11"]
+            a22 = all_inputs["a22"]
+            a33 = 1.0 - a11 - a22
+            a12 = all_inputs["a12"]
+            a13 = all_inputs["a13"]
+            a23 = all_inputs["a23"]
+            A = np.array([
+                [a11, a12, a13],
+                [a12, a22, a23],
+                [a13, a23, a33],
+            ])
+            eigvals = np.linalg.eigvalsh(A)
+            if np.any(eigvals < -1e-8):
+                messagebox.showerror(
+                    "Invalid Orientation Tensor",
+                    "The orientation tensor (from fixed values and initial guesses) "
+                    "is not positive semi-definite.\n\n"
+                    f"Diagonal terms: A11={a11}, A22={a22}, A33={a33:.6g}\n"
+                    f"Computed eigenvalues: {eigvals[0]:.6g}, {eigvals[1]:.6g}, {eigvals[2]:.6g}\n\n"
+                    "Please enter a valid positive semi-definite orientation tensor.",
+                )
+                return
+
         self._solve_btn.config(state="disabled")
         self._solve_status.config(text="Solving…", fg="orange")
         self._write_results("")
@@ -821,13 +849,11 @@ class InverseGUI:
 
 # ── entry point ────────────────────────────────────────────────────────────────
 def main():
-    try:
-        tmp = tk.Tk()
-        tmp.destroy()
-    except tk.TclError:
-        pass
     root = tk.Tk()
     InverseGUI(root)
+    root.lift()
+    root.attributes("-topmost", True)
+    root.after(200, lambda: root.attributes("-topmost", False))
     root.mainloop()
 
 

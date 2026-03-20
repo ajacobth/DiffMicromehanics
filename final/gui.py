@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import threading
 
 import tkinter as tk
@@ -86,7 +88,7 @@ class SurrogateGUI:
     # ── layout ───────────────────────────────────────────────────────────────
     def _build_layout(self):
         root = self.root
-        root.grid_rowconfigure(1, weight=1)
+        root.grid_rowconfigure(2, weight=1)
         root.grid_columnconfigure(0, weight=1)
 
         # ── top bar ──────────────────────────────────────────────────────────
@@ -116,11 +118,11 @@ class SurrogateGUI:
             row=0, column=7, padx=(12, 4), sticky="e"
         )
 
-        ttk.Separator(root, orient="horizontal").grid(row=0, column=0, sticky="ew")
+        ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
         # ── main area: inputs (left) + outputs (right) ───────────────────────
         mid = ttk.Frame(root)
-        mid.grid(row=1, column=0, sticky="nsew", padx=8, pady=6)
+        mid.grid(row=2, column=0, sticky="nsew", padx=8, pady=6)
         mid.grid_rowconfigure(0, weight=1)
         mid.grid_columnconfigure(0, weight=1, minsize=520)
         mid.grid_columnconfigure(1, weight=0)
@@ -280,27 +282,81 @@ class SurrogateGUI:
         if self.model is None:
             messagebox.showwarning("No model", "Load a model first.")
             return
+        missing = [
+            _label("inputs", name)
+            for name, ent in self.input_entries.items()
+            if not ent.get().strip()
+        ]
+        if missing:
+            messagebox.showerror(
+                "Missing Inputs",
+                "The following input(s) are missing:\n\n"
+                + "\n".join(f"  \u2022 {m}" for m in missing),
+            )
+            return
         self._predict_btn.config(state="disabled")
-        self._pred_status.config(text="Running…")
+        self._pred_status.config(text="Running\u2026")
         threading.Thread(target=self._predict_worker, daemon=True).start()
+
+    # Orientation tensor field names (subset of possible input fields)
+    _OT_FIELDS = ("a11", "a22", "a12", "a13", "a23")
 
     def _predict_worker(self):
         try:
             import jax.numpy as jnp
+
+            # ── 1. check for missing inputs ───────────────────────────────────
+            missing = []
+            for name, ent in self.input_entries.items():
+                if not ent.get().strip():
+                    display = _label("inputs", name)
+                    missing.append(display)
+            if missing:
+                raise ValueError(
+                    "The following input(s) are missing:\n\n"
+                    + "\n".join(f"  • {m}" for m in missing)
+                )
+
+            # ── 2. parse inputs ───────────────────────────────────────────────
             inputs = {}
             for name, ent in self.input_entries.items():
-                raw = ent.get().strip()
-                if not raw:
-                    raise ValueError(f"Input '{name}' is empty.")
-                inputs[name] = float(raw)
+                try:
+                    inputs[name] = float(ent.get().strip())
+                except ValueError:
+                    display = _label("inputs", name)
+                    raise ValueError(f"'{display}' is not a valid number.")
 
+            # ── 3. orientation tensor PSD check ──────────────────────────────
+            ot_present = all(f in inputs for f in self._OT_FIELDS)
+            if ot_present:
+                a11 = inputs["a11"]
+                a22 = inputs["a22"]
+                a33 = 1.0 - a11 - a22
+                a12 = inputs["a12"]
+                a13 = inputs["a13"]
+                a23 = inputs["a23"]
+                A = np.array([
+                    [a11, a12, a13],
+                    [a12, a22, a23],
+                    [a13, a23, a33],
+                ])
+                eigvals = np.linalg.eigvalsh(A)
+                if np.any(eigvals < -1e-8):
+                    raise ValueError(
+                        "The orientation tensor is not positive semi-definite.\n\n"
+                        f"Diagonal terms: A11={a11}, A22={a22}, A33={a33:.6g}\n"
+                        f"Computed eigenvalues: {eigvals[0]:.6g}, {eigvals[1]:.6g}, {eigvals[2]:.6g}\n\n"
+                        "Please enter a valid positive semi-definite orientation tensor."
+                    )
+
+            # ── 4. run prediction ─────────────────────────────────────────────
             x = jnp.array([inputs[k] for k in self.model.input_fields],
                            dtype=jnp.float32)
             y = self.model.predict_array(x).block_until_ready()
             y_np = np.asarray(y, dtype=float)
             self.root.after(0, lambda: self._update_ui(y_np))
         except Exception as exc:
-            self.root.after(0, lambda: self._on_predict_error(str(exc)))
+            self.root.after(0, lambda exc=exc: self._on_predict_error(str(exc)))
 
     def _update_ui(self, y_vals: np.ndarray):
         for name, lbl in self.output_labels.items():
@@ -324,14 +380,31 @@ class SurrogateGUI:
 
 # ── entry point ───────────────────────────────────────────────────────────────
 def main():
-    try:
-        tmp = tk.Tk()
-        tmp.destroy()
-    except tk.TclError:
-        pass
-
     root = tk.Tk()
     SurrogateGUI(root)
+
+    def _bring_to_front():
+        root.lift()
+        root.focus_force()
+        root.attributes("-topmost", True)
+        root.after(1500, lambda: root.attributes("-topmost", False))
+
+    # On macOS, use AppleScript to activate the app so it surfaces even when
+    # the terminal is in fullscreen / another Mission Control space.
+    if sys.platform == "darwin":
+        try:
+            subprocess.Popen(
+                ["osascript", "-e",
+                 f'tell application "System Events" to set frontmost of '
+                 f'every process whose unix id is {os.getpid()} to true'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except Exception:
+            pass
+
+    # Delay until after the event loop starts so the window is actually mapped.
+    root.after(100, _bring_to_front)
     root.mainloop()
 
 
