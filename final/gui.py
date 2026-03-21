@@ -28,6 +28,8 @@ from tkinter import ttk, messagebox
 
 import numpy as np
 
+import db as _db
+
 # ── field label mapping ───────────────────────────────────────────────────────
 _LABELS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "field_labels.json")
 
@@ -83,12 +85,18 @@ class SurrogateGUI:
         self.input_entries: dict[str, tk.Entry] = {}
         self.output_labels: dict[str, tk.Label] = {}
 
+        # material library state
+        self._fiber_id:   int | None = None
+        self._polymer_id: int | None = None
+        self._fiber_map:  dict[str, int] = {}   # display name → id
+        self._polymer_map: dict[str, int] = {}  # display name → id
+
         self._build_layout()
 
     # ── layout ───────────────────────────────────────────────────────────────
     def _build_layout(self):
         root = self.root
-        root.grid_rowconfigure(2, weight=1)
+        root.grid_rowconfigure(4, weight=1)
         root.grid_columnconfigure(0, weight=1)
 
         # ── top bar ──────────────────────────────────────────────────────────
@@ -120,9 +128,59 @@ class SurrogateGUI:
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
+        # ── material library bar ──────────────────────────────────────────────
+        mat = ttk.Frame(root, padding=(12, 6))
+        mat.grid(row=2, column=0, sticky="ew")
+
+        tk.Label(mat, text="Material Library:", font=FONT_BOLD).grid(
+            row=0, column=0, padx=(0, 16), sticky="w")
+
+        # fiber selector
+        tk.Label(mat, text="Fiber:", font=FONT_LABEL).grid(
+            row=0, column=1, padx=(0, 4))
+        self._fiber_var = tk.StringVar(value="— none —")
+        self._fiber_cb  = ttk.Combobox(
+            mat, textvariable=self._fiber_var,
+            state="disabled", width=28, font=FONT_LABEL)
+        self._fiber_cb.grid(row=0, column=2, padx=(0, 16))
+        self._fiber_cb.bind("<<ComboboxSelected>>", self._on_fiber_selected)
+
+        # polymer selector
+        tk.Label(mat, text="Polymer:", font=FONT_LABEL).grid(
+            row=0, column=3, padx=(0, 4))
+        self._polymer_var = tk.StringVar(value="— none —")
+        self._polymer_cb  = ttk.Combobox(
+            mat, textvariable=self._polymer_var,
+            state="disabled", width=28, font=FONT_LABEL)
+        self._polymer_cb.grid(row=0, column=4, padx=(0, 16))
+        self._polymer_cb.bind("<<ComboboxSelected>>", self._on_polymer_selected)
+
+        # source toggle (Neat / In-situ)
+        self._src_var = tk.StringVar(value="neat")
+        ttk.Radiobutton(mat, text="Neat",    variable=self._src_var,
+                        value="neat",    command=self._on_source_change).grid(
+            row=0, column=5, padx=4)
+        self._insitu_rb = ttk.Radiobutton(
+            mat, text="In-situ", variable=self._src_var,
+            value="insitu", command=self._on_source_change, state="disabled")
+        self._insitu_rb.grid(row=0, column=6, padx=(0, 20))
+
+        # db status label
+        self._db_status = tk.Label(
+            mat, text="", font=FONT_STATUS, fg="gray")
+        self._db_status.grid(row=0, column=7, sticky="w")
+
+        if not _db.db_exists():
+            self._db_status.config(
+                text="No database found — run init_db.py first", fg="red")
+        else:
+            self._populate_material_dropdowns()
+
+        ttk.Separator(root, orient="horizontal").grid(row=3, column=0, sticky="ew")
+
         # ── main area: inputs (left) + outputs (right) ───────────────────────
         mid = ttk.Frame(root)
-        mid.grid(row=2, column=0, sticky="nsew", padx=8, pady=6)
+        mid.grid(row=4, column=0, sticky="nsew", padx=8, pady=6)
         mid.grid_rowconfigure(0, weight=1)
         mid.grid_columnconfigure(0, weight=1, minsize=520)
         mid.grid_columnconfigure(1, weight=0)
@@ -239,6 +297,14 @@ class SurrogateGUI:
         self._predict_btn.config(state="normal")
         self._rebuild_input_panel(model)
         self._rebuild_output_panel(model)
+        # re-apply any already-selected materials now that input fields exist
+        if _db.db_exists():
+            self._fiber_cb.config(state="readonly")
+            self._polymer_cb.config(state="readonly")
+            if self._fiber_id is not None:
+                self._apply_material_inputs()
+            if self._polymer_id is not None:
+                self._apply_material_inputs()
 
     def _on_load_error(self, msg: str):
         self._load_status.config(text="Load failed – see error.", fg="red")
@@ -371,6 +437,112 @@ class SurrogateGUI:
         self._pred_status.config(text="")
         self._predict_btn.config(state="normal")
         messagebox.showerror("Prediction Error", msg)
+
+    # ── material library ──────────────────────────────────────────────────────
+    def _populate_material_dropdowns(self):
+        """Read fibers and polymers from DB and populate the comboboxes."""
+        try:
+            fibers   = _db.get_all_fibers()
+            polymers = _db.get_all_polymers()
+        except Exception as exc:
+            self._db_status.config(text=f"DB error: {exc}", fg="red")
+            return
+
+        self._fiber_map   = {f["name"]: f["id"] for f in fibers}
+        self._polymer_map = {p["name"]: p["id"] for p in polymers}
+
+        fiber_names   = ["— none —"] + list(self._fiber_map)
+        polymer_names = ["— none —"] + list(self._polymer_map)
+
+        self._fiber_cb["values"]   = fiber_names
+        self._polymer_cb["values"] = polymer_names
+        self._fiber_cb.config(state="readonly")
+        self._polymer_cb.config(state="readonly")
+
+        n_f = len(fibers)
+        n_p = len(polymers)
+        self._db_status.config(
+            text=f"Library: {n_f} fiber{'s' if n_f != 1 else ''}, "
+                 f"{n_p} polymer{'s' if n_p != 1 else ''}",
+            fg="gray")
+
+    def _on_fiber_selected(self, _event=None):
+        name = self._fiber_var.get()
+        self._fiber_id = self._fiber_map.get(name)
+        self._apply_material_inputs()
+        self._refresh_insitu_toggle()
+        self.root.focus_set()
+
+    def _on_polymer_selected(self, _event=None):
+        name = self._polymer_var.get()
+        self._polymer_id = self._polymer_map.get(name)
+        self._apply_material_inputs()
+        self._refresh_insitu_toggle()
+        self.root.focus_set()
+
+    def _on_source_change(self):
+        self._apply_material_inputs()
+
+    def _apply_material_inputs(self):
+        """Fill input fields from the selected fiber and/or polymer."""
+        if not self.input_entries:
+            return
+
+        use_insitu = self._src_var.get() == "insitu"
+        inputs: dict[str, float] = {}
+
+        # ── fiber fields ──────────────────────────────────────────────────────
+        if self._fiber_id is not None:
+            if use_insitu:
+                inputs.update(self._insitu_fiber_inputs() or
+                              _db.fiber_model_inputs(self._fiber_id))
+            else:
+                inputs.update(_db.fiber_model_inputs(self._fiber_id))
+
+        # ── polymer fields ────────────────────────────────────────────────────
+        if self._polymer_id is not None:
+            if use_insitu:
+                inputs.update(self._insitu_polymer_inputs() or
+                              _db.polymer_model_inputs(self._polymer_id))
+            else:
+                inputs.update(_db.polymer_model_inputs(self._polymer_id))
+
+        # ── write into matching entry widgets ─────────────────────────────────
+        for field, value in inputs.items():
+            if field in self.input_entries and value is not None:
+                ent = self.input_entries[field]
+                ent.delete(0, tk.END)
+                ent.insert(0, f"{value:.6g}")
+
+    def _refresh_insitu_toggle(self):
+        """Enable the In-situ radio button only when in-situ data exists."""
+        if self._fiber_id is None or self._polymer_id is None:
+            self._insitu_rb.config(state="disabled")
+            if self._src_var.get() == "insitu":
+                self._src_var.set("neat")
+            return
+        try:
+            card = _db.get_material_card(self._fiber_id, self._polymer_id)
+            has_insitu = card["best_inferred"] is not None
+        except Exception:
+            has_insitu = False
+        self._insitu_rb.config(state="normal" if has_insitu else "disabled")
+        if not has_insitu and self._src_var.get() == "insitu":
+            self._src_var.set("neat")
+
+    def _insitu_fiber_inputs(self) -> dict | None:
+        """
+        Return inferred fiber-related model inputs from the best experiment
+        for the current fiber+polymer pair, or None if none exist.
+        Currently a placeholder — the inferred_properties table stores
+        composite-level outputs, not constituent inputs.  When the inverse
+        solver stores free constituent variables this will be populated.
+        """
+        return None
+
+    def _insitu_polymer_inputs(self) -> dict | None:
+        """Same placeholder for polymer in-situ inputs."""
+        return None
 
     # ── identifiability check ─────────────────────────────────────────────────
     def _open_identifiability(self):

@@ -2,12 +2,17 @@
 ## Composite Micromechanics Surrogate – Forward & Inverse GUIs
 
 This guide is written for someone who is new to Python and just wants to run
-the two graphical tools:
+the graphical tools:
 
 - **Forward GUI** (`gui.py`) – predict composite material properties from
   microstructure inputs.
 - **Inverse GUI** (`gui_inverse.py`) – find the microstructure that achieves
-  a set of target material properties.
+  a set of target material properties (elastic / thermoelastic).
+- **Thermal Inverse GUI** (`gui_thermal_inverse.py`) – recover constituent
+  thermal conductivity parameters from measured composite conductivities at
+  multiple temperatures. Can be opened from the Inverse GUI or run standalone.
+- **Thermal Inverse CLI** (`run_inverse_thermal.py`) – same estimation without
+  a GUI; driven by a JSON problem file.
 
 Follow the section for your operating system.
 
@@ -25,7 +30,8 @@ Follow the section for your operating system.
 8. [Test Your Environment](#8-test-your-environment)
 9. [Run the Forward GUI](#9-run-the-forward-gui)
 10. [Run the Inverse GUI](#10-run-the-inverse-gui)
-11. [Common Errors and Fixes](#11-common-errors-and-fixes)
+11. [Run the Thermal Inverse Estimation](#11-run-the-thermal-inverse-estimation)
+12. [Common Errors and Fixes](#12-common-errors-and-fixes)
 
 ---
 
@@ -50,16 +56,21 @@ After downloading, you should have a folder structure like this:
 
 ```
 final/
-├── gui.py              ← forward GUI
-├── gui_inverse.py      ← inverse GUI
-├── test_setup.py       ← run this to check your setup
+├── gui.py                    ← forward GUI
+├── gui_inverse.py            ← elastic / thermoelastic inverse GUI
+├── gui_thermal_inverse.py    ← thermal conductivity inverse GUI
+├── run_inverse_thermal.py    ← thermal inverse CLI (no GUI)
+├── thermal_problem.json      ← example problem file for the CLI
+├── test_setup.py             ← run this to check your setup
 ├── forward.py
 ├── inverse.py
+├── inverse_thermal.py        ← thermal inverse solver core
 ├── models.py
-├── NN_surrogate/       ← neural network utilities (included)
+├── NN_surrogate/             ← neural network utilities (included)
 └── models/
     ├── elastic/
-    └── thermoelastic/
+    ├── thermoelastic/
+    └── thermal/              ← thermal conductivity surrogate
 ```
 
 ---
@@ -174,6 +185,7 @@ pip install `
   numpy==1.26.2 `
   scipy==1.11.4 `
   matplotlib==3.8.2 `
+  pandas `
   flax==0.8.3 `
   optax==0.1.7 `
   jaxopt==0.8.5 `
@@ -196,7 +208,7 @@ pip install `
 **Single-line version (works in all Windows terminals):**
 
 ```bash
-pip install numpy==1.26.2 scipy==1.11.4 matplotlib==3.8.2 flax==0.8.3 optax==0.1.7 jaxopt==0.8.5 chex==0.1.85 ml-collections==0.1.1 ml-dtypes==0.3.2 orbax-checkpoint==0.4.8 absl-py==2.0.0 opt-einsum==3.3.0 msgpack==1.0.7 dm-tree==0.1.8 etils==1.5.2 toolz==0.12.0
+pip install numpy==1.26.2 scipy==1.11.4 matplotlib==3.8.2 pandas flax==0.8.3 optax==0.1.7 jaxopt==0.8.5 chex==0.1.85 ml-collections==0.1.1 ml-dtypes==0.3.2 orbax-checkpoint==0.4.8 absl-py==2.0.0 opt-einsum==3.3.0 msgpack==1.0.7 dm-tree==0.1.8 etils==1.5.2 toolz==0.12.0
 ```
 
 ---
@@ -326,6 +338,7 @@ pip install \
   numpy==1.26.2 \
   scipy==1.11.4 \
   matplotlib==3.8.2 \
+  pandas \
   flax==0.8.3 \
   optax==0.1.7 \
   jaxopt==0.8.5 \
@@ -432,6 +445,7 @@ pip install \
   numpy==1.26.2 \
   scipy==1.11.4 \
   matplotlib==3.8.2 \
+  pandas \
   flax==0.8.3 \
   optax==0.1.7 \
   jaxopt==0.8.5 \
@@ -790,7 +804,167 @@ Solver: `lbfgs`, Max iter: 300, Tol: 1e-9.
 
 ---
 
-## 11. Common Errors and Fixes
+## 11. Run the Thermal Inverse Estimation
+
+The thermal inverse estimation recovers four constituent thermal conductivity
+parameters from measured composite conductivities (K11, K22, K33) at multiple
+temperatures. It uses the trained thermal surrogate (`models/thermal/`).
+
+### What it estimates
+
+| Parameter | Physical meaning | Units |
+|---|---|---|
+| `p1` | Polymer conductivity scaling (temperature-dependent term) | W/(m·°C) |
+| `p2` | Polymer conductivity offset | W/(m·°C) |
+| `l2` | Fiber longitudinal thermal conductivity (constant) | W/(m·°C) |
+| `t` | Fiber anisotropy ratio K_f_long / K_f_trans (> 1) | – |
+
+Constituent models used (Thomas et al. 2024, Sec. 4.2):
+
+```
+Polymer : K_m(T) = p1 * sqrt(T / T_ref) + p2    (T_ref = 1.0 °C)
+Fiber   : K_f_long  = l2                          (constant)
+          K_f_trans = l2 / t                       (constant)
+```
+
+### Input data format
+
+Prepare a CSV or Excel file with these columns (column names are
+case-insensitive):
+
+| Column | Required | Description |
+|---|---|---|
+| `Temperature` | Yes | Temperature in °C |
+| `K11` | At least one of K11/K22/K33 | Composite thermal conductivity [W/(m·°C)] |
+| `K22` | Optional | |
+| `K33` | Optional | |
+
+Example (`measurements.csv`):
+
+```
+Temperature,K11,K22,K33
+25,0.42,0.38,0.38
+50,0.44,0.40,0.40
+75,0.46,0.42,0.42
+100,0.48,0.44,0.44
+```
+
+---
+
+### Option A – Thermal Inverse GUI (standalone)
+
+```bash
+python gui_thermal_inverse.py
+```
+
+A window titled **"Thermal Inverse Estimation"** opens. Steps:
+
+1. Click **Load Model** and wait for the green confirmation
+   (`Thermal model: loaded  (12 inputs / 6 outputs)`).
+2. Browse to your measurement data file (CSV or Excel).
+3. Fill in the fixed structural parameters:
+   - **Aspect ratio** – fiber aspect ratio (length/diameter)
+   - **Volume fraction vf** – fiber volume fraction (0–1)
+   - **Fiber density** – in kg/m³
+   - **Matrix density** – in kg/m³
+   - **Orientation tensor** – components a11, a22 (and off-diagonal a12, a13,
+     a23 if available; leave as 0 for in-plane random)
+4. Set **Restarts** (default 10) and **Seed** (default 0).
+5. Click **Run Estimation**. The status bar shows progress for each restart.
+6. Results appear in the left panel. Three plots appear on the right:
+   - Composite K11/K22/K33: surrogate prediction vs. measured data
+   - Fiber conductivities (longitudinal and transverse) vs. temperature
+   - Polymer (matrix) conductivity vs. temperature
+7. Click **Save CSV** to export predictions and constituent conductivities,
+   or **Save Plots** to save the figure as PNG/PDF.
+
+---
+
+### Option B – Thermal Inverse via the main Inverse GUI
+
+```bash
+python gui_inverse.py
+```
+
+In the **Inverse Design** window, click the **Thermal Inverse** button at the
+top. This opens the same thermal inverse window as Option A, as a popup.
+
+---
+
+### Option C – Thermal Inverse CLI (no GUI)
+
+Edit `thermal_problem.json` (or create a new JSON file) to describe your
+problem:
+
+```json
+{
+  "_comment": "Problem definition for run_inverse_thermal.py",
+  "data": "measurements.csv",
+  "fixed_inputs": {
+    "ar_f":  20.0,
+    "vf":    0.174,
+    "rho_f": 1780.0,
+    "rho_m": 1280.0,
+    "a11":   0.77,
+    "a22":   0.16,
+    "a12":   0.0,
+    "a13":   0.0,
+    "a23":   0.0
+  },
+  "n_restarts": 10,
+  "seed": 0,
+  "output_dir": "."
+}
+```
+
+| Field | Description |
+|---|---|
+| `data` | Path to your CSV or Excel measurement file |
+| `ar_f` | Fiber aspect ratio |
+| `vf` | Fiber volume fraction |
+| `rho_f` | Fiber density (kg/m³) |
+| `rho_m` | Matrix density (kg/m³) |
+| `a11`, `a22` | Diagonal orientation tensor components |
+| `a12`, `a13`, `a23` | Off-diagonal components (0 if unknown) |
+| `n_restarts` | Number of random restarts for the optimiser |
+| `seed` | Random seed for reproducibility |
+| `output_dir` | Folder where output files are saved |
+
+Then run:
+
+```bash
+# Use the default thermal_problem.json
+python run_inverse_thermal.py
+
+# Use a custom problem file
+python run_inverse_thermal.py --problem my_problem.json
+
+# Override the output folder
+python run_inverse_thermal.py --problem my_problem.json --output_dir results/
+```
+
+Three files are written to `output_dir`:
+
+| File | Contents |
+|---|---|
+| `estimated_conductivities.csv` | Temperature, predicted and measured K11/K22/K33, constituent conductivities |
+| `thermal_inverse_results.png` | Three-panel figure (composite K, fiber K, polymer K) |
+| `thermal_inverse_summary.txt` | Estimated parameters and final MSE |
+
+---
+
+### Typical parameter ranges
+
+| Parameter | Typical range | Notes |
+|---|---|---|
+| `p1` | 0 – 7×10⁻³ W/(m·°C) | Polymer temperature sensitivity |
+| `p2` | 0 – 0.08 W/(m·°C) | Polymer baseline conductivity |
+| `l2` | 1 – 20 W/(m·°C) | Fiber longitudinal K (carbon fiber: ~5–10) |
+| `t` | 1.01 – 6 | Anisotropy ratio |
+
+---
+
+## 12. Common Errors and Fixes
 
 ### "ModuleNotFoundError: No module named 'jax'"
 
@@ -874,6 +1048,20 @@ pip install "jax[cpu]==0.4.26"
 ```
 
 ---
+
+### "FileNotFoundError: Model directory not found: .../models/thermal"
+
+The thermal surrogate model files are missing. Make sure `models/thermal/`
+exists inside the `final/` folder and contains the checkpoint files. Contact
+your supervisor to obtain them.
+
+### "ModuleNotFoundError: No module named 'pandas'"
+
+Install pandas:
+
+```bash
+pip install pandas
+```
 
 *If you encounter an error not listed here, copy the full error message and
 send it to the project supervisor.*

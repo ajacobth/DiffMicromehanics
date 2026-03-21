@@ -277,6 +277,11 @@ class InverseGUI:
         ttk.Button(top, text="Browse…",
                    command=self._browse_savedir).grid(row=0, column=13, padx=4)
 
+        # ── row 1: thermal inverse button ─────────────────────────────────────
+        ttk.Button(top, text="🌡  Open Thermal Inverse Solver",
+                   command=self._open_thermal_inverse).grid(
+            row=1, column=0, columnspan=6, sticky="w", padx=(0, 8), pady=(6, 0))
+
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
         # ── main panels ───────────────────────────────────────────────────────
@@ -804,6 +809,14 @@ class InverseGUI:
         self._write_results(f"ERROR:\n{msg}\n\nTraceback:\n{tb}")
         messagebox.showerror("Solve Error", msg)
 
+    def _open_thermal_inverse(self):
+        from gui_thermal_inverse import ThermalInverseWindow
+        win = ThermalInverseWindow(parent=self.root)
+        win._win.lift()
+        win._win.focus_force()
+        win._win.attributes("-topmost", True)
+        win._win.after(1500, lambda: win._win.attributes("-topmost", False))
+
     def _on_export(self):
         if self._last_result is None:
             messagebox.showwarning("No results", "Run the solver first.")
@@ -849,11 +862,33 @@ class InverseGUI:
 
 # ── entry point ────────────────────────────────────────────────────────────────
 def main():
+    import subprocess
+    import sys
+
     root = tk.Tk()
     InverseGUI(root)
-    root.lift()
-    root.attributes("-topmost", True)
-    root.after(200, lambda: root.attributes("-topmost", False))
+
+    def _bring_to_front():
+        root.lift()
+        root.focus_force()
+        root.attributes("-topmost", True)
+        root.after(1500, lambda: root.attributes("-topmost", False))
+
+    # On macOS, use AppleScript to activate the app so it surfaces even when
+    # the terminal is in fullscreen / another Mission Control space.
+    if sys.platform == "darwin":
+        try:
+            subprocess.Popen(
+                ["osascript", "-e",
+                 f'tell application "System Events" to set frontmost of '
+                 f'every process whose unix id is {os.getpid()} to true'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except Exception:
+            pass
+
+    root.after(100, _bring_to_front)
     root.mainloop()
 
 

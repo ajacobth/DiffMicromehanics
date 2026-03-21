@@ -1,0 +1,30 @@
+[
+  {
+    "name": "PESU Ultrason",
+    "supplier": "BASF",
+    "neat": {
+      "E1": 3600,
+      "E2": 3600,
+      "G12": 1300,
+      "nu12": 0.37,
+      "rho": 1370,
+      "source": "BASF datasheet",
+      "notes": "Dried 12hr at 120C before printing"
+    },
+    "in_situ": null
+  },
+  {
+    "name": "Epoxy 3501-6",
+    "supplier": "Hexcel",
+    "neat": {
+      "E1": 4200,
+      "E2": 4200,
+      "G12": 1600,
+      "nu12": 0.34,
+      "rho": 1260,
+      "source": "Hexcel datasheet",
+      "notes": ""
+    },
+    "in_situ": null
+  }
+]

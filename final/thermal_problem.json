@@ -1,0 +1,18 @@
+{
+  "_comment": "Problem definition for run_inverse_thermal.py",
+  "data": "measurements.csv",
+  "fixed_inputs": {
+    "ar_f":  20.0,
+    "vf":    0.174,
+    "rho_f": 1780.0,
+    "rho_m": 1280.0,
+    "a11":   0.77,
+    "a22":   0.16,
+    "a12":   0.0,
+    "a13":   0.0,
+    "a23":   0.0
+  },
+  "n_restarts": 10,
+  "seed": 0,
+  "output_dir": "."
+}

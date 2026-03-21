@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Carbon Fiber T300",
+    "supplier": "Toray",
+    "neat": {
+      "E1": 230000,
+      "E2": 15000,
+      "G12": 15000,
+      "nu12": 0.20,
+      "nu23": 0.35,
+      "rho": 1760,
+      "source": "Toray datasheet",
+      "notes": "Standard modulus carbon fiber; nu23 from Soden et al. 1998"
+    },
+    "in_situ": null
+  },
+  {
+    "name": "E-Glass",
+    "supplier": "Owens Corning",
+    "neat": {
+      "E1": 72000,
+      "E2": 72000,
+      "G12": 30000,
+      "nu12": 0.22,
+      "nu23": 0.22,
+      "rho": 2540,
+      "source": "manufacturer datasheet",
+      "notes": "Isotropic glass fiber; nu23 = nu12"
+    },
+    "in_situ": null
+  },
+  {
+      "name": "AS4",
+      "supplier": "Hexcel",
+      "neat": {
+        "E1": 240000,
+        "E2": 14000,
+        "G12": 28000,
+        "nu12": 0.20,
+        "nu23": 0.28,
+        "rho": 1780,
+        "source": "manufacturer datasheet",
+        "notes": "AS4 typ2"
+      },
+      "in_situ": null
+  }
+]
