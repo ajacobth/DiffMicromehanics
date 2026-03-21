@@ -5,7 +5,7 @@ This guide is written for someone who is new to Python and just wants to run
 the graphical tools:
 
 - **Forward GUI** (`gui.py`) – predict composite material properties from
-  microstructure inputs.
+  microstructure inputs (elastic, thermoelastic, and thermal conductivity).
 - **Inverse GUI** (`gui_inverse.py`) – find the microstructure that achieves
   a set of target material properties (elastic / thermoelastic).
 - **Thermal Inverse GUI** (`gui_thermal_inverse.py`) – recover constituent
@@ -56,7 +56,7 @@ After downloading, you should have a folder structure like this:
 
 ```
 final/
-├── gui.py                    ← forward GUI
+├── gui.py                    ← forward GUI (elastic, thermoelastic, thermal)
 ├── gui_inverse.py            ← elastic / thermoelastic inverse GUI
 ├── gui_thermal_inverse.py    ← thermal conductivity inverse GUI
 ├── run_inverse_thermal.py    ← thermal inverse CLI (no GUI)
@@ -68,9 +68,9 @@ final/
 ├── models.py
 ├── NN_surrogate/             ← neural network utilities (included)
 └── models/
-    ├── elastic/
-    ├── thermoelastic/
-    └── thermal/              ← thermal conductivity surrogate
+    ├── elastic/              ← elastic surrogate (16 in / 9 out)
+    ├── thermoelastic/        ← thermoelastic surrogate (19 in / 15 out)
+    └── thermal/              ← thermal conductivity surrogate (12 in / 6 out)
 ```
 
 ---
@@ -582,12 +582,15 @@ A window titled **"Composite Surrogate Predictor"** will open.
 
 #### 1. Select the model
 
-At the top of the window you will see two radio buttons:
+At the top of the window you will see three radio buttons:
 
 - **Elastic** – predicts 9 elastic properties (Young's moduli, shear moduli,
   Poisson's ratios).
 - **Thermoelastic** – predicts all 9 elastic properties plus 6 thermal
   expansion coefficients (15 outputs total).
+- **Thermal** – predicts 6 composite thermal conductivity tensor components
+  (k11, k12, k13, k22, k23, k33) in W/(m·K) from fiber/matrix conductivities
+  and morphology (12 inputs total).
 
 Select one and click **Load Model**.
 

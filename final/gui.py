@@ -1,7 +1,7 @@
 """gui.py – unified surrogate GUI for forward evaluation.
 
-Supports both the elastic and thermoelastic surrogates. Select the model,
-click Load, fill in the inputs, then click Predict.
+Supports the elastic, thermoelastic, and thermal conductivity surrogates.
+Select the model, click Load, fill in the inputs, then click Predict.
 
 Usage
 -----
@@ -73,7 +73,7 @@ MODEL_NAMES = ["elastic", "thermoelastic", "thermal"]
 
 # ── main GUI class ────────────────────────────────────────────────────────────
 class SurrogateGUI:
-    """Unified forward-evaluation GUI for elastic and thermoelastic surrogates."""
+    """Unified forward-evaluation GUI for elastic, thermoelastic, and thermal conductivity surrogates."""
 
     def __init__(self, root: tk.Tk):
         self.root = root

@@ -1,11 +1,11 @@
 # DiffMicromechanics – Composite Material Surrogate Models
 
-This repository contains neural network surrogate models for predicting the effective mechanical and thermoelastic properties of short-fiber composite materials. The trained, ready-to-use deployment lives in the `final/` folder.
+This repository contains neural network surrogate models for predicting the effective mechanical, thermoelastic, and thermal conductivity properties of short-fiber composite materials. The trained, ready-to-use deployment lives in the `final/` folder.
 
 > **New here? Read the setup guide first:**
 > **[SETUP_AND_RUN.md](SETUP_AND_RUN.md)** – step-by-step instructions for
 > installing Python, creating an environment, installing all dependencies
-> (Windows / Mac / Linux, CPU and GPU), and running both GUIs.
+> (Windows / Mac / Linux, CPU and GPU), and running all GUIs.
 
 ---
 
@@ -32,21 +32,30 @@ The `final/` folder contains everything needed to run forward predictions and in
 
 ```
 final/
-├── gui.py               <- Forward evaluation GUI (Tkinter)
-├── gui_inverse.py       <- Inverse design GUI
-├── forward.py           <- Python API for scripting
-├── inverse.py           <- Inverse design solver (CLI)
-├── problem.json         <- Inverse problem definition (edit this)
-├── field_labels.json    <- Human-readable field name mappings
+├── gui.py                    <- Forward evaluation GUI (elastic, thermoelastic, thermal)
+├── gui_inverse.py            <- Elastic / thermoelastic inverse design GUI
+├── gui_thermal_inverse.py    <- Thermal conductivity inverse estimation GUI
+├── run_inverse_thermal.py    <- Thermal inverse CLI (no GUI)
+├── thermal_problem.json      <- Example problem file for the thermal inverse CLI
+├── forward.py                <- Python API for scripting forward predictions
+├── inverse.py                <- Elastic / thermoelastic inverse solver (CLI)
+├── inverse_thermal.py        <- Thermal inverse solver core
+├── problem.json              <- Inverse problem definition (edit this)
+├── field_labels.json         <- Human-readable field name mappings
+├── test_setup.py             <- Run this to verify your environment
 └── models/
-    ├── elastic/         <- Elastic surrogate (9 outputs)
+    ├── elastic/              <- Elastic surrogate (9 outputs)
     │   ├── model_config.json
     │   ├── normalization_stats.npz
     │   └── ckpt/case_5/
-    └── thermoelastic/   <- Thermoelastic surrogate (15 outputs)
+    ├── thermoelastic/        <- Thermoelastic surrogate (15 outputs)
+    │   ├── model_config.json
+    │   ├── normalization_stats.npz
+    │   └── ckpt/case_4/
+    └── thermal/              <- Thermal conductivity surrogate (6 outputs)
         ├── model_config.json
         ├── normalization_stats.npz
-        └── ckpt/case_4/
+        └── ckpt/case_6/
 ```
 
 ### Models
@@ -55,8 +64,9 @@ final/
 |---|---|---|
 | `elastic` | 16 fiber/matrix/orientation parameters | E1, E2, E3, G12, G13, G23, nu12, nu13, nu23 |
 | `thermoelastic` | 19 parameters (elastic + CTE inputs) | 9 elastic + CTE11, CTE22, CTE33, CTE12, CTE13, CTE23 |
+| `thermal` | 12 parameters (fiber/matrix conductivities, morphology) | k11, k12, k13, k22, k23, k33 |
 
-All moduli are in **MPa**. CTE values are in **1/K**.
+Elastic/shear moduli are in **MPa**. CTE values are in **1/K**. Thermal conductivities are in **W/(m·K)**.
 
 ---
 
@@ -69,17 +79,33 @@ cd final
 python gui.py
 ```
 
-1. Select **Elastic** or **Thermoelastic** using the radio buttons.
+1. Select **Elastic**, **Thermoelastic**, or **Thermal** using the radio buttons.
 2. Click **Load Model** – input and output panels populate automatically.
 3. Fill in all input fields and press **Enter** or click **Predict**.
 4. Predicted outputs appear on the right. A history plot tracks successive predictions.
+
+**Thermal model inputs** (12 fields):
+
+| Input | Description | Units |
+|---|---|---|
+| `k_f1` | Fiber longitudinal thermal conductivity | W/(m·K) |
+| `k_f2` | Fiber transverse thermal conductivity | W/(m·K) |
+| `k_m` | Matrix thermal conductivity | W/(m·K) |
+| `ar_f` | Fiber aspect ratio | – |
+| `w_f` | Fiber mass fraction | – |
+| `rho_f` | Fiber density | kg/m³ |
+| `rho_m` | Matrix density | kg/m³ |
+| `a11`, `a22`, `a12`, `a13`, `a23` | Fiber orientation tensor components | – |
+
+**Thermal model outputs**: composite conductivity tensor components k11, k12, k13, k22, k23, k33 in **W/(m·K)**.
 
 ### Option 2 – Python API
 
 ```python
 from forward import load_forward
 
-fwd, meta = load_forward("elastic")        # or "thermoelastic"
+# Elastic
+fwd, meta = load_forward("elastic")        # or "thermoelastic" or "thermal"
 
 outputs = fwd({
     "e1": 240e3, "e2": 15e3, "g12": 28e3, "f_nu12": 0.2, "f_nu23": 0.4,
@@ -93,15 +119,26 @@ print(meta.input_fields)   # ordered list of input names
 print(meta.output_fields)  # ordered list of output names
 ```
 
-Run from the `final/` directory so that `forward.py` can resolve the model paths and the shared `EL_surrogate/` code.
+Run from the `final/` directory so that `forward.py` can resolve the model paths.
 
 ---
 
 ## Running the Inverse Design Solver
 
-The inverse solver finds input parameters that produce a desired set of output properties. It uses the elastic surrogate by default.
+### Elastic / Thermoelastic Inverse
 
-### Step 1 – Edit `problem.json`
+#### Option A – GUI
+
+```bash
+cd final
+python gui_inverse.py
+```
+
+Select **Elastic** or **Thermoelastic**, set fixed/free inputs, specify target outputs, and click **SOLVE**. Results are displayed in-window and can be exported as JSON.
+
+#### Option B – CLI
+
+Edit `problem.json` to describe the problem:
 
 ```jsonc
 {
@@ -137,12 +174,6 @@ The inverse solver finds input parameters that produce a desired set of output p
 }
 ```
 
-**Notes:**
-- `fixed_inputs` must include **all** 16 model inputs. Free variable values act as the initial guess.
-- The constraint `a11 + a22 <= 1.0` is enforced automatically when both are free.
-
-### Step 2 – Run the solver
-
 ```bash
 cd final
 python inverse.py                           # uses problem.json
@@ -158,6 +189,41 @@ Results are printed to the terminal and saved as `<problem_stem>_result.json`.
 | `lbfgs` | L-BFGS (default, unconstrained) |
 | `lbfgsb` | L-BFGS-B (bounded, uses `bounds` from JSON) |
 | `adam` | Adam gradient descent (use `lr` and `n_steps` options) |
+
+---
+
+## Running the Thermal Inverse Estimation
+
+The thermal inverse recovers constituent conductivity parameters (fiber and matrix) from measured composite conductivities (K11, K22, K33) at multiple temperatures. It uses the trained thermal surrogate.
+
+### Option A – GUI (standalone)
+
+```bash
+cd final
+python gui_thermal_inverse.py
+```
+
+### Option B – via the Inverse GUI
+
+```bash
+cd final
+python gui_inverse.py
+```
+
+Click the **Thermal Inverse** button at the top of the window.
+
+### Option C – CLI
+
+Edit `thermal_problem.json`, then run:
+
+```bash
+cd final
+python run_inverse_thermal.py                            # uses thermal_problem.json
+python run_inverse_thermal.py --problem my_problem.json
+python run_inverse_thermal.py --problem p.json --output_dir results/
+```
+
+See [SETUP_AND_RUN.md](SETUP_AND_RUN.md) Section 11 for full details on inputs, outputs, and the JSON problem format.
 
 ---
 
@@ -177,6 +243,12 @@ python main.py --config EL_surrogate/configs/case_5.py --workdir EL_surrogate/
 python main.py --config THEL_surrogate/configs/case_4.py --workdir THEL_surrogate/
 ```
 
+### Thermal conductivity surrogate
+
+```bash
+python main.py --config TC_surrogate/configs/case_6.py --workdir TC_surrogate/
+```
+
 After training, export model artifacts into `final/models/`:
 
 ```bash
@@ -185,9 +257,10 @@ python export_model.py --config configs/case_5.py --workdir .
 
 cd THEL_surrogate
 python export_model.py --config configs/case_4.py --workdir .
-```
 
-See `final/INSTRUCTIONS.md` for the full export and manual drop-in workflow.
+cd TC_surrogate
+python export_model.py --config configs/case_6.py --workdir .
+```
 
 ---
 

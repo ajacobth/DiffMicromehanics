@@ -22,7 +22,7 @@ cd path/to/DiffMicromehanics/final
 # Verify everything still works
 python test_setup.py
 
-# Launch the Forward GUI  (predict properties from microstructure inputs)
+# Launch the Forward GUI  (predict elastic, thermoelastic, and thermal conductivity from microstructure inputs)
 python gui.py
 
 # Launch the Inverse GUI  (elastic / thermoelastic inverse design)
