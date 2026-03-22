@@ -505,7 +505,93 @@ When the GUI asks for a canonical value (e.g. "what is matrix_modulus for PEI on
 
 ---
 
-## 9. `db.py` API — New Functions Required
+## 9. Thermal Conductivity Data — Storage Detail
+
+Thermal conductivity is the most complex property in the schema because it has two distinct representations that cannot be used interchangeably.
+
+---
+
+### Two representations of constituent k
+
+| Representation | Properties | Used by | Stored in |
+|---|---|---|---|
+| **Point values** | `k_f1`, `k_f2`, `k_m` at one temperature | Forward thermal surrogate (direct input) | `constituent_property_values` or `fibers`/`polymers` baseline |
+| **Parametric model** | `p1`, `p2`, `l2`, `t` | Thermal inverse output; evaluated at T to get point values | `constituent_property_values` |
+
+The surrogate always takes point values. The thermal inverse always produces parametric values. `get_thermal_constituent_inputs()` bridges the gap.
+
+---
+
+### Experimental composite k data
+
+Measured composite k11, k22, k33 at multiple temperatures. Currently loaded as a CSV in `gui_thermal_inverse.py` and used directly without being persisted. Under the plan, `import_thermal_csv()` inserts them into `experimental_measurements`:
+
+```
+id | print_config_id | property_name | value | unit   | temperature_C | uncertainty
+ 1       1                k11          0.42    W/m·K       25             0.02
+ 2       1                k11          0.44    W/m·K       50             0.02
+ 3       1                k11          0.46    W/m·K       75             0.02
+ 4       1                k22          0.38    W/m·K       25             0.02
+ 5       1                k22          0.40    W/m·K       50             0.02
+```
+
+One row per temperature per direction. These become the ground-truth targets for any future re-run of the thermal inverse on the same card.
+
+---
+
+### Inferred constituent k parameters
+
+After the thermal inverse solves, four parameters are stored in `constituent_property_values`:
+
+```
+constituent_type | constituent_id | property_name | value  | source_tag | print_config_id
+polymer               1               p1             0.0032   inferred      NULL
+polymer               1               p2             0.21     inferred      NULL
+fiber                 1               l2             7.0      inferred      NULL
+fiber                 1               t              5.8      inferred      NULL
+```
+
+All stored with `print_config_id = NULL` — these are intrinsic material parameters, reusable across all cards that use the same fiber and polymer.
+
+---
+
+### How the forward GUI uses these
+
+When the thermal forward surrogate is loaded for a card, `get_thermal_constituent_inputs()` is called with the desired temperature. It evaluates the parametric model if available, otherwise falls back to point values, otherwise falls back to web baselines:
+
+```
+Priority 1 — parametric (p1, p2, l2, t found):
+  k_m(50°C)  = 0.0032 * sqrt(50) + 0.21  =  0.236 W/m·K
+  k_f1       = 7.0                         W/m·K
+  k_f2       = 7.0 / 5.8                  =  1.21  W/m·K
+
+Priority 2 — direct point values (k_f1, k_f2, k_m in constituent_property_values):
+  use stored values directly, no temperature evaluation
+
+Priority 3 — web baseline (fibers.neat_k1, fibers.neat_k2, polymers.neat_k):
+  use datasheet values, temperature-independent
+```
+
+The GUI shows a provenance badge next to each filled field indicating which priority level was used and the source.
+
+---
+
+### Predicted composite k from forward runs
+
+After a forward thermal prediction, the output k11, k22, k33 at the evaluated temperature are saved to `composite_property_values`:
+
+```
+id | print_config_id | property_name | value | source_tag | temperature_C | inference_run_id
+ 1       2                k11          0.31    predicted       25               8
+ 2       2                k22          0.28    predicted       25               8
+ 3       2                k33          0.28    predicted       25               8
+```
+
+These can be compared against experimental measurements for the same card via the material card viewer.
+
+---
+
+## 10. `db.py` API — New Functions Required
 
 ```python
 # --- print_configs (material cards) ---
@@ -565,6 +651,45 @@ get_canonical_value(print_config_id, property_name,
 
 # --- property preferences ---
 set_property_preference(print_config_id, property_name, preferred_source)
+
+# --- thermal conductivity (special case) ---
+save_thermal_inverse_results(print_config_id, inference_run_id,
+                              fiber_id, polymer_id,
+                              p1, p2, l2, t) -> None
+# Saves the four thermal inverse parameters to constituent_property_values:
+#   polymer: p1, p2  (temperature-dependent conductivity model coefficients)
+#   fiber:   l2, t   (longitudinal conductivity and anisotropy ratio)
+# All stored with source_tag='inferred', print_config_id=NULL (global).
+#
+# Physical model (Thomas et al. 2024):
+#   k_m(T)  = p1 * sqrt(T / T_ref) + p2     T_ref = 1.0 °C
+#   k_f1    = l2
+#   k_f2    = l2 / t
+
+get_thermal_constituent_inputs(print_config_id, fiber_id, polymer_id,
+                                temperature_C) -> dict
+# Resolves constituent thermal conductivity inputs for the forward surrogate
+# at a specific temperature. Returns dict ready to pass directly to the surrogate:
+#   {"k_f1": ..., "k_f2": ..., "k_m": ...}
+#
+# Resolution logic (in priority order):
+#   1. If p1, p2 exist in constituent_property_values (inferred from thermal inverse):
+#        k_m  = p1 * sqrt(temperature_C / 1.0) + p2
+#        k_f1 = l2
+#        k_f2 = l2 / t
+#   2. Else if k_f1, k_f2, k_m exist in constituent_property_values (direct point values):
+#        use those directly (no temperature evaluation)
+#   3. Else fall back to fibers.neat_k1, fibers.neat_k2, polymers.neat_k
+#        (web baseline, temperature-independent)
+#
+# Also returns the source_tag and temperature used for each value,
+# so the GUI can show provenance badges.
+
+import_thermal_csv(print_config_id, csv_path, reference="", notes="") -> int
+# Reads a CSV with columns: Temperature, K11, K22, K33 (case-insensitive)
+# Inserts one row per temperature per direction into experimental_measurements.
+# Returns the number of rows inserted.
+# Skips rows already present (same print_config_id + property_name + temperature_C).
 
 # --- material card (full view) ---
 get_material_card(print_config_id) -> {
@@ -657,3 +782,5 @@ Standalone window, launchable from any GUI.
 | No `property_preferences` | No way to express "use experimental k11, but predicted CTE22" | 1–2 |
 | Material card is fiber+polymer only | No printer differentiation; same material on two printers is one card | 1 |
 | `in_situ: null` fields in fibers.json / polymers.json | Misleading leftover — implies in-situ values belong in the JSON file | Remove from JSON files |
+| Thermal inverse CSV loaded but never persisted | Re-running the thermal inverse requires re-loading the same CSV manually every time | 1 — `import_thermal_csv()` |
+| No bridge between parametric k model (p1,p2,l2,t) and forward surrogate inputs (k_f1,k_f2,k_m) | Can't use thermal inverse results to drive the forward GUI without manual computation | 2 — `get_thermal_constituent_inputs()` |
