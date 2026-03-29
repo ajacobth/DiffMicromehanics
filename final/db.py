@@ -18,6 +18,7 @@ Model input units (what the surrogate expects):
     get_all_fibers / get_fiber / fiber_model_inputs / add_fiber
     get_all_polymers / get_polymer / polymer_model_inputs / add_polymer
     get_all_printers / add_printer
+    add_processing_condition / get_processing_condition / get_all_processing_conditions
 
 ── Material-card API ────────────────────────────────────────────────────────────
     create_print_config / get_print_config / get_all_print_configs
@@ -210,24 +211,68 @@ def add_printer(name: str, manufacturer: str = "", notes: str = "") -> int:
     return cur.lastrowid
 
 
+# ── processing conditions ─────────────────────────────────────────────────────
+
+def add_processing_condition(
+    bead_width:      Optional[float] = None,
+    bead_height:     Optional[float] = None,
+    nozzle_diameter: Optional[float] = None,
+    speed:           Optional[float] = None,
+    notes:           str = "",
+) -> int:
+    """Insert a processing condition record. Returns new id."""
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO processing_conditions
+                (bead_width, bead_height, nozzle_diameter, speed, notes, created_at)
+            VALUES (?,?,?,?,?,?)
+            """,
+            (bead_width, bead_height, nozzle_diameter, speed, notes,
+             datetime.now().isoformat()),
+        )
+    return cur.lastrowid
+
+
+def get_processing_condition(pc_id: int) -> Optional[dict]:
+    """Return one processing condition by id."""
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM processing_conditions WHERE id = ?", (pc_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_processing_conditions() -> list[dict]:
+    """Return all processing conditions, newest first."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM processing_conditions ORDER BY created_at DESC"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 # ── print configs (material cards) ────────────────────────────────────────────
 
 def create_print_config(
-    name:       str,
-    fiber_id:   int,
-    polymer_id: int,
-    printer_id: Optional[int] = None,
-    notes:      str = "",
+    name:                    str,
+    fiber_id:                int,
+    polymer_id:              int,
+    printer_id:              Optional[int] = None,
+    processing_condition_id: Optional[int] = None,
+    notes:                   str = "",
 ) -> int:
     """Create a new print config (material card). Returns new id."""
     with _connect() as conn:
         cur = conn.execute(
             """
             INSERT INTO print_configs
-                (name, fiber_id, polymer_id, printer_id, notes, created_at)
-            VALUES (?,?,?,?,?,?)
+                (name, fiber_id, polymer_id, printer_id,
+                 processing_condition_id, notes, created_at)
+            VALUES (?,?,?,?,?,?,?)
             """,
-            (name, fiber_id, polymer_id, printer_id, notes,
+            (name, fiber_id, polymer_id, printer_id,
+             processing_condition_id, notes,
              datetime.now().isoformat()),
         )
     return cur.lastrowid
@@ -790,11 +835,12 @@ def get_print_config_card(print_config_id: int) -> dict:
 
     Returns:
         {
-            "config":          dict (print_configs row),
-            "fiber":           dict (fibers row),
-            "polymer":         dict (polymers row),
-            "printer":         dict | None (printers row),
-            "microstructure":  dict | None (latest snapshot),
+            "config":                 dict (print_configs row),
+            "fiber":                  dict (fibers row),
+            "polymer":                dict (polymers row),
+            "printer":                dict | None (printers row),
+            "processing_condition":   dict | None (processing_conditions row),
+            "microstructure":         dict | None (latest snapshot),
             "inference_runs":  list[dict],
             "constituent_properties": {
                 "fiber": list[dict],
@@ -819,11 +865,16 @@ def get_print_config_card(print_config_id: int) -> dict:
             ).fetchone()
         printer = dict(row) if row else None
 
+    processing_condition = None
+    if cfg.get("processing_condition_id"):
+        processing_condition = get_processing_condition(cfg["processing_condition_id"])
+
     return {
-        "config":   cfg,
-        "fiber":    fiber,
-        "polymer":  polymer,
-        "printer":  printer,
+        "config":                cfg,
+        "fiber":                 fiber,
+        "polymer":               polymer,
+        "printer":               printer,
+        "processing_condition":  processing_condition,
         "microstructure": get_latest_microstructure(print_config_id),
         "inference_runs": get_inference_runs(print_config_id),
         "constituent_properties": {

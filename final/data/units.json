@@ -1,0 +1,104 @@
+{
+  "_comment": [
+    "Universal unit definition file for all three surrogates.",
+    "model_unit : the unit used internally by every surrogate model.",
+    "systems    : named display options.  factor = display_value / model_value.",
+    "             e.g. for modulus: display_GPa = model_MPa * 0.001",
+    "To add a custom system, add an entry to 'unit_systems' referencing",
+    "existing quantity / system keys, then restart the GUI."
+  ],
+
+  "quantities": {
+    "modulus": {
+      "model_unit": "MPa",
+      "systems": {
+        "SI-MPa": { "unit": "MPa",  "factor": 1.0,      "description": "Megapascals" },
+        "SI-GPa": { "unit": "GPa",  "factor": 0.001,    "description": "Gigapascals" },
+        "US-ksi": { "unit": "ksi",  "factor": 0.14504,  "description": "Kilopounds per square inch" }
+      }
+    },
+    "cte": {
+      "model_unit": "1/K",
+      "systems": {
+        "SI-native": { "unit": "1/K",    "factor": 1.0,    "description": "Per kelvin (raw)" },
+        "SI-micro":  { "unit": "\u00b5/K",   "factor": 1e6,    "description": "Microstrain per kelvin (ppm/K)" },
+        "US-ppmF":   { "unit": "ppm/\u00b0F", "factor": 555556.0, "description": "Parts per million per degree Fahrenheit" }
+      }
+    },
+    "conductivity": {
+      "model_unit": "W/m\u00b7K",
+      "systems": {
+        "SI":     { "unit": "W/m\u00b7K",           "factor": 1.0,     "description": "Watts per metre-kelvin" },
+        "US-BTU": { "unit": "BTU/(hr\u00b7ft\u00b7\u00b0F)", "factor": 0.57779, "description": "BTU per hour-foot-degree-Fahrenheit" }
+      }
+    },
+    "density": {
+      "model_unit": "kg/m\u00b3",
+      "systems": {
+        "SI":  { "unit": "kg/m\u00b3",  "factor": 1.0,       "description": "Kilograms per cubic metre" },
+        "cgs": { "unit": "g/cm\u00b3",  "factor": 0.001,     "description": "Grams per cubic centimetre" },
+        "US":  { "unit": "lb/in\u00b3", "factor": 3.6127e-5, "description": "Pounds per cubic inch" }
+      }
+    },
+    "dimensionless": {
+      "model_unit": "",
+      "systems": {
+        "default": { "unit": "", "factor": 1.0, "description": "Dimensionless" }
+      }
+    }
+  },
+
+  "field_quantity_map": {
+    "E1":  "modulus", "E2":  "modulus", "E3":  "modulus",
+    "G12": "modulus", "G13": "modulus", "G23": "modulus",
+    "e1":  "modulus", "e2":  "modulus", "g12": "modulus",
+    "matrix_modulus": "modulus",
+
+    "nu12": "dimensionless", "nu13": "dimensionless", "nu23": "dimensionless",
+    "f_nu12": "dimensionless", "f_nu23": "dimensionless",
+    "matrix_poisson": "dimensionless",
+
+    "ar":   "dimensionless", "ar_f":  "dimensionless",
+    "fiber_massfrac": "dimensionless", "w_f":   "dimensionless",
+    "a11":  "dimensionless", "a22":   "dimensionless",
+    "a12":  "dimensionless", "a13":   "dimensionless", "a23": "dimensionless",
+
+    "CTE11": "cte", "CTE22": "cte", "CTE33": "cte",
+    "CTE12": "cte", "CTE13": "cte", "CTE23": "cte",
+    "f_cte11": "cte", "f_cte22": "cte", "matrix_cte": "cte",
+
+    "k11": "conductivity", "k12": "conductivity", "k13": "conductivity",
+    "k22": "conductivity", "k23": "conductivity", "k33": "conductivity",
+    "k_f1": "conductivity", "k_f2": "conductivity", "k_m": "conductivity",
+
+    "fiber_density":  "density", "matrix_density": "density",
+    "rho_f":          "density", "rho_m":          "density"
+  },
+
+  "unit_systems": {
+    "MPa \u00b7 1/K \u00b7 W/m\u00b7K": {
+      "description": "SI engineering — raw model units, no conversion",
+      "modulus":       "SI-MPa",
+      "cte":           "SI-native",
+      "conductivity":  "SI",
+      "density":       "SI",
+      "dimensionless": "default"
+    },
+    "GPa \u00b7 \u00b5/K \u00b7 W/m\u00b7K": {
+      "description": "SI macro — typical composite display units",
+      "modulus":       "SI-GPa",
+      "cte":           "SI-micro",
+      "conductivity":  "SI",
+      "density":       "SI",
+      "dimensionless": "default"
+    },
+    "ksi \u00b7 ppm/\u00b0F \u00b7 BTU/(hr\u00b7ft\u00b7\u00b0F)": {
+      "description": "US customary engineering",
+      "modulus":       "US-ksi",
+      "cte":           "US-ppmF",
+      "conductivity":  "US-BTU",
+      "density":       "US",
+      "dimensionless": "default"
+    }
+  }
+}

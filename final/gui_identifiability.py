@@ -14,18 +14,9 @@ from tkinter import ttk, messagebox
 
 import numpy as np
 
+from unit_manager import UM
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
-
-# ── constants ─────────────────────────────────────────────────────────────────
-
-# Scale factors: model-native (MPa, 1/K) -> display units
-OUTPUT_SCALES: dict[str, float] = {
-    "E1":  1e-3, "E2":  1e-3, "E3":  1e-3,
-    "G12": 1e-3, "G13": 1e-3, "G23": 1e-3,
-    "nu12": 1.0, "nu13": 1.0, "nu23": 1.0,
-    "CTE11": 1e6, "CTE22": 1e6, "CTE33": 1e6,
-    "CTE12": 1e6, "CTE13": 1e6, "CTE23": 1e6,
-}
 
 COLOR_WELL     = "#1f7a1f"
 COLOR_MARGINAL = "#b36200"
@@ -349,8 +340,7 @@ class IdentifiabilityWindow:
             if name in target_in_problem:
                 model_sigma = prob_sigmas.get(name, 0.0)
                 if isinstance(model_sigma, (int, float)) and model_sigma > 0:
-                    scale = OUTPUT_SCALES.get(name, 1.0)
-                    self._sigma_vars[name].set(f"{model_sigma * scale:.4g}")
+                    self._sigma_vars[name].set(f"{UM.to_display(name, model_sigma):.4g}")
 
     def _build_results_area(self, parent):
         self._results_outer = ttk.LabelFrame(parent, text="Results", padding=10)
@@ -444,9 +434,7 @@ class IdentifiabilityWindow:
                 sigma_display = float(raw) if raw else 0.0
             except ValueError:
                 sigma_display = 0.0
-            scale = OUTPUT_SCALES.get(name, 1.0)
-            # display = model * scale  =>  model = display / scale
-            sigma_model = sigma_display / scale if scale != 0 else sigma_display
+            sigma_model = UM.from_display(name, sigma_display)
             sigmas[name] = max(sigma_model, 0.0)
 
         # N samples

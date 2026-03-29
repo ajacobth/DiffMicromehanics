@@ -89,7 +89,7 @@ class SaveToCardDialog:
         self._win.title("Save to Material Card")
         self._win.grab_set()
         self._win.resizable(False, False)
-        self._win.geometry("560x600")
+        self._win.geometry("560x720")
 
         self._fiber_map:   dict[str, int] = {}
         self._polymer_map: dict[str, int] = {}
@@ -156,9 +156,32 @@ class SaveToCardDialog:
         tk.Entry(new_row, textvariable=self._card_name_var,
                  width=28, font=FONT_ENTRY).pack(side="left", padx=(8, 0))
 
+        # ── processing conditions ─────────────────────────────────────────────
+        pc_lf = ttk.LabelFrame(outer, text="Processing Conditions", padding=8)
+        pc_lf.grid(row=4, column=0, sticky="ew", pady=(0, 8))
+
+        _pc_fields = [
+            ("Bead width (mm):",    "_pc_bead_width"),
+            ("Bead height (mm):",   "_pc_bead_height"),
+            ("Nozzle diam. (mm):",  "_pc_nozzle_diam"),
+            ("Speed (mm/min):",     "_pc_speed"),
+        ]
+        for r_idx, (lbl_text, var_attr) in enumerate(_pc_fields):
+            tk.Label(pc_lf, text=lbl_text, font=FONT_LABEL,
+                     width=18, anchor="e").grid(row=r_idx, column=0,
+                                                 sticky="e", padx=(0, 8), pady=2)
+            var = tk.StringVar()
+            setattr(self, var_attr, var)
+            tk.Entry(pc_lf, textvariable=var, width=14,
+                     font=FONT_ENTRY).grid(row=r_idx, column=1, sticky="w", pady=2)
+
+        tk.Label(pc_lf, text="(Leave blank if not applicable)",
+                 font=FONT_SMALL, fg="#888").grid(row=4, column=0, columnspan=2,
+                                                   sticky="w", pady=(2, 0))
+
         # ── options ───────────────────────────────────────────────────────────
         opt_lf = ttk.LabelFrame(outer, text="Options", padding=8)
-        opt_lf.grid(row=4, column=0, sticky="ew", pady=(0, 8))
+        opt_lf.grid(row=5, column=0, sticky="ew", pady=(0, 8))
 
         self._save_exp_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(opt_lf,
@@ -172,16 +195,16 @@ class SaveToCardDialog:
                  width=54, font=FONT_ENTRY).pack(fill="x", pady=(2, 0))
 
         # ── summary ───────────────────────────────────────────────────────────
-        ttk.Separator(outer, orient="horizontal").grid(row=5, column=0,
+        ttk.Separator(outer, orient="horizontal").grid(row=6, column=0,
                                                         sticky="ew", pady=(0, 4))
         self._summary_lbl = tk.Label(outer, text="", font=FONT_SMALL,
                                      fg="#555", justify="left", wraplength=520)
-        self._summary_lbl.grid(row=6, column=0, sticky="w")
+        self._summary_lbl.grid(row=7, column=0, sticky="w")
         self._update_summary()
 
         # ── buttons ───────────────────────────────────────────────────────────
         btn = ttk.Frame(outer)
-        btn.grid(row=7, column=0, sticky="e", pady=(10, 0))
+        btn.grid(row=8, column=0, sticky="e", pady=(10, 0))
         ttk.Button(btn, text="Cancel",
                    command=self._win.destroy).pack(side="right", padx=(4, 0))
         ttk.Button(btn, text="Save",
@@ -377,14 +400,36 @@ class SaveToCardDialog:
         loss     = float(self.result.get("final_optimiser_error", 0.0))
         solver   = self.result.get("solver", {})
 
+        def _parse_float_opt(var: tk.StringVar) -> Optional[float]:
+            s = var.get().strip()
+            try:
+                return float(s) if s else None
+            except ValueError:
+                return None
+
         try:
             # 1. Get or create print config ──────────────────────────────────
             if card_val == "new":
                 card_name = (self._card_name_var.get().strip()
                              or f"{model_nm} card")
+
+                # Create processing condition row (all optional)
+                pc_id: Optional[int] = None
+                bw  = _parse_float_opt(self._pc_bead_width)
+                bh  = _parse_float_opt(self._pc_bead_height)
+                nd  = _parse_float_opt(self._pc_nozzle_diam)
+                spd = _parse_float_opt(self._pc_speed)
+                if any(v is not None for v in (bw, bh, nd, spd)):
+                    pc_id = _db.add_processing_condition(
+                        bead_width=bw, bead_height=bh,
+                        nozzle_diameter=nd, speed=spd,
+                        notes=notes,
+                    )
+
                 cfg_id = _db.create_print_config(
                     name=card_name, fiber_id=fid, polymer_id=pid,
-                    printer_id=rid, notes=notes)
+                    printer_id=rid, processing_condition_id=pc_id,
+                    notes=notes)
             else:
                 cfg_id = int(card_val)
 

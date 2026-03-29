@@ -73,14 +73,25 @@ CREATE TABLE IF NOT EXISTS printers (
 
 -- ── material card tables ─────────────────────────────────────────────────────
 
+CREATE TABLE IF NOT EXISTS processing_conditions (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    bead_width       REAL,           -- mm
+    bead_height      REAL,           -- mm
+    nozzle_diameter  REAL,           -- mm
+    speed            REAL,           -- mm/min
+    notes            TEXT,
+    created_at       TEXT
+);
+
 CREATE TABLE IF NOT EXISTS print_configs (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    fiber_id    INTEGER NOT NULL REFERENCES fibers(id),
-    polymer_id  INTEGER NOT NULL REFERENCES polymers(id),
-    printer_id  INTEGER          REFERENCES printers(id),
-    notes       TEXT,
-    created_at  TEXT
+    id                       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name                     TEXT NOT NULL,
+    fiber_id                 INTEGER NOT NULL REFERENCES fibers(id),
+    polymer_id               INTEGER NOT NULL REFERENCES polymers(id),
+    printer_id               INTEGER          REFERENCES printers(id),
+    processing_condition_id  INTEGER          REFERENCES processing_conditions(id),
+    notes                    TEXT,
+    created_at               TEXT
 );
 
 -- inference_runs is created before microstructure_snapshots because both
@@ -280,6 +291,7 @@ def init(reset: bool = False):
             "microstructure_snapshots",
             "inference_runs",
             "print_configs",
+            "processing_conditions",
             "printers",
             "polymers",
             "fibers",

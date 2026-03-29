@@ -29,6 +29,7 @@ from tkinter import ttk, messagebox
 import numpy as np
 
 import db as _db
+from unit_manager import UM
 
 # ── field label mapping ───────────────────────────────────────────────────────
 _LABELS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "field_labels.json")
@@ -50,17 +51,8 @@ def _label(section: str, key: str) -> str:
     return _FIELD_LABELS.get(section, {}).get(key, key)
 
 
-# ── output scale factors (raw model outputs are MPa / 1/K) ───────────────────
-OUTPUT_SCALES: dict[str, float] = {
-    "E1":  1e-3, "E2":  1e-3, "E3":  1e-3,
-    "G12": 1e-3, "G13": 1e-3, "G23": 1e-3,
-    "nu12": 1.0, "nu13": 1.0, "nu23": 1.0,
-    "CTE11": 1e6, "CTE22": 1e6, "CTE33": 1e6,
-    "CTE12": 1e6, "CTE13": 1e6, "CTE23": 1e6,
-    # thermal conductivity outputs (W/m·K) – no scaling needed
-    "k11": 1.0, "k12": 1.0, "k13": 1.0,
-    "k22": 1.0, "k23": 1.0, "k33": 1.0,
-}
+# Output scales and unit labels are now provided dynamically by unit_manager.UM.
+# See  data/units.json  to customise or add unit systems.
 
 FONT_TITLE  = ("Helvetica", 17, "bold")
 FONT_LABEL  = ("Helvetica", 15)
@@ -85,6 +77,8 @@ class SurrogateGUI:
         self.input_entries:      dict[str, tk.Entry] = {}
         self.input_prov_labels:  dict[str, tk.Label] = {}
         self.output_labels:      dict[str, tk.Label] = {}
+        self._input_unit_labels: dict[str, tk.Label] = {}
+        self._output_unit_labels: dict[str, tk.Label] = {}
 
         # material library state
         self._fiber_id:   int | None = None
@@ -98,6 +92,7 @@ class SurrogateGUI:
         self._save_pred_btn: tk.Widget | None = None
 
         self._build_layout()
+        UM.register_callback(self._refresh_unit_labels)
 
     # ── layout ───────────────────────────────────────────────────────────────
     def _build_layout(self):
@@ -136,6 +131,17 @@ class SurrogateGUI:
                    command=self._open_material_card_viewer).grid(
             row=0, column=8, padx=(4, 12), sticky="e"
         )
+
+        ttk.Separator(top, orient="vertical").grid(row=0, column=9,
+                                                    sticky="ns", padx=(6, 6))
+        tk.Label(top, text="Units:", font=FONT_LABEL).grid(row=0, column=10, padx=(0, 4))
+        self._unit_sys_var = tk.StringVar(value=UM.current_system)
+        self._unit_sys_cb  = ttk.Combobox(top, textvariable=self._unit_sys_var,
+                                           values=UM.available_systems,
+                                           state="readonly", width=32,
+                                           font=("Helvetica", 12))
+        self._unit_sys_cb.grid(row=0, column=11, padx=4)
+        self._unit_sys_cb.bind("<<ComboboxSelected>>", self._on_unit_system_change)
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
@@ -334,8 +340,9 @@ class SurrogateGUI:
     def _rebuild_input_panel(self, model):
         for w in self._in_frame.winfo_children():
             w.destroy()
-        self.input_entries = {}
-        self.input_prov_labels = {}
+        self.input_entries       = {}
+        self.input_prov_labels   = {}
+        self._input_unit_labels  = {}
         self._in_frame.grid_columnconfigure(1, weight=1)
 
         for i, name in enumerate(model.input_fields):
@@ -343,11 +350,17 @@ class SurrogateGUI:
             tk.Label(self._in_frame, text=f"{display}:", font=FONT_LABEL,
                      anchor="e").grid(row=i, column=0, sticky="e",
                                       padx=(8, 10), pady=5)
-            ent = tk.Entry(self._in_frame, width=20, font=FONT_ENTRY)
-            ent.grid(row=i, column=1, sticky="ew", padx=(0, 12), pady=5)
+            val_f = ttk.Frame(self._in_frame)
+            val_f.grid(row=i, column=1, sticky="ew", padx=(0, 4), pady=5)
+            ent = tk.Entry(val_f, width=18, font=FONT_ENTRY)
+            ent.pack(side="left")
             ent.bind("<Return>", lambda _e: self._predict_start())
             ent.bind("<Key>", lambda _e, n=name: self._clear_prov(n))
-            self.input_entries[name] = ent
+            ulbl = tk.Label(val_f, text=UM.unit_label(name),
+                            font=("Helvetica", 11), fg="gray", width=12, anchor="w")
+            ulbl.pack(side="left", padx=(4, 0))
+            self.input_entries[name]      = ent
+            self._input_unit_labels[name] = ulbl
             prov_lbl = tk.Label(self._in_frame, text="", font=("Helvetica", 11),
                                 fg="#888", anchor="w")
             prov_lbl.grid(row=i, column=2, sticky="w", padx=(0, 8), pady=5)
@@ -356,7 +369,8 @@ class SurrogateGUI:
     def _rebuild_output_panel(self, model):
         for w in self._out_frame.winfo_children():
             w.destroy()
-        self.output_labels = {}
+        self.output_labels        = {}
+        self._output_unit_labels  = {}
         self._out_frame.grid_columnconfigure(1, weight=1)
 
         for i, name in enumerate(model.output_fields):
@@ -365,8 +379,12 @@ class SurrogateGUI:
                      anchor="e").grid(row=i, column=0, sticky="e",
                                       padx=(8, 10), pady=5)
             lbl = tk.Label(self._out_frame, text="--", font=FONT_BOLD, anchor="w")
-            lbl.grid(row=i, column=1, sticky="w", padx=(0, 12), pady=5)
-            self.output_labels[name] = lbl
+            lbl.grid(row=i, column=1, sticky="w", padx=(0, 4), pady=5)
+            ulbl = tk.Label(self._out_frame, text=UM.unit_label(name),
+                            font=("Helvetica", 11), fg="gray", anchor="w")
+            ulbl.grid(row=i, column=2, sticky="w", padx=(0, 8), pady=5)
+            self.output_labels[name]       = lbl
+            self._output_unit_labels[name] = ulbl
 
     # ── prediction ────────────────────────────────────────────────────────────
     def _predict_start(self):
@@ -408,11 +426,11 @@ class SurrogateGUI:
                     + "\n".join(f"  • {m}" for m in missing)
                 )
 
-            # ── 2. parse inputs ───────────────────────────────────────────────
+            # ── 2. parse inputs (convert display units → model units) ─────────
             inputs = {}
             for name, ent in self.input_entries.items():
                 try:
-                    inputs[name] = float(ent.get().strip())
+                    inputs[name] = UM.from_display(name, float(ent.get().strip()))
                 except ValueError:
                     display = _label("inputs", name)
                     raise ValueError(f"'{display}' is not a valid number.")
@@ -452,10 +470,9 @@ class SurrogateGUI:
     def _update_ui(self, y_vals: np.ndarray):
         raw_outputs: dict[str, float] = {}
         for name, lbl in self.output_labels.items():
-            idx   = self.model.out_idx[name]
-            scale = OUTPUT_SCALES.get(name, 1.0)
-            raw   = float(y_vals[idx])
-            lbl.config(text=f"{raw * scale:.5g}")
+            idx  = self.model.out_idx[name]
+            raw  = float(y_vals[idx])
+            lbl.config(text=f"{UM.to_display(name, raw):.5g}")
             raw_outputs[name] = raw   # store in raw model units for saving
 
         # store for "Save Prediction to Card"
@@ -545,12 +562,12 @@ class SurrogateGUI:
             else:
                 inputs.update(_db.polymer_model_inputs(self._polymer_id))
 
-        # ── write into matching entry widgets ─────────────────────────────────
+        # ── write into matching entry widgets (convert model units → display) ──
         for field, value in inputs.items():
             if field in self.input_entries and value is not None:
                 ent = self.input_entries[field]
                 ent.delete(0, tk.END)
-                ent.insert(0, f"{value:.6g}")
+                ent.insert(0, f"{UM.to_display(field, value):.6g}")
 
     def _refresh_insitu_toggle(self):
         """Enable the In-situ radio button only when inferred constituent data exists."""
@@ -603,6 +620,40 @@ class SurrogateGUI:
                 seen[p["property_name"]] = float(p["value"])
         return seen if seen else None
 
+    # ── unit system ───────────────────────────────────────────────────────────
+
+    def _on_unit_system_change(self, _event=None):
+        new_sys = self._unit_sys_var.get()
+        old_sys = UM.current_system
+        if new_sys == old_sys:
+            return
+        # Convert existing values in input fields
+        for name, ent in self.input_entries.items():
+            raw = ent.get().strip()
+            if not raw:
+                continue
+            try:
+                new_val = UM.convert_between(name, float(raw), old_sys, new_sys)
+                ent.delete(0, tk.END)
+                ent.insert(0, f"{new_val:.6g}")
+            except ValueError:
+                pass
+        UM.set_system(new_sys)   # fires UM callbacks → _refresh_unit_labels
+
+    def _refresh_unit_labels(self):
+        """Called by UM when any window changes the unit system."""
+        if hasattr(self, "_unit_sys_var"):
+            self._unit_sys_var.set(UM.current_system)
+        for name, ulbl in self._input_unit_labels.items():
+            ulbl.config(text=UM.unit_label(name))
+        for name, ulbl in self._output_unit_labels.items():
+            ulbl.config(text=UM.unit_label(name))
+        # Re-render predicted output values in the new unit system
+        for name, lbl in self.output_labels.items():
+            if name in self._last_prediction_outputs:
+                raw = self._last_prediction_outputs[name]
+                lbl.config(text=f"{UM.to_display(name, raw):.5g}")
+
     # ── material card save / load / view ──────────────────────────────────────
 
     def _on_save_prediction(self):
@@ -640,7 +691,7 @@ class SurrogateGUI:
         for name, ent in self.input_entries.items():
             if name in dlg.loaded:
                 ent.delete(0, tk.END)
-                ent.insert(0, f"{dlg.loaded[name]:.6g}")
+                ent.insert(0, f"{UM.to_display(name, dlg.loaded[name]):.6g}")
                 if name in self.input_prov_labels and name in dlg.loaded_provenance:
                     prov = dlg.loaded_provenance[name]
                     src  = prov.get("source_tag", "")

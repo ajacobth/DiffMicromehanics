@@ -31,6 +31,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import db as _db
+from unit_manager import UM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -78,7 +79,12 @@ class ThermalInverseWindow:
         self._result: Optional[dict] = None
         self._fixed_inputs: Optional[dict] = None
 
+        # dynamic unit StringVars (updated via UM callback)
+        self._k_unit_var:       tk.StringVar | None = None
+        self._density_unit_var: tk.StringVar | None = None
+
         self._build_ui()
+        UM.register_callback(self._refresh_unit_labels)
 
     # ─────────────────────────────────────────────────────────────────────────
     # UI construction
@@ -98,7 +104,21 @@ class ThermalInverseWindow:
         row = 0
         tk.Label(left, text="Thermal Inverse Estimation",
                  font=FONT_TITLE).grid(row=row, column=0, columnspan=3,
-                                       sticky="w", pady=(0, 10))
+                                       sticky="w", pady=(0, 4))
+        row += 1
+        units_f = ttk.Frame(left)
+        units_f.grid(row=row, column=0, columnspan=3, sticky="w", pady=(0, 8))
+        tk.Label(units_f, text="Units:", font=FONT_SMALL).pack(side="left", padx=(0, 4))
+        self._unit_sys_var = tk.StringVar(value=UM.current_system)
+        self._unit_sys_cb  = ttk.Combobox(units_f, textvariable=self._unit_sys_var,
+                                           values=UM.available_systems,
+                                           state="readonly", width=38, font=FONT_SMALL)
+        self._unit_sys_cb.pack(side="left")
+        self._unit_sys_cb.bind("<<ComboboxSelected>>", self._on_unit_system_change)
+
+        # initialise dynamic unit StringVars
+        self._k_unit_var       = tk.StringVar(value=UM.unit_label("k_f1"))
+        self._density_unit_var = tk.StringVar(value=UM.unit_label("rho_f"))
 
         # ── model load ────────────────────────────────────────────────────────
         row += 1
@@ -142,23 +162,27 @@ class ThermalInverseWindow:
                  font=FONT_BOLD).grid(row=row, column=0, columnspan=3,
                                       sticky="w", pady=(0, 4))
 
-        def _add_field(r, label, var_default, unit=""):
+        def _add_field(r, label, var_default, unit_var=None, unit_static=""):
             tk.Label(left, text=label + ":", font=FONT_LABEL, anchor="e",
                      width=22).grid(row=r, column=0, sticky="e", pady=2)
             var = tk.StringVar(value=var_default)
             tk.Entry(left, textvariable=var,
                      font=FONT_ENTRY, width=11).grid(
                 row=r, column=1, sticky="w", padx=(4, 2), pady=2)
-            if unit:
-                tk.Label(left, text=unit,
-                         font=FONT_SMALL, fg="gray").grid(
-                    row=r, column=2, sticky="w")
+            if unit_var is not None:
+                tk.Label(left, textvariable=unit_var,
+                         font=FONT_SMALL, fg="gray").grid(row=r, column=2, sticky="w")
+            elif unit_static:
+                tk.Label(left, text=unit_static,
+                         font=FONT_SMALL, fg="gray").grid(row=r, column=2, sticky="w")
             return var
 
-        row += 1; self._ar_var   = _add_field(row, "Aspect ratio",      "20.0")
-        row += 1; self._vf_var   = _add_field(row, "Volume fraction vf","0.174")
-        row += 1; self._rhof_var = _add_field(row, "Fiber density",     "1780", "kg/m³")
-        row += 1; self._rhom_var = _add_field(row, "Matrix density",    "1280", "kg/m³")
+        row += 1; self._ar_var   = _add_field(row, "Aspect ratio",       "20.0")
+        row += 1; self._vf_var   = _add_field(row, "Volume fraction vf", "0.174")
+        row += 1; self._rhof_var = _add_field(row, "Fiber density",  "1780",
+                                               unit_var=self._density_unit_var)
+        row += 1; self._rhom_var = _add_field(row, "Matrix density", "1280",
+                                               unit_var=self._density_unit_var)
 
         row += 1
         tk.Label(left, text="Orientation tensor:", font=FONT_BOLD).grid(
@@ -232,24 +256,27 @@ class ThermalInverseWindow:
         tk.Label(left, text="Estimated parameters", font=FONT_BOLD).grid(
             row=row, column=0, columnspan=3, sticky="w", pady=(0, 4))
 
-        def _res_row(r, label, unit):
+        def _res_row(r, label, unit_var=None, unit_static=""):
             tk.Label(left, text=label + ":", font=FONT_LABEL, anchor="e",
                      width=28).grid(row=r, column=0, sticky="e", pady=1)
             var = tk.StringVar(value="—")
             tk.Label(left, textvariable=var,
                      font=FONT_MONO, width=12, anchor="w").grid(
                 row=r, column=1, sticky="w", padx=(4, 2))
-            if unit:
-                tk.Label(left, text=unit, font=FONT_SMALL, fg="gray").grid(
-                    row=r, column=2, sticky="w")
+            if unit_var is not None:
+                tk.Label(left, textvariable=unit_var,
+                         font=FONT_SMALL, fg="gray").grid(row=r, column=2, sticky="w")
+            elif unit_static:
+                tk.Label(left, text=unit_static,
+                         font=FONT_SMALL, fg="gray").grid(row=r, column=2, sticky="w")
             return var
 
-        row += 1; self._r_p1  = _res_row(row, "p1  (polymer scaling)", "W/(m·°C)")
-        row += 1; self._r_p2  = _res_row(row, "p2  (polymer offset)",  "W/(m·°C)")
-        row += 1; self._r_l2  = _res_row(row, "l2  (fiber long. K)",   "W/(m·°C)")
-        row += 1; self._r_t   = _res_row(row, "t   (anisotropy ratio)", "")
-        row += 1; self._r_kft = _res_row(row, "K_f_trans  (= l2/t)",   "W/(m·°C)")
-        row += 1; self._r_mse = _res_row(row, "Final MSE",             "(W/(m·°C))²")
+        row += 1; self._r_p1  = _res_row(row, "p1  (polymer scaling)", unit_var=self._k_unit_var)
+        row += 1; self._r_p2  = _res_row(row, "p2  (polymer offset)",  unit_var=self._k_unit_var)
+        row += 1; self._r_l2  = _res_row(row, "l2  (fiber long. K)",   unit_var=self._k_unit_var)
+        row += 1; self._r_t   = _res_row(row, "t   (anisotropy ratio)")
+        row += 1; self._r_kft = _res_row(row, "K_f_trans  (= l2/t)",   unit_var=self._k_unit_var)
+        row += 1; self._r_mse = _res_row(row, "Final MSE",             unit_static="(model units)²")
 
         # ── save buttons ──────────────────────────────────────────────────────
         row += 1
@@ -369,8 +396,8 @@ class ThermalInverseWindow:
                 raise ValueError(f"Invalid value for '{name}'.")
 
         vf    = _f(self._vf_var,   "volume fraction vf")
-        rho_f = _f(self._rhof_var, "fiber density")
-        rho_m = _f(self._rhom_var, "matrix density")
+        rho_f = UM.from_display("rho_f", _f(self._rhof_var, "fiber density"))
+        rho_m = UM.from_display("rho_m", _f(self._rhom_var, "matrix density"))
 
         from inverse_thermal import vf_to_wf
         w_f = vf_to_wf(vf, rho_f, rho_m)
@@ -489,12 +516,12 @@ class ThermalInverseWindow:
             K_pred       = K_pred,
         )
 
-        # update result labels
-        self._r_p1.set(f"{best_params.p1:.6g}")
-        self._r_p2.set(f"{best_params.p2:.6g}")
-        self._r_l2.set(f"{best_params.l2:.6g}")
-        self._r_t.set( f"{best_params.t:.6g}")
-        self._r_kft.set(f"{best_params.l2 / best_params.t:.6g}")
+        # update result labels (convert conductivities to display units)
+        self._r_p1.set( f"{UM.to_display('k_m',  best_params.p1):.6g}")
+        self._r_p2.set( f"{UM.to_display('k_m',  best_params.p2):.6g}")
+        self._r_l2.set( f"{UM.to_display('k_f1', best_params.l2):.6g}")
+        self._r_t.set(  f"{best_params.t:.6g}")
+        self._r_kft.set(f"{UM.to_display('k_f1', best_params.l2 / best_params.t):.6g}")
         self._r_mse.set(f"{best_loss:.4e}")
 
         # draw plots
@@ -525,6 +552,10 @@ class ThermalInverseWindow:
         T_pad   = max((T_hi - T_lo) * 0.05, 5.0)
         T_dense = np.linspace(T_lo - T_pad, T_hi + T_pad, 300)
 
+        k_unit  = UM.unit_label("k11")
+        k_fac   = UM.get_factor("k11")
+        k_ylabel = f"K  [{k_unit}]"
+
         # ── subplot 1: composite conductivities ───────────────────────────────
         ax = self._ax_composite
         ax.cla()
@@ -533,14 +564,14 @@ class ThermalInverseWindow:
         for key, col in [("K11", 0), ("K22", 1), ("K33", 2)]:
             c  = colours[key]
             lb = labels[key]
-            ax.plot(temperatures, K_pred[:, col], color=c, lw=2.2,
+            ax.plot(temperatures, K_pred[:, col] * k_fac, color=c, lw=2.2,
                     label=f"{lb} (surrogate)")
             if K_data.get(key) is not None:
-                ax.scatter(temperatures, K_data[key], color=c,
+                ax.scatter(temperatures, K_data[key] * k_fac, color=c,
                            s=60, zorder=5, marker="o",
                            label=f"{lb} (measured)")
         ax.set_xlabel("Temperature  (°C)", fontsize=9)
-        ax.set_ylabel("K  [W/(m·°C)]", fontsize=9)
+        ax.set_ylabel(k_ylabel, fontsize=9)
         ax.set_title("Composite thermal conductivities: surrogate vs. measured data",
                      fontsize=10)
         ax.legend(fontsize=8, ncol=3, loc="best")
@@ -550,22 +581,23 @@ class ThermalInverseWindow:
         # ── subplot 2: fiber conductivities ───────────────────────────────────
         ax = self._ax_fiber
         ax.cla()
-        kfl = fiber.K_f_long(T_dense)
-        kft = fiber.K_f_trans(T_dense)
+        kfl = fiber.K_f_long(T_dense)  * k_fac
+        kft = fiber.K_f_trans(T_dense) * k_fac
+        l2d = UM.to_display("k_f1", best_params.l2)
+        kftd = UM.to_display("k_f1", best_params.l2 / best_params.t)
         ax.plot(T_dense, kfl, lw=2.5, color="#7B2D8B", ls="-",
-                label=rf"$K_{{f,\,\mathrm{{long}}}}$ = {best_params.l2:.4g} W/(m·°C)  [constant]")
+                label=rf"$K_{{f,\,\mathrm{{long}}}}$ = {l2d:.4g} {k_unit}  [constant]")
         ax.plot(T_dense, kft, lw=2.5, color="#7B2D8B", ls="--",
-                label=rf"$K_{{f,\,\mathrm{{trans}}}}$ = {best_params.l2/best_params.t:.4g} W/(m·°C)  [constant]")
-        # annotate anisotropy ratio
+                label=rf"$K_{{f,\,\mathrm{{trans}}}}$ = {kftd:.4g} {k_unit}  [constant]")
         ax.text(0.97, 0.55,
-                f"l₂ = {best_params.l2:.4g} W/(m·°C)\n"
+                f"l\u2082 = {l2d:.4g} {k_unit}\n"
                 f"t  = {best_params.t:.4g}  (anisotropy ratio)\n"
-                f"K_f_trans = l₂/t = {best_params.l2/best_params.t:.4g} W/(m·°C)",
+                f"K_f_trans = l\u2082/t = {kftd:.4g} {k_unit}",
                 transform=ax.transAxes, ha="right", va="center",
                 fontsize=9, family="monospace",
                 bbox=dict(boxstyle="round,pad=0.4", facecolor="#EEE8F8", alpha=0.9))
         ax.set_xlabel("Temperature  (°C)", fontsize=9)
-        ax.set_ylabel("K  [W/(m·°C)]", fontsize=9)
+        ax.set_ylabel(k_ylabel, fontsize=9)
         ax.set_title("Fiber thermal conductivity vs. temperature  "
                      "(temperature-independent)", fontsize=10)
         ax.legend(fontsize=9)
@@ -575,22 +607,23 @@ class ThermalInverseWindow:
         # ── subplot 3: polymer conductivity ───────────────────────────────────
         ax = self._ax_polymer
         ax.cla()
-        km = poly(T_dense)
+        km = poly(T_dense) * k_fac
+        p1d = UM.to_display("k_m", best_params.p1)
+        p2d = UM.to_display("k_m", best_params.p2)
         ax.plot(T_dense, km, lw=2.5, color="#C0392B",
                 label=r"$K_m(T) = p_1\,\sqrt{T / T_\mathrm{ref}} + p_2$")
-        # scatter measured range
         T_meas_range = np.linspace(T_lo, T_hi, 60)
-        ax.fill_between(T_meas_range, poly(T_meas_range),
+        ax.fill_between(T_meas_range, poly(T_meas_range) * k_fac,
                         alpha=0.12, color="#C0392B", label="measured T range")
         ax.text(0.97, 0.12,
-                f"p₁ = {best_params.p1:.4g} W/(m·°C)\n"
-                f"p₂ = {best_params.p2:.4g} W/(m·°C)\n"
-                f"T_ref = 1.0 °C",
+                f"p\u2081 = {p1d:.4g} {k_unit}\n"
+                f"p\u2082 = {p2d:.4g} {k_unit}\n"
+                f"T_ref = 1.0 \u00b0C",
                 transform=ax.transAxes, ha="right", va="bottom",
                 fontsize=9, family="monospace",
                 bbox=dict(boxstyle="round,pad=0.4", facecolor="#FDECEA", alpha=0.9))
         ax.set_xlabel("Temperature  (°C)", fontsize=9)
-        ax.set_ylabel("K  [W/(m·°C)]", fontsize=9)
+        ax.set_ylabel(k_ylabel, fontsize=9)
         ax.set_title("Polymer (matrix) thermal conductivity vs. temperature  "
                      r"[$K_m(T) = p_1\sqrt{T} + p_2$]", fontsize=10)
         ax.legend(fontsize=9)
@@ -607,6 +640,53 @@ class ThermalInverseWindow:
         self._draw_placeholder()
         self._canvas.draw()
         self._save_card_btn.config(state="disabled")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Unit system
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _on_unit_system_change(self, _event=None):
+        new_sys = self._unit_sys_var.get()
+        old_sys = UM.current_system
+        if new_sys == old_sys:
+            return
+        # Convert density fields
+        for var, field in [(self._rhof_var, "rho_f"), (self._rhom_var, "rho_m")]:
+            raw = var.get().strip()
+            try:
+                new_val = UM.convert_between(field, float(raw), old_sys, new_sys)
+                var.set(f"{new_val:.6g}")
+            except ValueError:
+                pass
+        UM.set_system(new_sys)   # fires callbacks → _refresh_unit_labels
+        # Redraw plots with new units if results exist
+        if self._result is not None:
+            r = self._result
+            self._draw_results(r["best_params"], r["temperatures"],
+                               r["K_data"], r["K_pred"])
+
+    def _refresh_unit_labels(self):
+        """Called by UM when any window changes the unit system."""
+        if hasattr(self, "_unit_sys_var"):
+            self._unit_sys_var.set(UM.current_system)
+        if self._k_unit_var is not None:
+            self._k_unit_var.set(UM.unit_label("k_f1"))
+        if self._density_unit_var is not None:
+            self._density_unit_var.set(UM.unit_label("rho_f"))
+        # Re-display numeric results with new units
+        self._redisplay_results()
+
+    def _redisplay_results(self):
+        """Re-render the result labels using the current unit system."""
+        if self._result is None:
+            return
+        bp = self._result["best_params"]
+        self._r_p1.set( f"{UM.to_display('k_m',  bp.p1):.6g}")
+        self._r_p2.set( f"{UM.to_display('k_m',  bp.p2):.6g}")
+        self._r_l2.set( f"{UM.to_display('k_f1', bp.l2):.6g}")
+        self._r_t.set(  f"{bp.t:.6g}")
+        self._r_kft.set(f"{UM.to_display('k_f1', bp.l2 / bp.t):.6g}")
+        self._r_mse.set(f"{self._result['best_loss']:.4e}")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Save

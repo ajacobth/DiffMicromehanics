@@ -22,6 +22,7 @@ from tkinter import ttk, messagebox, filedialog
 import numpy as np
 
 import db as _db
+from unit_manager import UM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -45,29 +46,8 @@ def _label(section: str, key: str) -> str:
     return _FIELD_LABELS.get(section, {}).get(key, key)
 
 
-# ── output display scales and units ───────────────────────────────────────────
-OUTPUT_SCALES: dict[str, float] = {
-    "E1":  1e-3,  "E2":  1e-3,  "E3":  1e-3,
-    "G12": 1e-3,  "G13": 1e-3,  "G23": 1e-3,
-    "nu12": 1.0,  "nu13": 1.0,  "nu23": 1.0,
-    "CTE11": 1e6, "CTE22": 1e6, "CTE33": 1e6,
-    "CTE12": 1e6, "CTE13": 1e6, "CTE23": 1e6,
-}
-OUTPUT_UNITS: dict[str, str] = {
-    "E1": "GPa",  "E2": "GPa",  "E3": "GPa",
-    "G12": "GPa", "G13": "GPa", "G23": "GPa",
-    "nu12": "",   "nu13": "",   "nu23": "",
-    "CTE11": "µ/K", "CTE22": "µ/K", "CTE33": "µ/K",
-    "CTE12": "µ/K", "CTE13": "µ/K", "CTE23": "µ/K",
-}
-# Units used for target/sigma *entry* (raw model units, no scaling)
-ENTRY_UNITS: dict[str, str] = {
-    "E1": "MPa",  "E2": "MPa",  "E3": "MPa",
-    "G12": "MPa", "G13": "MPa", "G23": "MPa",
-    "nu12": "",   "nu13": "",   "nu23": "",
-    "CTE11": "1/K", "CTE22": "1/K", "CTE33": "1/K",
-    "CTE12": "1/K", "CTE13": "1/K", "CTE23": "1/K",
-}
+# Unit scaling and labels are now provided dynamically by unit_manager.UM.
+# See  data/units.json  to customise or add unit systems.
 
 FONT_TITLE  = ("Helvetica", 17, "bold")
 FONT_LABEL  = ("Helvetica", 14)
@@ -79,19 +59,6 @@ FONT_MONO   = ("Courier",   12)
 
 MODEL_NAMES = ["elastic", "thermoelastic"]
 _BIG        = 1e12   # stand-in for ±∞ when only some free vars have explicit bounds
-
-
-# ── tag parsing ────────────────────────────────────────────────────────────────
-def parse_tags(tag_str: str) -> dict:
-    """Parse "key:value key2:value2" into a dict.  "machine:CAMRI" -> {"machine":"CAMRI"}"""
-    result = {}
-    for part in tag_str.strip().split():
-        if ":" in part:
-            k, _, v = part.partition(":")
-            result[k.strip()] = v.strip()
-        elif part:
-            result[part] = ""
-    return result
 
 
 # ── per-input row ──────────────────────────────────────────────────────────────
@@ -115,9 +82,14 @@ class InputRow:
         ttk.Radiobutton(rb, text="Free",  variable=self._mode,
                         value="free",  command=self._on_mode).pack(side="left", padx=(8, 0))
 
-        # value entry (fixed value or initial guess for free)
-        self._val_entry = tk.Entry(parent, width=13, font=FONT_ENTRY)
-        self._val_entry.grid(row=row, column=2, padx=6, pady=2)
+        # value entry + dynamic unit label
+        val_f = ttk.Frame(parent)
+        val_f.grid(row=row, column=2, padx=6, pady=2)
+        self._val_entry = tk.Entry(val_f, width=13, font=FONT_ENTRY)
+        self._val_entry.pack(side="left")
+        self._unit_lbl = tk.Label(val_f, text=UM.unit_label(field),
+                                  font=FONT_SMALL, fg="gray", width=10, anchor="w")
+        self._unit_lbl.pack(side="left", padx=(3, 0))
 
         # bounds frame – hidden until mode = free
         self._bf = ttk.Frame(parent)
@@ -160,17 +132,22 @@ class InputRow:
 
     def set_value(self, v: float):
         self._val_entry.delete(0, tk.END)
-        self._val_entry.insert(0, str(v))
+        self._val_entry.insert(0, f"{v:.6g}")
+
+    def update_unit_label(self):
+        self._unit_lbl.config(text=UM.unit_label(self.field))
 
 
 # ── per-output row ─────────────────────────────────────────────────────────────
 class OutputRow:
     """One row in the Targets panel (one model output field)."""
 
-    def __init__(self, parent: tk.Widget, row: int, field: str, display: str, unit: str = ""):
+    def __init__(self, parent: tk.Widget, row: int, field: str, display: str):
         self.field   = field
         self.display = display
         self._active = tk.BooleanVar(value=False)
+        self._parent = parent
+        self._row    = row
 
         ttk.Checkbutton(parent, variable=self._active,
                         command=self._on_toggle).grid(row=row, column=0,
@@ -188,12 +165,15 @@ class OutputRow:
         self._sigma_entry = tk.Entry(sigma_frame, width=10, font=FONT_ENTRY, state="disabled")
         self._sigma_entry.insert(0, "0")
         self._sigma_entry.pack(side="left", padx=(2, 0))
-        if unit:
-            tk.Label(sigma_frame, text=unit, font=FONT_SMALL, fg="gray").pack(side="left", padx=(3, 0))
+        unit_str = UM.unit_label(field)
+        self._sigma_unit_lbl = tk.Label(sigma_frame, text=unit_str,
+                                        font=FONT_SMALL, fg="gray")
+        self._sigma_unit_lbl.pack(side="left", padx=(3, 0))
 
-        unit_col_text = f"({unit})" if unit else "(dimensionless)"
-        tk.Label(parent, text=unit_col_text, font=FONT_SMALL,
-                 fg="gray").grid(row=row, column=4, sticky="w", padx=2)
+        self._col_unit_lbl = tk.Label(parent,
+            text=f"({unit_str})" if unit_str else "(dimensionless)",
+            font=FONT_SMALL, fg="gray")
+        self._col_unit_lbl.grid(row=row, column=4, sticky="w", padx=2)
 
     def _on_toggle(self):
         state = "normal" if self._active.get() else "disabled"
@@ -216,6 +196,25 @@ class OutputRow:
         except ValueError:
             return 0.0
 
+    def set_target(self, val: float):
+        state = str(self._entry["state"])
+        self._entry.config(state="normal")
+        self._entry.delete(0, tk.END)
+        self._entry.insert(0, f"{val:.6g}")
+        self._entry.config(state=state)
+
+    def set_sigma(self, val: float):
+        state = str(self._sigma_entry["state"])
+        self._sigma_entry.config(state="normal")
+        self._sigma_entry.delete(0, tk.END)
+        self._sigma_entry.insert(0, f"{val:.6g}")
+        self._sigma_entry.config(state=state)
+
+    def update_unit_label(self):
+        u = UM.unit_label(self.field)
+        self._sigma_unit_lbl.config(text=u)
+        self._col_unit_lbl.config(text=f"({u})" if u else "(dimensionless)")
+
 
 # ── main GUI ───────────────────────────────────────────────────────────────────
 class InverseGUI:
@@ -235,6 +234,7 @@ class InverseGUI:
         root.geometry("1700x1020")
         root.minsize(1200, 700)
         self._build_layout()
+        UM.register_callback(self._refresh_unit_labels)
         if _db.db_exists():
             self._load_material_dropdowns()
 
@@ -265,17 +265,18 @@ class InverseGUI:
                                      font=FONT_STATUS, fg="gray")
         self._load_status.grid(row=0, column=5, padx=8, sticky="w")
 
-        # tag field
+        # unit system selector
         ttk.Separator(top, orient="vertical").grid(row=0, column=6,
                                                     sticky="ns", padx=12)
-        tk.Label(top, text="Tag:", font=FONT_LABEL).grid(row=0, column=7, padx=(0, 4))
-        self._tag_var = tk.StringVar()
-        tk.Entry(top, textvariable=self._tag_var, width=24,
-                 font=FONT_ENTRY).grid(row=0, column=8, padx=4)
-        tk.Label(top, text='e.g.  machine:CAMRI  batch:A',
-                 font=FONT_SMALL, fg="gray").grid(row=0, column=9, padx=4)
+        tk.Label(top, text="Units:", font=FONT_LABEL).grid(row=0, column=7, padx=(0, 4))
+        self._unit_sys_var = tk.StringVar(value=UM.current_system)
+        self._unit_sys_cb  = ttk.Combobox(top, textvariable=self._unit_sys_var,
+                                           values=UM.available_systems,
+                                           state="readonly", width=36, font=FONT_SMALL)
+        self._unit_sys_cb.grid(row=0, column=8, padx=4)
+        self._unit_sys_cb.bind("<<ComboboxSelected>>", self._on_unit_system_change)
 
-        # ── row 1: thermal inverse button + load from card ────────────────────
+        # ── row 1: action buttons + material selectors + unit system ─────────
         ttk.Button(top, text="🌡  Open Thermal Inverse Solver",
                    command=self._open_thermal_inverse).grid(
             row=1, column=0, columnspan=4, sticky="w", padx=(0, 8), pady=(6, 0))
@@ -305,6 +306,7 @@ class InverseGUI:
         ttk.Button(top, text="Load Props",
                    command=self._on_load_material_props).grid(
             row=1, column=10, padx=(8, 4), pady=(6, 0))
+
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
@@ -555,15 +557,14 @@ class InverseGUI:
 
         for i, field in enumerate(model.output_fields):
             row = OutputRow(hdr, row=i + 1, field=field,
-                            display=_label("outputs", field),
-                            unit=ENTRY_UNITS.get(field, ""))
+                            display=_label("outputs", field))
             self._output_rows.append(row)
 
         n = len(model.output_fields)
-        tk.Label(hdr,
-                 text="Units for target entry: E/G in MPa · nu dimensionless · CTE in 1/K",
-                 font=FONT_SMALL, fg="gray").grid(
-            row=n + 1, column=0, columnspan=5, sticky="w", padx=8, pady=(8, 2))
+        self._units_hint_lbl = tk.Label(hdr, font=FONT_SMALL, fg="gray")
+        self._units_hint_lbl.grid(row=n + 1, column=0, columnspan=5,
+                                   sticky="w", padx=8, pady=(8, 2))
+        self._update_units_hint()
         tk.Label(hdr,
                  text=("Note: Enter the standard deviation in the \u03c3 field.  "
                        "If entering the standard deviation, remember to check the \u03b5-insensitive button."),
@@ -580,15 +581,19 @@ class InverseGUI:
 
         for row in self._input_rows:
             try:
-                val = row.get_value()
+                display_val = row.get_value()
             except ValueError:
                 raise ValueError(f"Invalid or missing value for  '{row.display}'.")
+            val = UM.from_display(row.field, display_val)
             if row.is_free():
                 free.append(row.field)
                 init.append(val)
                 b = row.get_bounds()
                 if b is not None:
-                    bounds[row.field] = b
+                    bounds[row.field] = (
+                        UM.from_display(row.field, b[0]),
+                        UM.from_display(row.field, b[1]),
+                    )
             else:
                 fixed[row.field] = val
 
@@ -606,10 +611,13 @@ class InverseGUI:
         for row in self._output_rows:
             if row.is_active():
                 try:
-                    targets[row.field] = row.get_target()
+                    disp_tgt = row.get_target()
                 except ValueError:
                     raise ValueError(f"Invalid or missing target for  '{row.display}'.")
-                sigmas[row.field] = row.get_sigma()
+                targets[row.field] = UM.from_display(row.field, disp_tgt)
+                disp_sig = row.get_sigma()
+                sigmas[row.field] = (UM.from_display(row.field, disp_sig)
+                                     if disp_sig != 0.0 else 0.0)
         return targets, sigmas
 
     # ── solve ─────────────────────────────────────────────────────────────────
@@ -647,8 +655,7 @@ class InverseGUI:
             messagebox.showerror("Solver config error", str(e))
             return
 
-        tag_str = self._tag_var.get().strip()
-        tags    = parse_tags(tag_str) if tag_str else {}
+        tags = {}
 
         # ── orientation tensor PSD check ──────────────────────────────────────
         _OT_FIELDS = ("a11", "a22", "a12", "a13", "a23")
@@ -804,22 +811,23 @@ class InverseGUI:
             "  " + "-" * 62,
         ]
         for k, tgt in targets.items():
-            pred  = float(y_np[model.out_idx[k]])
-            scale = OUTPUT_SCALES.get(k, 1.0)
-            unit  = OUTPUT_UNITS.get(k, "")
-            pct   = 100.0 * abs(pred - tgt) / tgt if tgt != 0.0 else float("nan")
+            pred   = float(y_np[model.out_idx[k]])
+            unit   = UM.unit_label(k)
+            p_disp = UM.to_display(k, pred)
+            t_disp = UM.to_display(k, tgt)
+            pct    = 100.0 * abs(pred - tgt) / tgt if tgt != 0.0 else float("nan")
             lines.append(
-                f"  {k:<12}  {pred * scale:>16.6g}  {tgt * scale:>16.6g}"
+                f"  {k:<12}  {p_disp:>16.6g}  {t_disp:>16.6g}"
                 f"  {pct:>8.3f}%  {unit}"
             )
 
-        lines += ["", "All predicted outputs  (display units):"]
+        lines += ["", f"All predicted outputs  ({UM.current_system}):"]
         for k in model.output_fields:
-            pred  = float(y_np[model.out_idx[k]])
-            scale = OUTPUT_SCALES.get(k, 1.0)
-            unit  = OUTPUT_UNITS.get(k, "")
-            mark  = "  <-- target" if k in targets else ""
-            lines.append(f"  {k:<12}  {pred * scale:>16.6g}  {unit}{mark}")
+            pred   = float(y_np[model.out_idx[k]])
+            unit   = UM.unit_label(k)
+            p_disp = UM.to_display(k, pred)
+            mark   = "  <-- target" if k in targets else ""
+            lines.append(f"  {k:<12}  {p_disp:>16.6g}  {unit}{mark}")
 
         lines.append("")
         self._write_results("\n".join(lines))
@@ -862,7 +870,7 @@ class InverseGUI:
             return
         for row in self._input_rows:
             if row.field in dlg.loaded:
-                row.set_value(dlg.loaded[row.field])
+                row.set_value(UM.to_display(row.field, dlg.loaded[row.field]))
         # remember which fiber/polymer this card belongs to
         if dlg.loaded_card is not None:
             self._card_fiber_id   = dlg.loaded_card.get("fiber_id")
@@ -918,7 +926,7 @@ class InverseGUI:
                 props = _db.fiber_model_inputs(fid)
                 for row in self._input_rows:
                     if row.field in props:
-                        row.set_value(props[row.field])
+                        row.set_value(UM.to_display(row.field, props[row.field]))
                         filled += 1
             except Exception as exc:
                 messagebox.showerror("Error", f"Could not load fiber properties:\n{exc}")
@@ -929,7 +937,7 @@ class InverseGUI:
                 props = _db.polymer_model_inputs(pid)
                 for row in self._input_rows:
                     if row.field in props:
-                        row.set_value(props[row.field])
+                        row.set_value(UM.to_display(row.field, props[row.field]))
                         filled += 1
             except Exception as exc:
                 messagebox.showerror("Error", f"Could not load polymer properties:\n{exc}")
@@ -937,6 +945,52 @@ class InverseGUI:
 
         self._card_fiber_id   = fid
         self._card_polymer_id = pid
+
+    # ── unit system ───────────────────────────────────────────────────────────
+
+    def _on_unit_system_change(self, _event=None):
+        new_sys = self._unit_sys_var.get()
+        old_sys = UM.current_system
+        if new_sys == old_sys:
+            return
+        # Convert existing values in input rows
+        for row in self._input_rows:
+            try:
+                old_val = row.get_value()
+            except ValueError:
+                continue
+            row.set_value(UM.convert_between(row.field, old_val, old_sys, new_sys))
+        # Convert active target / sigma values in output rows
+        for row in self._output_rows:
+            if row.is_active():
+                try:
+                    old_tgt = row.get_target()
+                    row.set_target(UM.convert_between(row.field, old_tgt, old_sys, new_sys))
+                except ValueError:
+                    pass
+                old_sig = row.get_sigma()
+                if old_sig != 0.0:
+                    row.set_sigma(UM.convert_between(row.field, old_sig, old_sys, new_sys))
+        UM.set_system(new_sys)   # fires UM callbacks → _refresh_unit_labels
+
+    def _refresh_unit_labels(self):
+        """Called by UM when any window changes the unit system."""
+        if hasattr(self, "_unit_sys_var"):
+            self._unit_sys_var.set(UM.current_system)
+        for row in self._input_rows:
+            row.update_unit_label()
+        for row in self._output_rows:
+            row.update_unit_label()
+        self._update_units_hint()
+
+    def _update_units_hint(self):
+        if not hasattr(self, "_units_hint_lbl"):
+            return
+        mod_u = UM.unit_label("E1") or "MPa"
+        cte_u = UM.unit_label("CTE11") or "1/K"
+        self._units_hint_lbl.config(
+            text=f"Unit system: {UM.current_system}  ·  "
+                 f"E/G in {mod_u}  ·  CTE in {cte_u}  ·  \u03bd dimensionless")
 
     def _open_thermal_inverse(self):
         from gui_thermal_inverse import ThermalInverseWindow
@@ -951,14 +1005,9 @@ class InverseGUI:
             messagebox.showwarning("No results", "Run the solver first.")
             return
 
-        tags = self._last_result.get("tags", {})
-        name_tag = tags.get("name", "").strip()
-        if not name_tag:
-            messagebox.showerror("Export error", "name tag missing")
-            return
-
         model_name   = self._last_result.get("model", "unknown")
-        default_name = f"inverse_{model_name}_{name_tag}.json"
+        ts           = self._last_result.get("timestamp", "")[:10]
+        default_name = f"inverse_{model_name}_{ts}.json"
         path = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
