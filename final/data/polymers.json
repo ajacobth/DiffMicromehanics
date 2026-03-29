@@ -8,10 +8,13 @@
       "G12": 1300,
       "nu12": 0.37,
       "rho": 1370,
+      "CTE": 55.0,
+      "k": 0.26,
       "source": "BASF datasheet",
+      "CTE_source": "BASF datasheet",
+      "k_source": "BASF datasheet",
       "notes": "Dried 12hr at 120C before printing"
-    },
-    "in_situ": null
+    }
   },
   {
     "name": "Epoxy 3501-6",
@@ -22,9 +25,12 @@
       "G12": 1600,
       "nu12": 0.34,
       "rho": 1260,
+      "CTE": 60.0,
+      "k": 0.17,
       "source": "Hexcel datasheet",
+      "CTE_source": "Hexcel datasheet",
+      "k_source": "Hexcel datasheet",
       "notes": ""
-    },
-    "in_situ": null
+    }
   }
 ]

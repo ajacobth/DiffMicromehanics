@@ -21,6 +21,8 @@ from tkinter import ttk, messagebox, filedialog
 
 import numpy as np
 
+import db as _db
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
 os.environ.setdefault("JAX_ENABLE_X64",    "1")
@@ -224,11 +226,17 @@ class InverseGUI:
         self._input_rows:  list[InputRow]  = []
         self._output_rows: list[OutputRow] = []
         self._last_result: Optional[dict]  = None
+        self._card_fiber_id:   Optional[int] = None
+        self._card_polymer_id: Optional[int] = None
+        self._fiber_map:  dict[str, int] = {}
+        self._polymer_map: dict[str, int] = {}
 
         root.title("Composite Surrogate – Inverse Design")
         root.geometry("1700x1020")
         root.minsize(1200, 700)
         self._build_layout()
+        if _db.db_exists():
+            self._load_material_dropdowns()
 
     # ── layout ────────────────────────────────────────────────────────────────
     def _build_layout(self):
@@ -267,20 +275,36 @@ class InverseGUI:
         tk.Label(top, text='e.g.  machine:CAMRI  batch:A',
                  font=FONT_SMALL, fg="gray").grid(row=0, column=9, padx=4)
 
-        # save directory
-        ttk.Separator(top, orient="vertical").grid(row=0, column=10,
-                                                    sticky="ns", padx=12)
-        tk.Label(top, text="Save dir:", font=FONT_LABEL).grid(row=0, column=11, padx=(0, 4))
-        self._savedir_var = tk.StringVar(value=_HERE)
-        tk.Entry(top, textvariable=self._savedir_var, width=30,
-                 font=FONT_ENTRY).grid(row=0, column=12, padx=4)
-        ttk.Button(top, text="Browse…",
-                   command=self._browse_savedir).grid(row=0, column=13, padx=4)
-
-        # ── row 1: thermal inverse button ─────────────────────────────────────
+        # ── row 1: thermal inverse button + load from card ────────────────────
         ttk.Button(top, text="🌡  Open Thermal Inverse Solver",
                    command=self._open_thermal_inverse).grid(
-            row=1, column=0, columnspan=6, sticky="w", padx=(0, 8), pady=(6, 0))
+            row=1, column=0, columnspan=4, sticky="w", padx=(0, 8), pady=(6, 0))
+
+        self._load_card_btn = ttk.Button(top, text="📂  Load from Card",
+                                         command=self._on_load_from_card)
+        self._load_card_btn.grid(row=1, column=4, padx=(16, 0), pady=(6, 0), sticky="w")
+
+        ttk.Separator(top, orient="vertical").grid(row=1, column=5,
+                                                    sticky="ns", padx=12, pady=(6, 0))
+        tk.Label(top, text="Fiber:", font=FONT_LABEL).grid(
+            row=1, column=6, padx=(0, 4), pady=(6, 0))
+        self._fiber_var = tk.StringVar(value="— select —")
+        self._fiber_cb  = ttk.Combobox(top, textvariable=self._fiber_var,
+                                        state="readonly", width=22, font=FONT_ENTRY)
+        self._fiber_cb.grid(row=1, column=7, padx=4, pady=(6, 0))
+        self._fiber_cb.bind("<<ComboboxSelected>>", lambda _: self._on_load_material_props(warn_no_model=False))
+
+        tk.Label(top, text="Polymer:", font=FONT_LABEL).grid(
+            row=1, column=8, padx=(8, 4), pady=(6, 0))
+        self._polymer_var = tk.StringVar(value="— select —")
+        self._polymer_cb  = ttk.Combobox(top, textvariable=self._polymer_var,
+                                          state="readonly", width=22, font=FONT_ENTRY)
+        self._polymer_cb.grid(row=1, column=9, padx=4, pady=(6, 0))
+        self._polymer_cb.bind("<<ComboboxSelected>>", lambda _: self._on_load_material_props(warn_no_model=False))
+
+        ttk.Button(top, text="Load Props",
+                   command=self._on_load_material_props).grid(
+            row=1, column=10, padx=(8, 4), pady=(6, 0))
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
 
@@ -353,11 +377,9 @@ class InverseGUI:
         self._solve_btn = ttk.Button(sbar, text="  SOLVE  ",
                                      command=self._on_solve, state="disabled")
         self._solve_btn.grid(row=0, column=12, padx=(22, 8))
-        self._export_btn = ttk.Button(sbar, text="Export Results",
-                                      command=self._on_export, state="disabled")
-        self._export_btn.grid(row=0, column=13, padx=(4, 8))
+
         self._solve_status = tk.Label(sbar, text="", font=FONT_STATUS, fg="orange")
-        self._solve_status.grid(row=0, column=14, sticky="w")
+        self._solve_status.grid(row=0, column=13, sticky="w")
 
         # ε-insensitive loss options (row 1)
         self._use_eps_var = tk.BooleanVar(value=False)
@@ -369,6 +391,15 @@ class InverseGUI:
         self._eps_scale_var = tk.StringVar(value="1.0")
         tk.Entry(sbar, textvariable=self._eps_scale_var, width=6,
                  font=FONT_ENTRY).grid(row=1, column=8, padx=4)
+
+        self._export_btn = ttk.Button(sbar, text="Export Results",
+                                      command=self._on_export, state="disabled")
+        self._export_btn.grid(row=1, column=9, padx=(14, 4))
+
+        self._save_card_btn = ttk.Button(sbar, text="Save to Card",
+                                         command=self._on_save_to_card,
+                                         state="disabled")
+        self._save_card_btn.grid(row=1, column=10, padx=(4, 4))
 
         # ── results panel ─────────────────────────────────────────────────────
         ttk.Separator(root, orient="horizontal").grid(row=5, column=0, sticky="ew")
@@ -440,11 +471,6 @@ class InverseGUI:
         canvas.bind("<MouseWheel>",
                     lambda e: canvas.yview_scroll(int(-e.delta / 120), "units"))
         return canvas, frame
-
-    def _browse_savedir(self):
-        d = filedialog.askdirectory(initialdir=self._savedir_var.get())
-        if d:
-            self._savedir_var.set(d)
 
     def _write_results(self, text: str):
         self._results_text.config(state="normal")
@@ -800,6 +826,7 @@ class InverseGUI:
 
         self._last_result = result
         self._export_btn.config(state="normal")
+        self._save_card_btn.config(state="normal")
         self._solve_status.config(text="Done.", fg="green")
         self._solve_btn.config(state="normal")
 
@@ -808,6 +835,108 @@ class InverseGUI:
         self._solve_btn.config(state="normal")
         self._write_results(f"ERROR:\n{msg}\n\nTraceback:\n{tb}")
         messagebox.showerror("Solve Error", msg)
+
+    # ── material card save / load ──────────────────────────────────────────────
+
+    def _on_save_to_card(self):
+        if self._last_result is None:
+            messagebox.showwarning("No results", "Run the solver first.")
+            return
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.")
+            return
+        from gui_card_dialogs import SaveToCardDialog
+        SaveToCardDialog(self.root, self._last_result,
+                         fiber_id=self._card_fiber_id,
+                         polymer_id=self._card_polymer_id)
+
+    def _on_load_from_card(self):
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.")
+            return
+        from gui_card_dialogs import LoadFromCardDialog
+        dlg = LoadFromCardDialog(self.root)
+        if not dlg.loaded:
+            return
+        for row in self._input_rows:
+            if row.field in dlg.loaded:
+                row.set_value(dlg.loaded[row.field])
+        # remember which fiber/polymer this card belongs to
+        if dlg.loaded_card is not None:
+            self._card_fiber_id   = dlg.loaded_card.get("fiber_id")
+            self._card_polymer_id = dlg.loaded_card.get("polymer_id")
+            # sync fiber/polymer dropdowns
+            fid = self._card_fiber_id
+            pid = self._card_polymer_id
+            if fid is not None:
+                id_to_name = {v: k for k, v in self._fiber_map.items()}
+                name = id_to_name.get(fid)
+                if name:
+                    self._fiber_var.set(name)
+            if pid is not None:
+                id_to_name = {v: k for k, v in self._polymer_map.items()}
+                name = id_to_name.get(pid)
+                if name:
+                    self._polymer_var.set(name)
+
+    def _load_material_dropdowns(self):
+        try:
+            fibers   = _db.get_all_fibers()
+            polymers = _db.get_all_polymers()
+        except Exception:
+            return
+        self._fiber_map   = {f["name"]: f["id"] for f in fibers}
+        self._polymer_map = {p["name"]: p["id"] for p in polymers}
+        self._fiber_cb["values"]   = list(self._fiber_map)
+        self._polymer_cb["values"] = list(self._polymer_map)
+
+    def _on_load_material_props(self, *, warn_no_model: bool = True):
+        if not _db.db_exists():
+            messagebox.showwarning("No database", "Run  python init_db.py  first.")
+            return
+        if not self._fiber_map and not self._polymer_map:
+            self._load_material_dropdowns()
+
+        fid = self._fiber_map.get(self._fiber_var.get())
+        pid = self._polymer_map.get(self._polymer_var.get())
+
+        if fid is None and pid is None:
+            messagebox.showwarning("No material selected",
+                                   "Select a fiber and/or polymer first.")
+            return
+        if not self._input_rows:
+            if warn_no_model:
+                messagebox.showwarning("No model loaded",
+                                       "Load a model first so input fields are available.")
+            return
+
+        filled = 0
+        if fid is not None:
+            try:
+                props = _db.fiber_model_inputs(fid)
+                for row in self._input_rows:
+                    if row.field in props:
+                        row.set_value(props[row.field])
+                        filled += 1
+            except Exception as exc:
+                messagebox.showerror("Error", f"Could not load fiber properties:\n{exc}")
+                return
+
+        if pid is not None:
+            try:
+                props = _db.polymer_model_inputs(pid)
+                for row in self._input_rows:
+                    if row.field in props:
+                        row.set_value(props[row.field])
+                        filled += 1
+            except Exception as exc:
+                messagebox.showerror("Error", f"Could not load polymer properties:\n{exc}")
+                return
+
+        self._card_fiber_id   = fid
+        self._card_polymer_id = pid
 
     def _open_thermal_inverse(self):
         from gui_thermal_inverse import ThermalInverseWindow
@@ -828,28 +957,16 @@ class InverseGUI:
             messagebox.showerror("Export error", "name tag missing")
             return
 
-        savedir = self._savedir_var.get().strip()
-        if not savedir:
-            messagebox.showwarning("No save directory", "Set a save directory first.")
+        model_name   = self._last_result.get("model", "unknown")
+        default_name = f"inverse_{model_name}_{name_tag}.json"
+        path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+            initialfile=default_name,
+            title="Export Inverse Result",
+        )
+        if not path:
             return
-
-        try:
-            os.makedirs(savedir, exist_ok=True)
-        except Exception as exc:
-            messagebox.showwarning("Save warning", f"Could not create directory:\n{exc}")
-            return
-
-        model_name = self._last_result.get("model", "unknown")
-        fname = f"inverse_{model_name}_{name_tag}.json"
-        path  = os.path.join(savedir, fname)
-
-        if os.path.exists(path):
-            overwrite = messagebox.askyesno(
-                "File exists",
-                f"A result with name tag '{name_tag}' already exists:\n{fname}\n\nOverwrite?",
-            )
-            if not overwrite:
-                return
 
         try:
             with open(path, "w") as f:

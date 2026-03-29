@@ -3,16 +3,38 @@
 All reads/writes to data/micromechanics.db go through this module.
 
 Units (stored in DB / JSON and passed directly to the surrogate):
-    moduli    MPa
-    density   kg/m³
-    CTE       µ/K
-    conductivity  W/m·K
+    moduli       MPa
+    density      kg/m³
+    CTE          1/K      (entered and stored in SI units — no conversion needed)
+    conductivity W/m·K
 
 Model input units (what the surrogate expects):
-    moduli    MPa
-    density   kg/m³
-    CTE       1/K      (× 1e-6 from µ/K)
-    conductivity  W/m·K  (no conversion needed)
+    moduli       MPa
+    density      kg/m³
+    CTE          1/K      (no conversion needed)
+    conductivity W/m·K    (no conversion needed)
+
+── Reference table API ───────────────────────────────────────────────────────────
+    get_all_fibers / get_fiber / fiber_model_inputs / add_fiber
+    get_all_polymers / get_polymer / polymer_model_inputs / add_polymer
+    get_all_printers / add_printer
+
+── Material-card API ────────────────────────────────────────────────────────────
+    create_print_config / get_print_config / get_all_print_configs
+    save_microstructure_snapshot / get_latest_microstructure
+        / get_all_microstructure_snapshots / get_best_microstructure
+    save_inference_run / get_inference_runs
+    save_constituent_property / get_constituent_properties
+    save_experimental_measurement / get_experimental_measurements
+    save_composite_property / get_composite_properties
+        / get_current_composite_properties
+    set_property_preference / get_canonical_value
+    get_print_config_card
+
+── Thermal helpers ───────────────────────────────────────────────────────────────
+    save_thermal_inverse_results
+    get_thermal_constituent_inputs
+    import_thermal_csv
 """
 
 from __future__ import annotations
@@ -188,200 +210,819 @@ def add_printer(name: str, manufacturer: str = "", notes: str = "") -> int:
     return cur.lastrowid
 
 
-# ── microstructure ────────────────────────────────────────────────────────────
+# ── print configs (material cards) ────────────────────────────────────────────
 
-def get_or_create_microstructure(
-    fiber_id:    int,
-    polymer_id:  int,
-    Vf:          float,
-    ar:          float,
-    a11:         float,
-    a22:         float,
-    a12:         float,
-    a13:         float,
-    a23:         float,
-    printer_id:  Optional[int] = None,
-    w_f:         Optional[float] = None,
-    orientation_source: str = "",
-    notes:       str = "",
+def create_print_config(
+    name:       str,
+    fiber_id:   int,
+    polymer_id: int,
+    printer_id: Optional[int] = None,
+    notes:      str = "",
 ) -> int:
-    """
-    Return id of an existing matching microstructure or insert a new one.
-    Matching is done on fiber_id, polymer_id, Vf, ar, and orientation tensor.
-    """
+    """Create a new print config (material card). Returns new id."""
     with _connect() as conn:
-        row = conn.execute(
-            """
-            SELECT id FROM microstructure
-            WHERE fiber_id=? AND polymer_id=?
-              AND abs(Vf  - ?) < 1e-6
-              AND abs(ar  - ?) < 1e-4
-              AND abs(a11 - ?) < 1e-6
-              AND abs(a22 - ?) < 1e-6
-              AND abs(a12 - ?) < 1e-6
-              AND abs(a13 - ?) < 1e-6
-              AND abs(a23 - ?) < 1e-6
-            LIMIT 1
-            """,
-            (fiber_id, polymer_id, Vf, ar, a11, a22, a12, a13, a23),
-        ).fetchone()
-        if row:
-            return row["id"]
         cur = conn.execute(
             """
-            INSERT INTO microstructure
-                (fiber_id, polymer_id, printer_id, Vf, w_f, ar,
-                 a11, a22, a12, a13, a23, orientation_source, notes)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            INSERT INTO print_configs
+                (name, fiber_id, polymer_id, printer_id, notes, created_at)
+            VALUES (?,?,?,?,?,?)
             """,
-            (fiber_id, polymer_id, printer_id, Vf, w_f, ar,
-             a11, a22, a12, a13, a23, orientation_source, notes),
+            (name, fiber_id, polymer_id, printer_id, notes,
+             datetime.now().isoformat()),
         )
-        return cur.lastrowid
+    return cur.lastrowid
 
 
-# ── experiments & inferred properties ────────────────────────────────────────
-
-def save_experiment(
-    microstructure_id: int,
-    property_type:     str,
-    inferred:          dict,
-    solver_cfg:        dict,
-    loss:              float,
-    model:             str,
-    tags:              Optional[dict] = None,
-    notes:             str = "",
-    date:              Optional[str] = None,
-) -> int:
-    """
-    Insert one experiment + its inferred_properties row.
-
-    `inferred` keys (all optional):
-        E1, E2, G12, nu12  — MPa / dimensionless
-        CTE1, CTE2         — µ/K
-        TC1, TC2           — W/m·K
-
-    Returns the new experiment id.
-    """
-    if date is None:
-        date = datetime.now().strftime("%Y-%m-%d")
-
+def get_print_config(print_config_id: int) -> Optional[dict]:
+    """Return one print config by id."""
     with _connect() as conn:
-        exp_cur = conn.execute(
-            """
-            INSERT INTO experiments
-                (microstructure_id, property_type, date, notes, tags_json)
-            VALUES (?,?,?,?,?)
-            """,
-            (
-                microstructure_id,
-                property_type,
-                date,
-                notes,
-                json.dumps(tags) if tags else None,
-            ),
-        )
-        exp_id = exp_cur.lastrowid
-
-        conn.execute(
-            """
-            INSERT INTO inferred_properties
-                (experiment_id,
-                 E1, E2, G12, nu12,
-                 CTE1, CTE2,
-                 TC1, TC2,
-                 loss, model, solver_json)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-            """,
-            (
-                exp_id,
-                inferred.get("E1"),
-                inferred.get("E2"),
-                inferred.get("G12"),
-                inferred.get("nu12"),
-                inferred.get("CTE1"),
-                inferred.get("CTE2"),
-                inferred.get("TC1"),
-                inferred.get("TC2"),
-                loss,
-                model,
-                json.dumps(solver_cfg),
-            ),
-        )
-
-    return exp_id
-
-
-# ── material card queries ─────────────────────────────────────────────────────
-
-def get_material_card(fiber_id: int, polymer_id: int) -> dict:
-    """
-    Return a dict with:
-      - fiber: neat properties
-      - polymer: neat properties
-      - best_inferred: lowest-loss inferred_properties row for this pair (or None)
-      - experiments: list of all experiments for this pair, newest first
-    """
-    fiber   = get_fiber(fiber_id)
-    polymer = get_polymer(polymer_id)
-
-    with _connect() as conn:
-        exps = conn.execute(
-            """
-            SELECT e.id, e.property_type, e.date, e.notes, e.tags_json,
-                   ip.E1, ip.E2, ip.G12, ip.nu12,
-                   ip.CTE1, ip.CTE2, ip.TC1, ip.TC2,
-                   ip.loss, ip.model
-            FROM experiments e
-            JOIN inferred_properties ip ON ip.experiment_id = e.id
-            JOIN microstructure m ON m.id = e.microstructure_id
-            WHERE m.fiber_id = ? AND m.polymer_id = ?
-            ORDER BY e.date DESC, ip.loss ASC
-            """,
-            (fiber_id, polymer_id),
-        ).fetchall()
-
-        best = conn.execute(
-            """
-            SELECT ip.*
-            FROM inferred_properties ip
-            JOIN experiments e ON e.id = ip.experiment_id
-            JOIN microstructure m ON m.id = e.microstructure_id
-            WHERE m.fiber_id = ? AND m.polymer_id = ?
-            ORDER BY ip.loss ASC
-            LIMIT 1
-            """,
-            (fiber_id, polymer_id),
+        row = conn.execute(
+            "SELECT * FROM print_configs WHERE id = ?", (print_config_id,)
         ).fetchone()
-
-    return {
-        "fiber":         fiber,
-        "polymer":       polymer,
-        "best_inferred": dict(best) if best else None,
-        "experiments":   [dict(e) for e in exps],
-    }
+    return dict(row) if row else None
 
 
-def get_experiments_for_pair(fiber_id: int, polymer_id: int) -> list[dict]:
-    """All experiments for a fiber/polymer pair, newest first."""
+def get_all_print_configs() -> list[dict]:
+    """Return all print configs, newest first."""
     with _connect() as conn:
         rows = conn.execute(
-            """
-            SELECT e.id, e.property_type, e.date, e.notes, e.tags_json,
-                   ip.loss, ip.model,
-                   ip.E1, ip.E2, ip.G12, ip.nu12,
-                   ip.CTE1, ip.CTE2, ip.TC1, ip.TC2
-            FROM experiments e
-            JOIN inferred_properties ip ON ip.experiment_id = e.id
-            JOIN microstructure m ON m.id = e.microstructure_id
-            WHERE m.fiber_id = ? AND m.polymer_id = ?
-            ORDER BY e.date DESC, ip.loss ASC
-            """,
-            (fiber_id, polymer_id),
+            "SELECT * FROM print_configs ORDER BY created_at DESC"
         ).fetchall()
     return [dict(r) for r in rows]
 
 
-def _um_per_k_to_per_k(v: Optional[float]) -> Optional[float]:
-    """µ/K → 1/K"""
-    return v * 1e-6 if v is not None else None
+# ── microstructure snapshots ───────────────────────────────────────────────────
+
+def save_microstructure_snapshot(
+    print_config_id:  int,
+    mf:               Optional[float],
+    ar:               Optional[float],
+    a11:              Optional[float],
+    a22:              Optional[float],
+    a12:              Optional[float],
+    a13:              Optional[float],
+    a23:              Optional[float],
+    provenance:       Optional[dict] = None,
+    inference_run_id: Optional[int] = None,
+    notes:            str = "",
+) -> int:
+    """
+    Insert a microstructure snapshot for a print config.
+
+    `provenance` is a dict with per-field source tags, e.g.:
+        {"mf": "inputted", "ar": "inputted", "a11": "inferred", ...}
+    Any missing fields default to None in the stored JSON.
+
+    Returns the new snapshot id.
+    """
+    _FIELDS = ("mf", "ar", "a11", "a22", "a12", "a13", "a23")
+    prov = {f: (provenance or {}).get(f) for f in _FIELDS}
+
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO microstructure_snapshots
+                (print_config_id, mf, ar, a11, a22, a12, a13, a23,
+                 provenance_json, inference_run_id, notes, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (print_config_id, mf, ar, a11, a22, a12, a13, a23,
+             json.dumps(prov), inference_run_id, notes,
+             datetime.now().isoformat()),
+        )
+    return cur.lastrowid
+
+
+def get_latest_microstructure(print_config_id: int) -> Optional[dict]:
+    """Return the most recently created microstructure snapshot for a print config."""
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT * FROM microstructure_snapshots
+            WHERE print_config_id = ?
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (print_config_id,),
+        ).fetchone()
+    if row is None:
+        return None
+    r = dict(row)
+    if r.get("provenance_json"):
+        r["provenance"] = json.loads(r["provenance_json"])
+    return r
+
+
+def get_all_microstructure_snapshots(print_config_id: int) -> list[dict]:
+    """Return all microstructure snapshots for a print config, newest first."""
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM microstructure_snapshots
+            WHERE print_config_id = ?
+            ORDER BY created_at DESC
+            """,
+            (print_config_id,),
+        ).fetchall()
+    result = []
+    for row in rows:
+        r = dict(row)
+        if r.get("provenance_json"):
+            r["provenance"] = json.loads(r["provenance_json"])
+        result.append(r)
+    return result
+
+
+def get_best_microstructure(print_config_id: int) -> Optional[dict]:
+    """Return the microstructure snapshot linked to the lowest-loss inference run.
+    Falls back to the most recent snapshot if no loss-linked snapshot exists."""
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT ms.* FROM microstructure_snapshots ms
+            JOIN inference_runs ir ON ir.microstructure_snap_id = ms.id
+            WHERE ms.print_config_id = ? AND ir.loss IS NOT NULL
+            ORDER BY ir.loss ASC
+            LIMIT 1
+            """,
+            (print_config_id,),
+        ).fetchone()
+    if row is None:
+        return get_latest_microstructure(print_config_id)
+    r = dict(row)
+    if r.get("provenance_json"):
+        r["provenance"] = json.loads(r["provenance_json"])
+    return r
+
+
+# ── inference runs ─────────────────────────────────────────────────────────────
+
+def save_inference_run(
+    print_config_id:       int,
+    stage:                 str,
+    inputs:                dict,
+    outputs:               dict,
+    solver_cfg:            dict,
+    loss:                  float,
+    microstructure_snap_id: Optional[int] = None,
+    notes:                 str = "",
+) -> int:
+    """
+    Record one inference run.
+
+    `stage` values: 'elastic' | 'thermoelastic' | 'thermal_inverse' | 'thermal_forward'
+
+    Returns the new inference_run id.
+    """
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO inference_runs
+                (print_config_id, stage, microstructure_snap_id,
+                 inputs_json, outputs_json, solver_json,
+                 loss, notes, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                print_config_id,
+                stage,
+                microstructure_snap_id,
+                json.dumps(inputs),
+                json.dumps(outputs),
+                json.dumps(solver_cfg),
+                loss,
+                notes,
+                datetime.now().isoformat(),
+            ),
+        )
+    return cur.lastrowid
+
+
+def get_inference_runs(
+    print_config_id: int,
+    stage:           Optional[str] = None,
+) -> list[dict]:
+    """Return all inference runs for a print config, newest first. Filter by stage if given."""
+    with _connect() as conn:
+        if stage:
+            rows = conn.execute(
+                """
+                SELECT * FROM inference_runs
+                WHERE print_config_id = ? AND stage = ?
+                ORDER BY created_at DESC
+                """,
+                (print_config_id, stage),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT * FROM inference_runs
+                WHERE print_config_id = ?
+                ORDER BY created_at DESC
+                """,
+                (print_config_id,),
+            ).fetchall()
+    result = []
+    for row in rows:
+        r = dict(row)
+        for key in ("inputs_json", "outputs_json", "solver_json"):
+            if r.get(key):
+                r[key.replace("_json", "")] = json.loads(r[key])
+        result.append(r)
+    return result
+
+
+# ── constituent property values ────────────────────────────────────────────────
+
+def save_constituent_property(
+    constituent_type: str,
+    constituent_id:   int,
+    property_name:    str,
+    value:            float,
+    source_tag:       str,
+    unit:             str = "",
+    print_config_id:  Optional[int] = None,
+    inference_run_id: Optional[int] = None,
+    notes:            str = "",
+) -> int:
+    """
+    Store one constituent property value with provenance.
+
+    `constituent_type`: 'fiber' | 'polymer'
+    `source_tag`:       'web' | 'inputted' | 'inferred' | 'predicted'
+    `print_config_id`:  None = global (printer-agnostic)
+
+    Returns the new row id.
+    """
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO constituent_property_values
+                (constituent_type, constituent_id, print_config_id,
+                 property_name, value, unit, source_tag,
+                 inference_run_id, notes, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                constituent_type, constituent_id, print_config_id,
+                property_name, value, unit, source_tag,
+                inference_run_id, notes,
+                datetime.now().isoformat(),
+            ),
+        )
+    return cur.lastrowid
+
+
+def get_constituent_properties(
+    constituent_type: str,
+    constituent_id:   int,
+    property_name:    Optional[str] = None,
+    print_config_id:  Optional[int] = None,
+    include_global:   bool = True,
+) -> list[dict]:
+    """
+    Return constituent property values, newest first.
+
+    If `print_config_id` is given and `include_global` is True, returns rows
+    for that card AND global rows (print_config_id IS NULL), sorted newest first.
+    """
+    with _connect() as conn:
+        if print_config_id is not None and include_global:
+            extra = "AND (print_config_id = ? OR print_config_id IS NULL)"
+            params: tuple = (constituent_type, constituent_id, print_config_id)
+        elif print_config_id is not None:
+            extra = "AND print_config_id = ?"
+            params = (constituent_type, constituent_id, print_config_id)
+        else:
+            extra = "AND print_config_id IS NULL"
+            params = (constituent_type, constituent_id)
+
+        prop_filter = "AND property_name = ?" if property_name else ""
+        if property_name:
+            params = params + (property_name,)
+
+        rows = conn.execute(
+            f"""
+            SELECT * FROM constituent_property_values
+            WHERE constituent_type = ? AND constituent_id = ?
+              {extra}
+              {prop_filter}
+            ORDER BY created_at DESC
+            """,
+            params,
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ── experimental measurements ──────────────────────────────────────────────────
+
+def save_experimental_measurement(
+    print_config_id: int,
+    property_name:   str,
+    value:           float,
+    unit:            str = "",
+    uncertainty:     Optional[float] = None,
+    temperature_C:   Optional[float] = None,
+    conditions:      Optional[dict] = None,
+    reference:       str = "",
+    date:            Optional[str] = None,
+    notes:           str = "",
+) -> int:
+    """
+    Record one experimental measurement for a print config.
+
+    Returns the new measurement id.
+    """
+    if date is None:
+        date = datetime.now().strftime("%Y-%m-%d")
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO experimental_measurements
+                (print_config_id, property_name, value, unit,
+                 uncertainty, temperature_C, conditions_json,
+                 reference, date, notes)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                print_config_id, property_name, value, unit,
+                uncertainty, temperature_C,
+                json.dumps(conditions) if conditions else None,
+                reference, date, notes,
+            ),
+        )
+    return cur.lastrowid
+
+
+def get_experimental_measurements(
+    print_config_id: int,
+    property_name:   Optional[str] = None,
+) -> list[dict]:
+    """Return experimental measurements for a print config, newest first."""
+    with _connect() as conn:
+        if property_name:
+            rows = conn.execute(
+                """
+                SELECT * FROM experimental_measurements
+                WHERE print_config_id = ? AND property_name = ?
+                ORDER BY date DESC
+                """,
+                (print_config_id, property_name),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT * FROM experimental_measurements
+                WHERE print_config_id = ?
+                ORDER BY date DESC
+                """,
+                (print_config_id,),
+            ).fetchall()
+    result = []
+    for row in rows:
+        r = dict(row)
+        if r.get("conditions_json"):
+            r["conditions"] = json.loads(r["conditions_json"])
+        result.append(r)
+    return result
+
+
+# ── composite property values ──────────────────────────────────────────────────
+
+def save_composite_property(
+    print_config_id:  int,
+    property_name:    str,
+    value:            float,
+    source_tag:       str,
+    unit:             str = "",
+    inference_run_id: Optional[int] = None,
+    measurement_id:   Optional[int] = None,
+    temperature_C:    Optional[float] = None,
+) -> int:
+    """
+    Store a composite property value.
+
+    `source_tag`: 'predicted' | 'experimental' | 'inputted'
+
+    Returns new row id.
+    """
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO composite_property_values
+                (print_config_id, property_name, value, unit,
+                 source_tag, inference_run_id, measurement_id,
+                 temperature_C, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                print_config_id, property_name, value, unit,
+                source_tag, inference_run_id, measurement_id,
+                temperature_C,
+                datetime.now().isoformat(),
+            ),
+        )
+        row_id = cur.lastrowid
+        conn.execute(
+            """
+            INSERT INTO current_composite_properties
+                (print_config_id, property_name, value, unit,
+                 source_tag, source_run_id, updated_at)
+            VALUES (?,?,?,?,?,?,?)
+            ON CONFLICT (print_config_id, property_name)
+            DO UPDATE SET
+                value         = excluded.value,
+                unit          = excluded.unit,
+                source_tag    = excluded.source_tag,
+                source_run_id = excluded.source_run_id,
+                updated_at    = excluded.updated_at
+            """,
+            (print_config_id, property_name, value, unit,
+             source_tag, inference_run_id,
+             datetime.now().isoformat()),
+        )
+    return row_id
+
+
+def get_composite_properties(
+    print_config_id: int,
+    property_name:   Optional[str] = None,
+    source_tag:      Optional[str] = None,
+) -> list[dict]:
+    """Return composite property values for a print config, newest first."""
+    filters = ["print_config_id = ?"]
+    params: list = [print_config_id]
+    if property_name:
+        filters.append("property_name = ?")
+        params.append(property_name)
+    if source_tag:
+        filters.append("source_tag = ?")
+        params.append(source_tag)
+
+    where = " AND ".join(filters)
+    with _connect() as conn:
+        rows = conn.execute(
+            f"SELECT * FROM composite_property_values WHERE {where} ORDER BY created_at DESC",
+            params,
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_current_composite_properties(print_config_id: int) -> list[dict]:
+    """Return one row per property — the current (most-recently-saved) value.
+    Much faster than get_composite_properties() for large datasets."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM current_composite_properties WHERE print_config_id = ?",
+            (print_config_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ── property preferences ───────────────────────────────────────────────────────
+
+def set_property_preference(
+    print_config_id:  int,
+    property_name:    str,
+    preferred_source: str,
+) -> None:
+    """
+    Set which source to prefer for a given property on a print config.
+
+    `preferred_source`: 'experimental' | 'predicted' | 'inferred' | 'web' | 'inputted'
+    """
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO property_preferences (print_config_id, property_name, preferred_source)
+            VALUES (?,?,?)
+            ON CONFLICT (print_config_id, property_name)
+            DO UPDATE SET preferred_source = excluded.preferred_source
+            """,
+            (print_config_id, property_name, preferred_source),
+        )
+
+
+def get_canonical_value(
+    print_config_id: int,
+    property_name:   str,
+) -> Optional[dict]:
+    """
+    Return the canonical value for a composite property, respecting the
+    resolution hierarchy:
+
+      1. property_preferences override (highest priority)
+      2. experimental (most recent measurement)
+      3. predicted (most recent surrogate output)
+      4. inputted
+
+    Returns a dict with 'value', 'source_tag', and 'created_at' (or 'date'),
+    or None if no value is found.
+    """
+    with _connect() as conn:
+        pref_row = conn.execute(
+            """
+            SELECT preferred_source FROM property_preferences
+            WHERE print_config_id = ? AND property_name = ?
+            """,
+            (print_config_id, property_name),
+        ).fetchone()
+        preferred_source = pref_row["preferred_source"] if pref_row else None
+
+        if preferred_source:
+            if preferred_source == "experimental":
+                row = conn.execute(
+                    """
+                    SELECT value, 'experimental' AS source_tag, date AS created_at
+                    FROM experimental_measurements
+                    WHERE print_config_id = ? AND property_name = ?
+                    ORDER BY date DESC LIMIT 1
+                    """,
+                    (print_config_id, property_name),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    """
+                    SELECT value, source_tag, created_at
+                    FROM composite_property_values
+                    WHERE print_config_id = ? AND property_name = ? AND source_tag = ?
+                    ORDER BY created_at DESC LIMIT 1
+                    """,
+                    (print_config_id, property_name, preferred_source),
+                ).fetchone()
+            if row:
+                return dict(row)
+
+        # Default hierarchy: experimental → predicted → inputted
+        exp_row = conn.execute(
+            """
+            SELECT value, 'experimental' AS source_tag, date AS created_at
+            FROM experimental_measurements
+            WHERE print_config_id = ? AND property_name = ?
+            ORDER BY date DESC LIMIT 1
+            """,
+            (print_config_id, property_name),
+        ).fetchone()
+        if exp_row:
+            return dict(exp_row)
+
+        for src in ("predicted", "inputted"):
+            comp_row = conn.execute(
+                """
+                SELECT value, source_tag, created_at
+                FROM composite_property_values
+                WHERE print_config_id = ? AND property_name = ? AND source_tag = ?
+                ORDER BY created_at DESC LIMIT 1
+                """,
+                (print_config_id, property_name, src),
+            ).fetchone()
+            if comp_row:
+                return dict(comp_row)
+
+    return None
+
+
+# ── print config card view ─────────────────────────────────────────────────────
+
+def get_print_config_card(print_config_id: int) -> dict:
+    """
+    Return a comprehensive material card view for a print config.
+
+    Returns:
+        {
+            "config":          dict (print_configs row),
+            "fiber":           dict (fibers row),
+            "polymer":         dict (polymers row),
+            "printer":         dict | None (printers row),
+            "microstructure":  dict | None (latest snapshot),
+            "inference_runs":  list[dict],
+            "constituent_properties": {
+                "fiber": list[dict],
+                "polymer": list[dict],
+            },
+            "experimental_measurements": list[dict],
+            "composite_properties":      list[dict],
+        }
+    """
+    cfg = get_print_config(print_config_id)
+    if cfg is None:
+        raise ValueError(f"print_config id={print_config_id} not found")
+
+    fiber   = get_fiber(cfg["fiber_id"])
+    polymer = get_polymer(cfg["polymer_id"])
+
+    printer = None
+    if cfg.get("printer_id"):
+        with _connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM printers WHERE id = ?", (cfg["printer_id"],)
+            ).fetchone()
+        printer = dict(row) if row else None
+
+    return {
+        "config":   cfg,
+        "fiber":    fiber,
+        "polymer":  polymer,
+        "printer":  printer,
+        "microstructure": get_latest_microstructure(print_config_id),
+        "inference_runs": get_inference_runs(print_config_id),
+        "constituent_properties": {
+            "fiber":   get_constituent_properties("fiber",   cfg["fiber_id"],   print_config_id=print_config_id),
+            "polymer": get_constituent_properties("polymer", cfg["polymer_id"], print_config_id=print_config_id),
+        },
+        "experimental_measurements": get_experimental_measurements(print_config_id),
+        "composite_properties":      get_composite_properties(print_config_id),
+    }
+
+
+# ── thermal inverse helpers ────────────────────────────────────────────────────
+
+def save_thermal_inverse_results(
+    print_config_id:       int,
+    fiber_id:              int,
+    polymer_id:            int,
+    parametric_outputs:    dict,
+    solver_cfg:            dict,
+    loss:                  float,
+    microstructure_snap_id: Optional[int] = None,
+    notes:                 str = "",
+) -> int:
+    """
+    Save the results of a thermal inverse run.
+
+    `parametric_outputs` should contain any subset of:
+        k_f1, k_f2  — fiber conductivities (W/m·K)
+        k_m         — matrix conductivity (W/m·K)
+        p1, p2, l2, t — parametric model coefficients (dimensionless)
+
+    Stores:
+      - one inference_run (stage='thermal_inverse')
+      - one constituent_property_value per inferred property
+
+    Returns the inference_run id.
+    """
+    run_id = save_inference_run(
+        print_config_id=print_config_id,
+        stage="thermal_inverse",
+        inputs={},
+        outputs=parametric_outputs,
+        solver_cfg=solver_cfg,
+        loss=loss,
+        microstructure_snap_id=microstructure_snap_id,
+        notes=notes,
+    )
+
+    # Fiber conductivities — derived from parametric model, global
+    # l2 = fiber longitudinal conductivity (k_f1)
+    # l2/t = fiber transverse conductivity (k_f2)
+    l2 = parametric_outputs.get("l2")
+    t  = parametric_outputs.get("t")
+    if l2 is not None:
+        save_constituent_property(
+            constituent_type="fiber",
+            constituent_id=fiber_id,
+            property_name="k_f1",
+            value=l2,
+            source_tag="inferred",
+            unit="W/m·K",
+            print_config_id=None,
+            inference_run_id=run_id,
+            notes=notes,
+        )
+        if t is not None and t > 0:
+            save_constituent_property(
+                constituent_type="fiber",
+                constituent_id=fiber_id,
+                property_name="k_f2",
+                value=l2 / t,
+                source_tag="inferred",
+                unit="W/m·K",
+                print_config_id=None,
+                inference_run_id=run_id,
+                notes=notes,
+            )
+
+    # Polymer conductivity model coefficients — global
+    # K_m(T) = p1 * sqrt(T / T_ref) + p2
+    for prop in ("p1", "p2"):
+        if prop in parametric_outputs:
+            save_constituent_property(
+                constituent_type="polymer",
+                constituent_id=polymer_id,
+                property_name=prop,
+                value=parametric_outputs[prop],
+                source_tag="inferred",
+                unit="W/m·K",
+                print_config_id=None,
+                inference_run_id=run_id,
+                notes=notes,
+            )
+
+    # Matrix conductivity at reference temperature — global
+    if "k_m" in parametric_outputs:
+        save_constituent_property(
+            constituent_type="polymer",
+            constituent_id=polymer_id,
+            property_name="k_m",
+            value=parametric_outputs["k_m"],
+            source_tag="inferred",
+            unit="W/m·K",
+            print_config_id=None,
+            inference_run_id=run_id,
+            notes=notes,
+        )
+
+    return run_id
+
+
+def get_thermal_constituent_inputs(
+    print_config_id: int,
+    fiber_id:        int,
+    polymer_id:      int,
+) -> dict[str, Optional[float]]:
+    """
+    Retrieve constituent thermal conductivity inputs ready for the forward surrogate.
+
+    Resolution order for k_f1, k_f2, k_m:
+      1. Inferred values in constituent_property_values (most recent)
+      2. Neat values in fibers/polymers tables (web/seed data)
+
+    Returns a dict with keys: k_f1, k_f2, k_m (values may be None if not found).
+    """
+    result: dict[str, Optional[float]] = {"k_f1": None, "k_f2": None, "k_m": None}
+
+    # Fiber k_f1, k_f2
+    for prop in ("k_f1", "k_f2"):
+        rows = get_constituent_properties(
+            "fiber", fiber_id, property_name=prop,
+            print_config_id=print_config_id, include_global=True,
+        )
+        inferred = [r for r in rows if r["source_tag"] == "inferred"]
+        if inferred:
+            result[prop] = inferred[0]["value"]
+        else:
+            fiber = get_fiber(fiber_id)
+            if fiber:
+                result[prop] = fiber.get(f"neat_{prop}")  # neat_k1 / neat_k2
+
+    # Matrix k_m
+    rows = get_constituent_properties(
+        "polymer", polymer_id, property_name="k_m",
+        print_config_id=print_config_id, include_global=True,
+    )
+    inferred = [r for r in rows if r["source_tag"] == "inferred"]
+    if inferred:
+        result["k_m"] = inferred[0]["value"]
+    else:
+        polymer = get_polymer(polymer_id)
+        if polymer:
+            result["k_m"] = polymer.get("neat_k")
+
+    return result
+
+
+def import_thermal_csv(
+    print_config_id:  int,
+    csv_path:         str,
+    temperature_col:  str = "T_C",
+    property_map:     Optional[dict] = None,
+    uncertainty_col:  Optional[str] = None,
+    reference:        str = "",
+    notes:            str = "",
+) -> int:
+    """
+    Import thermal conductivity measurements from a CSV file.
+
+    `property_map` maps CSV column names → property_name stored in DB.
+    Default: {"K11": "K11", "K22": "K22", "K33": "K33"}
+
+    Each row in the CSV produces one experimental_measurement row per property column.
+
+    Returns the number of rows imported.
+    """
+    import csv
+
+    if property_map is None:
+        property_map = {"K11": "K11", "K22": "K22", "K33": "K33"}
+
+    count = 0
+    with open(csv_path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            temp = float(row[temperature_col]) if temperature_col in row else None
+            unc  = float(row[uncertainty_col]) if (uncertainty_col and uncertainty_col in row) else None
+            for csv_col, prop_name in property_map.items():
+                if csv_col not in row or row[csv_col].strip() == "":
+                    continue
+                save_experimental_measurement(
+                    print_config_id=print_config_id,
+                    property_name=prop_name,
+                    value=float(row[csv_col]),
+                    unit="W/m·K",
+                    uncertainty=unc,
+                    temperature_C=temp,
+                    reference=reference,
+                    notes=notes,
+                )
+                count += 1
+    return count

@@ -81,15 +81,21 @@ class SurrogateGUI:
         root.geometry("1500x960")
         root.minsize(1100, 600)
 
-        self.model:         object | None = None
-        self.input_entries: dict[str, tk.Entry] = {}
-        self.output_labels: dict[str, tk.Label] = {}
+        self.model:              object | None = None
+        self.input_entries:      dict[str, tk.Entry] = {}
+        self.input_prov_labels:  dict[str, tk.Label] = {}
+        self.output_labels:      dict[str, tk.Label] = {}
 
         # material library state
         self._fiber_id:   int | None = None
         self._polymer_id: int | None = None
         self._fiber_map:  dict[str, int] = {}   # display name → id
         self._polymer_map: dict[str, int] = {}  # display name → id
+
+        # last prediction — stored for "Save Prediction to Card"
+        self._last_prediction_inputs:  dict[str, float] = {}
+        self._last_prediction_outputs: dict[str, float] = {}
+        self._save_pred_btn: tk.Widget | None = None
 
         self._build_layout()
 
@@ -124,6 +130,11 @@ class SurrogateGUI:
         ttk.Button(top, text="Identifiability Check",
                    command=self._open_identifiability).grid(
             row=0, column=7, padx=(12, 4), sticky="e"
+        )
+
+        ttk.Button(top, text="Material Card Viewer",
+                   command=self._open_material_card_viewer).grid(
+            row=0, column=8, padx=(4, 12), sticky="e"
         )
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
@@ -169,6 +180,10 @@ class SurrogateGUI:
         self._db_status = tk.Label(
             mat, text="", font=FONT_STATUS, fg="gray")
         self._db_status.grid(row=0, column=7, sticky="w")
+
+        ttk.Button(mat, text="Load from Card",
+                   command=self._on_load_from_card).grid(
+            row=0, column=8, padx=(16, 4))
 
         if not _db.db_exists():
             self._db_status.config(
@@ -216,6 +231,10 @@ class SurrogateGUI:
         self._predict_btn.pack(side="left", padx=4)
         self._pred_status = tk.Label(ctrl, text="", font=FONT_STATUS, fg="orange")
         self._pred_status.pack(side="left", padx=10)
+        self._save_pred_btn = ttk.Button(ctrl, text="Save Prediction to Card",
+                                         command=self._on_save_prediction,
+                                         state="disabled")
+        self._save_pred_btn.pack(side="left", padx=4)
 
         # separator
         ttk.Separator(mid, orient="vertical").grid(row=0, column=1,
@@ -316,6 +335,7 @@ class SurrogateGUI:
         for w in self._in_frame.winfo_children():
             w.destroy()
         self.input_entries = {}
+        self.input_prov_labels = {}
         self._in_frame.grid_columnconfigure(1, weight=1)
 
         for i, name in enumerate(model.input_fields):
@@ -326,7 +346,12 @@ class SurrogateGUI:
             ent = tk.Entry(self._in_frame, width=20, font=FONT_ENTRY)
             ent.grid(row=i, column=1, sticky="ew", padx=(0, 12), pady=5)
             ent.bind("<Return>", lambda _e: self._predict_start())
+            ent.bind("<Key>", lambda _e, n=name: self._clear_prov(n))
             self.input_entries[name] = ent
+            prov_lbl = tk.Label(self._in_frame, text="", font=("Helvetica", 11),
+                                fg="#888", anchor="w")
+            prov_lbl.grid(row=i, column=2, sticky="w", padx=(0, 8), pady=5)
+            self.input_prov_labels[name] = prov_lbl
 
     def _rebuild_output_panel(self, model):
         for w in self._out_frame.winfo_children():
@@ -425,13 +450,26 @@ class SurrogateGUI:
             self.root.after(0, lambda exc=exc: self._on_predict_error(str(exc)))
 
     def _update_ui(self, y_vals: np.ndarray):
+        raw_outputs: dict[str, float] = {}
         for name, lbl in self.output_labels.items():
             idx   = self.model.out_idx[name]
             scale = OUTPUT_SCALES.get(name, 1.0)
-            val   = float(y_vals[idx]) * scale
-            lbl.config(text=f"{val:.5g}")
+            raw   = float(y_vals[idx])
+            lbl.config(text=f"{raw * scale:.5g}")
+            raw_outputs[name] = raw   # store in raw model units for saving
+
+        # store for "Save Prediction to Card"
+        self._last_prediction_inputs = {
+            n: float(ent.get().strip())
+            for n, ent in self.input_entries.items()
+            if ent.get().strip()
+        }
+        self._last_prediction_outputs = raw_outputs
+
         self._pred_status.config(text="")
         self._predict_btn.config(state="normal")
+        if self._save_pred_btn is not None:
+            self._save_pred_btn.config(state="normal")
 
     def _on_predict_error(self, msg: str):
         self._pred_status.config(text="")
@@ -515,15 +553,20 @@ class SurrogateGUI:
                 ent.insert(0, f"{value:.6g}")
 
     def _refresh_insitu_toggle(self):
-        """Enable the In-situ radio button only when in-situ data exists."""
+        """Enable the In-situ radio button only when inferred constituent data exists."""
         if self._fiber_id is None or self._polymer_id is None:
             self._insitu_rb.config(state="disabled")
             if self._src_var.get() == "insitu":
                 self._src_var.set("neat")
             return
         try:
-            card = _db.get_material_card(self._fiber_id, self._polymer_id)
-            has_insitu = card["best_inferred"] is not None
+            f_props = _db.get_constituent_properties(
+                "fiber", self._fiber_id, include_global=True)
+            p_props = _db.get_constituent_properties(
+                "polymer", self._polymer_id, include_global=True)
+            has_insitu = any(
+                p["source_tag"] == "inferred" for p in f_props + p_props
+            )
         except Exception:
             has_insitu = False
         self._insitu_rb.config(state="normal" if has_insitu else "disabled")
@@ -531,18 +574,91 @@ class SurrogateGUI:
             self._src_var.set("neat")
 
     def _insitu_fiber_inputs(self) -> dict | None:
-        """
-        Return inferred fiber-related model inputs from the best experiment
-        for the current fiber+polymer pair, or None if none exist.
-        Currently a placeholder — the inferred_properties table stores
-        composite-level outputs, not constituent inputs.  When the inverse
-        solver stores free constituent variables this will be populated.
-        """
-        return None
+        """Return most-recent inferred fiber constituent properties, keyed by model field name."""
+        if self._fiber_id is None:
+            return None
+        try:
+            props = _db.get_constituent_properties(
+                "fiber", self._fiber_id, include_global=True)
+        except Exception:
+            return None
+        seen: dict[str, float] = {}
+        for p in props:
+            if p["source_tag"] == "inferred" and p["property_name"] not in seen:
+                seen[p["property_name"]] = float(p["value"])
+        return seen if seen else None
 
     def _insitu_polymer_inputs(self) -> dict | None:
-        """Same placeholder for polymer in-situ inputs."""
-        return None
+        """Return most-recent inferred polymer constituent properties, keyed by model field name."""
+        if self._polymer_id is None:
+            return None
+        try:
+            props = _db.get_constituent_properties(
+                "polymer", self._polymer_id, include_global=True)
+        except Exception:
+            return None
+        seen: dict[str, float] = {}
+        for p in props:
+            if p["source_tag"] == "inferred" and p["property_name"] not in seen:
+                seen[p["property_name"]] = float(p["value"])
+        return seen if seen else None
+
+    # ── material card save / load / view ──────────────────────────────────────
+
+    def _on_save_prediction(self):
+        if not self._last_prediction_outputs:
+            messagebox.showwarning("No prediction", "Run a prediction first.")
+            return
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.")
+            return
+        result = {
+            "model":                 self._model_var.get() + "_forward",
+            "free_variables":        {},
+            "fixed_inputs":          self._last_prediction_inputs,
+            "predicted_outputs":     self._last_prediction_outputs,
+            "target_outputs":        {},
+            "sigmas":                {},
+            "final_optimiser_error": 0.0,
+            "solver":                {},
+        }
+        from gui_card_dialogs import SaveToCardDialog
+        SaveToCardDialog(self.root, result,
+                         fiber_id=self._fiber_id,
+                         polymer_id=self._polymer_id)
+
+    def _on_load_from_card(self):
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.")
+            return
+        from gui_card_dialogs import LoadFromCardDialog
+        dlg = LoadFromCardDialog(self.root)
+        if not dlg.loaded:
+            return
+        for name, ent in self.input_entries.items():
+            if name in dlg.loaded:
+                ent.delete(0, tk.END)
+                ent.insert(0, f"{dlg.loaded[name]:.6g}")
+                if name in self.input_prov_labels and name in dlg.loaded_provenance:
+                    prov = dlg.loaded_provenance[name]
+                    src  = prov.get("source_tag", "")
+                    date = prov.get("date", "")
+                    self.input_prov_labels[name].config(
+                        text=f"[{src}, {date}]")
+
+    def _open_material_card_viewer(self):
+        try:
+            from gui_material_card import MaterialCardViewer
+            MaterialCardViewer(self.root)
+        except Exception as exc:
+            messagebox.showerror("Card Viewer Error", str(exc))
+
+    def _clear_prov(self, field: str):
+        lbl = self.input_prov_labels.get(field)
+        if lbl:
+            lbl.config(text="")
 
     # ── identifiability check ─────────────────────────────────────────────────
     def _open_identifiability(self):

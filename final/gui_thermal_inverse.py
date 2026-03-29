@@ -30,6 +30,8 @@ matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import db as _db
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
 os.environ.setdefault("JAX_ENABLE_X64",    "1")
@@ -74,6 +76,7 @@ class ThermalInverseWindow:
         self._fwd       = None   # ForwardModel (loaded lazily)
         self._predictor = None   # batched predictor
         self._result: Optional[dict] = None
+        self._fixed_inputs: Optional[dict] = None
 
         self._build_ui()
 
@@ -263,6 +266,10 @@ class ThermalInverseWindow:
                                           command=self._on_save_plots,
                                           state="disabled")
         self._save_plots_btn.pack(side="left")
+        self._save_card_btn = ttk.Button(btn_frame, text="Save to Card",
+                                         command=self._on_save_to_card,
+                                         state="disabled")
+        self._save_card_btn.pack(side="left", padx=(6, 0))
 
         # ── right panel: plots ────────────────────────────────────────────────
         right = ttk.Frame(win, padding=(6, 8))
@@ -406,6 +413,7 @@ class ThermalInverseWindow:
             messagebox.showerror("Input error", str(exc), parent=self._win)
             return
 
+        self._fixed_inputs = fixed_inputs
         self._run_btn.config(state="disabled")
         self._save_csv_btn.config(state="disabled")
         self._save_plots_btn.config(state="disabled")
@@ -496,6 +504,7 @@ class ThermalInverseWindow:
         self._run_btn.config(state="normal")
         self._save_csv_btn.config(state="normal")
         self._save_plots_btn.config(state="normal")
+        self._save_card_btn.config(state="normal")
 
     def _on_run_err(self, msg, tb):
         self._status_var.set("Estimation failed.")
@@ -597,6 +606,7 @@ class ThermalInverseWindow:
             var.set("—")
         self._draw_placeholder()
         self._canvas.draw()
+        self._save_card_btn.config(state="disabled")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Save
@@ -657,6 +667,25 @@ class ThermalInverseWindow:
             self._status_var.set(f"Figure saved: {os.path.basename(path)}")
         except Exception as exc:
             messagebox.showerror("Save error", str(exc), parent=self._win)
+
+    def _on_save_to_card(self):
+        if self._result is None:
+            return
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.",
+                                   parent=self._win)
+            return
+        from gui_card_dialogs import SaveThermalToCardDialog
+        r = self._result
+        SaveThermalToCardDialog(
+            self._win,
+            params       = r["best_params"],
+            fixed_inputs = self._fixed_inputs or {},
+            temperatures = r["temperatures"],
+            K_pred       = r["K_pred"],
+            loss         = r["best_loss"],
+        )
 
     # ─────────────────────────────────────────────────────────────────────────
     # Public

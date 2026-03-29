@@ -9,10 +9,15 @@
       "nu12": 0.20,
       "nu23": 0.35,
       "rho": 1760,
+      "CTE1": -0.7,
+      "CTE2": 10.0,
+      "k1": 10.5,
+      "k2": 0.96,
       "source": "Toray datasheet",
+      "CTE_source": "Soden et al. 1998",
+      "k_source": "Chung 2012 (estimated)",
       "notes": "Standard modulus carbon fiber; nu23 from Soden et al. 1998"
-    },
-    "in_situ": null
+    }
   },
   {
     "name": "E-Glass",
@@ -24,24 +29,34 @@
       "nu12": 0.22,
       "nu23": 0.22,
       "rho": 2540,
+      "CTE1": 5.0,
+      "CTE2": 5.0,
+      "k1": 1.05,
+      "k2": 1.05,
       "source": "manufacturer datasheet",
+      "CTE_source": "manufacturer datasheet",
+      "k_source": "manufacturer datasheet",
       "notes": "Isotropic glass fiber; nu23 = nu12"
-    },
-    "in_situ": null
+    }
   },
   {
-      "name": "AS4",
-      "supplier": "Hexcel",
-      "neat": {
-        "E1": 240000,
-        "E2": 14000,
-        "G12": 28000,
-        "nu12": 0.20,
-        "nu23": 0.28,
-        "rho": 1780,
-        "source": "manufacturer datasheet",
-        "notes": "AS4 typ2"
-      },
-      "in_situ": null
+    "name": "AS4",
+    "supplier": "Hexcel",
+    "neat": {
+      "E1": 240000,
+      "E2": 14000,
+      "G12": 28000,
+      "nu12": 0.20,
+      "nu23": 0.28,
+      "rho": 1780,
+      "CTE1": -0.1e-6,
+      "CTE2": 10.1e-6,
+      "k1": 12.83,
+      "k2": 3.96,
+      "source": "manufacturer datasheet",
+      "CTE_source": "Hexcel datasheet",
+      "k_source": "Hexcel datasheet",
+      "notes": "AS4 typ2"
+    }
   }
 ]
