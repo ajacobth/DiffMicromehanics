@@ -35,14 +35,32 @@ final/
 ├── gui.py                    <- Forward evaluation GUI (elastic, thermoelastic, thermal)
 ├── gui_inverse.py            <- Elastic / thermoelastic inverse design GUI
 ├── gui_thermal_inverse.py    <- Thermal conductivity inverse estimation GUI
-├── run_inverse_thermal.py    <- Thermal inverse CLI (no GUI)
-├── thermal_problem.json      <- Example problem file for the thermal inverse CLI
-├── forward.py                <- Python API for scripting forward predictions
-├── inverse.py                <- Elastic / thermoelastic inverse solver (CLI)
-├── inverse_thermal.py        <- Thermal inverse solver core
-├── problem.json              <- Inverse problem definition (edit this)
-├── field_labels.json         <- Human-readable field name mappings
-├── test_setup.py             <- Run this to verify your environment
+├── gui_material_card.py      <- Material card viewer
+├── gui_card_dialogs.py       <- Save/Load card dialogs
+├── gui_identifiability.py    <- Parameter identifiability analysis GUI
+│
+├── core/                     <- Computation / solver logic
+│   ├── forward.py            <- Python API for scripting forward predictions
+│   ├── inverse.py            <- Elastic / thermoelastic inverse solver
+│   ├── inverse_thermal.py    <- Thermal inverse solver core
+│   ├── fim.py                <- Fisher Information Matrix utilities
+│   ├── micro_surrogate.py    <- Surrogate model class definitions
+│   └── unit_manager.py       <- Unit conversion utilities
+│
+├── db/                       <- Database layer
+│   ├── db.py                 <- All DB helper functions
+│   └── init_db.py            <- Run once to create/seed the database
+│
+├── config/                   <- Problem definitions + field labels
+│   ├── problem.json          <- Inverse problem definition (edit this)
+│   ├── thermal_problem.json  <- Thermal inverse CLI problem file
+│   └── field_labels.json     <- Human-readable field name mappings
+│
+├── scripts/                  <- CLI utilities
+│   ├── run_inverse_thermal.py  <- Thermal inverse CLI (no GUI)
+│   └── test_setup.py           <- Run this to verify your environment
+│
+├── NN_surrogate/             <- Neural network base architecture (do not modify)
 └── models/
     ├── elastic/              <- Elastic surrogate (9 outputs)
     │   ├── model_config.json
@@ -102,7 +120,7 @@ python gui.py
 ### Option 2 – Python API
 
 ```python
-from forward import load_forward
+from core.forward import load_forward
 
 # Elastic
 fwd, meta = load_forward("elastic")        # or "thermoelastic" or "thermal"
@@ -176,8 +194,8 @@ Edit `problem.json` to describe the problem:
 
 ```bash
 cd final
-python inverse.py                           # uses problem.json
-python inverse.py --problem my_case.json    # custom problem file
+python core/inverse.py                                  # uses config/problem.json
+python core/inverse.py --problem config/my_case.json    # custom problem file
 ```
 
 Results are printed to the terminal and saved as `<problem_stem>_result.json`.
@@ -218,9 +236,9 @@ Edit `thermal_problem.json`, then run:
 
 ```bash
 cd final
-python run_inverse_thermal.py                            # uses thermal_problem.json
-python run_inverse_thermal.py --problem my_problem.json
-python run_inverse_thermal.py --problem p.json --output_dir results/
+python scripts/run_inverse_thermal.py                                       # uses config/thermal_problem.json
+python scripts/run_inverse_thermal.py --problem config/my_problem.json
+python scripts/run_inverse_thermal.py --problem config/p.json --output_dir results/
 ```
 
 See [SETUP_AND_RUN.md](SETUP_AND_RUN.md) Section 11 for full details on inputs, outputs, and the JSON problem format.

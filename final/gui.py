@@ -28,11 +28,11 @@ from tkinter import ttk, messagebox
 
 import numpy as np
 
-import db as _db
-from unit_manager import UM
+import db.db as _db
+from core.unit_manager import UM
 
 # ── field label mapping ───────────────────────────────────────────────────────
-_LABELS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "field_labels.json")
+_LABELS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config", "field_labels.json")
 
 def _load_field_labels() -> dict:
     """Load field_labels.json if present; silently return empty dict on failure."""
@@ -303,7 +303,7 @@ class SurrogateGUI:
     def _load_worker(self, model_name: str):
         try:
             import jax.numpy as jnp
-            from forward import load_forward
+            from core.forward import load_forward
             model = load_forward(model_name)
             dummy = jnp.zeros(len(model.input_fields), dtype=jnp.float32)
             model.predict_array(dummy).block_until_ready()
@@ -475,9 +475,9 @@ class SurrogateGUI:
             lbl.config(text=f"{UM.to_display(name, raw):.5g}")
             raw_outputs[name] = raw   # store in raw model units for saving
 
-        # store for "Save Prediction to Card"
+        # store for "Save Prediction to Card" — convert display → model units (MPa)
         self._last_prediction_inputs = {
-            n: float(ent.get().strip())
+            n: UM.from_display(n, float(ent.get().strip()))
             for n, ent in self.input_entries.items()
             if ent.get().strip()
         }

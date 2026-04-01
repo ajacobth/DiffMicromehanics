@@ -47,7 +47,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-HERE    = Path(__file__).parent
+# db.py lives in final/db/ — go up one level to reach final/
+HERE    = Path(__file__).parent.parent
 DB_PATH = HERE / "data" / "micromechanics.db"
 
 

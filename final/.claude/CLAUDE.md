@@ -23,20 +23,70 @@ All three have GUI frontends (Tkinter) and the thermal inverse also has a CLI pa
 | `python gui.py` | Forward prediction GUI |
 | `python gui_inverse.py` | Inverse (elastic + thermoelastic) GUI |
 | `python gui_thermal_inverse.py` | Thermal inverse GUI (also openable from gui_inverse.py) |
-| `python run_inverse_thermal.py` | CLI thermal inverse, reads `thermal_problem.json` |
-| `python init_db.py` | One-time setup: creates `data/micromechanics.db` and seeds material library |
-| `python test_setup.py` | Verify the environment works |
+| `python scripts/run_inverse_thermal.py` | CLI thermal inverse, reads `config/thermal_problem.json` |
+| `python db/init_db.py` | One-time setup: creates `data/micromechanics.db` and seeds material library |
+| `python scripts/test_setup.py` | Verify the environment works |
 | `python gui_material_card.py` | Standalone material card viewer |
 
-Conda environment name: `diffmech`
+All commands are run from the `final/` directory. Conda environment name: `diffmech`
+
+---
+
+## Directory Layout (post-refactor 2026-03-29)
+
+```
+final/
+├── gui.py                    ← Forward prediction GUI
+├── gui_inverse.py            ← Inverse (elastic + thermoelastic) GUI
+├── gui_thermal_inverse.py    ← Thermal inverse GUI
+├── gui_material_card.py      ← Material card viewer
+├── gui_card_dialogs.py       ← Save/Load card dialogs
+├── gui_identifiability.py    ← Identifiability analysis GUI
+│
+├── core/                     ← Computation / solver logic
+│   ├── forward.py            ← Forward model loader (load_forward)
+│   ├── inverse.py            ← Elastic/thermoelastic inverse solver
+│   ├── inverse_thermal.py    ← Thermal inverse solver
+│   ├── fim.py                ← Fisher Information Matrix utilities
+│   ├── micro_surrogate.py    ← MICRO_SURROGATE_L2 and related classes
+│   └── unit_manager.py       ← Unit conversion singleton (UM)
+│
+├── db/                       ← Database layer
+│   ├── db.py                 ← All DB CRUD helpers
+│   └── init_db.py            ← DB creation + seeding from JSON
+│
+├── config/                   ← Problem definitions + field labels
+│   ├── field_labels.json
+│   ├── problem.json
+│   └── thermal_problem.json
+│
+├── scripts/                  ← CLI utilities and dev tools
+│   ├── run_inverse_thermal.py
+│   ├── test_setup.py
+│   └── check_nu_sensitivity.py
+│
+├── NN_surrogate/             ← Neural network architecture (base classes)
+├── models/                   ← Pre-trained model checkpoints
+└── data/                     ← SQLite DB + seed JSON files
+```
 
 ---
 
 ## Surrogate Models
 
 - Located under `models/` (elastic, thermoelastic, thermal subdirectories)
-- `NN_surrogate/` contains the surrogate model training/loading code
-- Models are checkpoint-based; loaded at runtime by the GUI
+- `NN_surrogate/` contains the base surrogate architecture (do not modify)
+- `core/micro_surrogate.py` extends `NN_surrogate.models.SURROGATE` with MSE and L2 loss variants
+- Models are checkpoint-based; loaded at runtime by `core/forward.py`
+
+---
+
+## Import Conventions
+
+- GUI files import from `core.*`, `db.db`, and `NN_surrogate.*`
+- Scripts in `scripts/` prepend `final/` to `sys.path` at startup so the same import paths work
+- `db.db` is the single access point for the database — GUIs never call sqlite3 directly
+- The `UM` singleton from `core.unit_manager` is shared across all GUI files
 
 ---
 
@@ -72,33 +122,15 @@ JSON seed files and the DB store in **SI/model units directly**: moduli in MPa, 
 
 ---
 
-## Key Source Files
-
-| File | Purpose |
-|---|---|
-| `gui.py` | Forward prediction GUI — material library dropdowns (Fiber/Polymer, Neat/In-situ toggle) |
-| `gui_inverse.py` | Inverse GUI — elastic + thermoelastic solve, "Save to Card" and "Load from Card" |
-| `gui_thermal_inverse.py` | Thermal inverse GUI |
-| `gui_material_card.py` | Material card viewer (read-only, all DB tables) |
-| `gui_card_dialogs.py` | Dialog boxes for save/load card interactions |
-| `db.py` | All DB helper functions (CRUD, unit conversions, card queries) |
-| `models.py` | DB schema definitions |
-| `init_db.py` | DB creation + seeding from JSON files |
-| `forward.py` | Forward model wrapper |
-| `inverse.py` | Inverse solver (elastic/thermoelastic) |
-| `inverse_thermal.py` | Thermal inverse solver |
-| `fim.py` | Fisher Information Matrix — identifiability analysis |
-
----
-
-## Current Build Status (as of 2026-03-25)
+## Current Build Status (as of 2026-03-29)
 
 | Step | Status | Details |
 |---|---|---|
 | Seed JSON files | Done | `data/fibers.json`, `data/polymers.json` |
-| DB creation + seeding | Done | `init_db.py` |
-| DB helper module | Done | `db.py` |
+| DB creation + seeding | Done | `db/init_db.py` |
+| DB helper module | Done | `db/db.py` |
 | Forward GUI — material dropdowns | Done | Fiber/polymer auto-fill, Neat/In-situ toggle |
+| Codebase refactor | Done | core/, db/, config/, scripts/ structure |
 | Inverse GUI — Save to Card | Pending | After successful solve, save microstructure + inferred props |
 | Material card viewer | Pending | `gui_material_card.py` shell exists |
 | Thermal inverse — Save to Card | Pending | Phase 6 |
@@ -107,7 +139,7 @@ JSON seed files and the DB store in **SI/model units directly**: moduli in MPa, 
 
 ## Workflow Summary (Four Stages)
 
-**Stage 0** — `python init_db.py` once. Optionally add printers via `db.add_printer(...)`.
+**Stage 0** — `python db/init_db.py` once. Optionally add printers via `db.db.add_printer(...)`.
 
 **Stage 1 — Elastic inverse**: Fix fiber mechanical props from datasheet. Free matrix E/nu and all microstructure fields. Enter measured E1/E2/G12/nu12 as targets. Solve → Save to Card. Writes: microstructure snapshot, matrix E/nu as inferred constituent values, composite predictions, experimental measurements.
 
@@ -129,6 +161,6 @@ JSON seed files and the DB store in **SI/model units directly**: moduli in MPa, 
 ## Notes
 
 - The GUI uses Tkinter throughout — no web framework.
-- `db.py` is the single access point for the database; GUIs never call sqlite3 directly.
+- `db/db.py` is the single access point for the database; GUIs never call sqlite3 directly.
 - IDs are always resolved internally — users only ever see material names in dropdowns.
 - `wandb/` run logs exist under `EL_surrogate/` and `TC_surrogate/` (surrogate training runs, not part of the app itself).

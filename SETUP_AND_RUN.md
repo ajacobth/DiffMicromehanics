@@ -59,13 +59,27 @@ final/
 ├── gui.py                    ← forward GUI (elastic, thermoelastic, thermal)
 ├── gui_inverse.py            ← elastic / thermoelastic inverse GUI
 ├── gui_thermal_inverse.py    ← thermal conductivity inverse GUI
-├── run_inverse_thermal.py    ← thermal inverse CLI (no GUI)
-├── thermal_problem.json      ← example problem file for the CLI
-├── test_setup.py             ← run this to check your setup
-├── forward.py
-├── inverse.py
-├── inverse_thermal.py        ← thermal inverse solver core
-├── models.py
+├── gui_material_card.py      ← material card viewer
+│
+├── core/                     ← solver and model logic
+│   ├── forward.py
+│   ├── inverse.py
+│   ├── inverse_thermal.py
+│   ├── micro_surrogate.py
+│   └── unit_manager.py
+│
+├── db/
+│   ├── db.py                 ← database helper functions
+│   └── init_db.py            ← run once to set up the database
+│
+├── config/
+│   ├── thermal_problem.json  ← example problem file for the CLI
+│   └── problem.json          ← inverse problem definition
+│
+├── scripts/
+│   ├── run_inverse_thermal.py  ← thermal inverse CLI (no GUI)
+│   └── test_setup.py           ← run this to check your setup
+│
 ├── NN_surrogate/             ← neural network utilities (included)
 └── models/
     ├── elastic/              ← elastic surrogate (16 in / 9 out)
@@ -160,8 +174,7 @@ To confirm you are in the right place:
 dir
 ```
 
-You should see files like `gui.py`, `gui_inverse.py`, `test_setup.py`, and the
-`models` folder.
+You should see files like `gui.py`, `gui_inverse.py`, and folders `core/`, `db/`, `scripts/`, and `models/`.
 
 ---
 
@@ -252,7 +265,7 @@ pip install "jax[cuda11_pip]==0.4.26" -f https://storage.googleapis.com/jax-rele
 Then install the remaining packages exactly as in Step 6 of Section 2.
 
 > **Note:** If JAX detects your GPU, you will see it listed when you run
-> `python test_setup.py`. The inverse GUI forces CPU regardless (it sets
+> `python scripts/test_setup.py`. The inverse GUI forces CPU regardless (it sets
 > `JAX_PLATFORM_NAME=cpu` internally), so GPU mainly speeds up the forward
 > GUI.
 
@@ -319,7 +332,7 @@ Adjust the path to match where you actually put the folder. To confirm:
 ls
 ```
 
-You should see `gui.py`, `gui_inverse.py`, `test_setup.py`, and `models/`.
+You should see `gui.py`, `gui_inverse.py`, and folders `core/`, `db/`, `scripts/`, `models/`.
 
 ---
 
@@ -374,7 +387,7 @@ pip install jax-metal==0.1.0
 ```
 
 After this, JAX will use the GPU automatically. You can verify with
-`python test_setup.py` – it will report the backend as `metal`.
+`python scripts/test_setup.py` – it will report the backend as `metal`.
 
 > **Note:** `jax-metal` is experimental. If you encounter crashes or unexpected
 > results, uninstall it and fall back to CPU:
@@ -501,7 +514,7 @@ Make sure you are:
 Then run:
 
 ```bash
-python test_setup.py
+python scripts/test_setup.py
 ```
 
 ### What to expect – all PASS
@@ -557,7 +570,7 @@ python test_setup.py
 ### What to do if something FAILS
 
 Each `[FAIL]` line includes a hint showing exactly what to install or fix.
-After fixing, run `python test_setup.py` again.
+After fixing, run `python scripts/test_setup.py` again.
 
 ---
 

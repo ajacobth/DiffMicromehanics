@@ -7,7 +7,7 @@ currently active unit system, and provides bidirectional conversion.
 
 Usage
 -----
-    from unit_manager import UM
+    from core.unit_manager import UM
 
     UM.set_system("GPa · µ/K · W/m·K")
 
@@ -52,7 +52,7 @@ class UnitManager:
         self._current:    str            = next(iter(self._systems))
         self._callbacks:  list[Callable] = []
 
-    # ── public read-only properties ──────────────────────────────────────────
+    #  public read-only properties 
 
     @property
     def current_system(self) -> str:
@@ -62,7 +62,7 @@ class UnitManager:
     def available_systems(self) -> list[str]:
         return list(self._systems.keys())
 
-    # ── system selection ─────────────────────────────────────────────────────
+    # system selection 
 
     def set_system(self, name: str) -> None:
         """Change the active unit system and notify all registered callbacks."""
@@ -79,7 +79,7 @@ class UnitManager:
         """Register a zero-argument callable to be invoked on every system change."""
         self._callbacks.append(cb)
 
-    # ── core factor lookup ───────────────────────────────────────────────────
+    #  core factor lookup 
 
     def get_factor(self, field: str, system: str | None = None) -> float:
         """Return  display_value / model_value  for *field* in *system*.
@@ -101,7 +101,7 @@ class UnitManager:
         sys_key = self._systems[system].get(qty, "default")
         return self._quantities[qty]["systems"][sys_key]["unit"]
 
-    # ── bidirectional conversion ──────────────────────────────────────────────
+    #  bidirectional conversion 
 
     def to_display(self, field: str, model_value: float) -> float:
         """Convert a model-unit value to the current display unit."""
@@ -126,6 +126,7 @@ class UnitManager:
         return value * f_to / f_from
 
 
-# ── module-level singleton ───────────────────────────────────────────────────
+#  module-level singleton 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-UM = UnitManager(os.path.join(_HERE, "data", "units.json"))
+# data/units.json lives in final/, one level up from final/core/
+UM = UnitManager(os.path.join(os.path.dirname(_HERE), "data", "units.json"))

@@ -1,7 +1,7 @@
 """init_db.py — create and seed data/micromechanics.db from the JSON seed files.
 
 Run once (or re-run to reset):
-    python init_db.py
+    python db/init_db.py
 
 Safe to re-run: drops and recreates all tables, then re-seeds from JSON.
 No external dependencies — uses only Python stdlib (sqlite3, json, pathlib).
@@ -19,12 +19,13 @@ import json
 import sqlite3
 from pathlib import Path
 
-HERE     = Path(__file__).parent
+# init_db.py lives in final/db/ — go up one level to reach final/
+HERE     = Path(__file__).parent.parent
 DATA_DIR = HERE / "data"
 DB_PATH  = DATA_DIR / "micromechanics.db"
 
 
-# ── schema ────────────────────────────────────────────────────────────────────
+#  schema 
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS fibers (
@@ -190,7 +191,7 @@ CREATE TABLE IF NOT EXISTS current_composite_properties (
 
 
 
-# ── seed helpers ──────────────────────────────────────────────────────────────
+#  seed helpers 
 
 def _seed_fibers(conn: sqlite3.Connection):
     path = DATA_DIR / "fibers.json"
@@ -267,7 +268,7 @@ def _seed_polymers(conn: sqlite3.Connection):
     print(f"  seeded {len(polymers)} polymer(s)")
 
 
-# ── main ──────────────────────────────────────────────────────────────────────
+#  main 
 
 def init(reset: bool = False):
     DATA_DIR.mkdir(exist_ok=True)

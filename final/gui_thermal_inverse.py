@@ -30,8 +30,8 @@ matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-import db as _db
-from unit_manager import UM
+import db.db as _db
+from core.unit_manager import UM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -346,8 +346,8 @@ class ThermalInverseWindow:
         try:
             import jax
             jax.config.update("jax_enable_x64", True)
-            from forward import load_forward
-            from inverse_thermal import make_batched_predictor
+            from core.forward import load_forward
+            from core.inverse_thermal import make_batched_predictor
             fwd       = load_forward("thermal")
             predictor = make_batched_predictor(fwd)
             self._win.after(0, lambda: self._on_load_ok(fwd, predictor))
@@ -399,7 +399,7 @@ class ThermalInverseWindow:
         rho_f = UM.from_display("rho_f", _f(self._rhof_var, "fiber density"))
         rho_m = UM.from_display("rho_m", _f(self._rhom_var, "matrix density"))
 
-        from inverse_thermal import vf_to_wf
+        from core.inverse_thermal import vf_to_wf
         w_f = vf_to_wf(vf, rho_f, rho_m)
 
         fixed_inputs = {
@@ -455,7 +455,7 @@ class ThermalInverseWindow:
 
     def _run_worker(self, fixed_inputs, n_restarts, seed, data_path):
         try:
-            from inverse_thermal import (
+            from core.inverse_thermal import (
                 make_batched_predictor,
                 compute_composite_conductivity,
                 run_inverse_estimation,
@@ -505,7 +505,7 @@ class ThermalInverseWindow:
 
     def _on_run_ok(self, best_params, best_loss,
                    temperatures, K_data, K_pred):
-        from inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+        from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
 
         # store for save functions
         self._result = dict(
@@ -543,7 +543,7 @@ class ThermalInverseWindow:
     # ─────────────────────────────────────────────────────────────────────────
 
     def _draw_results(self, best_params, temperatures, K_data, K_pred):
-        from inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+        from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
 
         poly    = PolymerConductivityModel(best_params.p1, best_params.p2)
         fiber   = FiberConductivityModel(best_params.l2, best_params.t)
@@ -706,7 +706,7 @@ class ThermalInverseWindow:
             return
         try:
             import pandas as pd
-            from inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+            from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
             r    = self._result
             bp   = r["best_params"]
             T    = r["temperatures"]

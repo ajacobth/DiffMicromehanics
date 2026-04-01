@@ -1,12 +1,12 @@
 """inverse.py – inverse design using the elastic surrogate.
 
-The problem is fully described by a JSON file. See problem.json for the schema.
+The problem is fully described by a JSON file. See config/problem.json for the schema.
 
 Usage
 -----
-    python inverse.py                          # uses problem.json in current dir
-    python inverse.py --problem my_problem.json
-    python inverse.py --problem p.json --model_dir models/elastic
+    python scripts/inverse.py                          # uses config/problem.json
+    python scripts/inverse.py --problem my_problem.json
+    python scripts/inverse.py --problem p.json --model_dir models/elastic
 
 The script prints the optimised free variables, predicted outputs, and %errors,
 then writes results to <problem_stem>_result.json.
@@ -30,9 +30,9 @@ import numpy as np
 import optax
 from jaxopt import LBFGS, LBFGSB
 
-from forward import load_forward, MODELS_DIR
+from core.forward import load_forward, MODELS_DIR
 
-# ── types ─────────────────────────────────────────────────────────────────────
+# types
 InputKey  = Union[int, str]
 OutputKey = Union[int, str]
 
@@ -43,7 +43,7 @@ class InverseProblem(NamedTuple):
     constraints:    Sequence[Callable] = ()
 
 
-# ── constraints ───────────────────────────────────────────────────────────────
+#  constraints 
 def make_orientation_sum_constraint(free_inputs: Sequence[str], limit: float = 1.0) -> Optional[Callable]:
     """Enforces a11 + a22 <= limit. Returns None if both aren't free."""
     names = list(free_inputs)
@@ -55,7 +55,7 @@ def make_orientation_sum_constraint(free_inputs: Sequence[str], limit: float = 1
     return c
 
 
-# ── core loss ─────────────────────────────────────────────────────────────────
+#  core loss
 def _assemble_x(vec, prob: InverseProblem, in_idx: dict, n_inputs: int) -> jnp.ndarray:
     x = jnp.zeros(n_inputs)
     for k, v in prob.fixed_inputs.items():
@@ -94,7 +94,7 @@ def _loss_fn(vec64, predict_array, prob: InverseProblem,
     return loss.astype(jnp.float64)
 
 
-# ── solvers ───────────────────────────────────────────────────────────────────
+# solvers
 
 # Global optimisation methods (scipy-based, gradient-free).
 #
@@ -188,7 +188,7 @@ def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
     else:
         lo, hi, lo_jax, hi_jax = None, None, None, None
 
-    # ── global methods ────────────────────────────────────────────────────────
+    # global methods 
     if method in _GLOBAL_METHODS:
         if lo is None:
             raise ValueError(f"Method '{method}' requires bounds to be specified in the problem JSON.")
@@ -197,7 +197,7 @@ def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
                              sigmas_list=sigmas_list, use_eps_loss=use_eps_loss,
                              **kw)
 
-    # ── gradient-based methods ────────────────────────────────────────────────
+    # gradient-based methods 
     if method == "adam":
         lr    = kw.get("lr", 1e-2)
         steps = int(kw.get("n_steps", 5000))
@@ -238,7 +238,7 @@ def _solve(predict_array, prob: InverseProblem, in_idx: dict, out_idx: dict,
         return res.params.astype(jnp.float32), float(res.state.error)
 
 
-# ── main entry ────────────────────────────────────────────────────────────────
+# main entry 
 def run(problem_path: str, model_dir: Optional[str] = None) -> dict:
     with open(problem_path) as f:
         prob_dict = json.load(f)
@@ -358,8 +358,8 @@ def run(problem_path: str, model_dir: Optional[str] = None) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Inverse design via elastic surrogate.")
-    parser.add_argument("--problem",   default="problem.json",
-                        help="Path to problem JSON file (default: problem.json)")
+    parser.add_argument("--problem",   default="config/problem.json",
+                        help="Path to problem JSON file (default: config/problem.json)")
     parser.add_argument("--model_dir", default=None,
                         help="Path to model directory (default: models/elastic)")
     args = parser.parse_args()

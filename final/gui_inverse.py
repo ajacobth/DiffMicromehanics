@@ -21,8 +21,8 @@ from tkinter import ttk, messagebox, filedialog
 
 import numpy as np
 
-import db as _db
-from unit_manager import UM
+import db.db as _db
+from core.unit_manager import UM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,7 +30,7 @@ os.environ.setdefault("JAX_ENABLE_X64",    "1")
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
 # ── field label mapping ────────────────────────────────────────────────────────
-_LABELS_FILE = os.path.join(_HERE, "field_labels.json")
+_LABELS_FILE = os.path.join(_HERE, "config", "field_labels.json")
 
 def _load_field_labels() -> dict:
     try:
@@ -133,6 +133,25 @@ class InputRow:
     def set_value(self, v: float):
         self._val_entry.delete(0, tk.END)
         self._val_entry.insert(0, f"{v:.6g}")
+
+    def convert_bounds(self, old_sys: str, new_sys: str):
+        """Convert bound entries from old_sys to new_sys in-place."""
+        lo = self._lo.get().strip()
+        hi = self._hi.get().strip()
+        if lo:
+            try:
+                new_lo = UM.convert_between(self.field, float(lo), old_sys, new_sys)
+                self._lo.delete(0, tk.END)
+                self._lo.insert(0, f"{new_lo:.6g}")
+            except ValueError:
+                pass
+        if hi:
+            try:
+                new_hi = UM.convert_between(self.field, float(hi), old_sys, new_sys)
+                self._hi.delete(0, tk.END)
+                self._hi.insert(0, f"{new_hi:.6g}")
+            except ValueError:
+                pass
 
     def update_unit_label(self):
         self._unit_lbl.config(text=UM.unit_label(self.field))
@@ -384,13 +403,13 @@ class InverseGUI:
         self._solve_status.grid(row=0, column=13, sticky="w")
 
         # ε-insensitive loss options (row 1)
-        self._use_eps_var = tk.BooleanVar(value=False)
+        self._use_eps_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(sbar, text="Use ε-insensitive loss",
                         variable=self._use_eps_var).grid(
             row=1, column=5, columnspan=2, padx=(14, 4), sticky="w")
         tk.Label(sbar, text="ε scale:", font=FONT_SMALL).grid(
             row=1, column=7, padx=(10, 4), sticky="e")
-        self._eps_scale_var = tk.StringVar(value="1.0")
+        self._eps_scale_var = tk.StringVar(value="0.5")
         tk.Entry(sbar, textvariable=self._eps_scale_var, width=6,
                  font=FONT_ENTRY).grid(row=1, column=8, padx=4)
 
@@ -470,8 +489,26 @@ class InverseGUI:
                    lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.bind("<Configure>",
                     lambda e: canvas.itemconfig(win, width=e.width))
-        canvas.bind("<MouseWheel>",
-                    lambda e: canvas.yview_scroll(int(-e.delta / 120), "units"))
+
+        def _scroll(e):
+            canvas.yview_scroll(int(-e.delta / 120), "units")
+
+        # Bind mousewheel on the canvas itself and also activate bind_all
+        # whenever the pointer enters the scrollable area so child widgets
+        # (labels, entries, radiobuttons) forward scroll events too.
+        canvas.bind("<MouseWheel>", _scroll)
+
+        def _bind_mousewheel(e):
+            canvas.bind_all("<MouseWheel>", _scroll)
+
+        def _unbind_mousewheel(e):
+            canvas.unbind_all("<MouseWheel>")
+
+        canvas.bind("<Enter>", _bind_mousewheel)
+        canvas.bind("<Leave>", _unbind_mousewheel)
+        frame.bind("<Enter>", _bind_mousewheel)
+        frame.bind("<Leave>", _unbind_mousewheel)
+
         return canvas, frame
 
     def _write_results(self, text: str):
@@ -494,7 +531,7 @@ class InverseGUI:
             import jax
             jax.config.update("jax_enable_x64", True)
             import jax.numpy as jnp
-            from forward import load_forward
+            from core.forward import load_forward
             model = load_forward(name)
             # warm-up compile
             dummy = jnp.zeros(len(model.input_fields), dtype=jnp.float32)
@@ -519,11 +556,17 @@ class InverseGUI:
         self._load_btn.config(state="normal")
         messagebox.showerror("Load Error", msg)
 
+    # CTE constituent input fields (thermoelastic model only shows these)
+    _CTE_INPUT_FIELDS = frozenset(
+        {"f_cte11", "f_cte22", "matrix_cte", "f_cte1", "f_cte2", "m_cte"})
+
     # ── panel builders ────────────────────────────────────────────────────────
     def _rebuild_input_panel(self, model):
         for w in self._in_frame.winfo_children():
             w.destroy()
         self._input_rows = []
+
+        is_thermoelastic = self._model_var.get() == "thermoelastic"
 
         # header row
         hdr = self._in_frame
@@ -536,8 +579,20 @@ class InverseGUI:
         tk.Label(hdr, text="Bounds  [lo – hi]  (free vars only, optional)",
                  font=FONT_BOLD).grid(row=0, column=3, sticky="w", padx=4, pady=(2, 6))
 
-        for i, field in enumerate(model.input_fields):
-            row = InputRow(hdr, row=i + 1, field=field,
+        if is_thermoelastic:
+            tk.Label(hdr,
+                     text="Thermoelastic inverse: only constituent CTE fields are shown.\n"
+                          "Run the elastic inverse first to determine microstructure and matrix modulus.",
+                     font=FONT_SMALL, fg="#c07000").grid(
+                row=1, column=0, columnspan=4, sticky="w", padx=8, pady=(0, 6))
+
+        row_offset = 2 if is_thermoelastic else 1
+        display_fields = [
+            f for f in model.input_fields
+            if not is_thermoelastic or f in self._CTE_INPUT_FIELDS
+        ]
+        for i, field in enumerate(display_fields):
+            row = InputRow(hdr, row=row_offset + i, field=field,
                            display=_label("inputs", field))
             self._input_rows.append(row)
 
@@ -545,6 +600,8 @@ class InverseGUI:
         for w in self._out_frame.winfo_children():
             w.destroy()
         self._output_rows = []
+
+        is_thermoelastic = self._model_var.get() == "thermoelastic"
 
         hdr = self._out_frame
         tk.Label(hdr, text="", font=FONT_BOLD).grid(row=0, column=0, padx=(8, 4))
@@ -555,7 +612,11 @@ class InverseGUI:
         tk.Label(hdr, text="σ (noise, same units as target)", font=FONT_BOLD).grid(
             row=0, column=3, padx=(4, 2), pady=(2, 6), sticky="w")
 
-        for i, field in enumerate(model.output_fields):
+        display_fields = [
+            f for f in model.output_fields
+            if not is_thermoelastic or f.upper().startswith("CTE")
+        ]
+        for i, field in enumerate(display_fields):
             row = OutputRow(hdr, row=i + 1, field=field,
                             display=_label("outputs", field))
             self._output_rows.append(row)
@@ -702,7 +763,7 @@ class InverseGUI:
             jax.config.update("jax_enable_x64", True)
             import jax.numpy as jnp
 
-            from inverse import (
+            from core.inverse import (
                 InverseProblem,
                 _solve,
                 _assemble_x,
@@ -794,10 +855,13 @@ class InverseGUI:
             f"  Model: {result['model']}     Timestamp: {result['timestamp']}",
             "=" * W,
             "",
-            "Optimised free variables:",
+            f"Optimised free variables  ({UM.current_system}):",
         ]
         for k, v in opt_free.items():
-            lines.append(f"  {k:<30s}: {v:.8g}")
+            disp_v = UM.to_display(k, v)
+            unit   = UM.unit_label(k)
+            suffix = f"  {unit}" if unit else ""
+            lines.append(f"  {k:<30s}: {disp_v:.8g}{suffix}")
         if "a11" in opt_free and "a22" in opt_free:
             s = opt_free["a11"] + opt_free["a22"]
             lines.append(f"  {'a11 + a22':<30s}: {s:.8g}   [constraint: <= 1.0]")
@@ -953,13 +1017,14 @@ class InverseGUI:
         old_sys = UM.current_system
         if new_sys == old_sys:
             return
-        # Convert existing values in input rows
+        # Convert existing values and bounds in input rows
         for row in self._input_rows:
             try:
                 old_val = row.get_value()
             except ValueError:
                 continue
             row.set_value(UM.convert_between(row.field, old_val, old_sys, new_sys))
+            row.convert_bounds(old_sys, new_sys)
         # Convert active target / sigma values in output rows
         for row in self._output_rows:
             if row.is_active():

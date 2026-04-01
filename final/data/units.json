@@ -66,6 +66,7 @@
     "CTE11": "cte", "CTE22": "cte", "CTE33": "cte",
     "CTE12": "cte", "CTE13": "cte", "CTE23": "cte",
     "f_cte11": "cte", "f_cte22": "cte", "matrix_cte": "cte",
+    "f_cte1":  "cte", "f_cte2":  "cte", "m_cte":      "cte",
 
     "k11": "conductivity", "k12": "conductivity", "k13": "conductivity",
     "k22": "conductivity", "k23": "conductivity", "k33": "conductivity",

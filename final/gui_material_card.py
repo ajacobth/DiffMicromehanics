@@ -18,7 +18,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional
 
-import db as _db
+import db.db as _db
 
 FONT_TITLE = ("Helvetica", 15, "bold")
 FONT_BOLD  = ("Helvetica", 13, "bold")

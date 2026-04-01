@@ -2,22 +2,28 @@
 Run this inside your DiffMicromechanics environment to check whether
 the NN surrogate has spurious nu_m sensitivity in E1, E2, E3.
 
-Usage:
-    python check_nu_sensitivity.py
+Usage (run from the final/ directory):
+    python scripts/check_nu_sensitivity.py
 """
+import os
+import sys
+
+# Add final/ to sys.path so core.* packages resolve correctly
+_FINAL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _FINAL_DIR)
+
 import numpy as np
 import jax
 import jax.numpy as jnp
-
-# ── Load your model the same way gui_identifiability.py does ──────────────
-# Replace this with however you load ForwardModel in your codebase
-from forward import load_forward
 import json
 
-with open("problem.json") as f:
+from core.forward import load_forward
+
+_PROBLEM_PATH = os.path.join(_FINAL_DIR, "config", "problem.json")
+with open(_PROBLEM_PATH) as f:
     prob = json.load(f)
 
-model = load_forward("models/")   # adjust path as needed
+model = load_forward("elastic")
 
 # ── Build nominal x ────────────────────────────────────────────────────────
 fixed = prob["fixed_inputs"]
@@ -53,15 +59,15 @@ print()
 
 threshold = 50.0  # MPa per unit change in nu_m
 if max(abs(float(J_nu[i])) for i in range(3)) > threshold:
-    print(f"⚠  Surrogate has significant nu_m -> E coupling (>{threshold} MPa/unit).")
+    print(f"  Surrogate has significant nu_m -> E coupling (>{threshold} MPa/unit).")
     print("   This is a training artefact — the physical model has zero coupling.")
     print("   The FIM will report nu_m as MARGINAL instead of POOR.")
     print("   This makes nu_m look more identifiable than it truly is.")
     print()
     print("   Options:")
     print("   1. Re-train surrogate with physics-informed constraint dE/dnu_m = 0")
-    print("   2. Trust the physics: manually set dE/dnu_m = 0 in fim.py for E1/E2/E3")
+    print("   2. Trust the physics: manually set dE/dnu_m = 0 in core/fim.py for E1/E2/E3")
     print("   3. Accept MARGINAL as a conservative (safe) over-estimate of identifiability")
 else:
-    print("✓  Surrogate correctly has near-zero nu_m sensitivity for axial moduli.")
+    print("  Surrogate correctly has near-zero nu_m sensitivity for axial moduli.")
     print("   POOR classification is correct — something else is causing MARGINAL.")

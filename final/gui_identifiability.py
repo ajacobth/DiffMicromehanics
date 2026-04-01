@@ -14,7 +14,7 @@ from tkinter import ttk, messagebox
 
 import numpy as np
 
-from unit_manager import UM
+from core.unit_manager import UM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -498,7 +498,7 @@ class IdentifiabilityWindow:
                     target_outputs, out_idx, sigmas, bounds,
                     all_output_names, sig_out, n_samples, show_advanced):
         try:
-            from fim import run_identifiability_check
+            from core.fim import run_identifiability_check
             result = run_identifiability_check(
                 predict_array, x_template, free_inputs, free_indices,
                 target_outputs, out_idx, sigmas, bounds,

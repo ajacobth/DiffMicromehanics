@@ -6,13 +6,13 @@ CLI entry point for temperature-dependent thermal inverse estimation.
 Recovers constituent thermal conductivity parameters [p1, p2, l2, t] from
 measured composite conductivities (K11, K22, K33) at multiple temperatures.
 
-The problem is described by a JSON file. See thermal_problem.json for schema.
+The problem is described by a JSON file. See config/thermal_problem.json for schema.
 
-Usage
------
-    python run_inverse_thermal.py                           # uses thermal_problem.json
-    python run_inverse_thermal.py --problem my_problem.json
-    python run_inverse_thermal.py --problem p.json --output_dir results/
+Usage (run from the final/ directory)
+--------------------------------------
+    python scripts/run_inverse_thermal.py
+    python scripts/run_inverse_thermal.py --problem config/my_problem.json
+    python scripts/run_inverse_thermal.py --problem config/p.json --output_dir results/
 """
 
 from __future__ import annotations
@@ -20,7 +20,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from typing import Optional
+
+# Add final/ to sys.path so core.* and db.* packages resolve correctly
+_FINAL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _FINAL_DIR)
 
 os.environ.setdefault("JAX_ENABLE_X64", "1")
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
@@ -31,8 +36,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from forward import load_forward
-from inverse_thermal import (
+from core.forward import load_forward
+from core.inverse_thermal import (
     ConstituentParams,
     PolymerConductivityModel,
     FiberConductivityModel,
@@ -41,6 +46,9 @@ from inverse_thermal import (
     run_inverse_estimation,
     vf_to_wf,
 )
+
+# Default problem file — lives in final/config/
+_DEFAULT_PROBLEM = os.path.join(_FINAL_DIR, "config", "thermal_problem.json")
 
 
 # ── data loading ──────────────────────────────────────────────────────────────
@@ -189,11 +197,11 @@ def run(problem_path: str, output_dir_override: Optional[str] = None):
     with open(problem_path) as f:
         prob = json.load(f)
 
-    fi  = prob["fixed_inputs"]
-    vf  = float(fi["vf"])
-    rho_f = float(fi["rho_f"])
-    rho_m = float(fi["rho_m"])
-    w_f   = vf_to_wf(vf, rho_f, rho_m)
+    fi      = prob["fixed_inputs"]
+    vf      = float(fi["vf"])
+    rho_f   = float(fi["rho_f"])
+    rho_m   = float(fi["rho_m"])
+    w_f     = vf_to_wf(vf, rho_f, rho_m)
 
     fixed_inputs = {
         "ar_f":  float(fi["ar_f"]),
@@ -267,7 +275,7 @@ if __name__ == "__main__":
         description="Thermal inverse estimation (temperature-dependent constituent K).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--problem",    default="thermal_problem.json",
+    parser.add_argument("--problem",    default=_DEFAULT_PROBLEM,
                         help="Path to problem JSON file")
     parser.add_argument("--output_dir", default=None,
                         help="Override output directory (default: from JSON)")

@@ -10,7 +10,7 @@ After training, run export_model.py in the training folder. It will populate:
 
 Usage
 -----
-    from forward import load_forward
+    from core.forward import load_forward
 
     fwd, meta = load_forward("elastic")
     outputs = fwd({"e1": 240e3, "e2": 15e3, ..., "a11": 0.6, ...})
@@ -32,12 +32,12 @@ import numpy as np
 
 import ml_collections
 from NN_surrogate.utils import restore_checkpoint
-import models as _model_module
+from core import micro_surrogate as _model_module
 
-MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+# Points to final/models/ — one level up from final/core/
+MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
 
 
-# ── public types ─────────────────────────────────────────────────────────────
 class ForwardModel(NamedTuple):
     """Container returned by load_forward."""
     predict:       Callable   # dict[str, float] -> dict[str, float]  (user-facing)
@@ -50,7 +50,6 @@ class ForwardModel(NamedTuple):
     output_std:    jnp.ndarray  # sig_out used to normalise targets for the loss
 
 
-# ── internal helpers ─────────────────────────────────────────────────────────
 def make_ml_config(cfg: dict) -> ml_collections.ConfigDict:
     """Convert a model_config.json dict into an ml_collections.ConfigDict."""
     c = ml_collections.ConfigDict()

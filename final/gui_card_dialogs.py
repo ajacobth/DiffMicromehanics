@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional
 
-import db as _db
+import db.db as _db
 
 FONT_TITLE = ("Helvetica", 14, "bold")
 FONT_BOLD  = ("Helvetica", 13, "bold")
@@ -88,8 +88,9 @@ class SaveToCardDialog:
         self._win = tk.Toplevel(parent)
         self._win.title("Save to Material Card")
         self._win.grab_set()
-        self._win.resizable(False, False)
-        self._win.geometry("560x720")
+        self._win.resizable(True, True)
+        self._win.geometry("580x720")
+        self._win.minsize(560, 500)
 
         self._fiber_map:   dict[str, int] = {}
         self._polymer_map: dict[str, int] = {}
@@ -106,8 +107,28 @@ class SaveToCardDialog:
         self._win.grid_rowconfigure(0, weight=1)
         self._win.grid_columnconfigure(0, weight=1)
 
-        outer = ttk.Frame(self._win, padding=12)
-        outer.grid(sticky="nsew")
+        # Scrollable canvas so the Save button stays visible regardless of card count
+        _canvas = tk.Canvas(self._win, highlightthickness=0)
+        _vsb = ttk.Scrollbar(self._win, orient="vertical", command=_canvas.yview)
+        _canvas.configure(yscrollcommand=_vsb.set)
+        _vsb.grid(row=0, column=1, sticky="ns")
+        _canvas.grid(row=0, column=0, sticky="nsew")
+
+        outer = ttk.Frame(_canvas, padding=12)
+        _cw = _canvas.create_window((0, 0), window=outer, anchor="nw")
+
+        def _on_frame_resize(event):
+            _canvas.configure(scrollregion=_canvas.bbox("all"))
+        outer.bind("<Configure>", _on_frame_resize)
+
+        def _on_canvas_resize(event):
+            _canvas.itemconfig(_cw, width=event.width)
+        _canvas.bind("<Configure>", _on_canvas_resize)
+
+        def _on_mousewheel(event):
+            _canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        _canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
         outer.grid_columnconfigure(0, weight=1)
 
         tk.Label(outer, text="Save Result to Material Card",

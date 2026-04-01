@@ -2,7 +2,7 @@
 
 Usage
 -----
-    python test_setup.py
+    python scripts/test_setup.py
 
 All checks should print PASS. If any prints FAIL, follow the instructions shown.
 """
@@ -59,42 +59,28 @@ except ImportError:
 
 # ── 3. JAX ────────────────────────────────────────────────────────────────────
 print("\n=== 3. JAX ===")
-
 try:
     import jax
-    import jax.numpy as jnp
     check(f"jax {jax.__version__}", True)
-
-    # Test basic computation
-    x = jnp.array([1.0, 2.0, 3.0])
-    y = jnp.sum(x)
-    check("jax basic computation (sum)", float(y) == 6.0)
-
-    # Check platform (CPU expected for no-GPU systems)
     backend = jax.default_backend()
     print(f"  {INFO}  JAX backend: {backend}")
     if backend == "cpu":
         print(f"  {INFO}  Running on CPU (normal if you have no GPU)")
-    elif backend in ("gpu", "metal"):
-        print(f"  {INFO}  Running on {'GPU (CUDA)' if backend == 'gpu' else 'GPU (Apple Metal)'} -- great!")
+    else:
+        print(f"  {INFO}  Running on {backend.upper()}")
 
-    # Test JIT compilation
-    @jax.jit
-    def simple_fn(x):
-        return jnp.dot(x, x)
+    import jax.numpy as jnp
+    x = jnp.ones(3)
+    check("jax basic computation (sum)", float(jnp.sum(x)) == 3.0)
 
-    result = simple_fn(jnp.ones(10)).block_until_ready()
-    check("jax JIT compilation", float(result) == 10.0)
+    f = jax.jit(lambda x: x * 2)
+    check("jax JIT compilation", float(f(jnp.array(1.0))) == 2.0)
 
-    # Test grad
-    grad_fn = jax.grad(lambda x: jnp.sum(x ** 2))
-    g = grad_fn(jnp.array([1.0, 2.0, 3.0]))
-    check("jax autodiff (grad)", list(g) == [2.0, 4.0, 6.0])
+    g = jax.grad(lambda x: x ** 2)
+    check("jax autodiff (grad)", abs(float(g(jnp.array(3.0))) - 6.0) < 1e-5)
 
 except ImportError:
-    check("jax", False,
-          "Windows/Linux CPU: pip install 'jax[cpu]==0.4.26'\n"
-          "         Mac Apple Silicon GPU: pip install jax-metal==0.1.0")
+    check("jax", False, 'pip install "jax[cpu]==0.4.26"')
 
 # ── 4. ML packages ────────────────────────────────────────────────────────────
 print("\n=== 4. ML packages ===")
@@ -151,7 +137,8 @@ except Exception as e:
 # ── 6. Folder structure ───────────────────────────────────────────────────────
 print("\n=== 6. Folder structure ===")
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+# _HERE = final/ directory (one level up from scripts/)
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 check(
     "final/ folder found",
@@ -204,7 +191,7 @@ try:
 
     os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
-    from forward import load_forward
+    from core.forward import load_forward
     import jax.numpy as jnp
 
     for model_name in ["elastic", "thermoelastic"]:
@@ -222,7 +209,7 @@ try:
             check(f"Load + predict '{model_name}'", False, str(e))
 
 except Exception as e:
-    check("forward.py import", False, str(e))
+    check("core.forward import", False, str(e))
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 print("\n" + "=" * 60)

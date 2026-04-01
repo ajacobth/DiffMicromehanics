@@ -15,7 +15,6 @@ import jax
 import jax.numpy as jnp
 
 
-# ── helpers ───────────────────────────────────────────────────────────────────
 
 def compute_jacobian(predict_array, x, free_indices, target_out_indices):
     """Jacobian of selected outputs w.r.t. selected inputs at x.
@@ -89,8 +88,6 @@ def _safe_fim_inverse(F):
     inv_eigvals = np.where(eigvals > 1e-10, 1.0 / np.maximum(eigvals, 1e-30), 1e15)
     return eigvecs @ np.diag(inv_eigvals) @ eigvecs.T
 
-
-# ── public API (per spec) ─────────────────────────────────────────────────────
 
 def compute_normalised_fim(predict_array, x_template, free_inputs,
                             free_indices, target_outputs, out_idx,
@@ -314,14 +311,14 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
         else:
             cr_std_dict[k] = cr_norm * param_range
 
-    # ── sensitivity matrix (selected targets vs free params) ─────────────────
+    # sensitivity matrix (selected targets vs free params) 
     target_out_indices = [out_idx[k] for k in target_keys]
     S = compute_relative_sensitivity(
         predict_array, x_template, free_indices,
         target_out_indices, param_list, target_keys,
     )
 
-    # ── recommendations via precomputed contributions (fast) ──────────────────
+    #  recommendations via precomputed contributions (fast)
     base_eigvals    = np.linalg.eigvalsh(F)
     lambda_min_base = max(float(np.min(base_eigvals)), 1e-12)
 
