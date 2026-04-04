@@ -931,6 +931,8 @@ def save_thermal_inverse_results(
     loss:                  float,
     microstructure_snap_id: Optional[int] = None,
     notes:                 str = "",
+    temperatures=None,
+    K_pred=None,
 ) -> int:
     """
     Save the results of a thermal inverse run.
@@ -938,7 +940,11 @@ def save_thermal_inverse_results(
     `parametric_outputs` should contain any subset of:
         k_f1, k_f2  — fiber conductivities (W/m·K)
         k_m         — matrix conductivity (W/m·K)
-        p1, p2, l2, t — parametric model coefficients (dimensionless)
+        p1, p2, l2, t — parametric model coefficients
+
+    `temperatures` and `K_pred` (shape n×3, columns K11/K22/K33) are stored
+    as compact JSON lists inside outputs_json rather than as individual rows
+    in composite_property_values.
 
     Stores:
       - one inference_run (stage='thermal_inverse')
@@ -946,11 +952,19 @@ def save_thermal_inverse_results(
 
     Returns the inference_run id.
     """
+    outputs = dict(parametric_outputs)
+    if temperatures is not None and K_pred is not None:
+        import numpy as _np
+        T = _np.asarray(temperatures).tolist()
+        K = _np.asarray(K_pred).tolist()
+        outputs["_temperatures"] = T
+        outputs["_K_pred"]       = K   # list of [K11, K22, K33] per temperature
+
     run_id = save_inference_run(
         print_config_id=print_config_id,
         stage="thermal_inverse",
         inputs={},
-        outputs=parametric_outputs,
+        outputs=outputs,
         solver_cfg=solver_cfg,
         loss=loss,
         microstructure_snap_id=microstructure_snap_id,

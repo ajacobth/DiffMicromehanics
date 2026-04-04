@@ -78,6 +78,8 @@ class ThermalInverseWindow:
         self._predictor = None   # batched predictor
         self._result: Optional[dict] = None
         self._fixed_inputs: Optional[dict] = None
+        self._card_fiber_id:   Optional[int] = None
+        self._card_polymer_id: Optional[int] = None
 
         # dynamic unit StringVars (updated via UM callback)
         self._k_unit_var:       tk.StringVar | None = None
@@ -159,8 +161,11 @@ class ThermalInverseWindow:
             row=row, column=0, columnspan=3, sticky="ew", pady=(8, 4))
         row += 1
         tk.Label(left, text="Fixed structural parameters",
-                 font=FONT_BOLD).grid(row=row, column=0, columnspan=3,
+                 font=FONT_BOLD).grid(row=row, column=0, columnspan=2,
                                       sticky="w", pady=(0, 4))
+        ttk.Button(left, text="📂 Load from Card",
+                   command=self._on_load_from_card).grid(
+            row=row, column=2, sticky="e", pady=(0, 4))
 
         def _add_field(r, label, var_default, unit_var=None, unit_static=""):
             tk.Label(left, text=label + ":", font=FONT_LABEL, anchor="e",
@@ -748,6 +753,65 @@ class ThermalInverseWindow:
         except Exception as exc:
             messagebox.showerror("Save error", str(exc), parent=self._win)
 
+    def _on_load_from_card(self):
+        if not _db.db_exists():
+            messagebox.showwarning("No database",
+                                   "Run  python init_db.py  first.",
+                                   parent=self._win)
+            return
+        from gui_card_dialogs import LoadFromCardDialog
+        dlg = LoadFromCardDialog(self._win)
+        if not dlg.loaded:
+            return
+
+        loaded = dlg.loaded
+
+        # Aspect ratio
+        for key in ("ar_f", "ar"):
+            if key in loaded:
+                self._ar_var.set(f"{loaded[key]:.6g}")
+                break
+
+        # Densities (convert from SI model units to current display units).
+        # Card may store either the thermal model name (rho_f/rho_m) or the
+        # constituent library name (fiber_density/matrix_density).
+        for key in ("rho_f", "fiber_density"):
+            if key in loaded:
+                self._rhof_var.set(f"{UM.to_display('rho_f', loaded[key]):.6g}")
+                break
+        for key in ("rho_m", "matrix_density"):
+            if key in loaded:
+                self._rhom_var.set(f"{UM.to_display('rho_m', loaded[key]):.6g}")
+                break
+
+        # Volume fraction: card stores w_f (mass fraction); convert back to vf.
+        # Must use the densities we just populated, converted back to SI.
+        for key in ("fiber_massfrac", "w_f"):
+            if key in loaded:
+                wf = loaded[key]
+                try:
+                    rho_f = UM.from_display("rho_f", float(self._rhof_var.get()))
+                    rho_m = UM.from_display("rho_m", float(self._rhom_var.get()))
+                    # inverse of vf_to_wf: vf = wf*rho_m / (rho_f*(1-wf) + rho_m*wf)
+                    vf = wf * rho_m / (rho_f * (1.0 - wf) + rho_m * wf)
+                    self._vf_var.set(f"{vf:.6g}")
+                except (ValueError, ZeroDivisionError):
+                    pass
+                break
+
+        # Orientation tensor
+        for field, var in [
+            ("a11", self._a11_var), ("a22", self._a22_var),
+            ("a12", self._a12_var), ("a13", self._a13_var), ("a23", self._a23_var),
+        ]:
+            if field in loaded:
+                var.set(f"{loaded[field]:.6g}")
+
+        # Remember which card this came from (for save-to-card)
+        if dlg.loaded_card is not None:
+            self._card_fiber_id   = dlg.loaded_card.get("fiber_id")
+            self._card_polymer_id = dlg.loaded_card.get("polymer_id")
+
     def _on_save_to_card(self):
         if self._result is None:
             return
@@ -765,6 +829,8 @@ class ThermalInverseWindow:
             temperatures = r["temperatures"],
             K_pred       = r["K_pred"],
             loss         = r["best_loss"],
+            fiber_id     = self._card_fiber_id,
+            polymer_id   = self._card_polymer_id,
         )
 
     # ─────────────────────────────────────────────────────────────────────────

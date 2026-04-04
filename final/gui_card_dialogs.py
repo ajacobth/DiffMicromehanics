@@ -156,6 +156,10 @@ class SaveToCardDialog:
             cb.bind("<<ComboboxSelected>>",
                     lambda _: [self._refresh_cards(), self._suggest_name()])
 
+        ttk.Button(sel, text="+ Add fiber…",
+                   command=self._add_fiber).grid(row=0, column=2, padx=(8, 0))
+        ttk.Button(sel, text="+ Add polymer…",
+                   command=self._add_polymer).grid(row=1, column=2, padx=(8, 0))
         ttk.Button(sel, text="+ Add printer…",
                    command=self._add_printer).grid(row=2, column=2, padx=(8, 0))
 
@@ -305,6 +309,124 @@ class SaveToCardDialog:
         name = " / ".join(p for p in parts if p)
         if name:
             self._card_name_var.set(name)
+
+    # ── add fiber sub-dialog ──────────────────────────────────────────────────
+
+    def _add_fiber(self):
+        dlg = tk.Toplevel(self._win)
+        dlg.title("Add Fiber")
+        dlg.grab_set()
+        dlg.resizable(False, False)
+        dlg.geometry("420x330")
+
+        _fields = [
+            ("Name:",             "name_var"),
+            ("Supplier:",         "supplier_var"),
+            ("E1 (MPa):",         "e1_var"),
+            ("E2 (MPa):",         "e2_var"),
+            ("G12 (MPa):",        "g12_var"),
+            ("ν12:",              "nu12_var"),
+            ("ν23:",              "nu23_var"),
+            ("Density (kg/m³):", "rho_var"),
+        ]
+        _vars: dict[str, tk.StringVar] = {}
+        for r_idx, (lbl_text, attr) in enumerate(_fields):
+            tk.Label(dlg, text=lbl_text, font=FONT_LABEL,
+                     width=18, anchor="e").grid(row=r_idx, column=0,
+                                                padx=12, pady=4, sticky="e")
+            v = tk.StringVar()
+            _vars[attr] = v
+            tk.Entry(dlg, textvariable=v, width=20,
+                     font=FONT_ENTRY).grid(row=r_idx, column=1, padx=8, pady=4)
+
+        def _ok():
+            name = _vars["name_var"].get().strip()
+            if not name:
+                messagebox.showerror("Error", "Fiber name is required.", parent=dlg)
+                return
+            try:
+                neat = {
+                    "E1":   float(_vars["e1_var"].get()),
+                    "E2":   float(_vars["e2_var"].get()),
+                    "G12":  float(_vars["g12_var"].get()),
+                    "nu12": float(_vars["nu12_var"].get()),
+                    "nu23": float(_vars["nu23_var"].get()),
+                    "rho":  float(_vars["rho_var"].get()),
+                }
+            except ValueError as exc:
+                messagebox.showerror("Error", f"Invalid numeric value: {exc}", parent=dlg)
+                return
+            try:
+                _db.add_fiber(name, _vars["supplier_var"].get().strip(), neat)
+                fibers = _db.get_all_fibers()
+                self._fiber_map = {f["name"]: f["id"] for f in fibers}
+                self._fiber_cb["values"] = list(self._fiber_map)
+                self._fiber_var.set(name)
+                self._refresh_cards()
+                self._suggest_name()
+            except Exception as exc:
+                messagebox.showerror("DB Error", str(exc), parent=dlg)
+            dlg.destroy()
+
+        ttk.Button(dlg, text="Add", command=_ok).grid(
+            row=len(_fields), column=1, padx=8, pady=10, sticky="e")
+        dlg.wait_window()
+
+    # ── add polymer sub-dialog ────────────────────────────────────────────────
+
+    def _add_polymer(self):
+        dlg = tk.Toplevel(self._win)
+        dlg.title("Add Polymer")
+        dlg.grab_set()
+        dlg.resizable(False, False)
+        dlg.geometry("420x260")
+
+        _fields = [
+            ("Name:",             "name_var"),
+            ("Supplier:",         "supplier_var"),
+            ("E1 (MPa):",         "e1_var"),
+            ("ν12:",              "nu12_var"),
+            ("Density (kg/m³):", "rho_var"),
+        ]
+        _vars: dict[str, tk.StringVar] = {}
+        for r_idx, (lbl_text, attr) in enumerate(_fields):
+            tk.Label(dlg, text=lbl_text, font=FONT_LABEL,
+                     width=18, anchor="e").grid(row=r_idx, column=0,
+                                                padx=12, pady=4, sticky="e")
+            v = tk.StringVar()
+            _vars[attr] = v
+            tk.Entry(dlg, textvariable=v, width=20,
+                     font=FONT_ENTRY).grid(row=r_idx, column=1, padx=8, pady=4)
+
+        def _ok():
+            name = _vars["name_var"].get().strip()
+            if not name:
+                messagebox.showerror("Error", "Polymer name is required.", parent=dlg)
+                return
+            try:
+                neat = {
+                    "E1":   float(_vars["e1_var"].get()),
+                    "nu12": float(_vars["nu12_var"].get()),
+                    "rho":  float(_vars["rho_var"].get()),
+                }
+            except ValueError as exc:
+                messagebox.showerror("Error", f"Invalid numeric value: {exc}", parent=dlg)
+                return
+            try:
+                _db.add_polymer(name, _vars["supplier_var"].get().strip(), neat)
+                polymers = _db.get_all_polymers()
+                self._polymer_map = {p["name"]: p["id"] for p in polymers}
+                self._polymer_cb["values"] = list(self._polymer_map)
+                self._polymer_var.set(name)
+                self._refresh_cards()
+                self._suggest_name()
+            except Exception as exc:
+                messagebox.showerror("DB Error", str(exc), parent=dlg)
+            dlg.destroy()
+
+        ttk.Button(dlg, text="Add", command=_ok).grid(
+            row=len(_fields), column=1, padx=8, pady=10, sticky="e")
+        dlg.wait_window()
 
     # ── add printer sub-dialog ────────────────────────────────────────────────
 
@@ -899,13 +1021,17 @@ class SaveThermalToCardDialog:
     """
 
     def __init__(self, parent, params, fixed_inputs: dict,
-                 temperatures, K_pred, loss: float):
-        self._params       = params
-        self._fixed_inputs = fixed_inputs
-        self._temperatures = temperatures
-        self._K_pred       = K_pred
-        self._loss         = loss
-        self.saved         = False
+                 temperatures, K_pred, loss: float,
+                 fiber_id: Optional[int] = None,
+                 polymer_id: Optional[int] = None):
+        self._params              = params
+        self._fixed_inputs        = fixed_inputs
+        self._temperatures        = temperatures
+        self._K_pred              = K_pred
+        self._loss                = loss
+        self.saved                = False
+        self._preset_fiber_id     = fiber_id
+        self._preset_polymer_id   = polymer_id
 
         self._win = tk.Toplevel(parent)
         self._win.title("Save Thermal Results to Card")
@@ -1007,6 +1133,17 @@ class SaveThermalToCardDialog:
         self._printer_cb["values"] = (
             list(self._printer_map) + ["— none —"])
 
+        # pre-select fiber/polymer from the card that was loaded, then show
+        # existing cards so the user can append rather than always creating new
+        id_to_fiber   = {v: k for k, v in self._fiber_map.items()}
+        id_to_polymer = {v: k for k, v in self._polymer_map.items()}
+        if self._preset_fiber_id is not None and self._preset_fiber_id in id_to_fiber:
+            self._fiber_var.set(id_to_fiber[self._preset_fiber_id])
+        if self._preset_polymer_id is not None and self._preset_polymer_id in id_to_polymer:
+            self._polymer_var.set(id_to_polymer[self._preset_polymer_id])
+        if self._preset_fiber_id is not None or self._preset_polymer_id is not None:
+            self._refresh_cards()
+
     def _refresh_cards(self):
         for w in self._cards_frame.winfo_children():
             w.destroy()
@@ -1082,9 +1219,11 @@ class SaveThermalToCardDialog:
             else:
                 snap_id = _t_latest["id"]
 
-            # thermal inverse results (constituent properties)
+            # thermal inverse results — inference run + constituent properties
+            # K vs T predictions are stored as JSON inside outputs_json of the
+            # inference_run row rather than as n_temps×3 composite_property_values rows.
             p = self._params
-            run_id = _db.save_thermal_inverse_results(
+            _db.save_thermal_inverse_results(
                 print_config_id=cfg_id,
                 fiber_id=fid,
                 polymer_id=pid,
@@ -1095,21 +1234,9 @@ class SaveThermalToCardDialog:
                 solver_cfg={},
                 loss=float(self._loss),
                 microstructure_snap_id=snap_id,
+                temperatures=self._temperatures,
+                K_pred=self._K_pred,
             )
-
-            # composite K predictions at each temperature
-            for i, temp in enumerate(self._temperatures):
-                for col, prop in enumerate(("K11", "K22", "K33")):
-                    val = float(self._K_pred[i, col])
-                    _db.save_composite_property(
-                        print_config_id=cfg_id,
-                        property_name=prop,
-                        value=val,
-                        unit="W/m·K",
-                        source_tag="predicted",
-                        inference_run_id=run_id,
-                        temperature_C=float(temp),
-                    )
 
             self.saved = True
             cfg_name = (_db.get_print_config(cfg_id) or {}).get("name", str(cfg_id))

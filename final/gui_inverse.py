@@ -246,6 +246,8 @@ class InverseGUI:
         self._last_result: Optional[dict]  = None
         self._card_fiber_id:   Optional[int] = None
         self._card_polymer_id: Optional[int] = None
+        self._card_hidden_inputs: dict[str, float] = {}  # non-visible fields from last card load
+        self._hidden_display_frame: Optional[tk.Widget] = None  # frame showing loaded-but-hidden fields
         self._fiber_map:  dict[str, int] = {}
         self._polymer_map: dict[str, int] = {}
 
@@ -281,7 +283,7 @@ class InverseGUI:
         self._load_btn.grid(row=0, column=4, padx=(16, 6))
 
         self._load_status = tk.Label(top, text="No model loaded.",
-                                     font=FONT_STATUS, fg="gray")
+                                     font=FONT_STATUS, fg="gray", width=38, anchor="w")
         self._load_status.grid(row=0, column=5, padx=8, sticky="w")
 
         # unit system selector
@@ -291,7 +293,7 @@ class InverseGUI:
         self._unit_sys_var = tk.StringVar(value=UM.current_system)
         self._unit_sys_cb  = ttk.Combobox(top, textvariable=self._unit_sys_var,
                                            values=UM.available_systems,
-                                           state="readonly", width=36, font=FONT_SMALL)
+                                           state="readonly", width=16, font=FONT_SMALL)
         self._unit_sys_cb.grid(row=0, column=8, padx=4)
         self._unit_sys_cb.bind("<<ComboboxSelected>>", self._on_unit_system_change)
 
@@ -302,29 +304,31 @@ class InverseGUI:
 
         self._load_card_btn = ttk.Button(top, text="📂  Load from Card",
                                          command=self._on_load_from_card)
-        self._load_card_btn.grid(row=1, column=4, padx=(16, 0), pady=(6, 0), sticky="w")
+        self._load_card_btn.grid(row=1, column=4, padx=(8, 0), pady=(6, 0), sticky="w")
 
-        ttk.Separator(top, orient="vertical").grid(row=1, column=5,
-                                                    sticky="ns", padx=12, pady=(6, 0))
-        tk.Label(top, text="Fiber:", font=FONT_LABEL).grid(
-            row=1, column=6, padx=(0, 4), pady=(6, 0))
+        tk.Label(top, text="Fiber:", font=FONT_SMALL).grid(
+            row=1, column=5, padx=(10, 2), pady=(6, 0))
         self._fiber_var = tk.StringVar(value="— select —")
         self._fiber_cb  = ttk.Combobox(top, textvariable=self._fiber_var,
-                                        state="readonly", width=22, font=FONT_ENTRY)
-        self._fiber_cb.grid(row=1, column=7, padx=4, pady=(6, 0))
+                                        state="readonly", width=14, font=FONT_SMALL)
+        self._fiber_cb.grid(row=1, column=6, padx=2, pady=(6, 0))
         self._fiber_cb.bind("<<ComboboxSelected>>", lambda _: self._on_load_material_props(warn_no_model=False))
+        ttk.Button(top, text="+", width=2,
+                   command=self._add_fiber_dialog).grid(row=1, column=7, padx=(0, 2), pady=(6, 0))
 
-        tk.Label(top, text="Polymer:", font=FONT_LABEL).grid(
-            row=1, column=8, padx=(8, 4), pady=(6, 0))
+        tk.Label(top, text="Polymer:", font=FONT_SMALL).grid(
+            row=1, column=8, padx=(6, 2), pady=(6, 0))
         self._polymer_var = tk.StringVar(value="— select —")
         self._polymer_cb  = ttk.Combobox(top, textvariable=self._polymer_var,
-                                          state="readonly", width=22, font=FONT_ENTRY)
-        self._polymer_cb.grid(row=1, column=9, padx=4, pady=(6, 0))
+                                          state="readonly", width=14, font=FONT_SMALL)
+        self._polymer_cb.grid(row=1, column=9, padx=2, pady=(6, 0))
         self._polymer_cb.bind("<<ComboboxSelected>>", lambda _: self._on_load_material_props(warn_no_model=False))
+        ttk.Button(top, text="+", width=2,
+                   command=self._add_polymer_dialog).grid(row=1, column=10, padx=(0, 2), pady=(6, 0))
 
         ttk.Button(top, text="Load Props",
                    command=self._on_load_material_props).grid(
-            row=1, column=10, padx=(8, 4), pady=(6, 0))
+            row=1, column=11, padx=(6, 4), pady=(6, 0))
 
 
         ttk.Separator(root, orient="horizontal").grid(row=1, column=0, sticky="ew")
@@ -415,12 +419,12 @@ class InverseGUI:
 
         self._export_btn = ttk.Button(sbar, text="Export Results",
                                       command=self._on_export, state="disabled")
-        self._export_btn.grid(row=1, column=9, padx=(14, 4))
+        self._export_btn.grid(row=1, column=12, padx=(14, 4))
 
         self._save_card_btn = ttk.Button(sbar, text="Save to Card",
                                          command=self._on_save_to_card,
                                          state="disabled")
-        self._save_card_btn.grid(row=1, column=10, padx=(4, 4))
+        self._save_card_btn.grid(row=1, column=13, padx=(4, 4))
 
         # ── results panel ─────────────────────────────────────────────────────
         ttk.Separator(root, orient="horizontal").grid(row=5, column=0, sticky="ew")
@@ -596,6 +600,54 @@ class InverseGUI:
                            display=_label("inputs", field))
             self._input_rows.append(row)
 
+        # In thermoelastic mode, add a read-only display section for
+        # the hidden fields (microstructure + elastic constants) loaded from a card.
+        if is_thermoelastic:
+            next_row = row_offset + len(display_fields)
+            sep = ttk.Separator(hdr, orient="horizontal")
+            sep.grid(row=next_row, column=0, columnspan=4, sticky="ew",
+                     padx=8, pady=(10, 4))
+            self._hidden_display_frame = ttk.LabelFrame(
+                hdr,
+                text="Fixed inputs loaded from card  (read-only)",
+                padding=(8, 4))
+            self._hidden_display_frame.grid(
+                row=next_row + 1, column=0, columnspan=4,
+                sticky="ew", padx=8, pady=(0, 6))
+            self._refresh_hidden_display()
+        else:
+            self._hidden_display_frame = None
+
+    def _refresh_hidden_display(self):
+        """Populate (or clear) the read-only hidden-fields display in thermoelastic mode."""
+        if self._hidden_display_frame is None:
+            return
+        for w in self._hidden_display_frame.winfo_children():
+            w.destroy()
+        if not self._card_hidden_inputs:
+            tk.Label(self._hidden_display_frame,
+                     text="No card loaded — run the elastic inverse and save to a card first.",
+                     font=FONT_SMALL, fg="gray").grid(
+                row=0, column=0, columnspan=4, sticky="w", padx=4, pady=2)
+            return
+        # Show each hidden field as a label row (2 columns of pairs for compactness)
+        items = sorted(self._card_hidden_inputs.items())
+        col_pairs = 2  # show 2 field-value pairs per visual row
+        for idx, (field, raw_val) in enumerate(items):
+            r, c = divmod(idx, col_pairs)
+            lbl_text = _label("inputs", field) or field
+            display_val = UM.to_display(field, raw_val)
+            unit_lbl   = UM.unit_label(field)
+            val_str    = f"{display_val:.4g} {unit_lbl}".strip()
+            tk.Label(self._hidden_display_frame,
+                     text=f"{lbl_text}:",
+                     font=FONT_SMALL, anchor="e", width=28).grid(
+                row=r, column=c * 2, sticky="e", padx=(8, 2), pady=1)
+            tk.Label(self._hidden_display_frame,
+                     text=val_str,
+                     font=FONT_SMALL, fg="#1a6a1a", anchor="w").grid(
+                row=r, column=c * 2 + 1, sticky="w", padx=(0, 16), pady=1)
+
     def _rebuild_output_panel(self, model):
         for w in self._out_frame.winfo_children():
             w.destroy()
@@ -657,6 +709,16 @@ class InverseGUI:
                     )
             else:
                 fixed[row.field] = val
+
+        # Inject card-loaded values for fields not shown in the panel (e.g.
+        # microstructure + elastic constants hidden in thermoelastic mode).
+        # Only inject fields that the current model actually uses, and only if
+        # they haven't already been set via a visible row.
+        if self._card_hidden_inputs and self.model is not None:
+            model_fields = set(self.model.input_fields)
+            for k, v in self._card_hidden_inputs.items():
+                if k in model_fields and k not in fixed and k not in free:
+                    fixed[k] = v
 
         # if ANY free var has bounds, fill ±_BIG for vars without explicit bounds
         if bounds and len(bounds) < len(free):
@@ -932,9 +994,17 @@ class InverseGUI:
         dlg = LoadFromCardDialog(self.root)
         if not dlg.loaded:
             return
+        visible_fields = {row.field for row in self._input_rows}
         for row in self._input_rows:
             if row.field in dlg.loaded:
                 row.set_value(UM.to_display(row.field, dlg.loaded[row.field]))
+        # Store card values for fields not shown in the panel (e.g. microstructure
+        # and elastic constants hidden during thermoelastic mode) so they can be
+        # passed as fixed inputs to the solver rather than defaulting to zero.
+        self._card_hidden_inputs = {
+            k: v for k, v in dlg.loaded.items() if k not in visible_fields
+        }
+        self._refresh_hidden_display()
         # remember which fiber/polymer this card belongs to
         if dlg.loaded_card is not None:
             self._card_fiber_id   = dlg.loaded_card.get("fiber_id")
@@ -952,6 +1022,114 @@ class InverseGUI:
                 name = id_to_name.get(pid)
                 if name:
                     self._polymer_var.set(name)
+
+    # ── add fiber / polymer dialogs ───────────────────────────────────────────
+
+    def _add_fiber_dialog(self):
+        dlg = tk.Toplevel(self.root)
+        dlg.title("Add Fiber")
+        dlg.grab_set()
+        dlg.resizable(False, False)
+        dlg.geometry("420x330")
+
+        _fields = [
+            ("Name:",             "name_var"),
+            ("Supplier:",         "supplier_var"),
+            ("E1 (MPa):",         "e1_var"),
+            ("E2 (MPa):",         "e2_var"),
+            ("G12 (MPa):",        "g12_var"),
+            ("ν12:",              "nu12_var"),
+            ("ν23:",              "nu23_var"),
+            ("Density (kg/m³):", "rho_var"),
+        ]
+        _vars: dict[str, tk.StringVar] = {}
+        for r_idx, (lbl_text, attr) in enumerate(_fields):
+            tk.Label(dlg, text=lbl_text, font=FONT_LABEL,
+                     width=18, anchor="e").grid(row=r_idx, column=0,
+                                                padx=12, pady=4, sticky="e")
+            v = tk.StringVar()
+            _vars[attr] = v
+            tk.Entry(dlg, textvariable=v, width=20,
+                     font=FONT_ENTRY).grid(row=r_idx, column=1, padx=8, pady=4)
+
+        def _ok():
+            name = _vars["name_var"].get().strip()
+            if not name:
+                messagebox.showerror("Error", "Fiber name is required.", parent=dlg)
+                return
+            try:
+                neat = {
+                    "E1":   float(_vars["e1_var"].get()),
+                    "E2":   float(_vars["e2_var"].get()),
+                    "G12":  float(_vars["g12_var"].get()),
+                    "nu12": float(_vars["nu12_var"].get()),
+                    "nu23": float(_vars["nu23_var"].get()),
+                    "rho":  float(_vars["rho_var"].get()),
+                }
+            except ValueError as exc:
+                messagebox.showerror("Error", f"Invalid numeric value: {exc}", parent=dlg)
+                return
+            try:
+                _db.add_fiber(name, _vars["supplier_var"].get().strip(), neat)
+                self._load_material_dropdowns()
+                self._fiber_var.set(name)
+            except Exception as exc:
+                messagebox.showerror("DB Error", str(exc), parent=dlg)
+            dlg.destroy()
+
+        ttk.Button(dlg, text="Add", command=_ok).grid(
+            row=len(_fields), column=1, padx=8, pady=10, sticky="e")
+        dlg.wait_window()
+
+    def _add_polymer_dialog(self):
+        dlg = tk.Toplevel(self.root)
+        dlg.title("Add Polymer")
+        dlg.grab_set()
+        dlg.resizable(False, False)
+        dlg.geometry("420x260")
+
+        _fields = [
+            ("Name:",             "name_var"),
+            ("Supplier:",         "supplier_var"),
+            ("E1 (MPa):",         "e1_var"),
+            ("ν12:",              "nu12_var"),
+            ("Density (kg/m³):", "rho_var"),
+        ]
+        _vars: dict[str, tk.StringVar] = {}
+        for r_idx, (lbl_text, attr) in enumerate(_fields):
+            tk.Label(dlg, text=lbl_text, font=FONT_LABEL,
+                     width=18, anchor="e").grid(row=r_idx, column=0,
+                                                padx=12, pady=4, sticky="e")
+            v = tk.StringVar()
+            _vars[attr] = v
+            tk.Entry(dlg, textvariable=v, width=20,
+                     font=FONT_ENTRY).grid(row=r_idx, column=1, padx=8, pady=4)
+
+        def _ok():
+            name = _vars["name_var"].get().strip()
+            if not name:
+                messagebox.showerror("Error", "Polymer name is required.", parent=dlg)
+                return
+            try:
+                neat = {
+                    "E1":   float(_vars["e1_var"].get()),
+                    "nu12": float(_vars["nu12_var"].get()),
+                    "rho":  float(_vars["rho_var"].get()),
+                }
+            except ValueError as exc:
+                messagebox.showerror("Error", f"Invalid numeric value: {exc}", parent=dlg)
+                return
+            try:
+                _db.add_polymer(name, _vars["supplier_var"].get().strip(), neat)
+                self._load_material_dropdowns()
+                self._polymer_var.set(name)
+            except Exception as exc:
+                messagebox.showerror("DB Error", str(exc), parent=dlg)
+            dlg.destroy()
+
+        ttk.Button(dlg, text="Add", command=_ok).grid(
+            row=len(_fields), column=1, padx=8, pady=10, sticky="e")
+        dlg.wait_window()
 
     def _load_material_dropdowns(self):
         try:

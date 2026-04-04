@@ -27,11 +27,13 @@ Follow the section for your operating system.
 5. [Mac – GPU (Apple Silicon only)](#5-mac--gpu-apple-silicon-only)
 6. [Linux – CPU](#6-linux--cpu)
 7. [Linux – GPU (NVIDIA CUDA, optional)](#7-linux--gpu-nvidia-cuda-optional)
-8. [Test Your Environment](#8-test-your-environment)
-9. [Run the Forward GUI](#9-run-the-forward-gui)
-10. [Run the Inverse GUI](#10-run-the-inverse-gui)
-11. [Run the Thermal Inverse Estimation](#11-run-the-thermal-inverse-estimation)
-12. [Common Errors and Fixes](#12-common-errors-and-fixes)
+8. [First-Time Database Setup](#8-first-time-database-setup)
+9. [Test Your Environment](#9-test-your-environment)
+10. [Run the Forward GUI](#10-run-the-forward-gui)
+11. [Run the Inverse GUI](#11-run-the-inverse-gui)
+12. [Material Card System and Property Transfer](#12-material-card-system-and-property-transfer)
+13. [Run the Thermal Inverse Estimation](#13-run-the-thermal-inverse-estimation)
+14. [Common Errors and Fixes](#14-common-errors-and-fixes)
 
 ---
 
@@ -59,28 +61,34 @@ final/
 ├── gui.py                    ← forward GUI (elastic, thermoelastic, thermal)
 ├── gui_inverse.py            ← elastic / thermoelastic inverse GUI
 ├── gui_thermal_inverse.py    ← thermal conductivity inverse GUI
-├── gui_material_card.py      ← material card viewer
+├── gui_material_card.py      ← material card viewer (standalone)
+├── gui_card_dialogs.py       ← Save to Card / Load from Card dialogs
+├── gui_identifiability.py    ← identifiability analysis GUI
 │
 ├── core/                     ← solver and model logic
 │   ├── forward.py
 │   ├── inverse.py
 │   ├── inverse_thermal.py
+│   ├── fim.py                ← Fisher Information Matrix utilities
 │   ├── micro_surrogate.py
 │   └── unit_manager.py
 │
 ├── db/
-│   ├── db.py                 ← database helper functions
-│   └── init_db.py            ← run once to set up the database
+│   ├── db.py                 ← database helper functions (single access point)
+│   └── init_db.py            ← run once to create and seed the database
 │
 ├── config/
+│   ├── field_labels.json     ← human-readable labels for all model fields
 │   ├── thermal_problem.json  ← example problem file for the CLI
 │   └── problem.json          ← inverse problem definition
 │
 ├── scripts/
 │   ├── run_inverse_thermal.py  ← thermal inverse CLI (no GUI)
-│   └── test_setup.py           ← run this to check your setup
+│   ├── test_setup.py           ← run this to check your setup
+│   └── check_nu_sensitivity.py ← developer utility
 │
 ├── NN_surrogate/             ← neural network utilities (included)
+├── data/                     ← SQLite database created by db/init_db.py
 └── models/
     ├── elastic/              ← elastic surrogate (16 in / 9 out)
     ├── thermoelastic/        ← thermoelastic surrogate (19 in / 15 out)
@@ -502,7 +510,36 @@ Then install the remaining packages as in Section 6 Step 5.
 
 ---
 
-## 8. Test Your Environment
+## 8. First-Time Database Setup
+
+Run this once per machine. It creates `data/micromechanics.db` and seeds the
+fiber and polymer material library:
+
+```bash
+cd /path/to/DiffMicromehanics/final
+conda activate diffmech
+python db/init_db.py
+```
+
+Expected output:
+```
+Created tables.
+Seeded 3 fibers.
+Seeded 2 polymers.
+Database ready at data/micromechanics.db
+```
+
+**Seeded materials:**
+- Fibers: Carbon Fiber T300 (Toray), E-Glass (Owens Corning), AS4
+- Polymers: PESU Ultrason (BASF), Epoxy 3501-6 (Hexcel)
+
+You can add more fibers, polymers, and printers via the **Manage Materials**
+button in either GUI. To reset the database, delete `data/micromechanics.db`
+and re-run `python db/init_db.py`.
+
+---
+
+## 9. Test Your Environment
 
 Once you have finished installing packages, run the test script to check
 that everything is working.
@@ -574,7 +611,7 @@ After fixing, run `python scripts/test_setup.py` again.
 
 ---
 
-## 9. Run the Forward GUI
+## 10. Run the Forward GUI
 
 The Forward GUI lets you specify composite microstructure inputs and instantly
 predicts the resulting material properties.
@@ -688,7 +725,7 @@ tool that shows which inputs most influence each output.
 
 ---
 
-## 10. Run the Inverse GUI
+## 11. Run the Inverse GUI
 
 The Inverse GUI solves the reverse problem: you specify the material properties
 you want, and the solver finds the microstructure inputs that achieve them.
@@ -820,7 +857,73 @@ Solver: `lbfgs`, Max iter: 300, Tol: 1e-9.
 
 ---
 
-## 11. Run the Thermal Inverse Estimation
+## 12. Material Card System and Property Transfer
+
+The material card system lets you accumulate characterisation results across
+multiple solver runs and reuse inferred constituent properties on new printers
+without re-running experiments.
+
+### What a material card is
+
+A card is identified by a **(fiber + polymer + printer)** triple. It stores:
+
+| Stage | What is saved |
+|---|---|
+| Stage 1 — Elastic inverse | Microstructure snapshot (a11, a22, ar, mf, …), matrix modulus + poisson |
+| Stage 2 — Thermoelastic inverse | Fiber CTE, matrix CTE |
+| Stage 3 — Thermal inverse | Constituent conductivities k_f1, k_f2, k_m |
+| Stage 4 — Forward prediction | Predicted composite properties for any printer |
+
+### The four-stage workflow
+
+**Stage 1** — Run elastic inverse on `gui_inverse.py`, click **Save to Card**.
+Select fiber, polymer, printer and name the card (e.g. `CF-PESU / MFX7`).
+
+**Stage 2** — Switch to Thermoelastic model. Click **Load from Card** → select
+`CF-PESU / MFX7`. The Stage 1 microstructure auto-fills as Fixed. Set
+f_CTE1, f_CTE2, matrix_CTE to Free. Solve → **Save to Card**.
+
+**Stage 3** — Click **Thermal Inverse** in `gui_inverse.py`. Load your k vs T
+CSV. Load from Card to fix the microstructure. Run → Save to Card.
+
+**Stage 4 (transfer to a new printer)** — Open `gui.py`. Select the same fiber
+and polymer. Toggle **In-situ** — all previously inferred properties auto-fill
+from the database. Enter the new printer's orientation tensor manually.
+Click **Predict** → **Save to Card** using a new card name for Printer B.
+
+### Why the transfer works
+
+Constituent properties (matrix modulus, fiber/matrix CTE, conductivities) are
+stored globally — not tied to a specific printer. They are intrinsic to the
+fiber-polymer pair. Only the microstructure (orientation, mass fraction) is
+printer-specific.
+
+This means you characterise once on Printer A and predict for any number of
+other printers using the same materials — no new inverse solves needed.
+
+### Viewing a card
+
+```bash
+python gui_material_card.py
+```
+
+| Tab | Content |
+|---|---|
+| Summary | Card name, fiber/polymer/printer, microstructure, row counts |
+| Constituent Properties | Datasheet vs inferred values with provenance |
+| Microstructure | Full snapshot history with per-field provenance |
+| Composite Properties | All predicted and experimental values |
+| Inference History | Every solver run — click to expand inputs/outputs |
+
+### Managing the material library
+
+Click **Manage Materials** in the toolbar of `gui.py` or `gui_inverse.py` to
+add new fibers (with mechanical, CTE, and conductivity properties), polymers,
+and printers.
+
+---
+
+## 13. Run the Thermal Inverse Estimation
 
 The thermal inverse estimation recovers four constituent thermal conductivity
 parameters from measured composite conductivities (K11, K22, K33) at multiple
@@ -950,13 +1053,13 @@ Then run:
 
 ```bash
 # Use the default thermal_problem.json
-python run_inverse_thermal.py
+python scripts/run_inverse_thermal.py
 
 # Use a custom problem file
-python run_inverse_thermal.py --problem my_problem.json
+python scripts/run_inverse_thermal.py --problem config/thermal_problem.json
 
 # Override the output folder
-python run_inverse_thermal.py --problem my_problem.json --output_dir results/
+python scripts/run_inverse_thermal.py --problem p.json --output_dir results/
 ```
 
 Three files are written to `output_dir`:
@@ -980,7 +1083,7 @@ Three files are written to `output_dir`:
 
 ---
 
-## 12. Common Errors and Fixes
+## 14. Common Errors and Fixes
 
 ### "ModuleNotFoundError: No module named 'jax'"
 

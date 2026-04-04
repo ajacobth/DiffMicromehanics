@@ -688,6 +688,22 @@ class SurrogateGUI:
         dlg = LoadFromCardDialog(self.root)
         if not dlg.loaded:
             return
+
+        # Update fiber/polymer dropdowns to match the loaded card
+        if dlg.loaded_card:
+            fid = dlg.loaded_card.get("fiber_id")
+            pid = dlg.loaded_card.get("polymer_id")
+            # reverse lookup: id → display name
+            fiber_name   = next((n for n, i in self._fiber_map.items()   if i == fid), None)
+            polymer_name = next((n for n, i in self._polymer_map.items() if i == pid), None)
+            if fiber_name:
+                self._fiber_var.set(fiber_name)
+                self._fiber_id = fid
+            if polymer_name:
+                self._polymer_var.set(polymer_name)
+                self._polymer_id = pid
+            self._refresh_insitu_toggle()
+
         for name, ent in self.input_entries.items():
             if name in dlg.loaded:
                 ent.delete(0, tk.END)
