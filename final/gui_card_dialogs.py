@@ -164,16 +164,26 @@ class SaveToCardDialog:
                    command=self._add_printer).grid(row=2, column=2, padx=(8, 0))
 
         # ── card selection ────────────────────────────────────────────────────
-        card_lf = ttk.LabelFrame(outer, text="Card", padding=8)
+        card_lf = ttk.LabelFrame(outer, text="Card — Add to existing or create new", padding=8)
         card_lf.grid(row=3, column=0, sticky="ew", pady=(0, 8))
         card_lf.grid_columnconfigure(0, weight=1)
 
         self._card_var = tk.StringVar(value="new")
+
+        # Existing cards section — always visible
+        tk.Label(card_lf, text="Existing cards for selected fiber + polymer:",
+                 font=FONT_SMALL, fg="#444").grid(row=0, column=0, sticky="w", pady=(0, 2))
         self._cards_frame = ttk.Frame(card_lf)
-        self._cards_frame.grid(row=0, column=0, sticky="ew")
+        self._cards_frame.grid(row=1, column=0, sticky="ew")
+        tk.Label(self._cards_frame,
+                 text="  (select a fiber and polymer above to see existing cards)",
+                 font=FONT_SMALL, fg="#aaa").pack(anchor="w")
+
+        ttk.Separator(card_lf, orient="horizontal").grid(
+            row=2, column=0, sticky="ew", pady=(6, 4))
 
         new_row = ttk.Frame(card_lf)
-        new_row.grid(row=1, column=0, sticky="w", pady=(4, 0))
+        new_row.grid(row=3, column=0, sticky="w", pady=(0, 0))
         ttk.Radiobutton(new_row, text="Create new card:",
                         variable=self._card_var,
                         value="new").pack(side="left")
@@ -278,6 +288,9 @@ class SaveToCardDialog:
         fid = self._fiber_map.get(self._fiber_var.get())
         pid = self._polymer_map.get(self._polymer_var.get())
         if fid is None or pid is None:
+            tk.Label(self._cards_frame,
+                     text="  (select a fiber and polymer above to see existing cards)",
+                     font=FONT_SMALL, fg="#aaa").pack(anchor="w")
             return
 
         try:
@@ -287,13 +300,23 @@ class SaveToCardDialog:
         except Exception:
             return
 
+        if not cards:
+            tk.Label(self._cards_frame,
+                     text="  No existing cards for this fiber + polymer combination.",
+                     font=FONT_SMALL, fg="#aaa").pack(anchor="w")
+            return
+
         for c in cards:
             display = f"{c['name']}  (created {(c.get('created_at') or '')[:10]})"
             self._card_map[display] = c["id"]
             ttk.Radiobutton(self._cards_frame,
-                            text=f"Append to existing:  {display}",
+                            text=f"Add to:  {display}",
                             variable=self._card_var,
                             value=str(c["id"])).pack(anchor="w", pady=1)
+
+        # Auto-select the only card so it's obvious the option is available
+        if len(cards) == 1:
+            self._card_var.set(str(cards[0]["id"]))
 
     def _suggest_name(self):
         def _first(s: str) -> str:
@@ -1081,16 +1104,26 @@ class SaveThermalToCardDialog:
             cb.bind("<<ComboboxSelected>>",
                     lambda _: self._refresh_cards())
 
-        card_lf = ttk.LabelFrame(outer, text="Card", padding=8)
+        card_lf = ttk.LabelFrame(outer, text="Card — Add to existing or create new", padding=8)
         card_lf.grid(row=3, column=0, sticky="ew", pady=(0, 8))
         card_lf.grid_columnconfigure(0, weight=1)
 
         self._card_var    = tk.StringVar(value="new")
+
+        # Existing cards section — always visible
+        tk.Label(card_lf, text="Existing cards for selected fiber + polymer:",
+                 font=FONT_SMALL, fg="#444").grid(row=0, column=0, sticky="w", pady=(0, 2))
         self._cards_frame = ttk.Frame(card_lf)
-        self._cards_frame.grid(row=0, column=0, sticky="ew")
+        self._cards_frame.grid(row=1, column=0, sticky="ew")
+        tk.Label(self._cards_frame,
+                 text="  (select a fiber and polymer above to see existing cards)",
+                 font=FONT_SMALL, fg="#aaa").pack(anchor="w")
+
+        ttk.Separator(card_lf, orient="horizontal").grid(
+            row=2, column=0, sticky="ew", pady=(6, 4))
 
         new_row = ttk.Frame(card_lf)
-        new_row.grid(row=1, column=0, sticky="w", pady=(4, 0))
+        new_row.grid(row=3, column=0, sticky="w", pady=(0, 0))
         ttk.Radiobutton(new_row, text="Create new card:",
                         variable=self._card_var,
                         value="new").pack(side="left")
@@ -1151,6 +1184,9 @@ class SaveThermalToCardDialog:
         fid = self._fiber_map.get(self._fiber_var.get())
         pid = self._polymer_map.get(self._polymer_var.get())
         if fid is None or pid is None:
+            tk.Label(self._cards_frame,
+                     text="  (select a fiber and polymer above to see existing cards)",
+                     font=FONT_SMALL, fg="#aaa").pack(anchor="w")
             return
         try:
             all_cards = _db.get_all_print_configs()
@@ -1158,13 +1194,21 @@ class SaveThermalToCardDialog:
                      if c["fiber_id"] == fid and c["polymer_id"] == pid]
         except Exception:
             return
+        if not cards:
+            tk.Label(self._cards_frame,
+                     text="  No existing cards for this fiber + polymer combination.",
+                     font=FONT_SMALL, fg="#aaa").pack(anchor="w")
+            return
         for c in cards:
             display = f"{c['name']}  (created {(c.get('created_at') or '')[:10]})"
             self._card_map[display] = c["id"]
             ttk.Radiobutton(self._cards_frame,
-                            text=f"Append to existing:  {display}",
+                            text=f"Add to:  {display}",
                             variable=self._card_var,
                             value=str(c["id"])).pack(anchor="w", pady=1)
+        # Auto-select the only card
+        if len(cards) == 1:
+            self._card_var.set(str(cards[0]["id"]))
 
     def _on_save(self):
         import numpy as np

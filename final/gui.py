@@ -197,6 +197,12 @@ class SurrogateGUI:
         else:
             self._populate_material_dropdowns()
 
+        # Refresh dropdowns whenever the window regains focus (e.g. after
+        # adding a material in the inverse GUI while this window is open).
+        root.bind("<FocusIn>",
+                  lambda e: self._populate_material_dropdowns()
+                  if e.widget is root and _db.db_exists() else None)
+
         ttk.Separator(root, orient="horizontal").grid(row=3, column=0, sticky="ew")
 
         # ── main area: inputs (left) + outputs (right) ───────────────────────
