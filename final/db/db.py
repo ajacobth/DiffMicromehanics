@@ -297,6 +297,39 @@ def get_all_print_configs() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_print_configs_for_printer(printer_id: int) -> list[dict]:
+    """Return all print configs for a given printer, newest first."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM print_configs WHERE printer_id = ? ORDER BY created_at DESC",
+            (printer_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_or_create_print_config(
+    name: str, fiber_id: int, polymer_id: int, printer_id: int,
+) -> int:
+    """Return existing print_config id for (name, fiber, polymer, printer) or create it."""
+    with _connect() as conn:
+        row = conn.execute(
+            """SELECT id FROM print_configs
+               WHERE name = ? AND fiber_id = ? AND polymer_id = ? AND printer_id = ?
+               LIMIT 1""",
+            (name, fiber_id, polymer_id, printer_id),
+        ).fetchone()
+        if row:
+            return row["id"]
+        cur = conn.execute(
+            """INSERT INTO print_configs
+               (name, fiber_id, polymer_id, printer_id, notes, created_at)
+               VALUES (?,?,?,?,?,?)""",
+            (name, fiber_id, polymer_id, printer_id,
+             "Created by property transfer", datetime.now().isoformat()),
+        )
+        return cur.lastrowid
+
+
 # ── microstructure snapshots ───────────────────────────────────────────────────
 
 def save_microstructure_snapshot(
