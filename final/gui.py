@@ -17,6 +17,12 @@ Any field not listed in that file falls back to its raw internal name.
 """
 from __future__ import annotations
 
+# JAX backend must be pinned to CPU before the first `import jax`.
+# Metal (Apple GPU) only supports float32; the inverse solver requires float64.
+import os as _os
+_os.environ.setdefault("JAX_ENABLE_X64",    "1")
+_os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+
 import json
 import os
 import subprocess
@@ -130,6 +136,11 @@ class SurrogateGUI:
         ttk.Button(top, text="Material Card Viewer",
                    command=self._open_material_card_viewer).grid(
             row=0, column=8, padx=(4, 12), sticky="e"
+        )
+
+        ttk.Button(top, text="Transfer to New Printer…",
+                   command=self._open_transfer).grid(
+            row=0, column=9, padx=(4, 12), sticky="e"
         )
 
         ttk.Separator(top, orient="vertical").grid(row=0, column=9,
@@ -716,6 +727,10 @@ class SurrogateGUI:
         from gui_identifiability import open_identifiability_window
         open_identifiability_window(self.root, model=self.model,
                                     model_name=self._model_var.get())
+
+    def _open_transfer(self):
+        from gui_transfer import open_transfer_window
+        open_transfer_window(self.root)
 
 
 # ── entry point ───────────────────────────────────────────────────────────────

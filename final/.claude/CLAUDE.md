@@ -28,7 +28,7 @@ All three have GUI frontends (Tkinter) and the thermal inverse also has a CLI pa
 | `python scripts/test_setup.py` | Verify the environment works |
 | `python gui_material_card.py` | Standalone material card viewer |
 
-All commands are run from the `final/` directory. Conda environment name: `diffmech`
+All commands are run from the `final/` directory. Conda environment name: `jax_trial`
 
 ---
 

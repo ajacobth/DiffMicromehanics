@@ -155,8 +155,8 @@ All required helpers already exist.
 
 ## Status
 
-- [ ] Section ① — source card selector
-- [ ] Section ② — manual mode
-- [ ] Section ③ — predict + save
-- [ ] Section ② — infer mode
-- [ ] Button wired into `gui.py`
+- [x] Section ① — source card selector
+- [x] Section ② — manual mode
+- [x] Section ③ — predict + save
+- [x] Section ② — infer mode
+- [x] Button wired into `gui.py`
