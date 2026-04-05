@@ -74,8 +74,7 @@ class ThermalInverseWindow:
         self._win.minsize(1100, 720)
 
         # state
-        self._fwd       = None   # ForwardModel (loaded lazily)
-        self._predictor = None   # batched predictor
+        self._model_loaded = False   # True after warm_up_model() completes
         self._result: Optional[dict] = None
         self._fixed_inputs: Optional[dict] = None
         self._card_fiber_id:   Optional[int] = None
@@ -349,21 +348,16 @@ class ThermalInverseWindow:
 
     def _load_worker(self):
         try:
-            import jax
-            jax.config.update("jax_enable_x64", True)
-            from core.forward import load_forward
-            from core.inverse_thermal import make_batched_predictor
-            fwd       = load_forward("thermal")
-            predictor = make_batched_predictor(fwd)
-            self._win.after(0, lambda: self._on_load_ok(fwd, predictor))
+            from core.services import warm_up_model
+            warm_up_model("thermal")
+            self._win.after(0, self._on_load_ok)
         except Exception as exc:
             import traceback
             tb = traceback.format_exc()
             self._win.after(0, lambda m=str(exc), t=tb: self._on_load_err(m, t))
 
-    def _on_load_ok(self, fwd, predictor):
-        self._fwd       = fwd
-        self._predictor = predictor
+    def _on_load_ok(self):
+        self._model_loaded = True
         self._model_status.config(
             text="Thermal model: loaded  (12 inputs / 6 outputs)", fg="green")
         self._load_btn.config(state="normal")
@@ -404,7 +398,7 @@ class ThermalInverseWindow:
         rho_f = UM.from_display("rho_f", _f(self._rhof_var, "fiber density"))
         rho_m = UM.from_display("rho_m", _f(self._rhom_var, "matrix density"))
 
-        from core.inverse_thermal import vf_to_wf
+        from core.services import vf_to_wf
         w_f = vf_to_wf(vf, rho_f, rho_m)
 
         fixed_inputs = {
@@ -435,7 +429,7 @@ class ThermalInverseWindow:
     # ─────────────────────────────────────────────────────────────────────────
 
     def _on_run(self):
-        if self._predictor is None:
+        if not self._model_loaded:
             messagebox.showwarning("No model", "Load the thermal model first.",
                                    parent=self._win)
             return
@@ -460,26 +454,9 @@ class ThermalInverseWindow:
 
     def _run_worker(self, fixed_inputs, n_restarts, seed, data_path):
         try:
-            from core.inverse_thermal import (
-                make_batched_predictor,
-                compute_composite_conductivity,
-                run_inverse_estimation,
-                PolymerConductivityModel,
-                FiberConductivityModel,
-            )
-            import pandas as pd
+            from core.services import load_thermal_data, run_thermal_inverse
 
-            # load data
-            ext = os.path.splitext(data_path)[1].lower()
-            df  = pd.read_excel(data_path) if ext in (".xlsx", ".xls") \
-                  else pd.read_csv(data_path)
-            df.columns = [c.strip().lower() for c in df.columns]
-            temperatures = df["temperature"].to_numpy(dtype=float)
-            K_data = {
-                k: df[k.lower()].to_numpy(dtype=float)
-                   if k.lower() in df.columns else None
-                for k in ("K11", "K22", "K33")
-            }
+            temperatures, K_data = load_thermal_data(data_path)
 
             def _progress(i, n, loss):
                 self._win.after(
@@ -487,50 +464,49 @@ class ThermalInverseWindow:
                         self._status_var.set(
                             f"Restart {i}/{n} — loss = {l:.4e}"))
 
-            best_params, best_loss = run_inverse_estimation(
-                temperatures  = temperatures,
-                K_data        = K_data,
-                predictor     = self._predictor,
-                fixed_inputs  = fixed_inputs,
-                n_restarts    = n_restarts,
-                seed          = seed,
-                progress_cb   = _progress,
+            result = run_thermal_inverse(
+                fixed_inputs = fixed_inputs,
+                temperatures = temperatures,
+                K_data       = K_data,
+                n_restarts   = n_restarts,
+                seed         = seed,
+                progress_cb  = _progress,
             )
 
-            K_pred = compute_composite_conductivity(
-                best_params, temperatures, self._predictor, fixed_inputs)
-
-            self._win.after(0, lambda: self._on_run_ok(
-                best_params, best_loss, temperatures, K_data, K_pred))
+            self._win.after(0, lambda r=result, kd=K_data: self._on_run_ok(r, kd))
 
         except Exception as exc:
             import traceback
             tb = traceback.format_exc()
             self._win.after(0, lambda m=str(exc), t=tb: self._on_run_err(m, t))
 
-    def _on_run_ok(self, best_params, best_loss,
-                   temperatures, K_data, K_pred):
-        from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+    def _on_run_ok(self, result: dict, K_data: dict):
+        p1, p2, l2, t = result["p1"], result["p2"], result["l2"], result["t"]
+        best_loss      = result["best_loss"]
+        temperatures   = np.asarray(result["temperatures"])
 
-        # store for save functions
+        # store for save functions / unit refresh
         self._result = dict(
-            best_params  = best_params,
+            p1           = p1,
+            p2           = p2,
+            l2           = l2,
+            t            = t,
             best_loss    = best_loss,
             temperatures = temperatures,
             K_data       = K_data,
-            K_pred       = K_pred,
+            K_pred       = result["K_pred"],  # {"K11": list, "K22": list, "K33": list}
         )
 
         # update result labels (convert conductivities to display units)
-        self._r_p1.set( f"{UM.to_display('k_m',  best_params.p1):.6g}")
-        self._r_p2.set( f"{UM.to_display('k_m',  best_params.p2):.6g}")
-        self._r_l2.set( f"{UM.to_display('k_f1', best_params.l2):.6g}")
-        self._r_t.set(  f"{best_params.t:.6g}")
-        self._r_kft.set(f"{UM.to_display('k_f1', best_params.l2 / best_params.t):.6g}")
+        self._r_p1.set( f"{UM.to_display('k_m',  p1):.6g}")
+        self._r_p2.set( f"{UM.to_display('k_m',  p2):.6g}")
+        self._r_l2.set( f"{UM.to_display('k_f1', l2):.6g}")
+        self._r_t.set(  f"{t:.6g}")
+        self._r_kft.set(f"{UM.to_display('k_f1', l2 / t):.6g}")
         self._r_mse.set(f"{best_loss:.4e}")
 
         # draw plots
-        self._draw_results(best_params, temperatures, K_data, K_pred)
+        self._draw_results(p1, p2, l2, t, temperatures, K_data, result["K_pred"])
 
         self._status_var.set(f"Done. MSE = {best_loss:.4e}")
         self._run_btn.config(state="normal")
@@ -547,15 +523,18 @@ class ThermalInverseWindow:
     # Plotting
     # ─────────────────────────────────────────────────────────────────────────
 
-    def _draw_results(self, best_params, temperatures, K_data, K_pred):
-        from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+    def _draw_results(self, p1, p2, l2, t, temperatures, K_data, K_pred):
+        from core.services import compute_conductivity_curves
 
-        poly    = PolymerConductivityModel(best_params.p1, best_params.p2)
-        fiber   = FiberConductivityModel(best_params.l2, best_params.t)
         T_lo    = temperatures.min()
         T_hi    = temperatures.max()
         T_pad   = max((T_hi - T_lo) * 0.05, 5.0)
         T_dense = np.linspace(T_lo - T_pad, T_hi + T_pad, 300)
+
+        curves = compute_conductivity_curves(p1, p2, l2, t, T_dense)
+        kfl = np.array(curves["k_fiber_long"])
+        kft = np.array(curves["k_fiber_trans"])
+        km  = np.array(curves["k_polymer"])
 
         k_unit  = UM.unit_label("k11")
         k_fac   = UM.get_factor("k11")
@@ -566,10 +545,10 @@ class ThermalInverseWindow:
         ax.cla()
         colours = {"K11": "#2176AE", "K22": "#E87040", "K33": "#3EA055"}
         labels  = {"K11": r"$K_{11}$", "K22": r"$K_{22}$", "K33": r"$K_{33}$"}
-        for key, col in [("K11", 0), ("K22", 1), ("K33", 2)]:
+        for key in ("K11", "K22", "K33"):
             c  = colours[key]
             lb = labels[key]
-            ax.plot(temperatures, K_pred[:, col] * k_fac, color=c, lw=2.2,
+            ax.plot(temperatures, np.array(K_pred[key]) * k_fac, color=c, lw=2.2,
                     label=f"{lb} (surrogate)")
             if K_data.get(key) is not None:
                 ax.scatter(temperatures, K_data[key] * k_fac, color=c,
@@ -586,17 +565,15 @@ class ThermalInverseWindow:
         # ── subplot 2: fiber conductivities ───────────────────────────────────
         ax = self._ax_fiber
         ax.cla()
-        kfl = fiber.K_f_long(T_dense)  * k_fac
-        kft = fiber.K_f_trans(T_dense) * k_fac
-        l2d = UM.to_display("k_f1", best_params.l2)
-        kftd = UM.to_display("k_f1", best_params.l2 / best_params.t)
-        ax.plot(T_dense, kfl, lw=2.5, color="#7B2D8B", ls="-",
+        l2d  = UM.to_display("k_f1", l2)
+        kftd = UM.to_display("k_f1", l2 / t)
+        ax.plot(T_dense, kfl * k_fac, lw=2.5, color="#7B2D8B", ls="-",
                 label=rf"$K_{{f,\,\mathrm{{long}}}}$ = {l2d:.4g} {k_unit}  [constant]")
-        ax.plot(T_dense, kft, lw=2.5, color="#7B2D8B", ls="--",
+        ax.plot(T_dense, kft * k_fac, lw=2.5, color="#7B2D8B", ls="--",
                 label=rf"$K_{{f,\,\mathrm{{trans}}}}$ = {kftd:.4g} {k_unit}  [constant]")
         ax.text(0.97, 0.55,
                 f"l\u2082 = {l2d:.4g} {k_unit}\n"
-                f"t  = {best_params.t:.4g}  (anisotropy ratio)\n"
+                f"t  = {t:.4g}  (anisotropy ratio)\n"
                 f"K_f_trans = l\u2082/t = {kftd:.4g} {k_unit}",
                 transform=ax.transAxes, ha="right", va="center",
                 fontsize=9, family="monospace",
@@ -612,13 +589,13 @@ class ThermalInverseWindow:
         # ── subplot 3: polymer conductivity ───────────────────────────────────
         ax = self._ax_polymer
         ax.cla()
-        km = poly(T_dense) * k_fac
-        p1d = UM.to_display("k_m", best_params.p1)
-        p2d = UM.to_display("k_m", best_params.p2)
-        ax.plot(T_dense, km, lw=2.5, color="#C0392B",
+        p1d = UM.to_display("k_m", p1)
+        p2d = UM.to_display("k_m", p2)
+        ax.plot(T_dense, km * k_fac, lw=2.5, color="#C0392B",
                 label=r"$K_m(T) = p_1\,\sqrt{T / T_\mathrm{ref}} + p_2$")
         T_meas_range = np.linspace(T_lo, T_hi, 60)
-        ax.fill_between(T_meas_range, poly(T_meas_range) * k_fac,
+        curves_meas  = compute_conductivity_curves(p1, p2, l2, t, T_meas_range)
+        ax.fill_between(T_meas_range, np.array(curves_meas["k_polymer"]) * k_fac,
                         alpha=0.12, color="#C0392B", label="measured T range")
         ax.text(0.97, 0.12,
                 f"p\u2081 = {p1d:.4g} {k_unit}\n"
@@ -667,8 +644,8 @@ class ThermalInverseWindow:
         # Redraw plots with new units if results exist
         if self._result is not None:
             r = self._result
-            self._draw_results(r["best_params"], r["temperatures"],
-                               r["K_data"], r["K_pred"])
+            self._draw_results(r["p1"], r["p2"], r["l2"], r["t"],
+                               r["temperatures"], r["K_data"], r["K_pred"])
 
     def _refresh_unit_labels(self):
         """Called by UM when any window changes the unit system."""
@@ -685,12 +662,13 @@ class ThermalInverseWindow:
         """Re-render the result labels using the current unit system."""
         if self._result is None:
             return
-        bp = self._result["best_params"]
-        self._r_p1.set( f"{UM.to_display('k_m',  bp.p1):.6g}")
-        self._r_p2.set( f"{UM.to_display('k_m',  bp.p2):.6g}")
-        self._r_l2.set( f"{UM.to_display('k_f1', bp.l2):.6g}")
-        self._r_t.set(  f"{bp.t:.6g}")
-        self._r_kft.set(f"{UM.to_display('k_f1', bp.l2 / bp.t):.6g}")
+        p1, p2, l2, t = (self._result["p1"], self._result["p2"],
+                          self._result["l2"], self._result["t"])
+        self._r_p1.set( f"{UM.to_display('k_m',  p1):.6g}")
+        self._r_p2.set( f"{UM.to_display('k_m',  p2):.6g}")
+        self._r_l2.set( f"{UM.to_display('k_f1', l2):.6g}")
+        self._r_t.set(  f"{t:.6g}")
+        self._r_kft.set(f"{UM.to_display('k_f1', l2 / t):.6g}")
         self._r_mse.set(f"{self._result['best_loss']:.4e}")
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -711,21 +689,19 @@ class ThermalInverseWindow:
             return
         try:
             import pandas as pd
-            from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
-            r    = self._result
-            bp   = r["best_params"]
-            T    = r["temperatures"]
-            poly = PolymerConductivityModel(bp.p1, bp.p2)
-            fib  = FiberConductivityModel(bp.l2, bp.t)
-            nan_ = np.full(len(T), np.nan)
-            df   = pd.DataFrame({
+            from core.services import compute_conductivity_curves
+            r      = self._result
+            T      = np.asarray(r["temperatures"])
+            curves = compute_conductivity_curves(r["p1"], r["p2"], r["l2"], r["t"], T)
+            nan_   = np.full(len(T), np.nan)
+            df     = pd.DataFrame({
                 "Temperature":   T,
-                "K_polymer":     poly(T),
-                "K_fiber_long":  fib.K_f_long(T),
-                "K_fiber_trans": fib.K_f_trans(T),
-                "K11_pred":      r["K_pred"][:, 0],
-                "K22_pred":      r["K_pred"][:, 1],
-                "K33_pred":      r["K_pred"][:, 2],
+                "K_polymer":     curves["k_polymer"],
+                "K_fiber_long":  curves["k_fiber_long"],
+                "K_fiber_trans": curves["k_fiber_trans"],
+                "K11_pred":      r["K_pred"]["K11"],
+                "K22_pred":      r["K_pred"]["K22"],
+                "K33_pred":      r["K_pred"]["K33"],
                 "K11_data":      r["K_data"]["K11"] if r["K_data"]["K11"] is not None else nan_,
                 "K22_data":      r["K_data"]["K22"] if r["K_data"]["K22"] is not None else nan_,
                 "K33_data":      r["K_data"]["K33"] if r["K_data"]["K33"] is not None else nan_,
@@ -824,7 +800,10 @@ class ThermalInverseWindow:
         r = self._result
         SaveThermalToCardDialog(
             self._win,
-            params       = r["best_params"],
+            p1           = r["p1"],
+            p2           = r["p2"],
+            l2           = r["l2"],
+            t            = r["t"],
             fixed_inputs = self._fixed_inputs or {},
             temperatures = r["temperatures"],
             K_pred       = r["K_pred"],

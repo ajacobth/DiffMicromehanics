@@ -9,10 +9,13 @@ from core.services.service_forward import get_model
 
 
 class ThermalResult(TypedDict):
-    best_params:  object                      # ConstituentParams namedtuple
+    p1:           float   # polymer conductivity scaling [W/m·K]
+    p2:           float   # polymer conductivity offset  [W/m·K]
+    l2:           float   # fiber longitudinal conductivity [W/m·K]
+    t:            float   # fiber anisotropy ratio (K_f_long / K_f_trans) [-]
     best_loss:    float
-    temperatures: list                        # list[float]
-    K_pred:       dict                        # {"K11": list, "K22": list, "K33": list}
+    temperatures: list    # list[float]
+    K_pred:       dict    # {"K11": list[float], "K22": list[float], "K33": list[float]}
 
 
 def load_thermal_data(
@@ -56,6 +59,28 @@ def vf_to_wf(vf: float, rho_f: float, rho_m: float) -> float:
     return _vf_to_wf(vf, rho_f, rho_m)
 
 
+def compute_conductivity_curves(
+    p1: float,
+    p2: float,
+    l2: float,
+    t: float,
+    temperatures: "np.ndarray | list",
+) -> dict:
+    """Compute constituent conductivity curves over a temperature array.
+
+    Returns a dict with float lists: "k_polymer", "k_fiber_long", "k_fiber_trans".
+    """
+    from core.inverse_thermal import PolymerConductivityModel, FiberConductivityModel
+    T = np.asarray(temperatures, dtype=float)
+    poly  = PolymerConductivityModel(p1, p2)
+    fiber = FiberConductivityModel(l2, t)
+    return {
+        "k_polymer":     poly(T).tolist(),
+        "k_fiber_long":  fiber.K_f_long(T).tolist(),
+        "k_fiber_trans": fiber.K_f_trans(T).tolist(),
+    }
+
+
 def run_thermal_inverse(
     fixed_inputs: dict[str, float],
     temperatures: np.ndarray,
@@ -87,13 +112,20 @@ def run_thermal_inverse(
         progress_cb=progress_cb,
     )
 
-    K_pred = compute_composite_conductivity(
+    K_pred_arr = compute_composite_conductivity(
         best_params, temperatures, predictor, fixed_inputs,
-    )
+    )  # (N, 3) ndarray — columns are [K11, K22, K33]
 
     return ThermalResult(
-        best_params=best_params,
+        p1=float(best_params.p1),
+        p2=float(best_params.p2),
+        l2=float(best_params.l2),
+        t=float(best_params.t),
         best_loss=best_loss,
         temperatures=temperatures.tolist(),
-        K_pred={k: (list(v) if v is not None else None) for k, v in K_pred.items()},
+        K_pred={
+            "K11": K_pred_arr[:, 0].tolist(),
+            "K22": K_pred_arr[:, 1].tolist(),
+            "K33": K_pred_arr[:, 2].tolist(),
+        },
     )

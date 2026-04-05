@@ -532,14 +532,9 @@ class InverseGUI:
 
     def _load_worker(self, name: str):
         try:
-            import jax
-            jax.config.update("jax_enable_x64", True)
-            import jax.numpy as jnp
-            from core.forward import load_forward
-            model = load_forward(name)
-            # warm-up compile
-            dummy = jnp.zeros(len(model.input_fields), dtype=jnp.float32)
-            model.predict_array(dummy).block_until_ready()
+            from core.services import get_model, warm_up_model
+            model = get_model(name)
+            warm_up_model(name)
             self.root.after(0, lambda: self._on_load_ok(model, name))
         except Exception as exc:
             self.root.after(0, lambda exc=exc: self._on_load_err(str(exc)))
@@ -781,31 +776,14 @@ class InverseGUI:
         tags = {}
 
         # ── orientation tensor PSD check ──────────────────────────────────────
+        from core.services import validate_orientation_tensor
         _OT_FIELDS = ("a11", "a22", "a12", "a13", "a23")
         all_inputs = dict(fixed)
         all_inputs.update({k: v for k, v in zip(free, init)})
         if all(f in all_inputs for f in _OT_FIELDS):
-            a11 = all_inputs["a11"]
-            a22 = all_inputs["a22"]
-            a33 = 1.0 - a11 - a22
-            a12 = all_inputs["a12"]
-            a13 = all_inputs["a13"]
-            a23 = all_inputs["a23"]
-            A = np.array([
-                [a11, a12, a13],
-                [a12, a22, a23],
-                [a13, a23, a33],
-            ])
-            eigvals = np.linalg.eigvalsh(A)
-            if np.any(eigvals < -1e-8):
-                messagebox.showerror(
-                    "Invalid Orientation Tensor",
-                    "The orientation tensor (from fixed values and initial guesses) "
-                    "is not positive semi-definite.\n\n"
-                    f"Diagonal terms: A11={a11}, A22={a22}, A33={a33:.6g}\n"
-                    f"Computed eigenvalues: {eigvals[0]:.6g}, {eigvals[1]:.6g}, {eigvals[2]:.6g}\n\n"
-                    "Please enter a valid positive semi-definite orientation tensor.",
-                )
+            err = validate_orientation_tensor(all_inputs)
+            if err:
+                messagebox.showerror("Invalid Orientation Tensor", err)
                 return
 
         self._solve_btn.config(state="disabled")
@@ -821,89 +799,44 @@ class InverseGUI:
     def _solve_worker(self, fixed_inputs, free_inputs, bounds, init_free,
                       target_outputs, sigmas, solver_cfg, tags):
         try:
-            import jax
-            jax.config.update("jax_enable_x64", True)
-            import jax.numpy as jnp
+            from core.services import run_inverse
 
-            from core.inverse import (
-                InverseProblem,
-                _solve,
-                _assemble_x,
-                make_orientation_sum_constraint,
-            )
-
-            model = self.model
-
-            constraints = []
-            c = make_orientation_sum_constraint(free_inputs)
-            if c is not None:
-                constraints.append(c)
-
-            prob = InverseProblem(
+            svc = run_inverse(
+                model_name     = self._model_var.get(),
                 fixed_inputs   = fixed_inputs,
                 free_inputs    = free_inputs,
+                bounds         = bounds,
                 target_outputs = target_outputs,
-                constraints    = tuple(constraints),
+                sigmas         = sigmas,
+                solver_cfg     = solver_cfg,
+                init_vals      = init_free,
             )
-
-            method        = solver_cfg["method"]
-            penalty       = float(solver_cfg["constraint_penalty"])
-            use_eps_loss  = bool(solver_cfg.get("use_epsilon_loss", False))
-            epsilon_scale = float(solver_cfg.get("epsilon_scale", 1.0))
-            init64        = jnp.array(init_free, jnp.float64)
-
-            sigmas_list = [
-                float(sigmas.get(k, 0.0)) * epsilon_scale
-                for k in target_outputs.keys()
-            ]
-
-            free_vec, final_err = _solve(
-                model.predict_array, prob,
-                model.in_idx, model.out_idx, len(model.input_fields),
-                model.output_std,
-                init64, bounds, method, penalty,
-                sigmas_list  = sigmas_list,
-                use_eps_loss = use_eps_loss,
-                maxiter = int(solver_cfg["maxiter"]),
-                tol     = float(solver_cfg["tol"]),
-                seed    = int(solver_cfg.get("seed", 42)),
-            )
-
-            x_star = _assemble_x(free_vec, prob, model.in_idx, len(model.input_fields))
-            y_star = model.predict_array(x_star)
-            y_np   = np.asarray(y_star)
-
-            opt_free = {k: float(v) for k, v in zip(free_inputs, free_vec)}
 
             result = {
-                "timestamp":              datetime.datetime.now().isoformat(timespec="seconds"),
-                "tags":                   tags,
-                "model":                  self._model_var.get(),
-                "free_variables":         opt_free,
-                "fixed_inputs":           fixed_inputs,
-                "bounds":                 {k: list(v) for k, v in (bounds or {}).items()},
-                "predicted_outputs":      {k: float(y_np[model.out_idx[k]])
-                                           for k in model.output_fields},
-                "target_outputs":         target_outputs,
-                "sigmas":                 sigmas,
-                "final_optimiser_error":  final_err,
-                "solver":                 solver_cfg,
+                "timestamp":             datetime.datetime.now().isoformat(timespec="seconds"),
+                "tags":                  tags,
+                "model":                 svc["model"],
+                "free_variables":        svc["opt_free"],
+                "fixed_inputs":          fixed_inputs,
+                "bounds":                {k: list(v) for k, v in (bounds or {}).items()},
+                "predicted_outputs":     svc["predicted_outputs"],
+                "target_outputs":        target_outputs,
+                "sigmas":                sigmas,
+                "final_optimiser_error": svc["final_error"],
+                "solver":                solver_cfg,
             }
 
-            self.root.after(
-                0,
-                lambda r=result, o=opt_free, t=target_outputs, y=y_np:
-                    self._on_solve_ok(r, o, t, y),
-            )
+            self.root.after(0, lambda r=result: self._on_solve_ok(r))
 
         except Exception as exc:
             import traceback
             tb = traceback.format_exc()
             self.root.after(0, lambda m=str(exc), t=tb: self._on_solve_err(m, t))
 
-    def _on_solve_ok(self, result: dict, opt_free: dict,
-                     targets: dict, y_np: np.ndarray):
-        model = self.model
+    def _on_solve_ok(self, result: dict):
+        opt_free  = result["free_variables"]
+        targets   = result["target_outputs"]
+        predicted = result["predicted_outputs"]
 
         # ── format result text ────────────────────────────────────────────────
         W = 74
@@ -937,7 +870,7 @@ class InverseGUI:
             "  " + "-" * 62,
         ]
         for k, tgt in targets.items():
-            pred   = float(y_np[model.out_idx[k]])
+            pred   = float(predicted[k])
             unit   = UM.unit_label(k)
             p_disp = UM.to_display(k, pred)
             t_disp = UM.to_display(k, tgt)
@@ -948,8 +881,8 @@ class InverseGUI:
             )
 
         lines += ["", f"All predicted outputs  ({UM.current_system}):"]
-        for k in model.output_fields:
-            pred   = float(y_np[model.out_idx[k]])
+        for k in predicted:
+            pred   = float(predicted[k])
             unit   = UM.unit_label(k)
             p_disp = UM.to_display(k, pred)
             mark   = "  <-- target" if k in targets else ""

@@ -39,6 +39,7 @@ def run_inverse(
     target_outputs: dict[str, float],
     sigmas:         dict[str, float] | None = None,
     solver_cfg:     dict | None = None,
+    init_vals:      list[float] | None = None,
 ) -> InverseResult:
     """Run the inverse solver.
 
@@ -90,17 +91,21 @@ def run_inverse(
         for k in target_outputs.keys()
     ]
 
-    # Initial guess: midpoint of bounds if available, else use fixed value or 0
-    init_vals = []
-    for k in free_inputs:
-        if bounds and k in bounds:
-            lo, hi = bounds[k]
-            init_vals.append((lo + hi) / 2.0)
-        elif k in fixed_inputs:
-            init_vals.append(float(fixed_inputs[k]))
-        else:
-            init_vals.append(0.0)
-    init64 = jnp.array(init_vals, jnp.float64)
+    # Initial guess: use caller-supplied values when provided; fall back to
+    # midpoint of bounds, then fixed_inputs value, then 0.
+    if init_vals is not None and len(init_vals) == len(free_inputs):
+        computed_init = list(init_vals)
+    else:
+        computed_init = []
+        for k in free_inputs:
+            if bounds and k in bounds:
+                lo, hi = bounds[k]
+                computed_init.append((lo + hi) / 2.0)
+            elif k in fixed_inputs:
+                computed_init.append(float(fixed_inputs[k]))
+            else:
+                computed_init.append(0.0)
+    init64 = jnp.array(computed_init, jnp.float64)
 
     free_vec, final_err = _solve(
         model.predict_array, prob,

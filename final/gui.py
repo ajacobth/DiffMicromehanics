@@ -308,11 +308,9 @@ class SurrogateGUI:
 
     def _load_worker(self, model_name: str):
         try:
-            import jax.numpy as jnp
-            from core.forward import load_forward
-            model = load_forward(model_name)
-            dummy = jnp.zeros(len(model.input_fields), dtype=jnp.float32)
-            model.predict_array(dummy).block_until_ready()
+            from core.services import get_model, warm_up_model
+            model = get_model(model_name)
+            warm_up_model(model_name)
             self.root.after(0, lambda: self._on_load_success(model, model_name))
         except Exception as exc:
             self.root.after(0, lambda exc=exc: self._on_load_error(str(exc)))
@@ -418,7 +416,7 @@ class SurrogateGUI:
 
     def _predict_worker(self):
         try:
-            import jax.numpy as jnp
+            from core.services import run_forward, validate_orientation_tensor
 
             # ── 1. check for missing inputs ───────────────────────────────────
             missing = []
@@ -444,40 +442,20 @@ class SurrogateGUI:
             # ── 3. orientation tensor PSD check ──────────────────────────────
             ot_present = all(f in inputs for f in self._OT_FIELDS)
             if ot_present:
-                a11 = inputs["a11"]
-                a22 = inputs["a22"]
-                a33 = 1.0 - a11 - a22
-                a12 = inputs["a12"]
-                a13 = inputs["a13"]
-                a23 = inputs["a23"]
-                A = np.array([
-                    [a11, a12, a13],
-                    [a12, a22, a23],
-                    [a13, a23, a33],
-                ])
-                eigvals = np.linalg.eigvalsh(A)
-                if np.any(eigvals < -1e-8):
-                    raise ValueError(
-                        "The orientation tensor is not positive semi-definite.\n\n"
-                        f"Diagonal terms: A11={a11}, A22={a22}, A33={a33:.6g}\n"
-                        f"Computed eigenvalues: {eigvals[0]:.6g}, {eigvals[1]:.6g}, {eigvals[2]:.6g}\n\n"
-                        "Please enter a valid positive semi-definite orientation tensor."
-                    )
+                err = validate_orientation_tensor(inputs)
+                if err:
+                    raise ValueError(err)
 
             # ── 4. run prediction ─────────────────────────────────────────────
-            x = jnp.array([inputs[k] for k in self.model.input_fields],
-                           dtype=jnp.float32)
-            y = self.model.predict_array(x).block_until_ready()
-            y_np = np.asarray(y, dtype=float)
-            self.root.after(0, lambda: self._update_ui(y_np))
+            outputs = run_forward(self._model_var.get(), inputs)
+            self.root.after(0, lambda: self._update_ui(outputs))
         except Exception as exc:
             self.root.after(0, lambda exc=exc: self._on_predict_error(str(exc)))
 
-    def _update_ui(self, y_vals: np.ndarray):
+    def _update_ui(self, outputs: dict):
         raw_outputs: dict[str, float] = {}
         for name, lbl in self.output_labels.items():
-            idx  = self.model.out_idx[name]
-            raw  = float(y_vals[idx])
+            raw = float(outputs[name])
             lbl.config(text=f"{UM.to_display(name, raw):.5g}")
             raw_outputs[name] = raw   # store in raw model units for saving
 
@@ -736,7 +714,8 @@ class SurrogateGUI:
     # ── identifiability check ─────────────────────────────────────────────────
     def _open_identifiability(self):
         from gui_identifiability import open_identifiability_window
-        open_identifiability_window(self.root, model=self.model)
+        open_identifiability_window(self.root, model=self.model,
+                                    model_name=self._model_var.get())
 
 
 # ── entry point ───────────────────────────────────────────────────────────────

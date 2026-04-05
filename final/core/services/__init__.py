@@ -24,6 +24,7 @@ from core.services.service_forward import (
     run_forward,
     get_input_fields,
     get_output_fields,
+    warm_up_model,
 )
 
 from core.services.service_inverse import (
@@ -37,6 +38,7 @@ from core.services.service_thermal import (
     load_thermal_data,
     vf_to_wf,
     run_thermal_inverse,
+    compute_conductivity_curves,
     ThermalResult,
 )
 
@@ -65,11 +67,12 @@ __all__ = [
     "get_inferred_inputs", "has_inferred_data", "get_model_inputs",
     "add_fiber", "add_polymer", "add_printer",
     # forward
-    "get_model", "run_forward", "get_input_fields", "get_output_fields",
+    "get_model", "run_forward", "get_input_fields", "get_output_fields", "warm_up_model",
     # inverse
     "run_inverse", "validate_orientation_tensor", "assemble_full_inputs", "InverseResult",
     # thermal
-    "load_thermal_data", "vf_to_wf", "run_thermal_inverse", "ThermalResult",
+    "load_thermal_data", "vf_to_wf", "run_thermal_inverse",
+    "compute_conductivity_curves", "ThermalResult",
     # fim
     "run_fim",
     # cards

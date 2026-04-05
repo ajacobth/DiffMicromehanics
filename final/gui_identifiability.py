@@ -71,9 +71,10 @@ def _output_unit_label(name, labels):
 class IdentifiabilityWindow:
     """Standalone Identifiability Analysis window."""
 
-    def __init__(self, parent, model=None):
-        self.parent = parent
-        self.model  = model
+    def __init__(self, parent, model=None, model_name: str = "elastic"):
+        self.parent     = parent
+        self.model      = model
+        self.model_name = model_name
 
         self._labels  = _load_field_labels()
         self._problem = _load_problem()
@@ -446,30 +447,16 @@ class IdentifiabilityWindow:
 
         show_advanced = self._advanced_var.get()
 
-        # Build x_template: start from problem.json fixed_inputs, overlay user edits
-        import jax.numpy as jnp
-        fixed_base = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
-                      if not str(k).startswith("_")}
-        x_np = np.zeros(len(self.model.input_fields), dtype=np.float32)
-        for k, v in fixed_base.items():
-            if k in self.model.in_idx:
-                x_np[self.model.in_idx[k]] = v
-        # Apply user overrides from the Fixed Parameter Values panel
+        # Build fixed_inputs: start from problem.json, overlay user overrides
+        fixed_inputs = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
+                        if not str(k).startswith("_")}
         for k, svar in self._fixed_override_vars.items():
-            if k not in free_inputs and k in self.model.in_idx:
+            if k not in free_inputs:
                 raw = svar.get().strip()
                 try:
-                    x_np[self.model.in_idx[k]] = float(raw)
+                    fixed_inputs[k] = float(raw)
                 except ValueError:
                     pass  # keep problem.json value if invalid
-        # Free vars: midpoint of bounds (overwritten at each LHS sample in fim.py)
-        for k in free_inputs:
-            if k in bounds_raw and k in self.model.in_idx:
-                lo, hi = bounds_raw[k]
-                x_np[self.model.in_idx[k]] = (lo + hi) / 2.0
-        x_template = jnp.array(x_np, dtype=jnp.float32)
-
-        free_indices = [self.model.in_idx[k] for k in free_inputs]
 
         self._run_btn.config(state="disabled")
         self._run_status.config(text="Running… (this may take a few seconds)")
@@ -478,31 +465,30 @@ class IdentifiabilityWindow:
         threading.Thread(
             target=self._run_worker,
             args=(
-                self.model.predict_array,
-                x_template,
+                self.model_name,
+                fixed_inputs,
                 free_inputs,
-                free_indices,
-                target_outputs_display,
-                self.model.out_idx,
-                sigmas,
                 bounds_raw,
-                self.model.output_fields,
-                self.model.output_std,
+                target_outputs_display,
+                sigmas,
                 n_samples,
                 show_advanced,
             ),
             daemon=True,
         ).start()
 
-    def _run_worker(self, predict_array, x_template, free_inputs, free_indices,
-                    target_outputs, out_idx, sigmas, bounds,
-                    all_output_names, sig_out, n_samples, show_advanced):
+    def _run_worker(self, model_name, fixed_inputs, free_inputs, bounds,
+                    target_outputs, sigmas, n_samples, show_advanced):
         try:
-            from core.fim import run_identifiability_check
-            result = run_identifiability_check(
-                predict_array, x_template, free_inputs, free_indices,
-                target_outputs, out_idx, sigmas, bounds,
-                all_output_names, sig_out, N_samples=n_samples,
+            from core.services import run_fim
+            result = run_fim(
+                model_name     = model_name,
+                fixed_inputs   = fixed_inputs,
+                free_inputs    = free_inputs,
+                bounds         = bounds,
+                target_outputs = target_outputs,
+                sigmas         = sigmas,
+                n_samples      = n_samples,
             )
             self.win.after(0, lambda: self._show_results(
                 result, free_inputs, bounds, show_advanced
@@ -746,9 +732,9 @@ class IdentifiabilityWindow:
 
 # ── launcher ─────────────────────────────────────────────────────────────────
 
-def open_identifiability_window(parent, model=None):
+def open_identifiability_window(parent, model=None, model_name: str = "elastic"):
     """Create and return an IdentifiabilityWindow."""
-    return IdentifiabilityWindow(parent, model=model)
+    return IdentifiabilityWindow(parent, model=model, model_name=model_name)
 
 
 if __name__ == "__main__":

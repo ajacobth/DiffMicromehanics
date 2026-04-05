@@ -1043,14 +1043,34 @@ class SaveThermalToCardDialog:
     loss : float
     """
 
-    def __init__(self, parent, params, fixed_inputs: dict,
-                 temperatures, K_pred, loss: float,
+    def __init__(self, parent, params=None, fixed_inputs: dict = None,
+                 temperatures=None, K_pred=None, loss: float = 0.0,
                  fiber_id: Optional[int] = None,
-                 polymer_id: Optional[int] = None):
-        self._params              = params
-        self._fixed_inputs        = fixed_inputs
+                 polymer_id: Optional[int] = None,
+                 # flat-float alternative to params object:
+                 p1: float = None, p2: float = None,
+                 l2: float = None, t: float = None):
+        import numpy as _np
+        # Support both the legacy `params` object and the new flat-float style.
+        if params is not None:
+            self._p1 = float(params.p1)
+            self._p2 = float(params.p2)
+            self._l2 = float(params.l2)
+            self._t  = float(params.t)
+        else:
+            self._p1 = float(p1)
+            self._p2 = float(p2)
+            self._l2 = float(l2)
+            self._t  = float(t)
+
+        # Accept K_pred as either (n, 3) ndarray or {"K11": ..., "K22": ..., "K33": ...} dict.
+        if isinstance(K_pred, dict):
+            self._K_pred = _np.column_stack([K_pred["K11"], K_pred["K22"], K_pred["K33"]])
+        else:
+            self._K_pred = _np.asarray(K_pred)
+
+        self._fixed_inputs        = fixed_inputs or {}
         self._temperatures        = temperatures
-        self._K_pred              = K_pred
         self._loss                = loss
         self.saved                = False
         self._preset_fiber_id     = fiber_id
@@ -1133,8 +1153,8 @@ class SaveThermalToCardDialog:
 
         # summary
         summary_lines = [
-            f"Will save:  p1={self._params.p1:.4g}  p2={self._params.p2:.4g}"
-            f"  l2={self._params.l2:.4g}  t={self._params.t:.4g}",
+            f"Will save:  p1={self._p1:.4g}  p2={self._p2:.4g}"
+            f"  l2={self._l2:.4g}  t={self._t:.4g}",
             f"  loss={self._loss:.4e}   temps={len(self._temperatures)}"
             f"   K predictions: {self._K_pred.shape[0]} × 3",
         ]
@@ -1266,14 +1286,13 @@ class SaveThermalToCardDialog:
             # thermal inverse results — inference run + constituent properties
             # K vs T predictions are stored as JSON inside outputs_json of the
             # inference_run row rather than as n_temps×3 composite_property_values rows.
-            p = self._params
             _db.save_thermal_inverse_results(
                 print_config_id=cfg_id,
                 fiber_id=fid,
                 polymer_id=pid,
                 parametric_outputs={
-                    "p1": float(p.p1), "p2": float(p.p2),
-                    "l2": float(p.l2), "t":  float(p.t),
+                    "p1": self._p1, "p2": self._p2,
+                    "l2": self._l2, "t":  self._t,
                 },
                 solver_cfg={},
                 loss=float(self._loss),

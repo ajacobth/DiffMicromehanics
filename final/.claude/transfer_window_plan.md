@@ -90,7 +90,8 @@ show a warning badge listing which properties fall back to neat datasheet values
 ### 2. Microstructure mode is a radio pair, not a separate window
 The window swaps the middle section in-place between:
 - **Manual** — direct entry fields for a11, a22, a12, a13, a23, ar, mf
-- **Infer** — target output fields (E1, E2, G12, nu12 with σ) + "Run Inverse" button
+- **Infer** — target output fields (E1, E2, E3, or somethig else)- This should depend on what the user had + "Run Inverse" button
+The **Infer** should be similar to the elastic inverse that the user gernerally has access to.
 
 No extra dialogs. State stays visible throughout.
 
@@ -107,7 +108,7 @@ No new save logic. `SaveToCardDialog` already handles writing:
 - `composite_property_values` (predicted)
 - `inference_runs` (if inverse was used)
 Pre-populate `fiber_id` and `polymer_id` from the source card.
-The user selects only the new printer in the dialog.
+The user selects only the new printer and the processing conditions in the dialog - The processing is importatn
 
 ### 5. Constituent properties are NOT re-written on save
 They are already in the DB as global (`print_config_id=NULL`) rows from

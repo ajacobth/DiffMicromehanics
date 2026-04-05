@@ -46,3 +46,15 @@ def get_input_fields(model_name: str) -> list[str]:
 def get_output_fields(model_name: str) -> list[str]:
     """Return the ordered list of output field names for a model."""
     return list(get_model(model_name).output_fields)
+
+
+def warm_up_model(model_name: str) -> None:
+    """Trigger JAX JIT compilation for a model by running a dummy prediction.
+
+    Call this from a background thread after loading to avoid a stall on the
+    first real prediction.
+    """
+    import jax.numpy as jnp
+    model = get_model(model_name)
+    dummy = jnp.zeros(len(model.input_fields), dtype=jnp.float32)
+    model.predict_array(dummy).block_until_ready()
