@@ -46,6 +46,11 @@ def load_card(print_config_id: int) -> dict:
     return _db.get_print_config_card(print_config_id)
 
 
+def get_latest_microstructure(print_config_id: int) -> Optional[dict]:
+    """Latest microstructure snapshot for a card, or None if none recorded."""
+    return _db.get_latest_microstructure(print_config_id)
+
+
 def load_card_inputs(print_config_id: int) -> dict[str, float]:
     """Resolve a card into a flat model-unit input dict.
 

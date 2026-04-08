@@ -1,11 +1,15 @@
-"""service_transfer.py — cross-printer property transfer workflow."""
+"""service_transfer.py — cross-printer property transfer workflow.
+
+Design note: jax-heavy imports (service_forward.get_model, service_inverse.run_inverse)
+are kept **inside** the functions that need them so that importing this module never
+triggers jax at startup.  Only db.db and stdlib are imported at module level.
+"""
 from __future__ import annotations
 
+import math
 from typing import Optional, TypedDict
 
 import db.db as _db
-from core.services.service_forward import get_model
-from core.services.service_inverse import run_inverse, _ALIASES
 
 # Constituent properties to transfer.
 # (key, constituent_type, display_label, possible_db_property_names, stage_hint)
@@ -33,10 +37,14 @@ _MICRO_BOUNDS_DEFAULT: dict[str, tuple[float, float]] = {
     "ar_f":           (1.0,  100.0),
 }
 
-# Microstructure fields that are free in transfer mode
+# Microstructure fields that are free in transfer mode (used by run_transfer)
 _MICRO_FREE = frozenset(
     {"a11", "a22", "a12", "a13", "a23", "fiber_massfrac", "w_f", "ar", "ar_f"}
 )
+
+# Reference temperature for k_m display computation
+_T_DISPLAY = 25.0   # °C
+_T_REF     = 1.0    # °C (thermal model's internal reference)
 
 
 class TransferResult(TypedDict):
@@ -52,7 +60,7 @@ class TransferResult(TypedDict):
 
 
 def _best_value(rows: list[dict], names: list[str]) -> Optional[dict]:
-    """Return best (inferred > inputted > web, newest first) value for any of names."""
+    """Return best (inferred > inputted > web) value for any of names."""
     for tag in ("inferred", "inputted", "web"):
         for r in rows:
             if r["property_name"] in names and r["source_tag"] == tag:
@@ -62,15 +70,54 @@ def _best_value(rows: list[dict], names: list[str]) -> Optional[dict]:
 
 def resolve_constituent_props(card_id: int) -> dict[str, Optional[dict]]:
     """Resolve the 8 constituent properties from a card.
-    Returns {key: {value, source_tag} or None if missing}.
+
+    Includes thermal fallbacks:
+      k_f1  — falls back to "l2" if not stored directly.
+      k_f2  — derived as l2/t when not stored directly.
+      k_m   — derived from p1·√(T/T₀)+p2 at _T_DISPLAY if not stored directly.
+
+    Returns {key: {value, source_tag, note?} or None if missing}.
     """
     card  = _db.get_print_config_card(card_id)
     frows = card["constituent_properties"]["fiber"]
     prows = card["constituent_properties"]["polymer"]
-    return {
+
+    result: dict[str, Optional[dict]] = {
         key: _best_value(frows if ctype == "fiber" else prows, db_names)
         for key, ctype, _, db_names, _ in _TRANSFER_PROPS
     }
+
+    # k_f1: also accept "l2" (longitudinal fiber conductivity)
+    if result.get("k_f1") is None:
+        v = _best_value(frows, ["l2"])
+        if v:
+            result["k_f1"] = v
+
+    # k_f2: derive from l2 / t when not stored directly
+    if result.get("k_f2") is None:
+        l2_v = _best_value(frows, ["l2"])
+        t_v  = _best_value(frows, ["t"])
+        if l2_v and t_v and t_v["value"] > 0:
+            result["k_f2"] = {
+                "value":      l2_v["value"] / t_v["value"],
+                "source_tag": l2_v["source_tag"],
+                "note":       f"l2/t  (l2={l2_v['value']:.4g}, t={t_v['value']:.4g})",
+            }
+
+    # k_m: derive from p1, p2 at display temperature
+    if result.get("k_m") is None:
+        p1_v = _best_value(prows, ["p1"])
+        p2_v = _best_value(prows, ["p2"])
+        if p1_v is not None and p2_v is not None:
+            p1, p2 = p1_v["value"], p2_v["value"]
+            km = p1 * math.sqrt(max(_T_DISPLAY, 0.0) / _T_REF) + p2
+            result["k_m"] = {
+                "value":      km,
+                "source_tag": p1_v["source_tag"],
+                "note":       f"p1·√(T/T₀)+p2  @ T={_T_DISPLAY:.0f}°C",
+            }
+
+    return result
 
 
 def build_forward_inputs(
@@ -127,6 +174,71 @@ def build_forward_inputs(
     return inputs
 
 
+def prepare_transfer_inverse(
+    card_id:      int,
+    micro_config: dict[str, dict],
+) -> tuple[dict[str, float], list[str], dict[str, tuple], list[float]]:
+    """Translate GUI micro_config into the four inputs needed by run_inverse.
+
+    micro_config maps each microstructure field name to:
+        {"free": bool, "value": float | None, "bounds": (lo, hi)}
+
+    Fields absent from micro_config are treated as fixed constituent/datasheet
+    inputs.  Alias fields (w_f / ar_f) are resolved automatically — the GUI
+    only needs to pass canonical names (fiber_massfrac, ar).
+
+    Returns
+    -------
+    fixed_fields : dict[str, float]
+    free_fields  : list[str]
+    bounds       : dict[str, (lo, hi)]
+    init_vals    : list[float]   — same order as free_fields
+    """
+    from core.services.service_forward import get_input_fields  # lazy: triggers jax
+
+    # Expand aliases in micro_config so both canonical and alias names are covered
+    _aliases = {"fiber_massfrac": "w_f", "w_f": "fiber_massfrac",
+                "ar": "ar_f", "ar_f": "ar"}
+    expanded: dict[str, dict] = {}
+    for k, v in micro_config.items():
+        expanded[k] = v
+        if k in _aliases:
+            expanded[_aliases[k]] = v
+
+    full           = build_forward_inputs(card_id, {})
+    elastic_fields = get_input_fields("elastic")
+
+    free_fields:  list[str]          = []
+    fixed_fields: dict[str, float]   = {}
+    bounds:       dict[str, tuple]   = {}
+    init_vals:    list[float]        = []
+
+    for f in elastic_fields:
+        snap = expanded.get(f)
+        if snap is None:
+            # Not a micro field — take value from constituent/datasheet
+            if f in full:
+                fixed_fields[f] = full[f]
+            continue
+
+        if snap["free"]:
+            free_fields.append(f)
+            lo, hi       = snap["bounds"]
+            bounds[f]    = (lo, hi)
+            init         = snap["value"]
+            if init is None:
+                init = (lo + hi) / 2.0
+            init_vals.append(float(init))
+        else:
+            val = snap["value"]
+            if val is None and f in full:
+                val = full[f]
+            if val is not None:
+                fixed_fields[f] = float(val)
+
+    return fixed_fields, free_fields, bounds, init_vals
+
+
 def run_transfer(
     source_card_id: int,
     target_outputs: dict[str, float],
@@ -142,6 +254,9 @@ def run_transfer(
 
     Returns TransferResult — no DB writes.
     """
+    from core.services.service_forward import get_model  # lazy
+    from core.services.service_inverse import run_inverse  # lazy
+
     constituent_props = resolve_constituent_props(source_card_id)
 
     # Apply any manual overrides for missing properties
@@ -154,14 +269,13 @@ def run_transfer(
 
     # Determine which model fields are free (microstructure)
     elastic_model = get_model("elastic")
-    free_fields  = [f for f in elastic_model.input_fields if f in _MICRO_FREE]
-    fixed_fields = {f: v for f, v in base_inputs.items() if f not in _MICRO_FREE}
+    free_fields   = [f for f in elastic_model.input_fields if f in _MICRO_FREE]
+    fixed_fields  = {f: v for f, v in base_inputs.items() if f not in _MICRO_FREE}
 
     # Build bounds: use defaults for microstructure fields
     effective_bounds = {**_MICRO_BOUNDS_DEFAULT}
     if bounds:
         effective_bounds.update(bounds)
-    # Only keep bounds for free fields
     active_bounds = {k: effective_bounds[k] for k in free_fields if k in effective_bounds}
 
     result = run_inverse(

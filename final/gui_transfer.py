@@ -103,91 +103,83 @@ _TARGET_FIELDS = [
 ]
 
 
-# ── DB-only helper (no jax / core.services import) ────────────────────────────
+# ── Microstructure input row (for infer pane) ────────────────────────────────
 
-# Mirrors service_transfer._TRANSFER_PROPS / _best_value but uses only db.db
-_TRANSFER_PROP_DEFS = [
-    ("matrix_modulus", "polymer", ["matrix_modulus"]),
-    ("matrix_poisson", "polymer", ["matrix_poisson"]),
-    ("f_cte1",         "fiber",   ["f_cte1", "f_CTE1"]),
-    ("f_cte2",         "fiber",   ["f_cte2", "f_CTE2"]),
-    ("m_cte",          "polymer", ["m_cte", "matrix_CTE"]),
-    ("k_f1",           "fiber",   ["k_f1"]),
-    ("k_f2",           "fiber",   ["k_f2"]),
-    ("k_m",            "polymer", ["k_m"]),
-]
+class MicroRow:
+    """One microstructure input row in the infer pane.
 
-
-def _best_value(rows: list[dict], names: list[str]) -> Optional[dict]:
-    for tag in ("inferred", "inputted", "web"):
-        for r in rows:
-            if r["property_name"] in names and r["source_tag"] == tag:
-                return {"value": float(r["value"]), "source_tag": tag}
-    return None
-
-
-_T_DISPLAY = 25.0   # °C — reference temperature used to compute k_m for display
-_T_REF     = 1.0    # °C — thermal model's internal reference temperature
-
-
-def _resolve_constituent_props_db(card_id: int) -> dict:
-    """Resolve the 8 constituent properties from DB alone (no jax/core.services).
-
-    Thermal conductivity fallbacks (Stage 3):
-      k_f1  — stored directly as "k_f1" (= l2 from thermal inverse).
-               Fallback: look for "l2" property directly.
-      k_f2  — stored directly as "k_f2" (= l2/t from thermal inverse).
-               Fallback: derive from "l2" and "t" properties.
-      k_m   — NOT stored directly; thermal inverse stores "p1" and "p2".
-               Computed as  k_m(T) = p1 * sqrt(T / T_ref) + p2
-               at T = _T_DISPLAY (25°C) for display purposes.
+    Shows Fixed / Free radio buttons.  When Free → bounds entries are revealed.
+    The value entry is always visible and doubles as the initial guess.
     """
-    import math
 
-    card  = _db.get_print_config_card(card_id)
-    frows = card["constituent_properties"]["fiber"]
-    prows = card["constituent_properties"]["polymer"]
+    def __init__(self, parent: tk.Widget, row: int, field: str, label: str,
+                 default_bounds: tuple[float, float]):
+        self.field = field
+        self._default_lo, self._default_hi = default_bounds
+        self._mode = tk.StringVar(value="free")
 
-    result: dict = {}
+        # label
+        tk.Label(parent, text=f"{label}:", font=FONT_LABEL, anchor="e",
+                 width=17).grid(row=row, column=0, sticky="e", padx=(4, 6), pady=2)
 
-    # Standard resolution for all 8 props
-    for key, ctype, db_names in _TRANSFER_PROP_DEFS:
-        rows = frows if ctype == "fiber" else prows
-        result[key] = _best_value(rows, db_names)
+        # Fixed / Free radios
+        rb_frame = ttk.Frame(parent)
+        rb_frame.grid(row=row, column=1, sticky="w", padx=2)
+        ttk.Radiobutton(rb_frame, text="Fixed", variable=self._mode,
+                        value="fixed", command=self._on_mode).pack(side="left")
+        ttk.Radiobutton(rb_frame, text="Free",  variable=self._mode,
+                        value="free",  command=self._on_mode).pack(side="left", padx=(8, 0))
 
-    # ── Thermal fallbacks ────────────────────────────────────────────────────
+        # value / initial-guess entry
+        vf = ttk.Frame(parent)
+        vf.grid(row=row, column=2, padx=4, pady=2)
+        self._val = tk.Entry(vf, width=10, font=FONT_ENTRY)
+        self._val.pack(side="left")
 
-    # k_f1: also accept "l2" (longitudinal fiber conductivity)
-    if result.get("k_f1") is None:
-        v = _best_value(frows, ["l2"])
-        if v:
-            result["k_f1"] = v
+        # bounds frame — shown when Free
+        self._bf = ttk.Frame(parent)
+        self._bf.grid(row=row, column=3, sticky="w", padx=2)
+        tk.Label(self._bf, text="lo:", font=FONT_SMALL).pack(side="left")
+        self._lo = tk.Entry(self._bf, width=7, font=FONT_ENTRY)
+        self._lo.pack(side="left", padx=(2, 6))
+        self._lo.insert(0, str(self._default_lo))
+        tk.Label(self._bf, text="hi:", font=FONT_SMALL).pack(side="left")
+        self._hi = tk.Entry(self._bf, width=7, font=FONT_ENTRY)
+        self._hi.pack(side="left", padx=(2, 0))
+        self._hi.insert(0, str(self._default_hi))
+        tk.Label(self._bf, text="(leave blank for defaults)",
+                 font=FONT_SMALL, fg="gray").pack(side="left", padx=(6, 0))
 
-    # k_f2: derive from l2 / t when not stored directly
-    if result.get("k_f2") is None:
-        l2_v = _best_value(frows, ["l2"])
-        t_v  = _best_value(frows, ["t"])
-        if l2_v and t_v and t_v["value"] > 0:
-            result["k_f2"] = {
-                "value":      l2_v["value"] / t_v["value"],
-                "source_tag": l2_v["source_tag"],
-                "note":       f"l2/t  (l2={l2_v['value']:.4g}, t={t_v['value']:.4g})",
-            }
+        # start in free mode (bounds visible)
+        self._on_mode()
 
-    # k_m: derive from p1, p2 at display temperature
-    if result.get("k_m") is None:
-        p1_v = _best_value(prows, ["p1"])
-        p2_v = _best_value(prows, ["p2"])
-        if p1_v is not None and p2_v is not None:
-            p1, p2 = p1_v["value"], p2_v["value"]
-            km = p1 * math.sqrt(max(_T_DISPLAY, 0.0) / _T_REF) + p2
-            result["k_m"] = {
-                "value":      km,
-                "source_tag": p1_v["source_tag"],
-                "note":       f"p1·√(T/T₀)+p2  @ T={_T_DISPLAY:.0f}°C",
-            }
+    def _on_mode(self):
+        if self._mode.get() == "free":
+            self._bf.grid()
+        else:
+            self._bf.grid_remove()
 
-    return result
+    def is_free(self) -> bool:
+        return self._mode.get() == "free"
+
+    def get_value(self) -> Optional[float]:
+        raw = self._val.get().strip()
+        if not raw:
+            return None
+        return float(raw)
+
+    def get_bounds(self) -> tuple[float, float]:
+        lo = self._lo.get().strip()
+        hi = self._hi.get().strip()
+        if lo and hi:
+            return (float(lo), float(hi))
+        return (self._default_lo, self._default_hi)
+
+    def set_value(self, v: float):
+        self._val.delete(0, tk.END)
+        self._val.insert(0, f"{v:.5g}")
+
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -216,10 +208,13 @@ class TransferWindow:
         self._last_inputs:      dict[str, float] = {}
         self._last_outputs:     dict[str, float] = {}
         self._last_model_name:  str              = ""
-        self._card_map:         dict[str, int]   = {}   # display label → card id
+        self._card_map:         dict[str, dict]  = {}   # display label → {id, fiber_id, polymer_id}
 
-        # microstructure entry widgets
+        # microstructure entry widgets (manual pane)
         self._micro_entries: dict[str, tk.Entry] = {}
+
+        # infer-mode microstructure rows: field → MicroRow
+        self._micro_rows: dict[str, MicroRow] = {}
 
         # infer-mode target widgets: field → (active BooleanVar, entry, sigma_entry)
         self._target_vars: dict[str, tuple[tk.BooleanVar, tk.Entry, tk.Entry]] = {}
@@ -304,10 +299,13 @@ class TransferWindow:
         if not _db.db_exists():
             return
         try:
-            cards    = _db.get_all_print_configs()
-            fibers   = {f["id"]: f["name"] for f in _db.get_all_fibers()}
-            polymers = {p["id"]: p["name"] for p in _db.get_all_polymers()}
-            printers = {p["id"]: p["name"] for p in _db.get_all_printers()}
+            from core.services.service_material import (
+                list_cards, list_fibers, list_polymers, list_printers,
+            )
+            cards    = list_cards()
+            fibers   = {f["id"]: f["name"] for f in list_fibers()}
+            polymers = {p["id"]: p["name"] for p in list_polymers()}
+            printers = {p["id"]: p["name"] for p in list_printers()}
         except Exception as exc:
             messagebox.showerror("DB Error", str(exc), parent=self._win)
             return
@@ -318,28 +316,27 @@ class TransferWindow:
             pname = polymers.get(c["polymer_id"], "?")
             rname = printers.get(c.get("printer_id"), "—")
             label = f"{c['name']}   ({fname} / {pname} / {rname})"
-            self._card_map[label] = c["id"]
+            self._card_map[label] = {
+                "id":         c["id"],
+                "fiber_id":   c["fiber_id"],
+                "polymer_id": c["polymer_id"],
+            }
 
         self._card_cb["values"] = list(self._card_map)
 
     def _on_card_selected(self, _event=None):
-        label = self._card_var.get()
-        card_id = self._card_map.get(label)
-        if card_id is None:
-            return
-        try:
-            cfg = _db.get_print_config(card_id)
-        except Exception as exc:
-            messagebox.showerror("DB Error", str(exc), parent=self._win)
+        label    = self._card_var.get()
+        card_rec = self._card_map.get(label)
+        if card_rec is None:
             return
 
-        self._source_card_id = card_id
-        self._source_fid     = cfg["fiber_id"]
-        self._source_pid     = cfg["polymer_id"]
+        self._source_card_id = card_rec["id"]
+        self._source_fid     = card_rec["fiber_id"]
+        self._source_pid     = card_rec["polymer_id"]
 
-        # Resolve constituent props using db.db directly — no core.services/jax needed
         try:
-            self._constituent_props = _resolve_constituent_props_db(card_id)
+            from core.services.service_transfer import resolve_constituent_props
+            self._constituent_props = resolve_constituent_props(self._source_card_id)
         except Exception as exc:
             messagebox.showerror("Error", str(exc), parent=self._win)
             return
@@ -460,66 +457,89 @@ class TransferWindow:
 
     def _build_infer_pane(self):
         self._infer_pane = ttk.Frame(self._mode_container)
+        self._infer_pane.grid_columnconfigure(0, weight=1)
 
+        # ── Section A: Microstructure Inputs ─────────────────────────────────
         tk.Label(self._infer_pane,
-                 text="Target composite properties (check those you have measurements for):",
-                 font=FONT_SMALL, fg="#444").grid(
-            row=0, column=0, columnspan=11, sticky="w", pady=(0, 4))
+                 text="Microstructure inputs  (Fixed = use entered value,  Free = optimise)",
+                 font=("Helvetica", 11, "bold"), fg="#333").grid(
+            row=0, column=0, sticky="w", pady=(0, 2))
+
+        micro_grid = ttk.Frame(self._infer_pane)
+        micro_grid.grid(row=1, column=0, sticky="ew", padx=0, pady=(0, 4))
+
+        # column headers
+        for col, txt in [(0, "Field"), (1, "Mode"), (2, "Value / Initial guess"),
+                         (3, "Bounds  (lo / hi)")]:
+            tk.Label(micro_grid, text=txt, font=("Helvetica", 10, "bold"),
+                     fg="gray").grid(row=0, column=col, sticky="w", padx=(4, 8), pady=(0, 2))
+
+        self._micro_rows = {}
+        for r, field in enumerate(_MICRO_FIELDS, start=1):
+            row = MicroRow(micro_grid, r, field,
+                           _MICRO_LABELS[field], _MICRO_BOUNDS[field])
+            self._micro_rows[field] = row
+
+        ttk.Separator(self._infer_pane, orient="horizontal").grid(
+            row=2, column=0, sticky="ew", pady=(4, 6))
+
+        # ── Section B: Target Composite Properties ────────────────────────────
+        tk.Label(self._infer_pane,
+                 text="Target composite properties  (check those you have measurements for):",
+                 font=("Helvetica", 11, "bold"), fg="#333").grid(
+            row=3, column=0, sticky="w", pady=(0, 2))
+
+        tgt_grid = ttk.Frame(self._infer_pane)
+        tgt_grid.grid(row=4, column=0, sticky="ew")
 
         # Two-column layout: left half | right half
         # Each half: label | checkbox | value | σ | unit
-        # Columns: 0=lbl_L 1=cb_L 2=val_L 3=sig_L 4=unit_L  5=gap  6=lbl_R 7=cb_R 8=val_R 9=sig_R 10=unit_R
         for hcol, txt in [(0, "Field"), (1, ""), (2, "Value"), (3, "± σ"), (4, "Units"),
                           (6, "Field"), (7, ""), (8, "Value"), (9, "± σ"), (10, "Units")]:
             if txt:
-                tk.Label(self._infer_pane, text=txt,
-                         font=("Helvetica", 11, "bold")).grid(
-                    row=1, column=hcol, padx=4)
+                tk.Label(tgt_grid, text=txt,
+                         font=("Helvetica", 10, "bold"), fg="gray").grid(
+                    row=0, column=hcol, padx=4, pady=(0, 2))
 
-        # Default-active fields (common measurements)
         _DEFAULT_ACTIVE = {"E1", "E2", "nu12"}
-
-        n = len(_TARGET_FIELDS)
-        half = (n + 1) // 2   # left column gets ceil(n/2) rows
+        n    = len(_TARGET_FIELDS)
+        half = (n + 1) // 2
 
         for i, (field, display) in enumerate(_TARGET_FIELDS):
             if i < half:
-                base_col, data_row = 0, i + 2
+                base_col, data_row = 0, i + 1
             else:
-                base_col, data_row = 6, (i - half) + 2
+                base_col, data_row = 6, (i - half) + 1
 
-            tk.Label(self._infer_pane, text=f"{display}:", font=FONT_LABEL,
+            tk.Label(tgt_grid, text=f"{display}:", font=FONT_LABEL,
                      anchor="e", width=6).grid(row=data_row, column=base_col,
                                                sticky="e", padx=(0, 2), pady=2)
 
             active_var = tk.BooleanVar(value=field in _DEFAULT_ACTIVE)
-            ttk.Checkbutton(self._infer_pane, variable=active_var,
+            ttk.Checkbutton(tgt_grid, variable=active_var,
                             command=lambda f=field: self._on_target_toggle(f)).grid(
                 row=data_row, column=base_col + 1, padx=2)
 
-            val_ent = tk.Entry(self._infer_pane, width=10, font=FONT_ENTRY,
+            val_ent = tk.Entry(tgt_grid, width=10, font=FONT_ENTRY,
                                state="normal" if field in _DEFAULT_ACTIVE else "disabled")
             val_ent.grid(row=data_row, column=base_col + 2, padx=2, pady=2)
 
-            sig_ent = tk.Entry(self._infer_pane, width=7, font=FONT_ENTRY,
+            sig_ent = tk.Entry(tgt_grid, width=7, font=FONT_ENTRY,
                                state="normal" if field in _DEFAULT_ACTIVE else "disabled")
             sig_ent.grid(row=data_row, column=base_col + 3, padx=2, pady=2)
 
-            tk.Label(self._infer_pane,
-                     text=UM.unit_label(field) or "MPa",
+            tk.Label(tgt_grid, text=UM.unit_label(field) or "MPa",
                      font=FONT_SMALL, fg="gray").grid(
                 row=data_row, column=base_col + 4, padx=2, sticky="w")
 
             self._target_vars[field] = (active_var, val_ent, sig_ent)
 
-        # Gap column between left and right halves
-        tk.Label(self._infer_pane, text="  ", width=2).grid(
-            row=2, column=5, rowspan=half)
+        # gap column between target halves
+        tk.Label(tgt_grid, text="  ", width=2).grid(row=1, column=5, rowspan=half)
 
-        # Run inverse button + status
+        # ── Run Inverse button + status ───────────────────────────────────────
         btn_row = ttk.Frame(self._infer_pane)
-        btn_row.grid(row=max(half, n - half) + 2, column=0,
-                     columnspan=11, sticky="w", pady=(8, 0))
+        btn_row.grid(row=5, column=0, sticky="w", pady=(8, 0))
         self._infer_btn = ttk.Button(btn_row, text="Run Inverse",
                                      command=self._on_run_inverse,
                                      state="disabled")
@@ -555,10 +575,11 @@ class TransferWindow:
             ent.config(state="normal")
         self._infer_btn.config(state="normal")
 
-        # Pre-fill manual fields from source card's latest microstructure (if any)
+        # Pre-fill manual + infer fields from source card's latest microstructure
         if self._source_card_id is not None:
             try:
-                latest = _db.get_latest_microstructure(self._source_card_id)
+                from core.services.service_cards import get_latest_microstructure
+                latest = get_latest_microstructure(self._source_card_id)
                 if latest:
                     mapping = {
                         "a11": "a11", "a22": "a22", "a12": "a12",
@@ -567,10 +588,13 @@ class TransferWindow:
                     }
                     for db_f, model_f in mapping.items():
                         val = latest.get(db_f)
-                        if val is not None and model_f in self._micro_entries:
-                            ent = self._micro_entries[model_f]
-                            ent.delete(0, tk.END)
-                            ent.insert(0, f"{float(val):.5g}")
+                        if val is not None:
+                            if model_f in self._micro_entries:
+                                ent = self._micro_entries[model_f]
+                                ent.delete(0, tk.END)
+                                ent.insert(0, f"{float(val):.5g}")
+                            if model_f in self._micro_rows:
+                                self._micro_rows[model_f].set_value(float(val))
             except Exception:
                 pass
 
@@ -624,51 +648,224 @@ class TransferWindow:
                                    parent=self._win)
             return
 
+        # Snapshot micro-row state before handing off to the worker thread
+        row_snapshot: dict = {}
+        for field, micro_row in self._micro_rows.items():
+            try:
+                val = micro_row.get_value()
+            except ValueError:
+                messagebox.showerror("Invalid value",
+                                     f"Microstructure field '{_MICRO_LABELS[field]}' "
+                                     "has an invalid number.",
+                                     parent=self._win)
+                return
+            try:
+                bnd = micro_row.get_bounds()
+            except ValueError:
+                messagebox.showerror("Invalid bounds",
+                                     f"Bounds for '{_MICRO_LABELS[field]}' "
+                                     "are not valid numbers.",
+                                     parent=self._win)
+                return
+            row_snapshot[field] = {
+                "free":   micro_row.is_free(),
+                "value":  val,
+                "bounds": bnd,
+            }
+
         self._infer_btn.config(state="disabled")
         self._infer_status.config(text="Running inverse…", fg="orange")
 
         threading.Thread(
             target=self._infer_worker,
-            args=(targets, sigmas),
+            args=(targets, sigmas, row_snapshot),
             daemon=True,
         ).start()
 
-    def _infer_worker(self, targets: dict, sigmas: dict):
+    def _infer_worker(self, targets: dict, sigmas: dict,
+                      row_snapshot: dict):
+        """row_snapshot: {field: {'free': bool, 'value': float|None, 'bounds': (lo,hi)}}"""
         try:
-            from core.services import build_forward_inputs, run_inverse
-            from core.services.service_transfer import _MICRO_FREE, _MICRO_BOUNDS_DEFAULT
+            from core.services.service_transfer import prepare_transfer_inverse
+            from core.services.service_inverse import run_inverse
 
-            # Build fixed_inputs from constituent props (datasheet + inferred overrides)
-            full = build_forward_inputs(self._source_card_id, {})
-
-            # Elastic model input fields
-            from core.services import get_input_fields
-            elastic_fields = get_input_fields("elastic")
-
-            free_fields  = [f for f in elastic_fields if f in _MICRO_FREE]
-            fixed_fields = {f: v for f, v in full.items()
-                            if f in elastic_fields and f not in _MICRO_FREE}
-
-            bounds = {k: _MICRO_BOUNDS_DEFAULT[k]
-                      for k in free_fields if k in _MICRO_BOUNDS_DEFAULT}
+            fixed_fields, free_fields, bounds, init_vals = prepare_transfer_inverse(
+                self._source_card_id, row_snapshot
+            )
 
             result = run_inverse(
                 model_name="elastic",
                 fixed_inputs=fixed_fields,
                 free_inputs=free_fields,
-                bounds=bounds,
+                bounds=bounds if bounds else None,
                 target_outputs=targets,
                 sigmas=sigmas if sigmas else None,
+                init_vals=init_vals if init_vals else None,
             )
-            self._win.after(0, lambda: self._on_infer_done(result))
+            self._win.after(
+                0,
+                lambda r=result, ff=fixed_fields, fr=free_fields:
+                    self._show_infer_results_dialog(r, ff, fr),
+            )
         except Exception as exc:
             self._win.after(0, lambda exc=exc: self._on_infer_error(str(exc)))
 
-    def _on_infer_done(self, result: dict):
-        opt = result.get("opt_free", {})
-        err = result.get("final_error", 0.0)
+    def _show_infer_results_dialog(self, result: dict,
+                                    fixed_inputs: dict, free_fields: list):
+        """Modal review dialog shown after inverse solve completes."""
+        opt  = result.get("opt_free", {})
+        pred = result.get("predicted_outputs", {})
+        tgt  = result.get("target_outputs",    {})
+        err  = result.get("final_error",        0.0)
 
-        # Write results into manual entry fields and switch to manual mode
+        dlg = tk.Toplevel(self._win)
+        dlg.title("Inverse Results — Review before continuing")
+        dlg.geometry("720x620")
+        dlg.minsize(640, 500)
+        dlg.resizable(True, True)
+        dlg.grab_set()
+        dlg.lift()
+
+        # ── scrollable content ────────────────────────────────────────────────
+        canvas = tk.Canvas(dlg, borderwidth=0, highlightthickness=0)
+        vsb    = ttk.Scrollbar(dlg, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        canvas.pack(side="top", fill="both", expand=True)
+
+        content = ttk.Frame(canvas, padding=(16, 12))
+        cwin = canvas.create_window((0, 0), window=content, anchor="nw")
+        content.bind("<Configure>",
+                     lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>",
+                    lambda e: canvas.itemconfig(cwin, width=e.width))
+
+        def _section(parent, title, row):
+            tk.Label(parent, text=title,
+                     font=("Helvetica", 13, "bold"), fg="#1a1a2e").grid(
+                row=row, column=0, columnspan=4, sticky="w", pady=(10, 3))
+            ttk.Separator(parent, orient="horizontal").grid(
+                row=row + 1, column=0, columnspan=4, sticky="ew", pady=(0, 4))
+            return row + 2
+
+        def _row(parent, row, label, val_str, extra="", bold=False):
+            font = ("Helvetica", 12, "bold") if bold else ("Helvetica", 12)
+            tk.Label(parent, text=f"{label}:", font=font, anchor="e",
+                     width=26).grid(row=row, column=0, sticky="e", padx=(0, 8))
+            tk.Label(parent, text=val_str,   font=font, anchor="w").grid(
+                row=row, column=1, sticky="w", padx=(0, 12))
+            if extra:
+                tk.Label(parent, text=extra, font=("Helvetica", 11), fg="gray",
+                         anchor="w").grid(row=row, column=2, sticky="w")
+
+        r = 0
+
+        # ── 1. Constituent properties used (fixed) ────────────────────────────
+        r = _section(content, "① Constituent Properties Used (fixed inputs)", r)
+        _const_display = [
+            ("matrix_modulus", "Matrix modulus",    "MPa"),
+            ("matrix_poisson", "Matrix Poisson ν",  ""),
+            ("f_cte1",         "Fiber CTE α₁₁",    "1/K"),
+            ("f_cte2",         "Fiber CTE α₂₂",    "1/K"),
+            ("m_cte",          "Matrix CTE",        "1/K"),
+            ("matrix_CTE",     "Matrix CTE",        "1/K"),
+            ("k_f1",           "Fiber k‖",          "W/m·K"),
+            ("k_f2",           "Fiber k⊥",          "W/m·K"),
+            ("k_m",            "Matrix k",          "W/m·K"),
+        ]
+        shown_const = set()
+        for key, label, unit in _const_display:
+            if key in fixed_inputs and label not in shown_const:
+                shown_const.add(label)
+                val = fixed_inputs[key]
+                disp = f"{val:.5g}"
+                src = ""
+                cp = self._constituent_props.get(key) or self._constituent_props.get(
+                    {"matrix_CTE": "m_cte", "f_CTE1": "f_cte1",
+                     "f_CTE2": "f_cte2"}.get(key, ""))
+                if isinstance(cp, dict):
+                    src = f"[{cp.get('source_tag', '')}]"
+                _row(content, r, label, f"{disp}  {unit}".strip(), src)
+                r += 1
+        if not shown_const:
+            tk.Label(content, text="(no constituent properties found — using datasheet defaults)",
+                     font=FONT_SMALL, fg="gray").grid(row=r, column=0, columnspan=4, sticky="w")
+            r += 1
+
+        # ── 2. Inferred microstructure ────────────────────────────────────────
+        r = _section(content, "② Inferred Microstructure", r)
+        _alias_canon = {"w_f": "fiber_massfrac", "ar_f": "ar"}
+        shown_micro = set()
+        for field, val in opt.items():
+            canon = _alias_canon.get(field, field)
+            label = _MICRO_LABELS.get(canon, canon)
+            if label in shown_micro:
+                continue
+            shown_micro.add(label)
+            _row(content, r, label, f"{float(val):.5g}", bold=True)
+            r += 1
+        if not shown_micro:
+            tk.Label(content, text="(no free variables — nothing was optimised)",
+                     font=FONT_SMALL, fg="gray").grid(row=r, column=0, columnspan=4, sticky="w")
+            r += 1
+
+        # ── 3. Predicted vs target outputs ────────────────────────────────────
+        r = _section(content, "③ Predicted vs Target Outputs", r)
+        # header
+        for col, hdr in [(0, "Output"), (1, "Target"), (2, "Predicted"), (3, "Residual")]:
+            tk.Label(content, text=hdr,
+                     font=("Helvetica", 11, "bold"), fg="gray").grid(
+                row=r, column=col, sticky="w", padx=(0, 12))
+        r += 1
+
+        for field, tval in tgt.items():
+            pval   = pred.get(field, float("nan"))
+            resid  = abs(float(pval) - float(tval)) if not (
+                float(pval) != float(pval)) else float("nan")
+            unit   = UM.unit_label(field)
+            t_disp = UM.to_display(field, float(tval))
+            p_disp = UM.to_display(field, float(pval))
+            u_str  = f" {unit}" if unit else ""
+            res_str = f"{resid:.4g}{u_str}" if resid == resid else "—"
+            tk.Label(content, text=f"{field}:", font=FONT_LABEL, anchor="e",
+                     width=8).grid(row=r, column=0, sticky="e", padx=(0, 8))
+            tk.Label(content, text=f"{t_disp:.5g}{u_str}", font=FONT_LABEL,
+                     anchor="w").grid(row=r, column=1, sticky="w", padx=(0, 12))
+            tk.Label(content, text=f"{p_disp:.5g}{u_str}", font=FONT_LABEL,
+                     fg="#007700", anchor="w").grid(row=r, column=2, sticky="w", padx=(0, 12))
+            tk.Label(content, text=res_str, font=FONT_SMALL, fg="gray",
+                     anchor="w").grid(row=r, column=3, sticky="w")
+            r += 1
+
+        # loss
+        tk.Label(content, text=f"Final solver loss:  {err:.4e}",
+                 font=("Helvetica", 12, "italic"), fg="#555").grid(
+            row=r, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        r += 1
+
+        # ── bottom bar: Continue / Re-run ─────────────────────────────────────
+        ttk.Separator(dlg, orient="horizontal").pack(side="bottom", fill="x")
+        bar = ttk.Frame(dlg, padding=(12, 8))
+        bar.pack(side="bottom", fill="x")
+
+        def _continue():
+            dlg.destroy()
+            self._accept_infer_result(result)
+
+        ttk.Button(bar, text="Continue Transfer →",
+                   command=_continue).pack(side="right", padx=(8, 0))
+        ttk.Button(bar, text="Re-run / Adjust",
+                   command=dlg.destroy).pack(side="right")
+
+        self._infer_status.config(
+            text=f"Solve done  (loss={err:.3e}) — review dialog",
+            fg="#007700")
+        self._infer_btn.config(state="normal")
+
+    def _accept_infer_result(self, result: dict):
+        """Called when user clicks 'Continue Transfer →' in the results dialog."""
+        opt = result.get("opt_free", {})
+
         alias = {"w_f": "fiber_massfrac", "ar_f": "ar",
                  "fiber_massfrac": "fiber_massfrac", "ar": "ar"}
         for field, val in opt.items():
@@ -677,17 +874,14 @@ class TransferWindow:
                 ent = self._micro_entries[canonical]
                 ent.delete(0, tk.END)
                 ent.insert(0, f"{float(val):.5g}")
+            if canonical in self._micro_rows:
+                self._micro_rows[canonical].set_value(float(val))
 
         self._micro_inferred = True
         self._micro_mode.set("manual")
         self._show_manual_pane()
-
-        self._infer_status.config(
-            text=f"Done  (loss={err:.3e})  — review fields above",
-            fg="#007700")
-        self._infer_btn.config(state="normal")
         self._unlock_section3(
-            hint="Inferred microstructure written. Review, then predict below.")
+            hint="Inferred microstructure applied. Select model and predict below.")
 
     def _on_infer_error(self, msg: str):
         self._infer_status.config(text="Inverse failed.", fg="red")
@@ -762,7 +956,8 @@ class TransferWindow:
 
     def _predict_worker(self, model_name: str, micro: dict):
         try:
-            from core.services import build_forward_inputs, run_forward
+            from core.services.service_transfer import build_forward_inputs
+            from core.services.service_forward import run_forward
             inputs  = build_forward_inputs(self._source_card_id, micro)
             outputs = run_forward(model_name, inputs)
             self._win.after(0, lambda: self._on_predict_done(model_name, inputs, outputs))
