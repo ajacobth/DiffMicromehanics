@@ -5,7 +5,7 @@ Opens from gui.py via "Transfer to New Printer…" button.
 Workflow:
   ① Pick a source card  →  shows constituent props (locked, from DB)
   ② Enter microstructure for the new printer  (manual  OR  infer from measurements)
-  ③ Forward-predict one or more models, then Save to a new card
+  ③ Forward-predict one or more models, then Save to Card (new or existing)
 
 No new DB write logic — saving delegates entirely to SaveToCardDialog.
 """
@@ -87,6 +87,9 @@ _CONST_STAGE = {
     "k_f2":           "Stage 3",
     "k_m":            "Stage 3",
 }
+
+# CTE output fields produced by the thermoelastic surrogate
+_TE_CTE_FIELDS = {"CTE11", "CTE22", "CTE33", "CTE12", "CTE13", "CTE23"}
 
 # Elastic outputs available as transfer inverse targets
 # (all 9 outputs of the elastic surrogate)
@@ -868,6 +871,24 @@ class TransferWindow:
 
         alias = {"w_f": "fiber_massfrac", "ar_f": "ar",
                  "fiber_massfrac": "fiber_massfrac", "ar": "ar"}
+
+        # First apply all infer-pane row values (both fixed and free) to manual entries.
+        # Fixed fields are not returned in opt_free, so they must be read back from the
+        # MicroRow widgets directly.
+        for field, micro_row in self._micro_rows.items():
+            canonical = alias.get(field, field)
+            if not micro_row.is_free():
+                # Fixed: use whatever value the user typed in the infer pane
+                try:
+                    val = micro_row.get_value()
+                except (ValueError, TypeError):
+                    val = None
+                if val is not None and canonical in self._micro_entries:
+                    ent = self._micro_entries[canonical]
+                    ent.delete(0, tk.END)
+                    ent.insert(0, f"{float(val):.5g}")
+
+        # Then overwrite with solver-optimised values for the free fields
         for field, val in opt.items():
             canonical = alias.get(field, field)
             if canonical in self._micro_entries:
@@ -927,7 +948,7 @@ class TransferWindow:
         ttk.Separator(panel, orient="horizontal").grid(
             row=4, column=0, sticky="ew", pady=(4, 8))
 
-        self._save_btn = ttk.Button(panel, text="Save to New Card…",
+        self._save_btn = ttk.Button(panel, text="Save to Card…",
                                     command=self._on_save, state="disabled")
         self._save_btn.grid(row=5, column=0, sticky="w")
 
@@ -956,10 +977,25 @@ class TransferWindow:
 
     def _predict_worker(self, model_name: str, micro: dict):
         try:
-            from core.services.service_transfer import build_forward_inputs
+            from core.services.service_transfer import build_forward_inputs, run_thermal_sweep
             from core.services.service_forward import run_forward
-            inputs  = build_forward_inputs(self._source_card_id, micro)
-            outputs = run_forward(model_name, inputs)
+            inputs = build_forward_inputs(self._source_card_id, micro)
+
+            if model_name == "thermoelastic":
+                # Mechanical props come from the elastic model; CTE-only from thermoelastic
+                elastic_outputs = run_forward("elastic", inputs)
+                te_outputs      = run_forward("thermoelastic", inputs)
+                cte_outputs     = {k: v for k, v in te_outputs.items()
+                                   if k in _TE_CTE_FIELDS}
+                outputs = {**elastic_outputs, **cte_outputs}
+            elif model_name == "thermal":
+                # Thermal model requires sweeping over temperature because k_m = k_m(T).
+                # run_thermal_sweep uses p1/p2 from the source card to compute k_m at
+                # each temperature, then runs the surrogate at each step.
+                outputs = run_thermal_sweep(self._source_card_id, micro)
+            else:
+                outputs = run_forward(model_name, inputs)
+
             self._win.after(0, lambda: self._on_predict_done(model_name, inputs, outputs))
         except Exception as exc:
             self._win.after(0, lambda exc=exc: self._on_predict_error(str(exc)))
@@ -970,20 +1006,96 @@ class TransferWindow:
         self._last_outputs     = outputs
         self._micro_inferred   = self._micro_inferred  # preserve flag
 
-        # Refresh output display — format: "E1: 500.2 MPa" bold black
+        # Refresh output display
         for w in self._outputs_frame.winfo_children():
             w.destroy()
 
-        for i, (field, val) in enumerate(outputs.items()):
-            unit     = UM.unit_label(field)
-            disp_val = UM.to_display(field, float(val))
-            unit_str = f" {unit}" if unit else ""
-            tk.Label(self._outputs_frame,
-                     text=f"{field}:  {disp_val:.5g}{unit_str}",
-                     font=FONT_BOLD, fg="black", anchor="w").pack(
-                anchor="w", pady=1)
+        if model_name == "thermoelastic":
+            # Split into two groups: mechanical (from elastic) and CTE (from TE)
+            mech_items = [(f, v) for f, v in outputs.items() if f not in _TE_CTE_FIELDS]
+            cte_items  = [(f, v) for f, v in outputs.items() if f in _TE_CTE_FIELDS]
 
-        self._pred_status.config(text=f"{model_name} done.", fg="#007700")
+            tk.Label(self._outputs_frame, text="Elastic (mechanical)",
+                     font=("Helvetica", 11, "bold"), fg="#333").pack(anchor="w", pady=(0, 2))
+            for field, val in mech_items:
+                unit     = UM.unit_label(field)
+                disp_val = UM.to_display(field, float(val))
+                unit_str = f" {unit}" if unit else ""
+                tk.Label(self._outputs_frame,
+                         text=f"  {field}:  {disp_val:.5g}{unit_str}",
+                         font=FONT_BOLD, fg="black", anchor="w").pack(anchor="w", pady=1)
+
+            ttk.Separator(self._outputs_frame, orient="horizontal").pack(
+                fill="x", pady=(4, 4))
+
+            tk.Label(self._outputs_frame, text="Thermoelastic (CTE only)",
+                     font=("Helvetica", 11, "bold"), fg="#333").pack(anchor="w", pady=(0, 2))
+            for field, val in cte_items:
+                unit     = UM.unit_label(field)
+                disp_val = UM.to_display(field, float(val))
+                unit_str = f" {unit}" if unit else ""
+                tk.Label(self._outputs_frame,
+                         text=f"  {field}:  {disp_val:.5g}{unit_str}",
+                         font=FONT_BOLD, fg="black", anchor="w").pack(anchor="w", pady=1)
+
+        elif model_name == "thermal":
+            # Thermal outputs are a K vs T sweep dict, not scalar per-field values.
+            temps = outputs.get("temperatures", [])
+            K11   = outputs.get("K11", [])
+            K22   = outputs.get("K22", [])
+            K33   = outputs.get("K33", [])
+
+            tk.Label(self._outputs_frame,
+                     text=f"Thermal  (K vs T — {len(temps)} points,  "
+                          f"{temps[0]:.0f}–{temps[-1]:.0f} °C)",
+                     font=("Helvetica", 11, "bold"), fg="#333").pack(anchor="w", pady=(0, 4))
+
+            # Header row
+            hdr = ttk.Frame(self._outputs_frame)
+            hdr.pack(fill="x", pady=(0, 2))
+            for col, txt in enumerate(["T (°C)", "K11 (W/m·K)", "K22 (W/m·K)", "K33 (W/m·K)"]):
+                tk.Label(hdr, text=txt, font=("Helvetica", 10, "bold"),
+                         width=14, anchor="center").grid(row=0, column=col, padx=2)
+
+            # Show a handful of representative rows: 0 °C, 25 °C, 100 °C, 200 °C
+            import numpy as _np
+            T_arr = _np.array(temps)
+            show_temps = [t for t in [0.0, 25.0, 100.0, 200.0]
+                          if T_arr[0] <= t <= T_arr[-1]]
+            for t_show in show_temps:
+                idx = int(_np.argmin(_np.abs(T_arr - t_show)))
+                row_f = ttk.Frame(self._outputs_frame)
+                row_f.pack(fill="x", pady=1)
+                for col, val in enumerate([temps[idx], K11[idx], K22[idx], K33[idx]]):
+                    tk.Label(row_f, text=f"{val:.4g}", font=FONT_BOLD,
+                             width=14, anchor="center").grid(row=0, column=col, padx=2)
+
+            # Constituent inputs used
+            ttk.Separator(self._outputs_frame, orient="horizontal").pack(
+                fill="x", pady=(6, 4))
+            p1  = outputs.get("p1", 0.0)
+            p2  = outputs.get("p2", 0.0)
+            kf1 = outputs.get("k_f1")
+            kf2 = outputs.get("k_f2")
+            info = f"p1={p1:.4g}, p2={p2:.4g}"
+            if kf1 is not None:
+                info += f",  k_f1={kf1:.4g} W/m·K"
+            if kf2 is not None:
+                info += f",  k_f2={kf2:.4g} W/m·K"
+            tk.Label(self._outputs_frame, text=info, font=("Helvetica", 10),
+                     fg="#555", wraplength=400, justify="left").pack(anchor="w")
+
+        else:
+            for field, val in outputs.items():
+                unit     = UM.unit_label(field)
+                disp_val = UM.to_display(field, float(val))
+                unit_str = f" {unit}" if unit else ""
+                tk.Label(self._outputs_frame,
+                         text=f"{field}:  {disp_val:.5g}{unit_str}",
+                         font=FONT_BOLD, fg="black", anchor="w").pack(anchor="w", pady=1)
+
+        status_label = "elastic + thermoelastic (CTE)" if model_name == "thermoelastic" else model_name
+        self._pred_status.config(text=f"{status_label} done.", fg="#007700")
         self._predict_btn.config(state="normal")
         self._save_btn.config(state="normal")
 
@@ -1003,6 +1115,11 @@ class TransferWindow:
 
         micro = self._collect_microstructure()
         if micro is None:
+            return
+
+        # Thermal transfer: K vs T curve → thermal_k_predictions table
+        if self._last_model_name == "thermal":
+            self._on_save_thermal()
             return
 
         # Split inputs: microstructure → free_variables if inferred, else fixed
@@ -1032,6 +1149,38 @@ class TransferWindow:
         SaveToCardDialog(self._win, result,
                          fiber_id=self._source_fid,
                          polymer_id=self._source_pid)
+
+    def _on_save_thermal(self):
+        """Save thermal K vs T sweep to thermal_k_predictions via SaveThermalToCardDialog."""
+        import numpy as _np
+        outputs = self._last_outputs  # {"temperatures", "K11", "K22", "K33", "p1", "p2", ...}
+
+        p1  = outputs.get("p1", 0.0)
+        p2  = outputs.get("p2", 0.0)
+        kf1 = outputs.get("k_f1") or 0.0
+        kf2 = outputs.get("k_f2") or 0.0
+
+        # Reconstruct l2, t from k_f1/k_f2 so SaveThermalToCardDialog can store them
+        l2 = kf1
+        t  = kf1 / kf2 if kf2 > 0 else 1.0
+
+        temps  = _np.array(outputs["temperatures"])
+        K_pred = _np.column_stack([outputs["K11"], outputs["K22"], outputs["K33"]])
+
+        from gui_card_dialogs import SaveThermalToCardDialog
+        SaveThermalToCardDialog(
+            self._win,
+            p1           = p1,
+            p2           = p2,
+            l2           = l2,
+            t            = t,
+            fixed_inputs = self._last_inputs or {},
+            temperatures = temps,
+            K_pred       = K_pred,
+            loss         = 0.0,   # forward prediction, no solver loss
+            fiber_id     = self._source_fid,
+            polymer_id   = self._source_pid,
+        )
 
     # ── helpers ───────────────────────────────────────────────────────────────
 

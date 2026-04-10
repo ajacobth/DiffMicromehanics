@@ -38,6 +38,13 @@ _DB_TO_MODEL: dict[str, list[str]] = {
     "a13": ["a13"], "a23": ["a23"],
 }
 
+# Thermoelastic model outputs both mechanical and CTE fields.
+# Only the CTE fields should be saved to composite_property_values;
+# mechanical properties (E, G, nu) must come from the elastic model only.
+_TE_CTE_OUTPUTS = frozenset({
+    "CTE11", "CTE22", "CTE33", "CTE12", "CTE13", "CTE23",
+})
+
 
 # ── load ───────────────────────────────────────────────────────────────────────
 
@@ -156,24 +163,33 @@ def save_inverse_result(
     if micro_vals:
         _SNAP_FIELDS = ("mf", "ar", "a11", "a22", "a12", "a13", "a23")
         latest = _db.get_latest_microstructure(cfg_id)
-        changed = latest is None or any(
-            micro_vals.get(f) != latest.get(f) for f in _SNAP_FIELDS
-        )
-        if changed:
-            snap_id = _db.save_microstructure_snapshot(
-                print_config_id=cfg_id,
-                mf=micro_vals.get("mf"),
-                ar=micro_vals.get("ar"),
-                a11=micro_vals.get("a11"),
-                a22=micro_vals.get("a22"),
-                a12=micro_vals.get("a12"),
-                a13=micro_vals.get("a13"),
-                a23=micro_vals.get("a23"),
-                provenance=micro_prov,
-                notes=notes,
+        has_inferred_micro = any(v == "inferred" for v in micro_prov.values())
+
+        if has_inferred_micro:
+            # Microstructure was re-inferred in this run — write a new snapshot
+            # only if values actually changed (avoids duplicates on re-runs)
+            changed = latest is None or any(
+                micro_vals.get(f) != latest.get(f) for f in _SNAP_FIELDS
             )
+            if changed:
+                snap_id = _db.save_microstructure_snapshot(
+                    print_config_id=cfg_id,
+                    mf=micro_vals.get("mf"),
+                    ar=micro_vals.get("ar"),
+                    a11=micro_vals.get("a11"),
+                    a22=micro_vals.get("a22"),
+                    a12=micro_vals.get("a12"),
+                    a13=micro_vals.get("a13"),
+                    a23=micro_vals.get("a23"),
+                    provenance=micro_prov,
+                    notes=notes,
+                )
+            else:
+                snap_id = latest["id"]
         else:
-            snap_id = latest["id"]
+            # Microstructure was fixed (loaded from a previous run) — reuse the
+            # existing snapshot rather than writing a duplicate with "inputted" provenance
+            snap_id = latest["id"] if latest else None
 
     # 3. Inference run
     run_id = _db.save_inference_run(
@@ -243,7 +259,14 @@ def save_inverse_result(
             )
 
     # 5. Composite properties
-    for prop, value in outputs.items():
+    # For thermoelastic: only save CTE outputs. Mechanical properties (E, G, nu)
+    # are owned by the elastic model and must not be overwritten here.
+    if model_nm == "thermoelastic":
+        composite_outputs = {k: v for k, v in outputs.items() if k in _TE_CTE_OUTPUTS}
+    else:
+        composite_outputs = outputs
+
+    for prop, value in composite_outputs.items():
         _db.save_composite_property(
             print_config_id=cfg_id,
             property_name=prop,

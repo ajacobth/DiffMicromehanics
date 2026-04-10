@@ -91,7 +91,7 @@ def get_fiber(fiber_id: int) -> Optional[dict]:
 
 def fiber_model_inputs(fiber_id: int) -> dict[str, float]:
     """
-    Return the neat fiber properties in model input units (MPa, kg/m³).
+    Return the neat fiber properties in model input units (MPa, kg/m³, W/m·K).
 
     Model field mapping:
         e1           ← neat_E1  (MPa)
@@ -101,11 +101,13 @@ def fiber_model_inputs(fiber_id: int) -> dict[str, float]:
         f_nu23       ← neat_nu23
         fiber_density← neat_rho (kg/m³)
         rho_f        ← neat_rho (kg/m³)
+        k_f1         ← neat_k1  (W/m·K)
+        k_f2         ← neat_k2  (W/m·K)
     """
     f = get_fiber(fiber_id)
     if f is None:
         raise ValueError(f"Fiber id={fiber_id} not found")
-    return {
+    out = {
         "e1":            f["neat_E1"],
         "e2":            f["neat_E2"],
         "g12":           f["neat_G12"],
@@ -114,6 +116,11 @@ def fiber_model_inputs(fiber_id: int) -> dict[str, float]:
         "fiber_density": f["neat_rho"],
         "rho_f":         f["neat_rho"],
     }
+    if f.get("neat_k1") is not None:
+        out["k_f1"] = f["neat_k1"]
+    if f.get("neat_k2") is not None:
+        out["k_f2"] = f["neat_k2"]
+    return out
 
 
 def add_fiber(name: str, supplier: str, neat: dict) -> int:
@@ -156,23 +163,27 @@ def get_polymer(polymer_id: int) -> Optional[dict]:
 
 def polymer_model_inputs(polymer_id: int) -> dict[str, float]:
     """
-    Return neat polymer properties in model input units (MPa, kg/m³).
+    Return neat polymer properties in model input units (MPa, kg/m³, W/m·K).
 
     Model field mapping:
         matrix_modulus  ← neat_E1  (MPa)
         matrix_poisson  ← neat_nu12
         matrix_density  ← neat_rho (kg/m³)
         rho_m           ← neat_rho (kg/m³)
+        k_m             ← neat_k   (W/m·K)
     """
     p = get_polymer(polymer_id)
     if p is None:
         raise ValueError(f"Polymer id={polymer_id} not found")
-    return {
+    out = {
         "matrix_modulus":  p["neat_E1"],
         "matrix_poisson":  p["neat_nu12"],
         "matrix_density":  p["neat_rho"],
         "rho_m":           p["neat_rho"],
     }
+    if p.get("neat_k") is not None:
+        out["k_m"] = p["neat_k"]
+    return out
 
 
 def add_polymer(name: str, supplier: str, neat: dict) -> int:
@@ -922,6 +933,96 @@ def get_print_config_card(print_config_id: int) -> dict:
 
 # ── thermal inverse helpers ────────────────────────────────────────────────────
 
+def save_thermal_k_predictions(
+    print_config_id:  int,
+    inference_run_id: int,
+    temperatures,
+    K_pred,
+) -> int:
+    """
+    Store one K-vs-T prediction curve in thermal_k_predictions.
+
+    Parameters
+    ----------
+    temperatures : array-like of float, length n  (°C)
+    K_pred       : array-like shape (n, 3) — columns K11, K22, K33 (W/m·K)
+                   OR dict {"K11": [...], "K22": [...], "K33": [...]}
+
+    Returns new row id.
+    """
+    import json as _json
+    import numpy as _np
+
+    T = _np.asarray(temperatures).tolist()
+    if isinstance(K_pred, dict):
+        K11 = list(K_pred["K11"])
+        K22 = list(K_pred["K22"])
+        K33 = list(K_pred["K33"])
+    else:
+        K = _np.asarray(K_pred)
+        K11, K22, K33 = K[:, 0].tolist(), K[:, 1].tolist(), K[:, 2].tolist()
+
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO thermal_k_predictions
+                (print_config_id, inference_run_id,
+                 temperatures_json, K11_json, K22_json, K33_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                print_config_id,
+                inference_run_id,
+                _json.dumps(T),
+                _json.dumps(K11),
+                _json.dumps(K22),
+                _json.dumps(K33),
+                datetime.now().isoformat(),
+            ),
+        )
+    return cur.lastrowid
+
+
+def get_thermal_k_predictions(print_config_id: int) -> list[dict]:
+    """
+    Return all K-vs-T prediction curves for a card, newest first.
+
+    Each entry has keys:
+        id, print_config_id, inference_run_id, created_at
+        temperatures  : list[float]  (°C)
+        K11           : list[float]  (W/m·K)
+        K22           : list[float]
+        K33           : list[float]
+    """
+    import json as _json
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT id, print_config_id, inference_run_id,
+                   temperatures_json, K11_json, K22_json, K33_json, created_at
+            FROM thermal_k_predictions
+            WHERE print_config_id = ?
+            ORDER BY created_at DESC
+            """,
+            (print_config_id,),
+        ).fetchall()
+
+    result = []
+    for r in rows:
+        result.append({
+            "id":              r["id"],
+            "print_config_id": r["print_config_id"],
+            "inference_run_id": r["inference_run_id"],
+            "created_at":      r["created_at"],
+            "temperatures":    _json.loads(r["temperatures_json"]),
+            "K11":             _json.loads(r["K11_json"]),
+            "K22":             _json.loads(r["K22_json"]),
+            "K33":             _json.loads(r["K33_json"]),
+        })
+    return result
+
+
 def save_thermal_inverse_results(
     print_config_id:       int,
     fiber_id:              int,
@@ -943,33 +1044,35 @@ def save_thermal_inverse_results(
         p1, p2, l2, t — parametric model coefficients
 
     `temperatures` and `K_pred` (shape n×3, columns K11/K22/K33) are stored
-    as compact JSON lists inside outputs_json rather than as individual rows
-    in composite_property_values.
+    in thermal_k_predictions (one row per save, cross-referenced by
+    print_config_id and inference_run_id).
 
     Stores:
-      - one inference_run (stage='thermal_inverse')
-      - one constituent_property_value per inferred property
+      - one inference_run   (stage='thermal_inverse')
+      - one thermal_k_predictions row (when temperatures + K_pred provided)
+      - one constituent_property_value per inferred scalar property
 
     Returns the inference_run id.
     """
-    outputs = dict(parametric_outputs)
-    if temperatures is not None and K_pred is not None:
-        import numpy as _np
-        T = _np.asarray(temperatures).tolist()
-        K = _np.asarray(K_pred).tolist()
-        outputs["_temperatures"] = T
-        outputs["_K_pred"]       = K   # list of [K11, K22, K33] per temperature
-
     run_id = save_inference_run(
         print_config_id=print_config_id,
         stage="thermal_inverse",
         inputs={},
-        outputs=outputs,
+        outputs=dict(parametric_outputs),   # scalar outputs only — no curve blobs
         solver_cfg=solver_cfg,
         loss=loss,
         microstructure_snap_id=microstructure_snap_id,
         notes=notes,
     )
+
+    # K vs T prediction curve — one row in thermal_k_predictions
+    if temperatures is not None and K_pred is not None:
+        save_thermal_k_predictions(
+            print_config_id=print_config_id,
+            inference_run_id=run_id,
+            temperatures=temperatures,
+            K_pred=K_pred,
+        )
 
     # Fiber conductivities — derived from parametric model, global
     # l2 = fiber longitudinal conductivity (k_f1)
@@ -1017,13 +1120,24 @@ def save_thermal_inverse_results(
                 notes=notes,
             )
 
-    # Matrix conductivity at reference temperature — global
-    if "k_m" in parametric_outputs:
+    # Matrix conductivity at room temperature — global.
+    # If k_m was not explicitly provided, compute from p1/p2 parametric model:
+    #   K_m(T) = p1 * sqrt(T / T_ref) + p2,  T_ref = 1.0 °C (Thomas et al. 2024)
+    # Evaluated at T = 25 °C (room temperature).
+    p1 = parametric_outputs.get("p1")
+    p2 = parametric_outputs.get("p2")
+    k_m = parametric_outputs.get("k_m")
+    if k_m is None and p1 is not None and p2 is not None:
+        import math as _math
+        T_room_degC = 25.0
+        T_ref       = 1.0
+        k_m = p1 * _math.sqrt(T_room_degC / T_ref) + p2
+    if k_m is not None:
         save_constituent_property(
             constituent_type="polymer",
             constituent_id=polymer_id,
             property_name="k_m",
-            value=parametric_outputs["k_m"],
+            value=k_m,
             source_tag="inferred",
             unit="W/m·K",
             print_config_id=None,

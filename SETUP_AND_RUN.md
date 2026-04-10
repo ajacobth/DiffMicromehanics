@@ -1,17 +1,20 @@
 # Setup and Run Guide
-## Composite Micromechanics Surrogate – Forward & Inverse GUIs
+## Composite Micromechanics Surrogate – Forward, Inverse, and Transfer GUIs
 
 This guide is written for someone who is new to Python and just wants to run
 the graphical tools:
 
 - **Forward GUI** (`gui.py`) – predict composite material properties from
   microstructure inputs (elastic, thermoelastic, and thermal conductivity).
-- **Inverse GUI** (`gui_inverse.py`) – find the microstructure that achieves
-  a set of target material properties (elastic / thermoelastic).
+- **Inverse GUI** (`gui_inverse.py`) – find the microstructure and constituent
+  properties that match measured composite properties (elastic / thermoelastic).
 - **Thermal Inverse GUI** (`gui_thermal_inverse.py`) – recover constituent
   thermal conductivity parameters from measured composite conductivities at
   multiple temperatures. Can be opened from the Inverse GUI or run standalone.
-- **Thermal Inverse CLI** (`run_inverse_thermal.py`) – same estimation without
+- **Transfer GUI** (`gui_transfer.py`) – predict composite properties for a new
+  printer using constituent properties characterised on a different printer
+  (physics-informed transfer learning). Requires a completed material card.
+- **Thermal Inverse CLI** (`run_inverse_thermal.py`) – thermal inverse without
   a GUI; driven by a JSON problem file.
 
 Follow the section for your operating system.
@@ -33,7 +36,8 @@ Follow the section for your operating system.
 11. [Run the Inverse GUI](#11-run-the-inverse-gui)
 12. [Material Card System and Property Transfer](#12-material-card-system-and-property-transfer)
 13. [Run the Thermal Inverse Estimation](#13-run-the-thermal-inverse-estimation)
-14. [Common Errors and Fixes](#14-common-errors-and-fixes)
+14. [Run the Transfer GUI](#14-run-the-transfer-gui)
+15. [Common Errors and Fixes](#15-common-errors-and-fixes)
 
 ---
 
@@ -61,6 +65,7 @@ final/
 ├── gui.py                    ← forward GUI (elastic, thermoelastic, thermal)
 ├── gui_inverse.py            ← elastic / thermoelastic inverse GUI
 ├── gui_thermal_inverse.py    ← thermal conductivity inverse GUI
+├── gui_transfer.py           ← physics-informed transfer learning GUI
 ├── gui_material_card.py      ← material card viewer (standalone)
 ├── gui_card_dialogs.py       ← Save to Card / Load from Card dialogs
 ├── gui_identifiability.py    ← identifiability analysis GUI
@@ -595,12 +600,14 @@ python scripts/test_setup.py
 === 7. Load surrogate models (end-to-end test) ===
   [PASS]  Load + predict 'elastic' (16 inputs → 9 outputs)
   [PASS]  Load + predict 'thermoelastic' (19 inputs → 15 outputs)
+  [PASS]  Load + predict 'thermal' (12 inputs → 6 outputs)
 
 ============================================================
   All checks PASSED!  You are ready to run the GUIs.
 
-  Forward GUI : python gui.py
-  Inverse GUI : python gui_inverse.py
+  Forward GUI  : python gui.py
+  Inverse GUI  : python gui_inverse.py
+  Transfer GUI : python gui_transfer.py
 ============================================================
 ```
 
@@ -869,37 +876,40 @@ A card is identified by a **(fiber + polymer + printer)** triple. It stores:
 
 | Stage | What is saved |
 |---|---|
-| Stage 1 — Elastic inverse | Microstructure snapshot (a11, a22, ar, mf, …), matrix modulus + poisson |
-| Stage 2 — Thermoelastic inverse | Fiber CTE, matrix CTE |
-| Stage 3 — Thermal inverse | Constituent conductivities k_f1, k_f2, k_m |
-| Stage 4 — Forward prediction | Predicted composite properties for any printer |
+| Stage 1 — Elastic inverse | Microstructure snapshot (a11, a22, ar, mf, …), matrix modulus, Poisson's ratio |
+| Stage 2 — Thermoelastic inverse | Fiber CTE (axial + transverse), matrix CTE |
+| Stage 3 — Thermal inverse | k_f1, k_f2, k_m; full K vs T curve (K11/K22/K33 over temperature) |
+| Stage 4 — Forward / transfer prediction | Predicted composite properties for any printer |
 
 ### The four-stage workflow
 
-**Stage 1** — Run elastic inverse on `gui_inverse.py`, click **Save to Card**.
-Select fiber, polymer, printer and name the card (e.g. `CF-PESU / MFX7`).
+**Stage 1** — Run elastic inverse on `gui_inverse.py`. Fix all fiber datasheet
+properties. Set matrix modulus, all orientation components (a11, a22, a12, a13,
+a23), aspect ratio, and mass fraction to Free. Enter measured E1, E2 as targets.
+Click **Save to Card** — select fiber, polymer, printer and name the card
+(e.g. `CF-PESU / Printer-A`).
 
-**Stage 2** — Switch to Thermoelastic model. Click **Load from Card** → select
-`CF-PESU / MFX7`. The Stage 1 microstructure auto-fills as Fixed. Set
-f_CTE1, f_CTE2, matrix_CTE to Free. Solve → **Save to Card**.
+**Stage 2** — Stay in `gui_inverse.py`, switch to **Thermoelastic** model.
+Click **Load from Card** → select your Stage 1 card. The inferred microstructure
+and matrix modulus auto-fill as Fixed. Set f_CTE1, f_CTE2, matrix_CTE to Free.
+Enter measured CTE11, CTE22 as targets. Solve → **Save to Card** (same card).
 
-**Stage 3** — Click **Thermal Inverse** in `gui_inverse.py`. Load your k vs T
-CSV. Load from Card to fix the microstructure. Run → Save to Card.
+**Stage 3** — Click **Thermal Inverse** in `gui_inverse.py` (or run
+`gui_thermal_inverse.py` standalone). Load your K vs T CSV. Click
+**Load from Card** to fix the microstructure from Stage 1. Run → **Save to Card**.
 
-**Stage 4 (transfer to a new printer)** — Open `gui.py`. Select the same fiber
-and polymer. Toggle **In-situ** — all previously inferred properties auto-fill
-from the database. Enter the new printer's orientation tensor manually.
-Click **Predict** → **Save to Card** using a new card name for Printer B.
+**Stage 4 (transfer to a new printer)** — Open `gui_transfer.py`. Select the
+Stage 1–3 card as source. Either enter the new printer's microstructure manually
+or run the built-in inverse estimation against a few mechanical measurements.
+Select the model(s) to predict and click **Predict**. Click **Save to Card**.
 
 ### Why the transfer works
 
 Constituent properties (matrix modulus, fiber/matrix CTE, conductivities) are
 stored globally — not tied to a specific printer. They are intrinsic to the
 fiber-polymer pair. Only the microstructure (orientation, mass fraction) is
-printer-specific.
-
-This means you characterise once on Printer A and predict for any number of
-other printers using the same materials — no new inverse solves needed.
+printer-specific. This means you characterise once on Printer A and predict for
+any number of other printers using the same materials.
 
 ### Viewing a card
 
@@ -910,10 +920,10 @@ python gui_material_card.py
 | Tab | Content |
 |---|---|
 | Summary | Card name, fiber/polymer/printer, microstructure, row counts |
-| Constituent Properties | Datasheet vs inferred values with provenance |
+| Constituent Properties | Datasheet vs inferred values with provenance and date |
 | Microstructure | Full snapshot history with per-field provenance |
-| Composite Properties | All predicted and experimental values |
-| Inference History | Every solver run — click to expand inputs/outputs |
+| Composite Properties | All predicted and experimental values with source |
+| Inference History | Every solver run — click to expand inputs, outputs, and loss |
 
 ### Managing the material library
 
@@ -1083,7 +1093,74 @@ Three files are written to `output_dir`:
 
 ---
 
-## 14. Common Errors and Fixes
+## 14. Run the Transfer GUI
+
+The transfer GUI (`gui_transfer.py`) predicts composite properties for a new
+printer using constituent properties already characterised on a different
+printer. It requires at least one completed material card (Stage 1 elastic
+inverse done). Stages 2 and 3 are needed for thermoelastic and thermal
+transfer predictions respectively.
+
+### Launch it
+
+```bash
+python gui_transfer.py
+```
+
+---
+
+### Step-by-step usage
+
+#### 1. Select a source card
+
+Choose the card from the source printer. The panel resolves and displays all
+available constituent properties with their provenance (inferred, datasheet,
+or derived). Properties not yet characterised fall back to datasheet values.
+
+#### 2. Determine the new printer's microstructure
+
+**Option A — Manual entry**
+
+Select **Manual** and enter the orientation tensor components (a11, a22, a12,
+a13, a23), aspect ratio, and mass fraction directly. Use this when the
+microstructure is known from μCT, EBSD, or manufacturer specification.
+
+**Option B — Inverse estimation**
+
+Select **Infer from measurements**. Configure each microstructure field as
+Fixed (known) or Free (to be estimated). Enter measured composite properties
+(E1, E2, G12, etc.) as targets. The solver uses the source card's constituent
+properties as fixed and recovers only the microstructure. This uses the same
+solver options as the main inverse GUI — choose from lbfgs, lbfgsb, adam,
+differential_evolution, dual_annealing, or basinhopping.
+
+After the solve, click **Continue Transfer** — the estimated microstructure
+values (both free and fixed) transfer to the manual panel for prediction.
+
+#### 3. Select a model and predict
+
+Choose **Elastic**, **Thermoelastic**, or **Thermal** and click **Predict**.
+
+- **Elastic** — predicts E1–ν23 for the new printer.
+- **Thermoelastic** — runs the elastic surrogate for mechanical properties and
+  the thermoelastic surrogate for CTE outputs. Only CTE values come from the
+  thermoelastic model; elastic properties use the elastic model result.
+- **Thermal** — sweeps 0–200 °C using the source card's p1 and p2 to compute
+  K_m(T) at each temperature. Displays K11, K22, K33 at 0, 25, 100, and 200 °C
+  as a summary table.
+
+#### 4. Save to Card
+
+Click **Save to Card** to save the prediction to a card for the new printer.
+The dialog lets you add to an existing card or create a new one.
+
+For thermal predictions, the full K vs T curve (all temperature points) is
+written to the `thermal_k_predictions` table — the same format as when saving
+from the thermal inverse GUI.
+
+---
+
+## 15. Common Errors and Fixes
 
 ### "ModuleNotFoundError: No module named 'jax'"
 

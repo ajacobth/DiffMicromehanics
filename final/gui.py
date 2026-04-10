@@ -543,19 +543,21 @@ class SurrogateGUI:
 
         # ── fiber fields ──────────────────────────────────────────────────────
         if self._fiber_id is not None:
+            # Always start from neat (datasheet) values so density, moduli etc.
+            # are always present; then overlay inferred values on top.
+            inputs.update(_db.fiber_model_inputs(self._fiber_id))
             if use_insitu:
-                inputs.update(self._insitu_fiber_inputs() or
-                              _db.fiber_model_inputs(self._fiber_id))
-            else:
-                inputs.update(_db.fiber_model_inputs(self._fiber_id))
+                insitu_f = self._insitu_fiber_inputs()
+                if insitu_f:
+                    inputs.update(insitu_f)
 
         # ── polymer fields ────────────────────────────────────────────────────
         if self._polymer_id is not None:
+            inputs.update(_db.polymer_model_inputs(self._polymer_id))
             if use_insitu:
-                inputs.update(self._insitu_polymer_inputs() or
-                              _db.polymer_model_inputs(self._polymer_id))
-            else:
-                inputs.update(_db.polymer_model_inputs(self._polymer_id))
+                insitu_p = self._insitu_polymer_inputs()
+                if insitu_p:
+                    inputs.update(insitu_p)
 
         # ── write into matching entry widgets (convert model units → display) ──
         for field, value in inputs.items():

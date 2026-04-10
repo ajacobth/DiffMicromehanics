@@ -53,6 +53,13 @@ _DB_TO_MODEL: dict[str, list[str]] = {
     "a13": ["a13"], "a23": ["a23"],
 }
 
+# Thermoelastic model outputs both mechanical and CTE fields.
+# Only save CTE outputs to composite_property_values; mechanical props
+# (E, G, nu) are owned by the elastic model.
+_TE_CTE_OUTPUTS = frozenset({
+    "CTE11", "CTE22", "CTE33", "CTE12", "CTE13", "CTE23",
+})
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SaveToCardDialog
@@ -531,8 +538,10 @@ class SaveToCardDialog:
             lines.append(
                 f"  • {len(poly)} polymer constituent_property_values  [{', '.join(poly)}]"
             )
+        n_composite = (len([k for k in outputs if k in _TE_CTE_OUTPUTS])
+                       if model == "thermoelastic" else len(outputs))
         lines.append(
-            f"  • {len(outputs)} composite_property_values  [predicted]"
+            f"  • {n_composite} composite_property_values  [predicted]"
         )
         if self._save_exp_var.get() and targets:
             lines.append(
@@ -613,24 +622,32 @@ class SaveToCardDialog:
             if micro_vals:
                 _SNAP_FIELDS = ("mf", "ar", "a11", "a22", "a12", "a13", "a23")
                 latest = _db.get_latest_microstructure(cfg_id)
-                changed = latest is None or any(
-                    micro_vals.get(f) != latest.get(f) for f in _SNAP_FIELDS
-                )
-                if changed:
-                    snap_id = _db.save_microstructure_snapshot(
-                        print_config_id=cfg_id,
-                        mf=micro_vals.get("mf"),
-                        ar=micro_vals.get("ar"),
-                        a11=micro_vals.get("a11"),
-                        a22=micro_vals.get("a22"),
-                        a12=micro_vals.get("a12"),
-                        a13=micro_vals.get("a13"),
-                        a23=micro_vals.get("a23"),
-                        provenance=micro_prov,
-                        notes=notes,
+                has_inferred_micro = any(v == "inferred" for v in micro_prov.values())
+
+                if has_inferred_micro:
+                    changed = latest is None or any(
+                        micro_vals.get(f) != latest.get(f) for f in _SNAP_FIELDS
                     )
+                    if changed:
+                        snap_id = _db.save_microstructure_snapshot(
+                            print_config_id=cfg_id,
+                            mf=micro_vals.get("mf"),
+                            ar=micro_vals.get("ar"),
+                            a11=micro_vals.get("a11"),
+                            a22=micro_vals.get("a22"),
+                            a12=micro_vals.get("a12"),
+                            a13=micro_vals.get("a13"),
+                            a23=micro_vals.get("a23"),
+                            provenance=micro_prov,
+                            notes=notes,
+                        )
+                    else:
+                        snap_id = latest["id"]
                 else:
-                    snap_id = latest["id"]
+                    # All micro fields came from fixed_inputs (loaded from a prior run) —
+                    # reuse the existing snapshot rather than writing a duplicate with
+                    # "inputted" provenance
+                    snap_id = latest["id"] if latest else None
 
             # 3. Save inference run ────────────────────────────────────────────
             run_id = _db.save_inference_run(
@@ -726,8 +743,16 @@ class SaveToCardDialog:
                         notes=notes,
                     )
 
-            # 5. Composite properties (all predicted outputs) ─────────────────
-            for prop, value in outputs.items():
+            # 5. Composite properties ─────────────────────────────────────────
+            # For thermoelastic: only save CTE outputs. Mechanical props (E, G, nu)
+            # are owned by the elastic model and must not be overwritten here.
+            if model_nm == "thermoelastic":
+                composite_outputs = {k: v for k, v in outputs.items()
+                                     if k in _TE_CTE_OUTPUTS}
+            else:
+                composite_outputs = outputs
+
+            for prop, value in composite_outputs.items():
                 _db.save_composite_property(
                     print_config_id=cfg_id,
                     property_name=prop,
@@ -980,17 +1005,21 @@ class LoadFromCardDialog:
         _FIBER_NEAT_MAP = {
             "e1": "neat_E1", "e2": "neat_E2", "g12": "neat_G12",
             "f_nu12": "neat_nu12", "f_nu23": "neat_nu23",
-            "fiber_density": "neat_rho",
+            "fiber_density": "neat_rho", "rho_f": "neat_rho",   # thermal model uses rho_f
             "k_f1": "neat_k1", "k_f2": "neat_k2",
             "f_CTE1": "neat_CTE1", "f_CTE2": "neat_CTE2",
             "f_cte1": "neat_CTE1", "f_cte2": "neat_CTE2",  # thermoelastic model names
         }
         _POLY_NEAT_MAP = {
             "matrix_modulus": "neat_E1", "matrix_poisson": "neat_nu12",
-            "matrix_density": "neat_rho", "k_m": "neat_k",
+            "matrix_density": "neat_rho", "rho_m": "neat_rho",  # thermal model uses rho_m
+            "k_m": "neat_k",
             "matrix_CTE": "neat_CTE",
             "m_cte": "neat_CTE",  # thermoelastic model name
         }
+        # Track which fields are thermal conductivity values so we can tag
+        # them as room-temperature in their provenance label.
+        _THERMAL_K_FIELDS = {"k_f1", "k_f2", "k_m"}
         try:
             fiber_rec = _db.get_fiber(fid)
             poly_rec  = _db.get_polymer(pid)
@@ -1010,6 +1039,13 @@ class LoadFromCardDialog:
                             loaded_provenance[mf] = {"source_tag": "neat", "date": "—"}
         except Exception:
             pass  # neat fallback is best-effort
+
+        # Annotate thermal conductivity provenance to indicate room-temperature value.
+        # k_m is derived from a temperature-dependent model (p1, p2); the stored
+        # value is at the reference temperature (~25 °C).
+        for k_field in _THERMAL_K_FIELDS:
+            if k_field in loaded_provenance:
+                loaded_provenance[k_field]["date"] = "at 25 °C"
 
         if not loaded:
             messagebox.showwarning("Nothing to load",
@@ -1254,38 +1290,14 @@ class SaveThermalToCardDialog:
             else:
                 cfg_id = int(card_val)
 
-            # microstructure snapshot from fixed inputs — only insert if changed
-            fi = self._fixed_inputs
-            micro_prov = {k: "inputted" for k in ("mf", "ar", "a11", "a22",
-                                                    "a12", "a13", "a23")}
-            _thermal_micro = {
-                "mf": fi.get("w_f"), "ar": fi.get("ar_f"),
-                "a11": fi.get("a11"), "a22": fi.get("a22"),
-                "a12": fi.get("a12"), "a13": fi.get("a13"), "a23": fi.get("a23"),
-            }
-            _SNAP_FIELDS = ("mf", "ar", "a11", "a22", "a12", "a13", "a23")
+            # Thermal inverse never re-infers microstructure — always reuse the
+            # latest existing snapshot rather than writing a duplicate with
+            # "inputted" provenance.
             _t_latest = _db.get_latest_microstructure(cfg_id)
-            _t_changed = _t_latest is None or any(
-                _thermal_micro.get(f) != _t_latest.get(f) for f in _SNAP_FIELDS
-            )
-            if _t_changed:
-                snap_id = _db.save_microstructure_snapshot(
-                    print_config_id=cfg_id,
-                    mf=_thermal_micro["mf"],
-                    ar=_thermal_micro["ar"],
-                    a11=_thermal_micro["a11"],
-                    a22=_thermal_micro["a22"],
-                    a12=_thermal_micro["a12"],
-                    a13=_thermal_micro["a13"],
-                    a23=_thermal_micro["a23"],
-                    provenance=micro_prov,
-                )
-            else:
-                snap_id = _t_latest["id"]
+            snap_id = _t_latest["id"] if _t_latest else None
 
             # thermal inverse results — inference run + constituent properties
-            # K vs T predictions are stored as JSON inside outputs_json of the
-            # inference_run row rather than as n_temps×3 composite_property_values rows.
+            # K vs T predictions are stored in thermal_k_predictions (one row per save).
             _db.save_thermal_inverse_results(
                 print_config_id=cfg_id,
                 fiber_id=fid,

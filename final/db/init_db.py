@@ -9,10 +9,10 @@ No external dependencies — uses only Python stdlib (sqlite3, json, pathlib).
 Tables
 ------
 Reference (3):   fibers, polymers, printers
-Material card (8): print_configs, microstructure_snapshots, inference_runs,
+Material card (9): print_configs, microstructure_snapshots, inference_runs,
                    constituent_property_values, composite_property_values,
                    experimental_measurements, property_preferences,
-                   current_composite_properties
+                   current_composite_properties, thermal_k_predictions
 """
 
 import json
@@ -187,6 +187,17 @@ CREATE TABLE IF NOT EXISTS current_composite_properties (
     updated_at       TEXT,
     PRIMARY KEY (print_config_id, property_name)
 );
+
+CREATE TABLE IF NOT EXISTS thermal_k_predictions (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    print_config_id  INTEGER NOT NULL REFERENCES print_configs(id),
+    inference_run_id INTEGER REFERENCES inference_runs(id),
+    temperatures_json TEXT NOT NULL,   -- JSON list of floats [T0, T1, ...]  (°C)
+    K11_json         TEXT NOT NULL,    -- JSON list of floats  (W/m·K)
+    K22_json         TEXT NOT NULL,
+    K33_json         TEXT NOT NULL,
+    created_at       TEXT
+);
 """
 
 
@@ -284,6 +295,7 @@ def init(reset: bool = False):
     if reset:
         # drop in reverse dependency order
         for tbl in (
+            "thermal_k_predictions",
             "current_composite_properties",
             "property_preferences",
             "composite_property_values",

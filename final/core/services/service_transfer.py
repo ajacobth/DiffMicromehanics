@@ -171,7 +171,95 @@ def build_forward_inputs(
         elif b in inputs and a not in inputs:
             inputs[a] = inputs[b]
 
+    # k_m fallback: if not available from datasheet or inferred, derive from
+    # p1/p2 parametric model at room temperature.  This handles cards saved
+    # before k_m was stored as a separate constituent property.
+    if "k_m" not in inputs and "p1" in inputs and "p2" in inputs:
+        import math as _math
+        inputs["k_m"] = (
+            inputs["p1"] * _math.sqrt(max(_T_DISPLAY, 0.0) / _T_REF)
+            + inputs["p2"]
+        )
+
     return inputs
+
+
+def run_thermal_sweep(
+    card_id:        int,
+    microstructure: dict[str, float],
+    temperatures:   list[float] | None = None,
+) -> dict:
+    """Run the thermal surrogate over a temperature range using p1/p2 for k_m(T).
+
+    k_m varies with temperature:  K_m(T) = p1 * sqrt(T / T_ref) + p2
+    k_f1 and k_f2 are temperature-independent (stored as l2 and l2/t).
+
+    Parameters
+    ----------
+    card_id        : source material card id
+    microstructure : orientation + morphology dict
+    temperatures   : list of temperatures in °C  (default: 0–200, 50 steps)
+
+    Returns
+    -------
+    dict with keys:
+        "temperatures"  – list[float] (°C)
+        "K11"           – list[float] (W/m·K)
+        "K22"           – list[float] (W/m·K)
+        "K33"           – list[float] (W/m·K)
+        "p1", "p2"      – parametric coefficients used
+        "k_f1", "k_f2"  – fiber conductivities used
+    """
+    import math as _math
+    import numpy as _np
+    from core.services.service_forward import get_model
+
+    if temperatures is None:
+        temperatures = list(_np.linspace(0.0, 200.0, 50))
+
+    base = build_forward_inputs(card_id, microstructure)
+
+    # Resolve p1, p2 for the temperature sweep.  Prefer inferred > inputted > neat.
+    card  = _db.get_print_config_card(card_id)
+    prows = card["constituent_properties"]["polymer"]
+    p1_v  = _best_value(prows, ["p1"])
+    p2_v  = _best_value(prows, ["p2"])
+
+    if p1_v is None or p2_v is None:
+        # No parametric coefficients — fall back to a constant k_m (single-T behaviour)
+        if "k_m" not in base:
+            raise KeyError(
+                "Thermal sweep requires p1/p2 parametric coefficients or a stored k_m value. "
+                "Run the thermal inverse and save to card first."
+            )
+        p1, p2 = 0.0, base["k_m"]   # flat k_m(T) = k_m  (p1=0 means no T-dependence)
+    else:
+        p1, p2 = p1_v["value"], p2_v["value"]
+
+    model = get_model("thermal")
+    K11_list, K22_list, K33_list = [], [], []
+
+    for T in temperatures:
+        km = p1 * _math.sqrt(max(T, 0.0) / _T_REF) + p2
+        inp = {**base, "k_m": km}
+        missing = [k for k in model.input_fields if k not in inp]
+        if missing:
+            raise KeyError(f"Thermal sweep: missing inputs at T={T}°C: {missing}")
+        out = model.predict({k: inp[k] for k in model.input_fields})
+        K11_list.append(out["k11"])
+        K22_list.append(out["k22"])
+        K33_list.append(out["k33"])
+
+    return {
+        "temperatures": list(temperatures),
+        "K11":  K11_list,
+        "K22":  K22_list,
+        "K33":  K33_list,
+        "p1":   p1,
+        "p2":   p2,
+        "k_f1": base.get("k_f1"),
+        "k_f2": base.get("k_f2"),
+    }
 
 
 def prepare_transfer_inverse(
