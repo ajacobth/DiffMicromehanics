@@ -1188,19 +1188,71 @@ of that stays in the model via the system prompt.
 ### Visual diagram
 
 ```
-[START / user_message]
-         |
-    [agent_node]  <─────────────────────────────┐
-         |                                       |
-   tool call?                                    |
-   /         \                                   |
-  yes         no                                 |
-   |           |                                 |
-[tools]      [END]                               |
-   |                                             |
-[stage_updater]  ── updates completed_stages ────┘
-                    and locked_inputs if a
-                    stage-completing solver ran
+┌──────────────────────────────────────────────────────────────────────┐
+│                            AgentState                                 │
+│   messages | current_card_id | completed_stages | locked_inputs       │
+└──────────────────────────────────────────────────────────────────────┘
+                              │ injected into system prompt each turn
+                              │
+              ┌───────────────▼───────────────┐
+              │           agent_node           │◄──────────────────┐
+              │       (LLM — all logic)        │                   │
+              │                                │                   │
+              │  • reads state context         │                   │
+              │  • maps language → tool call   │                   │
+              │  • decides when NOT to call    │                   │
+              │  • explains results to user    │                   │
+              └───────────────┬───────────────┘                   │
+                              │                                    │
+              ┌───────────────┴───────────────┐                   │
+         tool_calls?                     no tool_calls             │
+              │                               │                    │
+              ▼                             [END]                  │
+┌─────────────────────────┐                                        │
+│      tool_executor      │                                        │
+│   (ToolNode — no logic) │                                        │
+│                         │                                        │
+│  run_forward            │                                        │
+│  run_elastic_inverse    │                                        │
+│  run_thermoelastic_inv  │                                        │
+│  run_thermal_inverse    │                                        │
+│  run_transfer           │                                        │
+│  load_material_card     │                                        │
+│  save_to_card           │                                        │
+│  list_materials         │                                        │
+│  list_cards             │                                        │
+│  get_card_status        │                                        │
+│  get_model_inputs       │                                        │
+│  get_model_outputs      │                                        │
+└─────────────┬───────────┘                                        │
+              │                                                    │
+              ▼                                                    │
+┌─────────────────────────────────────────────┐                   │
+│               stage_updater                 │                   │
+│           (pure Python — no LLM)            │                   │
+│                                             │                   │
+│  elastic_inverse succeeded?                 │                   │
+│    → completed_stages += ["elastic"]        │                   │
+│    → locked_inputs ← a11, a22, a12, a13,   │                   │
+│                       a23, fiber_massfrac,  │                   │
+│                       ar, matrix_E,         │                   │
+│                       matrix_nu             │                   │
+│                                             │                   │
+│  thermoelastic_inverse succeeded?           │                   │
+│    → completed_stages += ["thermoelastic"]  │                   │
+│    → locked_inputs ← f_cte1, f_cte2, m_cte │                   │
+│                                             │                   │
+│  thermal_inverse succeeded?                 │                   │
+│    → completed_stages += ["thermal"]        │                   │
+│    → locked_inputs ← k_p1, k_p2, k_l2, k_t │                   │
+│                                             │                   │
+│  load_material_card succeeded?              │                   │
+│    → current_card_id ← card_id             │                   │
+│                                             │                   │
+│  anything else → state unchanged           │                   │
+└─────────────────────────────────────────────┘                   │
+              │                                                    │
+              └────────────────────────────────────────────────────┘
 ```
 
 ---
