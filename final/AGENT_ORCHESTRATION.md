@@ -741,7 +741,8 @@ LangChain provides:
 LangGraph (built on top of LangChain) is used specifically for:
 - Persistent `AgentState` across conversation turns (completed stages, locked
   inputs, current card)
-- SQLite checkpointing so users can leave and return to a conversation
+- In-memory `MemorySaver` checkpointing within a session. On resume, state is
+  reconstructed from existing DB tables — no checkpoint blobs written to disk
 - The `stage_updater` node that updates state after solver tools complete
 
 LangGraph is deliberately used only for these two jobs. All reasoning and
@@ -1175,7 +1176,7 @@ graph.add_conditional_edges(
 graph.add_edge("tools",         "stage_updater")
 graph.add_edge("stage_updater", "agent")
 
-checkpointer = SqliteSaver.from_conn_string("data/micromechanics.db")
+checkpointer = MemorySaver()   # in-memory only — state is restored from DB on resume
 app = graph.compile(checkpointer=checkpointer)
 ```
 
@@ -1273,114 +1274,99 @@ decision tree.
 
 ## 13. Session Persistence and Memory Restoration
 
-### How checkpointing works
+### Why not SqliteSaver
 
-LangGraph's `SqliteSaver` writes the full `AgentState` to SQLite at every node
-transition automatically. No manual save calls are needed. Two tables are added
-to `data/micromechanics.db`:
+LangGraph's `SqliteSaver` checkpointer writes the full `AgentState` at every
+node transition — including the entire `messages` list each time. Because
+`messages` grows with every turn, storage grows quadratically: a 50-turn
+conversation produces 150 checkpoint rows, each re-serializing the full
+growing history. For a desktop app with a single SQLite file, this is wasteful
+and unnecessary.
 
-```
-checkpoints       — one row per node transition (thread_id, serialized state)
-checkpoint_writes — intermediate writes within a node
-```
+More importantly, the chat transcript is not what needs to survive between
+sessions. What matters is the **structured state**: which stages are complete
+and what values were locked in. That information already lives in the existing
+DB tables.
 
-These tables are created by LangGraph on first run. No migration is needed.
+### What to persist and where it already lives
 
-### Thread IDs — the session identity key
-
-Every conversation is identified by a `thread_id`. When a user returns, the
-same `thread_id` restores the exact state from the last turn. The design
-decision is what the `thread_id` represents.
-
-**The right choice for this domain: one thread per material card.**
-
-```python
-config = {"configurable": {"thread_id": f"card_{card_id}"}}
-```
-
-Users think in terms of their material cards, not abstract sessions. "I want to
-continue working on my Carbon/PESU setup" maps naturally to a card lookup.
-The conversation for that card accumulates over multiple sessions. When a user
-creates a new card, a new thread starts. When they return to an existing card,
-the thread resumes.
-
-**Resuming a conversation:**
-
-```python
-# First session — start the thread
-config = {"configurable": {"thread_id": f"card_{card_id}"}}
-app.invoke({"messages": [HumanMessage("run elastic inverse for my E-Glass setup")]}, config)
-# User leaves. State is in SQLite: completed_stages=["elastic"], locked_inputs={...}
-
-# Later session — same thread_id restores full state
-app.invoke({"messages": [HumanMessage("ok I have the CTE data now")]}, config)
-# Model sees completed_stages=["elastic"] in its context and continues naturally
-```
-
-### What gets restored
-
-| State field | How it survives |
+| State field | Where it already lives in `micromechanics.db` |
 |---|---|
-| `completed_stages` | Exact list restored from checkpoint. Never re-derived. |
-| `locked_inputs` | Exact dict restored. Model does not need to re-ask for Stage 1 results. |
-| `current_card_id` | Restored. All tool calls that need card_id have it immediately. |
-| `messages` | Full conversation history restored. May need trimming for long threads (see below). |
+| `completed_stages` | `inference_runs` — one row per solver run, tagged by stage |
+| Microstructure + matrix props | `microstructure_snapshots` + `constituent_property_values` |
+| CTE values | `constituent_property_values` (f_cte1, f_cte2, m_cte) |
+| Thermal k params | `constituent_property_values` (k_p1, k_p2, k_l2, k_t) |
+| `current_card_id` | `print_configs` — identified by card name |
+| `messages` | Not persisted — not needed (see below) |
 
-### Handling long conversation histories
+No new tables. No checkpoint blobs. The DB stays clean.
 
-The `messages` list grows with every turn. For a 32B model with a finite
-context window, a thread that spans many sessions could overflow. Handle this
-in `agent_node` before constructing the prompt:
+### The approach: MemorySaver during session, restore from DB on resume
+
+**During a session** use `MemorySaver` — LangGraph's in-memory checkpointer.
+Full LangGraph state management within the session, nothing written to disk.
+
+**On resume** reconstruct `AgentState` from the existing DB tables and start a
+fresh LangGraph session. The model does not need the raw chat transcript — it
+gets all the context it needs from `completed_stages` and `locked_inputs`
+injected into its system prompt on the first turn.
 
 ```python
-def agent_node(state: AgentState):
-    messages = state["messages"]
+def restore_state_from_card(card_id: int) -> AgentState:
+    stages  = get_completed_stages(card_id)   # reads inference_runs
+    locked  = get_locked_inputs(card_id)      # reads constituent_property_values
+                                              # + microstructure_snapshots
+    return AgentState(
+        messages         = [],       # fresh — transcript not needed
+        current_card_id  = card_id,
+        completed_stages = stages,
+        locked_inputs    = locked,
+    )
 
-    # If the thread is long, summarize old turns to save context
-    if len(messages) > 20:
-        old_messages = messages[:-6]
-        recent_messages = messages[-6:]
-        summary_text = summarize_conversation(old_messages)  # one LLM call
-        messages = [SystemMessage(f"Earlier in this conversation: {summary_text}")]
-                    + recent_messages
-
-    context = f"""
-Current material card: {state['current_card_id'] or 'none loaded'}
-Completed stages: {state['completed_stages'] or 'none'}
-Locked inputs from prior stages: {state['locked_inputs'] or 'none'}
-"""
-    full_messages = [SystemMessage(SYSTEM_PROMPT + context)] + messages
-    response = llm_with_tools.invoke(full_messages)
-    return {"messages": [response]}
+# On resume
+state  = restore_state_from_card(card_id)
+memory = MemorySaver()
+app    = graph.compile(checkpointer=memory)
+app.invoke({"messages": [HumanMessage("ok I have the CTE data now")]},
+           {"configurable": {"thread_id": f"card_{card_id}"}})
 ```
 
-The structured state (`completed_stages`, `locked_inputs`) is always exact and
-compact. Only the freeform `messages` list needs trimming. This is a key
-advantage over storing everything in chat history: workflow-critical state is
-typed and reliable, not buried in prose that a model might misread after many
-turns.
+The model's first response continues naturally because its system prompt
+already contains:
 
-### Finding the card_id to resume a thread
+```
+Completed stages: ["elastic"]
+Locked inputs: {a11: 0.72, a22: 0.14, ..., matrix_E: 3210}
+```
 
-When a user returns and says "continue with my Carbon/PESU card", the agent
-needs to resolve this to a `card_id` before constructing the `thread_id`. The
-flow:
+It has everything it needs without the transcript.
+
+### Why discarding the transcript is fine
+
+The transcript records what was *said*. The structured state records what was
+*learned*. For this domain, only the latter matters between sessions:
+
+- The user does not need to re-explain their material system
+- The model does not need to re-ask for Stage 1 results
+- Any measurements the user provided are already saved in `experimental_measurements`
+
+If the user wants to review what was previously discussed, `get_card_status()`
+gives them a complete summary derived from the DB — more reliable than
+reconstructed chat history.
+
+### Finding the card on resume
 
 ```python
-# At conversation start — before starting the LangGraph loop
+# At session start — resolve card before entering the graph
 user_input = "continue my Carbon T300 / PESU work"
-
-# If the user's message identifies a card, resolve it first
-card_id = resolve_card_from_message(user_input)  # calls list_cards() service
+card_id    = resolve_card_from_message(user_input)  # simple name lookup, not an LLM call
 
 if card_id is not None:
-    config = {"configurable": {"thread_id": f"card_{card_id}"}}
-    # LangGraph will restore the existing thread automatically
+    state = restore_state_from_card(card_id)   # reconstruct from DB
 else:
-    config = {"configurable": {"thread_id": f"card_new_{uuid4()}"}}
-    # New thread, fresh state
-```
+    state = AgentState(messages=[], current_card_id=None,
+                       completed_stages=[], locked_inputs={})
 
-`resolve_card_from_message` is a simple lookup — not an LLM call. It checks
-if any known card name appears in the user's message. The LangGraph thread
-takes care of the rest.
+app.invoke({"messages": [HumanMessage(user_input)]},
+           {"configurable": {"thread_id": f"card_{card_id or 'new'}"}})
+```
