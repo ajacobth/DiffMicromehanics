@@ -652,6 +652,14 @@ Practical rules for how the model should conduct conversations:
 - If a solve fails or returns a poor fit, suggest possible causes: measurement
   error, wrong material assignment, or the problem being genuinely
   underdetermined.
+- After reporting a successful solve result, ask the user if they want to save
+  it to the card before proceeding. Results that are not saved are lost if the
+  session ends. Do not save automatically — always ask first.
+- If the user explicitly says to save (e.g. "save it", "yes save", "save and
+  continue"), call `save_to_card` immediately without asking for confirmation
+  again and move on.
+- Make clear to the user that unsaved results will be lost if they close the
+  session — this is the same contract as the GUI.
 
 ---
 
@@ -1039,17 +1047,20 @@ from typing import Annotated
 from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict):
-    messages:          Annotated[list[BaseMessage], add_messages]
-    current_card_id:   int | None        # which card we are working on
-    completed_stages:  list[str]         # e.g. ["elastic", "thermoelastic"]
-    locked_inputs:     dict[str, float]  # inherited from prior stages
-    pending_task:      str | None        # last identified task, for context
-    last_result:       dict | None       # most recent solver output
+    messages:         Annotated[list[BaseMessage], add_messages]
+    current_card_id:  int | None   # which card we are working on
+    completed_stages: list[str]    # e.g. ["elastic", "thermoelastic"]
 ```
 
-`completed_stages` and `locked_inputs` are the load-bearing fields. They are
-injected into the model's system prompt on every turn so the model always knows
-what has been done and what is already constrained.
+`locked_inputs` is not stored in state. The service layer reads prior stage
+results directly from the DB via `card_id` when a solver tool is called — the
+same way the GUI loads a card before running the next stage. This requires the
+user to save after each stage before proceeding. The model enforces this
+conversationally.
+
+`completed_stages` is the load-bearing field. It is injected into the model's
+system prompt on every turn so the model knows what has been done and what
+stage to suggest next — without making a DB call each turn.
 
 ---
 
@@ -1065,7 +1076,6 @@ def agent_node(state: AgentState):
     context = f"""
 Current material card: {state['current_card_id'] or 'none loaded'}
 Completed stages: {state['completed_stages'] or 'none'}
-Locked inputs from prior stages: {state['locked_inputs'] or 'none'}
 """
     messages = [SystemMessage(SYSTEM_PROMPT + context)] + state["messages"]
     response = llm_with_tools.invoke(messages)
@@ -1103,46 +1113,29 @@ def stage_updater(state: AgentState):
     last_msg = state["messages"][-1]   # ToolMessage from tool_executor
     result   = json.loads(last_msg.content)
 
+    # Stage completions — replace, not append, to handle re-runs cleanly
+    DOWNSTREAM = {
+        "elastic":       ["thermoelastic", "thermal"],
+        "thermoelastic": ["thermal"],
+        "thermal":       [],
+    }
+
     if last_msg.name == "run_elastic_inverse" and result.get("success"):
+        stages = [s for s in state["completed_stages"]
+                  if s not in DOWNSTREAM["elastic"] and s != "elastic"]
         return {
-            "completed_stages": state["completed_stages"] + ["elastic"],
-            "locked_inputs": {
-                **state["locked_inputs"],
-                "a11":            result["a11"],
-                "a22":            result["a22"],
-                "a12":            result["a12"],
-                "a13":            result["a13"],
-                "a23":            result["a23"],
-                "fiber_massfrac": result["fiber_massfrac"],
-                "ar":             result["ar"],
-                "matrix_E":       result["matrix_E"],
-                "matrix_nu":      result["matrix_nu"],
-            },
-            "current_card_id": result["card_id"],
+            "completed_stages": stages + ["elastic"],
+            "current_card_id":  result["card_id"],
         }
 
     if last_msg.name == "run_thermoelastic_inverse" and result.get("success"):
-        return {
-            "completed_stages": state["completed_stages"] + ["thermoelastic"],
-            "locked_inputs": {
-                **state["locked_inputs"],
-                "f_cte1": result["f_cte1"],
-                "f_cte2": result["f_cte2"],
-                "m_cte":  result["m_cte"],
-            },
-        }
+        stages = [s for s in state["completed_stages"]
+                  if s not in DOWNSTREAM["thermoelastic"] and s != "thermoelastic"]
+        return {"completed_stages": stages + ["thermoelastic"]}
 
     if last_msg.name == "run_thermal_inverse" and result.get("success"):
-        return {
-            "completed_stages": state["completed_stages"] + ["thermal"],
-            "locked_inputs": {
-                **state["locked_inputs"],
-                "k_p1": result["p1"],
-                "k_p2": result["p2"],
-                "k_l2": result["l2"],
-                "k_t":  result["t"],
-            },
-        }
+        stages = [s for s in state["completed_stages"] if s != "thermal"]
+        return {"completed_stages": stages + ["thermal"]}
 
     if last_msg.name == "load_material_card" and result.get("success"):
         return {"current_card_id": result["card_id"]}
@@ -1288,55 +1281,72 @@ sessions. What matters is the **structured state**: which stages are complete
 and what values were locked in. That information already lives in the existing
 DB tables.
 
+### Working state vs committed state (Unit of Work pattern)
+
+There are two distinct states per stage:
+
+| State | What it means | Where it lives |
+|---|---|---|
+| **Run but not saved** | Solver completed this session, user has not saved | `MemorySaver` only — lost on restart |
+| **Saved** | User explicitly called "Save to Card" | `constituent_property_values` + `microstructure_snapshots` in DB |
+
+`inference_runs` is an audit trail written only on explicit save — it is not
+queried for restore. On resume, only committed (saved) state is available.
+Unsaved in-session results are lost on restart, exactly as in the GUI.
+
 ### What to persist and where it already lives
 
-| State field | Where it already lives in `micromechanics.db` |
+| State field | Where it lives after "Save to Card" |
 |---|---|
-| `completed_stages` | `inference_runs` — one row per solver run, tagged by stage |
-| Microstructure + matrix props | `microstructure_snapshots` + `constituent_property_values` |
-| CTE values | `constituent_property_values` (f_cte1, f_cte2, m_cte) |
-| Thermal k params | `constituent_property_values` (k_p1, k_p2, k_l2, k_t) |
+| `completed_stages` | Inferred from presence of stage-specific properties in `constituent_property_values` |
 | `current_card_id` | `print_configs` — identified by card name |
-| `messages` | Not persisted — not needed (see below) |
+| `messages` | Not persisted — not needed |
+| Prior stage results (microstructure, matrix props, CTEs, k params) | In DB — read by service layer directly when next solver tool is called |
+
+`locked_inputs` is not in state. The service layer reads prior stage results
+from the DB via `card_id` when a solver tool is called — the same way the GUI
+loads a card before running Stage 2. The user must save after each stage before
+proceeding. The model enforces this conversationally.
 
 No new tables. No checkpoint blobs. The DB stays clean.
 
-### The approach: MemorySaver during session, restore from DB on resume
+### Restoring completed stages from the DB
 
-**During a session** use `MemorySaver` — LangGraph's in-memory checkpointer.
-Full LangGraph state management within the session, nothing written to disk.
-
-**On resume** reconstruct `AgentState` from the existing DB tables and start a
-fresh LangGraph session. The model does not need the raw chat transcript — it
-gets all the context it needs from `completed_stages` and `locked_inputs`
-injected into its system prompt on the first turn.
+`completed_stages` is inferred from which stage-specific properties exist in
+`constituent_property_values` for the card:
 
 ```python
 def restore_state_from_card(card_id: int) -> AgentState:
-    stages  = get_completed_stages(card_id)   # reads inference_runs
-    locked  = get_locked_inputs(card_id)      # reads constituent_property_values
-                                              # + microstructure_snapshots
+    props  = get_constituent_property_values(card_id)  # existing db.py helper
+    stages = []
+
+    if "matrix_E" in props:
+        stages.append("elastic")
+    if "f_cte1" in props:
+        stages.append("thermoelastic")
+    if "k_p1" in props:
+        stages.append("thermal")
+
     return AgentState(
-        messages         = [],       # fresh — transcript not needed
+        messages         = [],
         current_card_id  = card_id,
         completed_stages = stages,
-        locked_inputs    = locked,
     )
 
 # On resume
-state  = restore_state_from_card(card_id)
 memory = MemorySaver()
 app    = graph.compile(checkpointer=memory)
+state  = restore_state_from_card(card_id)
 app.invoke({"messages": [HumanMessage("ok I have the CTE data now")]},
-           {"configurable": {"thread_id": f"card_{card_id}"}})
+           config={"configurable": {"thread_id": f"card_{card_id}"}})
 ```
 
 The model's first response continues naturally because its system prompt
 already contains:
 
 ```
+Current card: 3
 Completed stages: ["elastic"]
-Locked inputs: {a11: 0.72, a22: 0.14, ..., matrix_E: 3210}
 ```
 
 It has everything it needs without the transcript.
