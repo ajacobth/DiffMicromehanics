@@ -66,6 +66,36 @@ def has_inferred_data(fiber_id: int, polymer_id: int) -> bool:
     return False
 
 
+def get_completed_stages(card_id: int, fiber_id: int, polymer_id: int) -> list[str]:
+    """Return which characterization stages are complete for a card.
+
+    Checks constituent_property_values for the sentinel inferred properties
+    that each stage writes:
+        elastic       → polymer inferred matrix_modulus
+        thermoelastic → fiber inferred f_cte1
+        thermal       → fiber inferred k_f1
+
+    Returns a list in order, e.g. ["elastic", "thermoelastic"].
+    """
+    stages = []
+
+    def _has_inferred(ctype: str, cid: int, prop: str) -> bool:
+        rows = _db.get_constituent_properties(
+            ctype, cid, property_name=prop,
+            print_config_id=card_id, include_global=True,
+        )
+        return any(r["source_tag"] == "inferred" for r in rows)
+
+    if _has_inferred("polymer", polymer_id, "matrix_modulus"):
+        stages.append("elastic")
+    if _has_inferred("fiber", fiber_id, "f_cte1"):
+        stages.append("thermoelastic")
+    if _has_inferred("fiber", fiber_id, "k_f1"):
+        stages.append("thermal")
+
+    return stages
+
+
 def add_fiber(
     name: str,
     supplier: str,

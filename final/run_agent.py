@@ -9,16 +9,13 @@ Run from final/:
 
 import argparse
 from pathlib import Path
-from typing import Annotated, Optional, TypedDict
+from typing import Optional
 
 from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage, SystemMessage, BaseMessage
-from langgraph.graph import StateGraph, END
-from langgraph.graph.message import add_messages
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import ToolNode
+from langchain_core.messages import HumanMessage
 
 from agent.state import AgentState
+from agent.graph import build_app
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 
@@ -35,37 +32,15 @@ def load_system_prompt() -> str:
 # ── LLM ───────────────────────────────────────────────────────────────────────
 
 llm = ChatOllama(
-    model="qwen2.5:7b-instruct",
+    model="qwen2.5:14b-instruct-q4_K_M",
     temperature=0,
     streaming=True,
 )
 
 # ── Graph ─────────────────────────────────────────────────────────────────────
-# agent_tools.py and graph.py are not yet built.
-# Until they are, this builds a minimal graph: LLM only, no tools.
-# When graph.py is ready, replace everything between the dashes with:
-#     from agent.graph import build_app
-#     app = build_app(llm, SYSTEM_PROMPT)
 
 SYSTEM_PROMPT = load_system_prompt()
-
-def agent_node(state: AgentState):
-    context = (
-        f"\nCurrent material card: {state.get('current_card_id') or 'none loaded'}"
-        f"\nCompleted stages: {state.get('completed_stages') or 'none'}"
-    )
-    messages = [SystemMessage(SYSTEM_PROMPT + context)] + state["messages"]
-    response = llm.invoke(messages)
-    return {"messages": [response]}
-
-graph = StateGraph(AgentState)
-graph.add_node("agent", agent_node)
-graph.set_entry_point("agent")
-graph.add_conditional_edges(
-    "agent",
-    lambda s: END,          # no tools yet — always end after agent responds
-)
-app = graph.compile(checkpointer=MemorySaver())
+app = build_app(llm, SYSTEM_PROMPT)
 
 # ── Streaming ─────────────────────────────────────────────────────────────────
 
@@ -75,6 +50,7 @@ def run_turn(user_input: str, config: dict) -> None:
         {"messages": [HumanMessage(user_input)]},
         config,
     )
+
     response = result["messages"][-1].content
     print(f"\nAgent: {response}\n")
 

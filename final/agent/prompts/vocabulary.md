@@ -5,6 +5,14 @@ All tools use the canonical names and model units listed here.
 
 ---
 
+## Equipment and Systems
+
+| Term | Definition |
+|---|---|
+| CAMRI | Composites Additive Manufacturing Research Instrument — a medium scale extrusion deposition additive manufacturing system developed at Purdue University |
+
+---
+
 ## Microstructure
 
 | User says | Canonical field | Units | Notes |

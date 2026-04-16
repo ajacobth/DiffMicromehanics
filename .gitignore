@@ -2,3 +2,5 @@ surrogate/wandb/
 
 
 surrogate/lhs_samples.csv
+
+final/agent/knowledge/*.*

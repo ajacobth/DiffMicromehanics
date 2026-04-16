@@ -6,59 +6,98 @@ type: project
 
 ## What has been built
 
-### Files created
+### Files created / in place
 - `agent/__init__.py` — empty, makes agent a package
 - `agent/state.py` — AgentState TypedDict (3 fields: messages, current_card_id, completed_stages)
-- `agent/prompts/system_prompt.md` — full physics knowledge prompt (role, 3-layer model, 4-stage workflow, identifiability rules, unit handling, conversation/save behavior)
+- `agent/prompts/system_prompt.md` — full physics prompt (role, 3-layer model, 4-stage workflow, identifiability rules, unit handling, conversation/save behavior, knowledge-base rules)
 - `agent/prompts/vocabulary.md` — field name/synonym mapping with units, conversions, typical ranges
-- `run_agent.py` — entry point in final/ alongside GUI files. Currently has an inline minimal graph (no tools). Working: LLM responds to user messages with system prompt context injected. NOT yet working: streaming (deferred), tools, session restore.
-- `test_agent_stack.py` — stack validation: tests basic reachability, tool calling, LangGraph loop
-- `requirements.txt` — project deps including langgraph, langchain-core, langchain-ollama
+- `agent/rag.py` — parent-document RAG: 300-char child chunks for retrieval, full parent pages returned to LLM. PDFs go in `agent/knowledge/`
+- `agent/graph.py` — full LangGraph 3-node graph (agent_node → tool_executor → agent_node). MemorySaver checkpointer. DEBUG prints on tool_calls and response type still present (user may want to remove later).
+- `agent/agent_tools.py` — all discovery tools (see below)
+- `agent/ingest.py` — PDF ingestion script for the knowledge base
+- `run_agent.py` — entry point. Model: `qwen2.5:14b-instruct-q4_K_M`. Conversation loop with --card CLI arg. Session restore stubs (resolve_card, restore_state) still placeholder.
+- `requirements.txt` — langgraph, langchain-core, langchain-ollama, langchain-community, etc.
+- `core/services/service_material.py` — added `get_completed_stages(card_id, fiber_id, polymer_id) -> list[str]`
+- `core/services/service_cards.py` — `load_card(card_id)` returns full card dict used by get_card_status
 
-### AGENT_ORCHESTRATION.md
-Fully updated to reflect all design decisions made in this session (Sections 12 and 13 added/revised).
+### Tools in agent/agent_tools.py (TOOLS list)
+All tools are thin wrappers over core/services — zero db.py imports in agent_tools.py.
+
+| Tool | Description |
+|---|---|
+| `search_knowledge_base(query)` | RAG over agent/knowledge/ PDFs |
+| `list_materials()` | All fibers, polymers, printers with datasheet props |
+| `get_material_details(material_name)` | Full datasheet for ONE fiber or polymer by name (partial, case-insensitive). Returns E1, E2, G12, nu12, nu23, density, CTE1, CTE2, k1, k2. Use this for single-material questions — not list_materials |
+| `list_cards()` | All material cards with completed stages |
+| `get_card_status(card_id)` | Full card detail: microstructure, constituent properties with [inferred/inputted] tags, experimental measurements |
+
+### Stage detection logic (service_material.get_completed_stages)
+- elastic → polymer has inferred `matrix_modulus`
+- thermoelastic → fiber has inferred `f_cte1`
+- thermal → fiber has inferred `k_f1`
 
 ---
 
-## Key design decisions made
+## Key design decisions
 
-**Framework**: LangGraph (not plain while loop) because multi-agent future (simulation agent, surrogate fitting agent) needs supervisor pattern. Plain loop can't coordinate agents cleanly.
+**Framework**: LangGraph (not plain while loop) — supervisor pattern needed for future multi-agent.
 
-**Graph**: 3 nodes — agent_node (LLM, all logic), tool_executor (ToolNode), stage_updater (pure Python state update). See Section 12 of AGENT_ORCHESTRATION.md for full diagram and code.
+**Graph**: agent_node → (has tool_calls?) → tool_executor → agent_node, else END. MemorySaver only.
 
-**State**: Only 3 fields — messages (add_messages reducer), current_card_id (Optional[int]), completed_stages (list[str]). locked_inputs removed — service layer reads prior stage results from DB via card_id directly (same as GUI). User must save after each stage before proceeding.
+**LLM**: `qwen2.5:14b-instruct-q4_K_M` via Ollama. Reliable tool selection. DO NOT add language instructions — they cause Thai/Chinese responses. Without them qwen2.5:14b responds correctly in English.
 
-**Persistence**: MemorySaver only (in-memory, no SqliteSaver). On resume, restore_state_from_card() infers completed_stages from constituent_property_values table (matrix_E present → elastic done, f_cte1 → thermoelastic, k_p1 → thermal). No new DB tables needed.
+**llama3.1:8b is NOT suitable** — unreliable tool selection, hallucinates from training knowledge.
 
-**Save behavior**: Agent asks after every successful solve. If user explicitly says save → call save_to_card immediately, no re-confirmation. Unsaved results lost on restart (same contract as GUI).
+**State**: messages (add_messages), current_card_id (Optional[int]), completed_stages (list[str]).
 
-**Re-runs**: stage_updater uses DOWNSTREAM dict to invalidate later stages when an earlier stage is re-run (elastic re-run invalidates thermoelastic + thermal).
+**Persistence**: MemorySaver (in-memory). restore_state_from_card() not yet implemented.
 
-**Hardware**: M2 Max, 32GB. Use Llama 3.3 32B Q4 or Qwen2.5 32B Q4 (~20GB). 70B won't fit. Ollama uses Metal automatically.
+**Save behavior**: Agent asks after solve. User explicitly says save → call save_to_card immediately, no re-confirmation.
 
-**LLM**: Currently qwen2.5:7b-instruct for development/testing.
+**Service layer**: agent_tools.py → core/services/ → db/db.py. Never import db.py directly in tools.
 
-**Streaming**: Deferred. astream_events approach documented but not yet working. User wants to get tools working first.
+---
+
+## Known issues / prompt tuning history
+
+### Language issue (RESOLVED — no language instructions needed)
+qwen2.5:14b responds in Thai/Chinese when ANY language instruction is in the system prompt or user messages. Removing all language instructions results in correct English. Do NOT add "Respond in English" or similar.
+
+### Tool selection issues resolved
+- "what material cards do we have" → was calling `list_materials`. Fixed by adding trigger phrases and negative trigger ("Do NOT call this when asking about cards") to docstrings.
+- Single-material questions → was calling `list_materials` (got all, then summarized, dropped fields). Fixed by adding `get_material_details` tool for focused single-material output.
+- Follow-up questions like "what is nu23 of AF" → model skipped tool call and hallucinated. Mitigated by `get_material_details` (focused output = less summarization) and system prompt strengthening.
+
+### Hallucination of abbreviations (RESOLVED)
+qwen2.5:14b expanded "CMSC" to "Continuous Melt Spun Carbon" (fabricated). Fixed in system_prompt.md: "report only what the tool returned — do not expand abbreviations or supplement with training knowledge."
+
+### nu23 missing from list_materials output (RESOLVED differently)
+nu23 was in tool output but dropped in model summary when filtering all-materials list to one material. Root fix: `get_material_details` returns focused single-material output so model doesn't need to filter/truncate.
 
 ---
 
 ## What still needs to be built (in order)
 
-1. `agent/agent_tools.py` — @tool wrappers over service layer (run_elastic_inverse, run_thermoelastic_inverse, run_thermal_inverse, run_transfer, run_forward, load_material_card, save_to_card, list_materials, list_cards, get_card_status, get_model_inputs, get_model_outputs)
-2. `agent/graph.py` — full 3-node graph with ToolNode and stage_updater, replacing inline graph in run_agent.py
-3. `agent/session.py` — restore_state_from_card(), resolve_card_from_message()
-4. Update run_agent.py — replace inline graph with `from agent.graph import build_app`, plug in session.py helpers
-5. Streaming — revisit after tools are working
+1. **Solver tools** in `agent/agent_tools.py`:
+   - `run_elastic_inverse(card_id, measurements)` → calls core/services/service_inverse.py (wraps core/inverse.py)
+   - `run_thermoelastic_inverse(card_id, measurements)` → same pattern
+   - `run_thermal_inverse(card_id, csv_path)` → wraps core/inverse_thermal.py
+   - `run_forward(card_id, microstructure_override)` → wraps core/forward.py
+   - `save_to_card(card_id, stage, results)` → writes to DB via service layer
+   - `load_material_card(card_id)` → alias of get_card_status but returns raw dict for agent use
+
+2. **`agent/session.py`**:
+   - `restore_state_from_card(card_id)` — reads completed_stages from DB
+   - `resolve_card_from_message(name_str)` — fuzzy name→card_id lookup
+
+3. **Update `run_agent.py`** — replace stub helpers with session.py imports
+
+4. **Streaming** — deferred, revisit after solver tools work
+
+5. **Remove DEBUG prints** from `agent/graph.py` (lines that print tool_calls and response type) — user hasn't asked yet but they're still there
 
 ---
 
-## Current run_agent.py state
-
-Works: LLM responds, system prompt loaded, conversation loop, --card CLI arg parsed.
-Placeholder stubs in run_agent.py:
-- resolve_card() — name lookup not implemented, only int card IDs work
-- restore_state() — doesn't read DB yet, returns empty state
-- graph is inline minimal (no tools), will be replaced by agent/graph.py import
-
 ## Python version note
-Environment is Python 3.9. Use Optional[X] not X | None for type hints.
+Environment is Python 3.9. Use `Optional[X]` not `X | None` for type hints.
+Conda env: `jax_trial` (not diffmech). JAX 0.4.26.
