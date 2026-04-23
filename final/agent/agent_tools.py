@@ -5,21 +5,29 @@ Each tool is a @tool-decorated function. Add new tools here as capabilities
 are built out (elastic inverse, save to card, etc.).
 
 Current tools:
-    search_knowledge_base    — RAG over agent/knowledge/ PDFs
-    list_materials           — list all fibers, polymers, printers in the DB
-    get_material_details     — full datasheet for one fiber or polymer by name
-    list_cards               — list all material cards and their stage status
-    get_card_status          — full detail view of one material card
-    get_model_inputs_outputs — field names + units for elastic/thermoelastic models
-    predict_properties       — forward prediction (elastic + thermoelastic)
-    add_fiber                — add a new fiber to the material library
-    add_polymer              — add a new polymer to the material library
-    check_identifiability    — FIM analysis: can these measurements identify these unknowns?
+    search_knowledge_base         — RAG over agent/knowledge/ PDFs
+    list_materials                — list all fibers, polymers, printers in the DB
+    get_material_details          — full datasheet for one fiber or polymer by name
+    list_cards                    — list all material cards and their stage status
+    get_card_status               — full detail view of one material card
+    get_model_inputs_outputs      — field names + units for elastic/thermoelastic models
+    inspect_card_inputs           — preview resolved inputs before predicting
+    predict_properties            — forward prediction (elastic + thermoelastic)
+    predict_thermal_conductivity  — forward prediction (thermal) at one T or across a T range
+    add_fiber                     — add a new fiber to the material library
+    add_polymer                   — add a new polymer to the material library
+    check_identifiability         — FIM analysis: can these measurements identify these unknowns?
 """
 
+import os
 import re
 import sys
 from pathlib import Path
+from typing import Optional
+
+# Must be set before any JAX import (forward.py imports JAX at module level)
+os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+os.environ.setdefault("JAX_ENABLE_X64", "1")
 
 # Allow imports from final/ when running as agent
 _FINAL = Path(__file__).parent.parent
@@ -33,6 +41,7 @@ import core.services.service_material as _smat
 import core.services.service_cards as _scards
 import core.services.service_forward as _sfwd
 import core.services.service_fim as _sfim
+import core.services.service_inverse as _sinv
 
 
 # ── Module-level constants for forward/FIM tools ──────────────────────────────
@@ -72,19 +81,99 @@ _MEAS_SYNONYMS = {
     "CTE12": "CTE12", "CTE13": "CTE13", "CTE23": "CTE23",
 }
 
+_THERMAL_STRUCTURAL_REQUIRED = frozenset([
+    "ar_f", "w_f", "rho_f", "rho_m",
+    "a11", "a22", "a12", "a13", "a23",
+])
+
+_THERMAL_DEFAULT_TEMPS = [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 175.0, 200.0]
+
+# ── Stage 1 elastic inverse constants ────────────────────────────────────────
+
+# Fields optimised in Stage 1 — never change per-call
+_STAGE1_FREE = [
+    "a11", "a22",
+    "fiber_massfrac", "ar",
+    "matrix_modulus", "matrix_poisson",
+]
+
+# matrix_poisson is only added to free list when shear/Poisson measurements are present
+# (G12, G13, G23, nu12, nu13, nu23) — it is not identifiable from E1/E2/E3 alone.
+# a12, a13, a23 are not in the free list — they default to 0.0 (fixed).
+# ar and fiber_massfrac are in the list so they CAN be freed, but the datasheet
+# fallback below ensures they default to fixed unless the user explicitly requests inference.
+_STAGE1_FREE_WITHOUT_POISSON = [
+    "a11", "a22",
+    "fiber_massfrac", "ar",
+    "matrix_modulus",
+]
+_SHEAR_POISSON_MEASUREMENTS = frozenset(["G12", "G13", "G23", "nu12", "nu13", "nu23"])
+
+# Keys to exclude from fixed_inputs (free vars + their field-name aliases)
+_STAGE1_FREE_KEYS = frozenset([
+    "a11", "a22", "a12", "a13", "a23",
+    "fiber_massfrac", "w_f",
+    "ar", "ar_f",
+    "matrix_modulus", "matrix_poisson",
+])
+
+# Holds the last solver result between a run_* call and save_to_card
+# Structure: {"result": dict compatible with save_inverse_result, "meta": {fiber_id, ...}}
+_pending_save: dict = {}
+
+_T_REF = 1.0  # reference temperature for polymer conductivity model (°C), matches inverse_thermal.py
+
+
+def _resolve_k_at_T(inputs: dict, T: float) -> tuple:
+    """Return (k_f1, k_f2, k_m) at temperature T.
+
+    Resolution order:
+      1. Stage 3 parametric model: p1 + p2 (polymer) + k_f1 + k_f2 (fiber, constant).
+         The DB stores derived k_f1=l2 and k_f2=l2/t directly — not l2/t themselves.
+         k_m(T) = p1 * sqrt(T / T_ref) + p2   (temperature-dependent)
+         k_f1, k_f2 are constant (temperature-independent).
+      2. Scalar k_f1, k_f2, k_m directly in inputs (datasheet or previously stored).
+    Returns (None, None, None) if no thermal data is available.
+    """
+    p1  = inputs.get("p1")
+    p2  = inputs.get("p2")
+    k_f1 = inputs.get("k_f1")
+    k_f2 = inputs.get("k_f2")
+    if all(v is not None for v in (p1, p2, k_f1, k_f2)):
+        k_m = float(p1) * (max(T, 0.0) / _T_REF) ** 0.5 + float(p2)
+        return float(k_f1), float(k_f2), k_m
+
+    k_m = inputs.get("k_m")
+    if all(v is not None for v in (k_f1, k_f2, k_m)):
+        return float(k_f1), float(k_f2), float(k_m)
+
+    return None, None, None
+
+
 _DEFAULT_BOUNDS = {
-    "a11":            (0.20,    0.85),
-    "a22":            (0.01,    0.40),
+    "a11":            (0.50,    0.85),
+    "a22":            (0.01,    0.4),   # matches problem.json
     "a12":            (-0.10,   0.10),
     "a13":            (-0.10,   0.10),
     "a23":            (-0.10,   0.10),
     "fiber_massfrac": (0.05,    0.60),
     "ar":             (5.0,    100.0),
-    "matrix_modulus": (1500.0, 6000.0),
-    "matrix_poisson": (0.28,    0.45),
+    "matrix_modulus": (2000.0, 5000.0),  # matches problem.json
+    "matrix_poisson": (0.33,    0.42),   # matches problem.json
     "f_cte1":         (-2e-6,   5e-6),
     "f_cte2":         (5e-6,   30e-6),
     "m_cte":          (30e-6, 120e-6),
+}
+
+# Solver config that matches the GUI's problem.json defaults
+_ELASTIC_SOLVER_CFG = {
+    "method":             "lbfgsb",
+    "constraint_penalty": 10000.0,
+    "use_epsilon_loss":   False,
+    "epsilon_scale":      0.5,
+    "maxiter":            300,
+    "tol":                1e-6,
+    "seed":               42,
 }
 
 # Fallback nominal inputs when no fiber/polymer/card is provided
@@ -521,19 +610,50 @@ def inspect_card_inputs(card_id: int) -> str:
         else:
             lines.append(f"  {field:<18}   MISSING — run Stage 2 or provide as override")
 
+    # ── Thermal conductivity inputs ───────────────────────────────────────────
+    lines.append("\nTHERMAL CONDUCTIVITY INPUTS:")
+    has_parametric = all(inputs.get(p) is not None for p in ("p1", "p2", "k_f1", "k_f2"))
+    has_scalar_k   = all(inputs.get(k) is not None for k in ("k_f1", "k_f2", "k_m"))
+
+    if has_parametric:
+        lines.append("  Stage 3 parametric model available (temperature-dependent):")
+        for field, label in [("p1","polymer k scaling"), ("p2","polymer k offset"),
+                              ("l2","fiber k_f1"), ("t","fiber anisotropy k_f1/k_f2")]:
+            v = inputs.get(field)
+            if v is not None:
+                lines.append(f"  {field:<6} = {v:.4e} W/m·K   ({label})")
+    elif has_scalar_k:
+        lines.append("  Scalar k values available (temperature-independent):")
+        for field, label in [("k_f1","fiber axial k"), ("k_f2","fiber transverse k"),
+                              ("k_m","matrix k")]:
+            v = inputs.get(field)
+            lines.append(f"  {field:<6} = {v:.5f} W/m·K   ({label})")
+    else:
+        lines.append("  NOT AVAILABLE — run Stage 3 (thermal inverse) or provide k_f1_WmK,")
+        lines.append("  k_f2_WmK, k_m_WmK as overrides in predict_thermal_conductivity.")
+
     # ── Readiness summary ─────────────────────────────────────────────────────
-    elastic_missing = [f for f in _ELASTIC_REQUIRED if f not in inputs]
-    te_missing      = [f for f in _TE_EXTRA_REQUIRED if f not in inputs]
+    elastic_missing  = [f for f in _ELASTIC_REQUIRED if f not in inputs]
+    te_missing       = [f for f in _TE_EXTRA_REQUIRED if f not in inputs]
+    struct_missing   = [f for f in _THERMAL_STRUCTURAL_REQUIRED if f not in inputs]
+    thermal_k_ready  = has_parametric or has_scalar_k
 
     lines.append("\nREADINESS:")
     if not elastic_missing:
-        lines.append("  Elastic prediction     — READY")
+        lines.append("  Elastic prediction          — READY")
     else:
-        lines.append(f"  Elastic prediction     — NOT READY (missing: {elastic_missing})")
+        lines.append(f"  Elastic prediction          — NOT READY (missing: {elastic_missing})")
     if not te_missing:
-        lines.append("  Thermoelastic prediction — READY")
+        lines.append("  Thermoelastic prediction    — READY")
     else:
-        lines.append(f"  Thermoelastic prediction — NOT READY (missing: {te_missing})")
+        lines.append(f"  Thermoelastic prediction    — NOT READY (missing: {te_missing})")
+    if not struct_missing and thermal_k_ready:
+        k_mode = "temperature-dependent" if has_parametric else "scalar (temperature-independent)"
+        lines.append(f"  Thermal conductivity        — READY ({k_mode})")
+    elif struct_missing:
+        lines.append(f"  Thermal conductivity        — NOT READY (missing structural: {struct_missing})")
+    else:
+        lines.append("  Thermal conductivity        — NOT READY (no k data; run Stage 3 or override)")
 
     return "\n".join(lines)
 
@@ -800,6 +920,255 @@ def predict_properties(
             if v is None:
                 continue
             lines.append(f"  {name:<8} = {v:.4e} /K   ({v * 1e6:.3f} ppm/K)")
+
+    return "\n".join(lines)
+
+
+@tool
+def predict_thermal_conductivity(
+    card_id: int = -1,
+    fiber_id: int = -1,
+    polymer_id: int = -1,
+    temperature_C: float = -1.0,
+    k_f1_WmK: float = -1.0,
+    k_f2_WmK: float = -1.0,
+    k_m_WmK: float = -1.0,
+    a11: float = -1.0,
+    a22: float = -1.0,
+    a12: float = -1.0,
+    a13: float = -1.0,
+    a23: float = -1.0,
+    fiber_massfrac: float = -1.0,
+    ar: float = -1.0,
+) -> str:
+    """
+    Predict composite thermal conductivity (k11, k22, k33) using the thermal surrogate.
+
+    ALWAYS ASK THE USER whether they want a single temperature or a full temperature
+    matrix before calling this tool, unless the user has already specified.
+
+    temperature_C argument:
+      >= 0   — predict at that single temperature and return k11, k22, k33
+      = -1   — predict across the full range [25, 50, 75, 100, 125, 150, 175, 200°C]
+               and return a conductivity vs temperature table
+
+    Material loading — pick ONE:
+      card_id >= 0                       — load fiber + polymer + microstructure from a card
+      fiber_id >= 0 AND polymer_id >= 0  — load from datasheets (you must also provide
+                                           a11, a22, a12, a13, a23, fiber_massfrac, ar)
+
+    Constituent conductivity — resolved in priority order:
+      1. Explicit overrides (k_f1_WmK, k_f2_WmK, k_m_WmK) — temperature-independent
+      2. Stage 3 parametric model stored on the card (p1, p2, l2, t):
+           k_m(T) = p1 * sqrt(T) + p2   (temperature-dependent polymer conductivity)
+           k_f1   = l2                   (constant)
+           k_f2   = l2 / t               (constant)
+      3. Scalar k_f1, k_f2, k_m values from the card or datasheet (temperature-independent)
+      If none are available, ask the user to run Stage 3 or provide explicit overrides.
+
+    Microstructure overrides (a11, a22, a12, a13, a23, fiber_massfrac, ar):
+      Any value != -1 overrides the card value.
+
+    Units: conductivity in W/m·K, temperature in °C.
+    """
+    # ── Step 1: Load base inputs ──────────────────────────────────────────────
+    inputs: dict = {}
+    source_label = ""
+    overrides_applied = []
+
+    if card_id >= 0:
+        try:
+            card   = _scards.load_card(card_id)
+            inputs = _scards.load_card_inputs(card_id)
+            cfg    = card["config"]
+            fname  = (card.get("fiber")   or {}).get("name", f"fiber_id={cfg['fiber_id']}")
+            pname  = (card.get("polymer") or {}).get("name", f"polymer_id={cfg['polymer_id']}")
+            source_label = f"Card #{card_id} \"{cfg['name']}\"  ({fname} / {pname})"
+        except ValueError as e:
+            return f"Card not found: {e}"
+        except Exception as e:
+            return f"Database error loading card: {e}"
+
+    elif fiber_id >= 0 and polymer_id >= 0:
+        try:
+            inputs   = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
+            fibers   = {f["id"]: f["name"] for f in _smat.list_fibers()}
+            polymers = {p["id"]: p["name"] for p in _smat.list_polymers()}
+            fname    = fibers.get(fiber_id,   f"id={fiber_id}")
+            pname    = polymers.get(polymer_id, f"id={polymer_id}")
+            source_label = f"Datasheets: {fname} / {pname}"
+        except Exception as e:
+            return f"Database error loading materials: {e}"
+
+    else:
+        return (
+            "Specify the material system:\n"
+            "  option A — card_id >= 0  (loads fiber + polymer + microstructure from a saved card)\n"
+            "  option B — fiber_id >= 0 AND polymer_id >= 0  "
+            "(you must also provide a11, a22, a12, a13, a23, fiber_massfrac, ar)"
+        )
+
+    # ── Step 2: Ensure density and field-name aliases ─────────────────────────
+    if "rho_f" not in inputs and "fiber_density" in inputs:
+        inputs["rho_f"] = inputs["fiber_density"]
+    if "fiber_density" not in inputs and "rho_f" in inputs:
+        inputs["fiber_density"] = inputs["rho_f"]
+    if "rho_m" not in inputs and "matrix_density" in inputs:
+        inputs["rho_m"] = inputs["matrix_density"]
+    if "matrix_density" not in inputs and "rho_m" in inputs:
+        inputs["matrix_density"] = inputs["rho_m"]
+    if "w_f" not in inputs and "fiber_massfrac" in inputs:
+        inputs["w_f"] = inputs["fiber_massfrac"]
+    if "ar_f" not in inputs and "ar" in inputs:
+        inputs["ar_f"] = inputs["ar"]
+
+    # ── Step 3: Apply structural overrides ────────────────────────────────────
+    _struct_map = [
+        ("a11", a11), ("a22", a22), ("a12", a12), ("a13", a13), ("a23", a23),
+        ("fiber_massfrac", fiber_massfrac), ("ar", ar),
+    ]
+    for field, val in _struct_map:
+        if val != -1.0:
+            prev = inputs.get(field)
+            inputs[field] = val
+            if field == "fiber_massfrac":
+                inputs["w_f"] = val
+            elif field == "ar":
+                inputs["ar_f"] = val
+            if prev is not None and abs(float(prev) - val) > 1e-12:
+                overrides_applied.append(f"  {field}: {float(prev):.4g} → {val:.4g}")
+            else:
+                overrides_applied.append(f"  {field} = {val:.4g}  [provided]")
+
+    # ── Step 4: Collect explicit k overrides ─────────────────────────────────
+    explicit_k: dict = {}
+    if k_f1_WmK != -1.0:
+        explicit_k["k_f1"] = k_f1_WmK
+        overrides_applied.append(f"  k_f1 = {k_f1_WmK:.4g} W/m·K  [override]")
+    if k_f2_WmK != -1.0:
+        explicit_k["k_f2"] = k_f2_WmK
+        overrides_applied.append(f"  k_f2 = {k_f2_WmK:.4g} W/m·K  [override]")
+    if k_m_WmK != -1.0:
+        explicit_k["k_m"] = k_m_WmK
+        overrides_applied.append(f"  k_m = {k_m_WmK:.4g} W/m·K  [override]")
+    use_explicit_k = len(explicit_k) == 3
+
+    # ── Step 5: Check availability ────────────────────────────────────────────
+    struct_missing = [f for f in _THERMAL_STRUCTURAL_REQUIRED if f not in inputs]
+    has_parametric = all(inputs.get(p) is not None for p in ("p1", "p2", "k_f1", "k_f2"))
+    has_scalar_k   = all(inputs.get(k) is not None for k in ("k_f1", "k_f2", "k_m"))
+    k_available    = use_explicit_k or has_parametric or has_scalar_k
+
+    # ── Step 6: Build header ──────────────────────────────────────────────────
+    lines = [f"THERMAL CONDUCTIVITY PREDICTION\nSource: {source_label}"]
+
+    if overrides_applied:
+        lines.append("\nOverrides applied:")
+        lines.extend(overrides_applied)
+
+    if use_explicit_k:
+        k_source = "explicit override values (temperature-independent)"
+    elif has_parametric:
+        p1, p2   = inputs["p1"], inputs["p2"]
+        kf1, kf2 = inputs["k_f1"], inputs["k_f2"]
+        k_source = (
+            f"Stage 3 parametric model — "
+            f"k_m(T) = {p1:.3e}·√T + {p2:.3e}  |  "
+            f"k_f1 = {kf1:.4f},  k_f2 = {kf2:.4f} W/m·K (constant)"
+        )
+    elif has_scalar_k:
+        k_source = "scalar k values from card/datasheet (temperature-independent)"
+    else:
+        k_source = "NOT AVAILABLE"
+
+    lines.append(f"\nConstituent k source: {k_source}")
+
+    if struct_missing:
+        lines.append(f"\nCANNOT RUN: missing structural inputs: {struct_missing}")
+        if card_id >= 0:
+            lines.append("  Load a card with Stage 1 complete, or provide structural overrides.")
+        else:
+            lines.append("  Provide: a11, a22, a12, a13, a23, fiber_massfrac, ar")
+        return "\n".join(lines)
+
+    if not k_available:
+        lines.append(
+            "\nCANNOT RUN: no thermal conductivity data found for this material system.\n"
+            "  Options:\n"
+            "  - Run Stage 3 (thermal inverse) to infer p1, p2, l2, t from k vs T data\n"
+            "  - Provide explicit overrides: k_f1_WmK, k_f2_WmK, k_m_WmK"
+        )
+        return "\n".join(lines)
+
+    # ── Step 7: Determine temperature(s) ──────────────────────────────────────
+    if temperature_C >= 0.0:
+        temps = [temperature_C]
+        mode  = "single"
+    else:
+        temps = _THERMAL_DEFAULT_TEMPS
+        mode  = "matrix"
+
+    # ── Step 8: Run predictions ───────────────────────────────────────────────
+    try:
+        results_by_T = []
+        for T in temps:
+            if use_explicit_k:
+                kf1, kf2, km = explicit_k["k_f1"], explicit_k["k_f2"], explicit_k["k_m"]
+            else:
+                kf1, kf2, km = _resolve_k_at_T(inputs, T)
+
+            thermal_inputs = {
+                "k_f1": kf1, "k_f2": kf2, "k_m": km,
+                "ar_f":  inputs["ar_f"],
+                "w_f":   inputs["w_f"],
+                "rho_f": inputs["rho_f"],
+                "rho_m": inputs["rho_m"],
+                "a11":   inputs["a11"],  "a22": inputs["a22"],
+                "a12":   inputs["a12"],  "a13": inputs["a13"],  "a23": inputs["a23"],
+            }
+            pred = _sfwd.run_forward("thermal", thermal_inputs)
+            results_by_T.append((T, kf1, kf2, km, pred))
+
+    except Exception as e:
+        return "\n".join(lines) + f"\n\nThermal model error: {e}"
+
+    # ── Step 9: Format output ─────────────────────────────────────────────────
+    if mode == "single":
+        T, kf1, kf2, km, pred = results_by_T[0]
+        lines.append(f"\nPREDICTION AT T = {T:.1f}°C")
+        lines.append(
+            f"  Constituent k:  k_f1 = {kf1:.4f},  k_f2 = {kf2:.4f},  "
+            f"k_m = {km:.5f}  [W/m·K]"
+        )
+        lines.append("\n  Composite thermal conductivity:")
+        for label, key in [
+            ("k11 (print direction)", "k11"),
+            ("k22 (transverse)",      "k22"),
+            ("k33 (out-of-plane)",    "k33"),
+        ]:
+            v = pred.get(key)
+            if v is not None:
+                lines.append(f"    {label:<26} = {v:.5f} W/m·K")
+    else:
+        lines.append(
+            f"\nTEMPERATURE MATRIX\n"
+            f"  {'T (°C)':<8}  {'k_m (W/m·K)':<14}  "
+            f"{'k11':<10}  {'k22':<10}  {'k33':<10}"
+        )
+        lines.append("  " + "-" * 58)
+        for T, kf1, kf2, km, pred in results_by_T:
+            k11 = pred.get("k11", float("nan"))
+            k22 = pred.get("k22", float("nan"))
+            k33 = pred.get("k33", float("nan"))
+            lines.append(
+                f"  {T:<8.1f}  {km:<14.5f}  {k11:<10.5f}  {k22:<10.5f}  {k33:<10.5f}"
+            )
+        if has_parametric:
+            lines.append(
+                f"\n  k_f1 = {results_by_T[0][1]:.4f} W/m·K (constant),  "
+                f"k_f2 = {results_by_T[0][2]:.4f} W/m·K (constant)\n"
+                f"  k_m varies with T: k_m(T) = {inputs['p1']:.3e}·√T + {inputs['p2']:.3e}"
+            )
 
     return "\n".join(lines)
 
@@ -1129,6 +1498,367 @@ def check_identifiability(
     return "\n".join(lines)
 
 
+# ── Inverse solver tools ─────────────────────────────────────────────────────
+
+import db.db as _db
+
+
+def _resolve_material_ids(
+    fiber_name: str, polymer_name: str, printer_name: str
+) -> tuple[int, int, int]:
+    """Resolve material names to DB IDs. Raises ValueError with a helpful message if not found."""
+    fibers   = {f["name"].lower(): f["id"] for f in _db.get_all_fibers()}
+    polymers = {p["name"].lower(): p["id"] for p in _db.get_all_polymers()}
+    printers = {p["name"].lower(): p["id"] for p in _db.get_all_printers()}
+
+    fn = fiber_name.strip().lower()
+    pn = polymer_name.strip().lower()
+    rn = printer_name.strip().lower()
+
+    if fn not in fibers:
+        raise ValueError(
+            f"Fiber '{fiber_name}' not found. Available: {', '.join(f['name'] for f in _db.get_all_fibers())}"
+        )
+    if pn not in polymers:
+        raise ValueError(
+            f"Polymer '{polymer_name}' not found. Available: {', '.join(p['name'] for p in _db.get_all_polymers())}"
+        )
+    if rn not in printers:
+        raise ValueError(
+            f"Printer '{printer_name}' not found. Available: {', '.join(p['name'] for p in _db.get_all_printers())}"
+        )
+
+    return fibers[fn], polymers[pn], printers[rn]
+
+
+@tool
+def run_elastic_inverse(
+    fiber_name: str,
+    polymer_name: str,
+    printer_name: str,
+    # Composite elastic measurements (omit or pass -1.0 to exclude)
+    E1_MPa: float = -1.0,
+    E2_MPa: float = -1.0,
+    E3_MPa: float = -1.0,
+    G12_MPa: float = -1.0,
+    G13_MPa: float = -1.0,
+    G23_MPa: float = -1.0,
+    nu12: float = -1.0,
+    nu13: float = -1.0,
+    nu23: float = -1.0,
+    # Measurement uncertainties (1-sigma, same units; use 0.0 if unknown)
+    E1_sigma_MPa: float = 0.0,
+    E2_sigma_MPa: float = 0.0,
+    E3_sigma_MPa: float = 0.0,
+    G12_sigma_MPa: float = 0.0,
+    G13_sigma_MPa: float = 0.0,
+    G23_sigma_MPa: float = 0.0,
+    nu12_sigma: float = 0.0,
+    nu13_sigma: float = 0.0,
+    nu23_sigma: float = 0.0,
+    # Known microstructure (pass values to fix them; omit/None to let solver infer)
+    ar: Optional[float] = None,
+    fiber_massfrac: Optional[float] = None,
+    a11: Optional[float] = None,
+    a22: Optional[float] = None,
+    a12: float = 0.0,
+    a13: float = 0.0,
+    a23: float = 0.0,
+    card_name: str = "",
+) -> str:
+    """
+    Run Stage 1 elastic inverse: infer microstructure (a11, a22, etc.) and
+    in-situ constituent properties (matrix_modulus) from measured composite
+    elastic properties.
+
+    Pass material NAMES (not IDs) — e.g. fiber_name="AF", polymer_name="AP",
+    printer_name="CAMRI". IDs are resolved automatically.
+
+    If the user already knows some microstructure values (from CT, datasheet, etc.),
+    pass them as ar/fiber_massfrac/a11/a22/a12/a13/a23 — they will be fixed and not
+    inferred. Omit (or pass None) to let the solver infer them.
+
+    All elastic measurement arguments (E1_MPa, etc.) must be in MPa.
+    Sigma arguments are 1-sigma uncertainty in the same units. Use 0.0 if unknown.
+
+    Results are held in memory — call save_to_card() if the user wants to persist.
+    Does NOT save automatically.
+    """
+    # ── Resolve names to IDs ──────────────────────────────────────────────────
+    try:
+        fiber_id, polymer_id, printer_id = _resolve_material_ids(
+            fiber_name, polymer_name, printer_name
+        )
+    except ValueError as e:
+        return f"Material lookup error: {e}"
+
+    # ── Build target_outputs and sigmas ───────────────────────────────────────
+    _meas_map = [
+        ("E1",   E1_MPa,  E1_sigma_MPa),
+        ("E2",   E2_MPa,  E2_sigma_MPa),
+        ("E3",   E3_MPa,  E3_sigma_MPa),
+        ("G12",  G12_MPa, G12_sigma_MPa),
+        ("G13",  G13_MPa, G13_sigma_MPa),
+        ("G23",  G23_MPa, G23_sigma_MPa),
+        ("nu12", nu12,    nu12_sigma),
+        ("nu13", nu13,    nu13_sigma),
+        ("nu23", nu23,    nu23_sigma),
+    ]
+    targets: dict = {}
+    sigmas: dict  = {}
+    for name, val, sig in _meas_map:
+        if val != -1.0:
+            targets[name] = val
+            if sig > 0.0:
+                sigmas[name] = sig
+
+    if not targets:
+        return (
+            "No measurements provided. Supply at least E1_MPa and one of E2_MPa or E3_MPa.\n"
+            "Example: run_elastic_inverse(fiber_id=1, polymer_id=1, printer_id=1,\n"
+            "         E1_MPa=45000, E2_MPa=12000, E3_MPa=10000)"
+        )
+
+    # ── Load datasheet inputs ─────────────────────────────────────────────────
+    try:
+        datasheet = _smat.get_model_inputs(fiber_id, polymer_id)
+    except Exception as e:
+        return f"Error loading material datasheets (fiber_id={fiber_id}, polymer_id={polymer_id}): {e}"
+
+    # ── Collect user-provided (fixed) microstructure ──────────────────────────
+    _micro_args = {
+        "ar": ar, "fiber_massfrac": fiber_massfrac,
+        "a11": a11, "a22": a22, "a12": a12, "a13": a13, "a23": a23,
+    }
+    known_micro = {k: v for k, v in _micro_args.items() if v is not None}
+
+    # ar and fiber_massfrac default to fixed at the datasheet value.
+    # Only become free if the user explicitly requests inference (agent omits them → None).
+    for field in ("ar", "fiber_massfrac"):
+        if field not in known_micro and field in datasheet:
+            known_micro[field] = datasheet[field]
+
+    # Determine free variables first, then build fixed_inputs as everything else.
+    # matrix_poisson is only identifiable when shear/Poisson measurements are present;
+    # without them it stays fixed at the datasheet value.
+    has_shear = bool(set(targets.keys()) & _SHEAR_POISSON_MEASUREMENTS)
+    base_free = _STAGE1_FREE if has_shear else _STAGE1_FREE_WITHOUT_POISSON
+
+    # Free variables = chosen base set minus whatever the user already fixed
+    free_vars = [v for v in base_free if v not in known_micro]
+
+    # Fixed inputs = full datasheet minus the actual free vars + user-provided microstructure.
+    # This ensures fields like matrix_poisson are always present in fixed_inputs when not free.
+    free_set = set(free_vars)
+    fixed_inputs = {k: v for k, v in datasheet.items() if k not in free_set}
+    fixed_inputs.update(known_micro)
+
+    # ── Run solver ────────────────────────────────────────────────────────────
+    # Strip keys the model doesn't know (e.g. rho_f, rho_m alias fields from DB)
+    _model_fields = set(_sfwd.get_input_fields("elastic"))
+    fixed_inputs = {k: v for k, v in fixed_inputs.items() if k in _model_fields}
+
+    bounds = {k: _DEFAULT_BOUNDS[k] for k in free_vars if k in _DEFAULT_BOUNDS}
+
+    # Initial guess: orientation defaults from problem.json; material-specific fields
+    # (matrix_modulus, matrix_poisson) fall through to the datasheet so they match
+    # the GUI which populates rows from the DB.
+    _PROBLEM_JSON_INIT = {
+        "a11": 0.6, "a22": 0.1, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+        "fiber_massfrac": 0.20, "ar": 20.0,
+    }
+    init_vals = []
+    for k in free_vars:
+        if k in _PROBLEM_JSON_INIT:
+            init_vals.append(_PROBLEM_JSON_INIT[k])
+        elif k in datasheet:
+            init_vals.append(float(datasheet[k]))
+        elif k in fixed_inputs:
+            init_vals.append(float(fixed_inputs[k]))
+        elif k in _DEFAULT_BOUNDS:
+            lo, hi = _DEFAULT_BOUNDS[k]
+            init_vals.append((lo + hi) / 2.0)
+        else:
+            init_vals.append(0.0)
+
+    # Enable epsilon-insensitive loss when measurement sigmas are provided.
+    # This creates a dead-zone of ±sigma around each target: residuals inside
+    # it contribute zero loss. Measurements with larger sigma exert less pull
+    # on the solution — matching the physical meaning of measurement uncertainty.
+    solver_cfg = dict(_ELASTIC_SOLVER_CFG)
+    if sigmas:
+        solver_cfg["use_epsilon_loss"] = True
+
+    import json as _json
+    _debug = (
+        f"\n[DEBUG] fixed_inputs: {_json.dumps({k: round(v,4) for k,v in fixed_inputs.items()})}"
+        f"\n[DEBUG] free_vars: {free_vars}"
+        f"\n[DEBUG] init_vals: {[round(v,4) for v in init_vals]}"
+        f"\n[DEBUG] bounds: {bounds}"
+        f"\n[DEBUG] solver_cfg: {solver_cfg}"
+        f"\n[DEBUG] targets: {targets}"
+        f"\n[DEBUG] sigmas: {sigmas}"
+    )
+    print(_debug)
+
+    try:
+        inv = _sinv.run_inverse(
+            model_name="elastic",
+            fixed_inputs=fixed_inputs,
+            free_inputs=free_vars,
+            bounds=bounds,
+            target_outputs=targets,
+            sigmas=sigmas if sigmas else None,
+            solver_cfg=solver_cfg,
+            init_vals=init_vals,
+        )
+    except Exception as e:
+        return f"Solver error: {e}"
+
+    # ── Cache result for save_to_card ─────────────────────────────────────────
+    opt_free = inv["opt_free"]
+    # Merge fixed microstructure into opt_free so save_to_card has the full picture
+    full_micro = dict(known_micro)
+    full_micro.update(opt_free)
+
+    _pending_save.clear()
+    _pending_save["result"] = {
+        "model":             "elastic",
+        "opt_free":          full_micro,
+        "fixed_inputs":      fixed_inputs,
+        "predicted_outputs": inv["predicted_outputs"],
+        "target_outputs":    inv["target_outputs"],
+        "sigmas":            sigmas,
+        "final_error":       inv["final_error"],
+        "solver_cfg":        inv["solver_cfg"],
+    }
+    _pending_save["meta"] = {
+        "fiber_id":   fiber_id,
+        "polymer_id": polymer_id,
+        "printer_id": printer_id,
+        "card_name":  card_name,
+    }
+
+    # ── Format result string ──────────────────────────────────────────────────
+    free = opt_free
+    pred = inv["predicted_outputs"]
+    err  = inv["final_error"]
+
+    using_eps_loss = bool(sigmas)
+
+    def _fmt_micro(key: str, label: str, fmt: str = ".4f", suffix: str = "") -> str:
+        if key in known_micro:
+            return f"  {label} = {known_micro[key]:{fmt}}{suffix}  (fixed — user provided)"
+        val = free.get(key, float("nan"))
+        return f"  {label} = {val:{fmt}}{suffix}  (inferred)"
+
+    lines = [
+        "ELASTIC INVERSE — COMPLETE",
+        "",
+        "Microstructure:",
+        _fmt_micro("a11", "a11           ", suffix="  (alignment — print direction)"),
+        _fmt_micro("a22", "a22           ", suffix="  (transverse)"),
+        _fmt_micro("a12", "a12           "),
+        _fmt_micro("a13", "a13           "),
+        _fmt_micro("a23", "a23           "),
+        _fmt_micro("fiber_massfrac", "fiber_massfrac"),
+        _fmt_micro("ar",  "aspect_ratio  ", fmt=".2f"),
+        "",
+        "Inferred constituent properties:",
+        f"  matrix_modulus  = {free.get('matrix_modulus', float('nan')):.1f} MPa  (inferred)",
+        f"  matrix_poisson  = {fixed_inputs.get('matrix_poisson', free.get('matrix_poisson', float('nan'))):.4f}"
+        + ("  (inferred — shear measurements present)" if has_shear else "  (fixed — datasheet; add G12/nu12 to infer)"),
+        "",
+    ]
+
+    if using_eps_loss:
+        lines.append("Model fit vs targets  (measurement uncertainty active — predictions within ±σ are acceptable):")
+        all_within = True
+        for meas_name, t_val in targets.items():
+            p_val   = pred.get(meas_name, float("nan"))
+            sig     = sigmas.get(meas_name, 0.0)
+            resid   = abs(p_val - t_val)
+            unit    = " MPa" if meas_name.startswith(("E", "G")) else ""
+            within  = resid <= sig * 1.001  # 0.1% tolerance for float edge cases
+            if not within:
+                all_within = False
+            status  = "✓ within σ" if within else f"✗ outside σ by {resid - sig:.1f}{unit}"
+            lines.append(
+                f"  {meas_name:<5}  predicted={p_val:.1f}{unit}  target={t_val:.1f}{unit}"
+                f"  residual={resid:.1f}{unit}  σ={sig:.1f}{unit}  {status}"
+            )
+        verdict = "All measurements satisfied within uncertainty." if all_within \
+                  else "WARNING: some predictions fall outside measurement uncertainty — check inputs."
+        lines += ["", verdict]
+    else:
+        # Standard MSE — report normalized fit error
+        err_label = (
+            "good fit" if err < 0.01 else
+            "acceptable" if err < 0.05 else
+            "POOR — check measurements or material assignment"
+        )
+        lines.append(f"fit_error = {err:.5f}  ({err_label})")
+        lines.append("Model fit vs targets:")
+        for meas_name, t_val in targets.items():
+            p_val = pred.get(meas_name, float("nan"))
+            unit  = " MPa" if meas_name.startswith(("E", "G")) else ""
+            diff  = abs(p_val - t_val) / max(abs(t_val), 1e-9) * 100
+            lines.append(
+                f"  {meas_name:<5}  predicted={p_val:.1f}{unit}  target={t_val:.1f}{unit}  diff={diff:.2f}%"
+            )
+
+    lines += ["", "Results are in memory. Call save_to_card() to persist, or discard."]
+    return "\n".join(lines)
+
+
+@tool
+def save_to_card(card_id: int = -1) -> str:
+    """
+    Save the most recent solver result to the database.
+
+    card_id = -1  → create a new material card (uses the card_name from the solver call)
+    card_id >= 0  → save to an existing card (updates it in place)
+
+    Only call this after:
+      1. A solver tool (run_elastic_inverse, etc.) returned a successful result, AND
+      2. The user has explicitly confirmed they want to save.
+
+    Do NOT call automatically — always ask first.
+    Returns the card_id so subsequent tools can reference it.
+    """
+    if not _pending_save:
+        return (
+            "No result in memory to save. "
+            "Run run_elastic_inverse (or another inverse tool) first."
+        )
+
+    result = _pending_save["result"]
+    meta   = _pending_save["meta"]
+
+    try:
+        saved_id = _scards.save_inverse_result(
+            result=result,
+            fiber_id=meta["fiber_id"],
+            polymer_id=meta["polymer_id"],
+            printer_id=meta.get("printer_id"),
+            card_id=None if card_id == -1 else card_id,
+            card_name=meta.get("card_name", ""),
+        )
+    except Exception as e:
+        return f"Save error: {e}"
+
+    stage = result.get("model", "unknown")
+    _pending_save.clear()
+
+    return (
+        f"Saved successfully.\n"
+        f"  card_id = {saved_id}\n"
+        f"  stage   = {stage}\n"
+        f"Use card_id={saved_id} in get_card_status, predict_properties, "
+        f"or subsequent inverse stages."
+    )
+
+
 # ── All tools passed to the LLM and ToolNode ─────────────────────────────────
 
 TOOLS = [
@@ -1140,7 +1870,10 @@ TOOLS = [
     inspect_card_inputs,
     get_model_inputs_outputs,
     predict_properties,
+    predict_thermal_conductivity,
     add_fiber,
     add_polymer,
     check_identifiability,
+    run_elastic_inverse,
+    save_to_card,
 ]

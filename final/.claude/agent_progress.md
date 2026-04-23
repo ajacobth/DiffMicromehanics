@@ -13,7 +13,7 @@ type: project
 - `agent/prompts/vocabulary.md` — field name/synonym mapping with units, conversions, typical ranges
 - `agent/rag.py` — parent-document RAG: 300-char child chunks for retrieval, full parent pages returned to LLM. PDFs go in `agent/knowledge/`
 - `agent/graph.py` — full LangGraph 3-node graph (agent_node → tool_executor → agent_node). MemorySaver checkpointer. DEBUG prints on tool_calls and response type still present (user may want to remove later).
-- `agent/agent_tools.py` — all discovery tools (see below)
+- `agent/agent_tools.py` — all discovery + forward prediction tools (see below)
 - `agent/ingest.py` — PDF ingestion script for the knowledge base
 - `run_agent.py` — entry point. Model: `qwen2.5:14b-instruct-q4_K_M`. Conversation loop with --card CLI arg. Session restore stubs (resolve_card, restore_state) still placeholder.
 - `requirements.txt` — langgraph, langchain-core, langchain-ollama, langchain-community, etc.
@@ -27,9 +27,16 @@ All tools are thin wrappers over core/services — zero db.py imports in agent_t
 |---|---|
 | `search_knowledge_base(query)` | RAG over agent/knowledge/ PDFs |
 | `list_materials()` | All fibers, polymers, printers with datasheet props |
-| `get_material_details(material_name)` | Full datasheet for ONE fiber or polymer by name (partial, case-insensitive). Returns E1, E2, G12, nu12, nu23, density, CTE1, CTE2, k1, k2. Use this for single-material questions — not list_materials |
+| `get_material_details(material_name)` | Full datasheet for ONE fiber or polymer by name |
 | `list_cards()` | All material cards with completed stages |
-| `get_card_status(card_id)` | Full card detail: microstructure, constituent properties with [inferred/inputted] tags, experimental measurements |
+| `get_card_status(card_id)` | Full card detail: microstructure, constituent properties with [inferred/inputted] tags |
+| `inspect_card_inputs(card_id)` | Preview resolved inputs before predicting (read-only) |
+| `get_model_inputs_outputs(model_name)` | Field names + units for elastic/thermoelastic models |
+| `predict_properties(card_id, ...)` | Forward elastic + thermoelastic prediction, with override args |
+| `predict_thermal_conductivity(card_id, ...)` | Forward thermal prediction at one T or full temperature matrix |
+| `add_fiber(...)` | Add new fiber to material library |
+| `add_polymer(...)` | Add new polymer to material library |
+| `check_identifiability(free_variables, available_measurements, ...)` | FIM analysis — can these measurements identify these unknowns? |
 
 ### Stage detection logic (service_material.get_completed_stages)
 - elastic → polymer has inferred `matrix_modulus`
@@ -78,23 +85,24 @@ nu23 was in tool output but dropped in model summary when filtering all-material
 
 ## What still needs to be built (in order)
 
-1. **Solver tools** in `agent/agent_tools.py`:
-   - `run_elastic_inverse(card_id, measurements)` → calls core/services/service_inverse.py (wraps core/inverse.py)
-   - `run_thermoelastic_inverse(card_id, measurements)` → same pattern
-   - `run_thermal_inverse(card_id, csv_path)` → wraps core/inverse_thermal.py
-   - `run_forward(card_id, microstructure_override)` → wraps core/forward.py
+1. **Inverse solver tools** in `agent/agent_tools.py` (CRITICAL — agent cannot run any computations without these):
+   - `run_elastic_inverse(fiber_id, polymer_id, printer_id, E1_MPa, E2_MPa, G12_MPa, nu12, ...)` → calls core/services/service_inverse.py
+   - `run_thermoelastic_inverse(card_id, CTE11_per_K, CTE22_per_K, ...)` → same pattern
+   - `run_thermal_inverse(card_id, csv_path, n_restarts)` → wraps core/inverse_thermal.py
    - `save_to_card(card_id, stage, results)` → writes to DB via service layer
-   - `load_material_card(card_id)` → alias of get_card_status but returns raw dict for agent use
+   - `run_transfer(source_card_id, target_printer_id, E1_MPa, ...)` → wraps transfer workflow
 
-2. **`agent/session.py`**:
+2. **`stage_updater` node** in `agent/graph.py` — currently loops without updating `completed_stages`. After tool_executor, a pure-Python node should update state when solver tools succeed (elastic/thermoelastic/thermal inverse complete).
+
+3. **`agent/session.py`**:
    - `restore_state_from_card(card_id)` — reads completed_stages from DB
    - `resolve_card_from_message(name_str)` — fuzzy name→card_id lookup
 
-3. **Update `run_agent.py`** — replace stub helpers with session.py imports
+4. **Update `run_agent.py`** — replace stub helpers with session.py imports
 
-4. **Streaming** — deferred, revisit after solver tools work
+5. **Streaming** — deferred, revisit after solver tools work
 
-5. **Remove DEBUG prints** from `agent/graph.py` (lines that print tool_calls and response type) — user hasn't asked yet but they're still there
+6. **Remove DEBUG prints** from `agent/graph.py` (lines that print tool_calls and response type) — user hasn't asked yet but they're still there
 
 ---
 
