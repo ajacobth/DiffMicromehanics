@@ -58,6 +58,40 @@ def get_latest_microstructure(print_config_id: int) -> Optional[dict]:
     return _db.get_latest_microstructure(print_config_id)
 
 
+def get_processing_conditions(print_config_id: int) -> Optional[dict]:
+    """Return the processing conditions for a card, or None if not recorded."""
+    card = _db.get_print_config_card(print_config_id)
+    return card.get("processing_condition")
+
+
+def save_processing_conditions(
+    card_id:         int,
+    bead_width:      Optional[float] = None,
+    bead_height:     Optional[float] = None,
+    nozzle_diameter: Optional[float] = None,
+    print_speed:     Optional[float] = None,
+    notes:           str = "",
+) -> int:
+    """Save printing process conditions to an existing card. Returns pc_id.
+
+    Inserts a new processing_conditions row and links it to the card.
+    Replaces any previously linked conditions on the card.
+    """
+    pc_id = _db.add_processing_condition(
+        bead_width=bead_width,
+        bead_height=bead_height,
+        nozzle_diameter=nozzle_diameter,
+        speed=print_speed,
+        notes=notes,
+    )
+    with _db._connect() as conn:
+        conn.execute(
+            "UPDATE print_configs SET processing_condition_id=? WHERE id=?",
+            (pc_id, card_id),
+        )
+    return pc_id
+
+
 def load_card_inputs(print_config_id: int) -> dict[str, float]:
     """Resolve a card into a flat model-unit input dict.
 

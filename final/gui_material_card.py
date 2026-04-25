@@ -193,6 +193,17 @@ class MaterialCardViewer:
                 ("a23",                _fmt(micro.get("a23"))),
             ]
 
+        pc = card.get("processing_condition")
+        rows += [("── Printing conditions ──", "")]
+        if pc:
+            if pc.get("bead_width")      is not None: rows.append(("Bead width",      f"{pc['bead_width']} mm"))
+            if pc.get("bead_height")     is not None: rows.append(("Bead height",      f"{pc['bead_height']} mm"))
+            if pc.get("nozzle_diameter") is not None: rows.append(("Nozzle diameter",  f"{pc['nozzle_diameter']} mm"))
+            if pc.get("speed")           is not None: rows.append(("Print speed",      f"{pc['speed']} mm/s"))
+            if pc.get("notes"):                       rows.append(("Notes",            pc["notes"]))
+        else:
+            rows.append(("", "(none recorded)"))
+
         for i, (k, v) in enumerate(rows):
             is_hdr = k.startswith("──")
             fg = "gray" if is_hdr else "black"

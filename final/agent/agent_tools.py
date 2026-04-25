@@ -430,6 +430,18 @@ def get_card_status(card_id: int) -> str:
             unc = f" ± {m['uncertainty']}" if m.get("uncertainty") else ""
             lines.append(f"  {n} = {m['value']}{unc} {m.get('unit','')}")
 
+    # ── Processing conditions ──────────────────────────────────────────────────
+    pc = card.get("processing_condition")
+    lines.append("\nPrinting conditions:")
+    if pc:
+        if pc.get("bead_width")      is not None: lines.append(f"  bead_width      = {pc['bead_width']} mm")
+        if pc.get("bead_height")     is not None: lines.append(f"  bead_height     = {pc['bead_height']} mm")
+        if pc.get("nozzle_diameter") is not None: lines.append(f"  nozzle_diameter = {pc['nozzle_diameter']} mm")
+        if pc.get("speed")           is not None: lines.append(f"  print_speed     = {pc['speed']} mm/s")
+        if pc.get("notes"):                       lines.append(f"  notes           = {pc['notes']}")
+    else:
+        lines.append("  (none recorded — use save_processing_conditions to add)")
+
     return "\n".join(lines)
 
 
@@ -719,8 +731,8 @@ def get_model_inputs_outputs(model_name: str) -> str:
 @tool
 def predict_properties(
     card_id: int = -1,
-    fiber_id: int = -1,
-    polymer_id: int = -1,
+    fiber_name: str = "",
+    polymer_name: str = "",
     a11: float = -1.0,
     a22: float = -1.0,
     a12: float = -1.0,
@@ -737,14 +749,14 @@ def predict_properties(
     """
     Run elastic (and optionally thermoelastic) forward prediction.
 
-    Three ways to specify the material system — pick ONE:
+    Two ways to specify the material system — pick ONE:
       1. card_id >= 0: load everything from a saved material card (fiber + polymer
          + microstructure + any inferred constituent properties). Best option when
-         Stage 1 has already been run.
-      2. fiber_id >= 0 AND polymer_id >= 0 (no card): load fiber and polymer
-         datasheet properties. You MUST then provide all microstructure fields
+         Stage 1 has already been run. Any override arguments still apply.
+      2. fiber_name + polymer_name (no card): load fiber and polymer datasheet
+         properties by name. You MUST then provide all microstructure fields
          explicitly via the override arguments (a11, a22, a12, a13, a23,
-         fiber_massfrac, ar).
+         fiber_massfrac, ar). Off-diagonal terms default to 0.0 if not provided.
 
     Any argument set to a value != -1.0 overrides what was loaded from the card or
     datasheet. Use this for what-if scenarios — e.g. change a11 while keeping
@@ -755,6 +767,11 @@ def predict_properties(
     from a card with Stage 2 complete or from explicit override arguments.
 
     Units: moduli in MPa, CTE in 1/K (NOT ppm/K — multiply ppm/K by 1e-6 first).
+
+    IMPORTANT: This tool does NOT require measured composite properties. It only
+    needs the material names (or card_id) and microstructure inputs. Call it
+    directly when the user asks for a forward prediction or wants to see predicted
+    composite properties.
     """
     # ── Step 1: Load base inputs ──────────────────────────────────────────────
     inputs = {}
@@ -774,14 +791,29 @@ def predict_properties(
         except Exception as e:
             return f"Database error loading card: {e}"
 
-    elif fiber_id >= 0 and polymer_id >= 0:
+    elif fiber_name.strip() and polymer_name.strip():
         try:
+            fibers_list  = _db.get_all_fibers()
+            polymers_list = _db.get_all_polymers()
+            fmap = {f["name"].lower(): f["id"] for f in fibers_list}
+            pmap = {p["name"].lower(): p["id"] for p in polymers_list}
+            fn = fiber_name.strip().lower()
+            pn = polymer_name.strip().lower()
+            if fn not in fmap:
+                return (f"Fiber '{fiber_name}' not found. "
+                        f"Available: {', '.join(f['name'] for f in fibers_list)}")
+            if pn not in pmap:
+                return (f"Polymer '{polymer_name}' not found. "
+                        f"Available: {', '.join(p['name'] for p in polymers_list)}")
+            fiber_id   = fmap[fn]
+            polymer_id = pmap[pn]
             inputs   = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
-            fibers   = {f["id"]: f["name"] for f in _smat.list_fibers()}
-            polymers = {p["id"]: p["name"] for p in _smat.list_polymers()}
-            fname    = fibers.get(fiber_id,   f"id={fiber_id}")
-            pname    = polymers.get(polymer_id, f"id={polymer_id}")
+            fname, pname = fiber_name.strip(), polymer_name.strip()
             source_label = f"Datasheets: {fname} / {pname}"
+            # Default off-diagonal terms to 0 if not overridden
+            for od in ("a12", "a13", "a23"):
+                if od not in inputs:
+                    inputs[od] = 0.0
         except Exception as e:
             return f"Database error loading materials: {e}"
 
@@ -789,8 +821,8 @@ def predict_properties(
         return (
             "Specify the material system:\n"
             "  option A — card_id >= 0  (loads fiber + polymer + microstructure from a saved card)\n"
-            "  option B — fiber_id >= 0 AND polymer_id >= 0  "
-            "(loads datasheets; you must also provide a11, a22, a12, a13, a23, fiber_massfrac, ar)"
+            "  option B — fiber_name='AF' and polymer_name='AP'  "
+            "(loads datasheets; also provide a11, a22, fiber_massfrac, ar)"
         )
 
     # ── Step 2: Apply overrides (sentinel -1.0 means "not provided") ─────────
@@ -927,8 +959,8 @@ def predict_properties(
 @tool
 def predict_thermal_conductivity(
     card_id: int = -1,
-    fiber_id: int = -1,
-    polymer_id: int = -1,
+    fiber_name: str = "",
+    polymer_name: str = "",
     temperature_C: float = -1.0,
     k_f1_WmK: float = -1.0,
     k_f2_WmK: float = -1.0,
@@ -944,8 +976,8 @@ def predict_thermal_conductivity(
     """
     Predict composite thermal conductivity (k11, k22, k33) using the thermal surrogate.
 
-    ALWAYS ASK THE USER whether they want a single temperature or a full temperature
-    matrix before calling this tool, unless the user has already specified.
+    If the user has not specified a temperature range, ask once whether they want a
+    single temperature or a range. If they have already specified, call this tool immediately.
 
     temperature_C argument:
       >= 0   — predict at that single temperature and return k11, k22, k33
@@ -953,9 +985,9 @@ def predict_thermal_conductivity(
                and return a conductivity vs temperature table
 
     Material loading — pick ONE:
-      card_id >= 0                       — load fiber + polymer + microstructure from a card
-      fiber_id >= 0 AND polymer_id >= 0  — load from datasheets (you must also provide
-                                           a11, a22, a12, a13, a23, fiber_massfrac, ar)
+      card_id >= 0                          — load fiber + polymer + microstructure from a card
+      fiber_name + polymer_name (strings)   — load from datasheets by name (you must also
+                                              provide a11, a22, fiber_massfrac, ar)
 
     Constituent conductivity — resolved in priority order:
       1. Explicit overrides (k_f1_WmK, k_f2_WmK, k_m_WmK) — temperature-independent
@@ -989,14 +1021,28 @@ def predict_thermal_conductivity(
         except Exception as e:
             return f"Database error loading card: {e}"
 
-    elif fiber_id >= 0 and polymer_id >= 0:
+    elif fiber_name.strip() and polymer_name.strip():
         try:
+            fibers_list   = _db.get_all_fibers()
+            polymers_list = _db.get_all_polymers()
+            fmap = {f["name"].lower(): f["id"] for f in fibers_list}
+            pmap = {p["name"].lower(): p["id"] for p in polymers_list}
+            fn = fiber_name.strip().lower()
+            pn = polymer_name.strip().lower()
+            if fn not in fmap:
+                return (f"Fiber '{fiber_name}' not found. "
+                        f"Available: {', '.join(f['name'] for f in fibers_list)}")
+            if pn not in pmap:
+                return (f"Polymer '{polymer_name}' not found. "
+                        f"Available: {', '.join(p['name'] for p in polymers_list)}")
+            fiber_id   = fmap[fn]
+            polymer_id = pmap[pn]
             inputs   = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
-            fibers   = {f["id"]: f["name"] for f in _smat.list_fibers()}
-            polymers = {p["id"]: p["name"] for p in _smat.list_polymers()}
-            fname    = fibers.get(fiber_id,   f"id={fiber_id}")
-            pname    = polymers.get(polymer_id, f"id={polymer_id}")
+            fname, pname = fiber_name.strip(), polymer_name.strip()
             source_label = f"Datasheets: {fname} / {pname}"
+            for od in ("a12", "a13", "a23"):
+                if od not in inputs:
+                    inputs[od] = 0.0
         except Exception as e:
             return f"Database error loading materials: {e}"
 
@@ -1004,8 +1050,8 @@ def predict_thermal_conductivity(
         return (
             "Specify the material system:\n"
             "  option A — card_id >= 0  (loads fiber + polymer + microstructure from a saved card)\n"
-            "  option B — fiber_id >= 0 AND polymer_id >= 0  "
-            "(you must also provide a11, a22, a12, a13, a23, fiber_massfrac, ar)"
+            "  option B — fiber_name='AF' and polymer_name='AP'  "
+            "(also provide a11, a22, fiber_massfrac, ar)"
         )
 
     # ── Step 2: Ensure density and field-name aliases ─────────────────────────
@@ -1812,16 +1858,19 @@ def run_elastic_inverse(
 
 
 @tool
-def save_to_card(card_id: int = -1) -> str:
+def save_to_card(card_name: str = "", card_id: int = -1) -> str:
     """
     Save the most recent solver result to the database.
 
-    card_id = -1  → create a new material card (uses the card_name from the solver call)
-    card_id >= 0  → save to an existing card (updates it in place)
+    card_name: name for the new card (e.g. "AF/AP CAMRI Stage1"). ALWAYS ask
+               the user for a card name before calling this tool if card_id=-1.
+    card_id = -1  → create a new material card using card_name
+    card_id >= 0  → save to an existing card (updates it in place, card_name ignored)
 
     Only call this after:
       1. A solver tool (run_elastic_inverse, etc.) returned a successful result, AND
-      2. The user has explicitly confirmed they want to save.
+      2. The user has explicitly confirmed they want to save, AND
+      3. You have asked for and received a card_name (when card_id=-1).
 
     Do NOT call automatically — always ask first.
     Returns the card_id so subsequent tools can reference it.
@@ -1835,6 +1884,9 @@ def save_to_card(card_id: int = -1) -> str:
     result = _pending_save["result"]
     meta   = _pending_save["meta"]
 
+    # card_name: prefer the one passed here; fall back to what the solver captured
+    name = card_name.strip() or meta.get("card_name", "")
+
     try:
         saved_id = _scards.save_inverse_result(
             result=result,
@@ -1842,7 +1894,7 @@ def save_to_card(card_id: int = -1) -> str:
             polymer_id=meta["polymer_id"],
             printer_id=meta.get("printer_id"),
             card_id=None if card_id == -1 else card_id,
-            card_name=meta.get("card_name", ""),
+            card_name=name,
         )
     except Exception as e:
         return f"Save error: {e}"
@@ -1852,11 +1904,63 @@ def save_to_card(card_id: int = -1) -> str:
 
     return (
         f"Saved successfully.\n"
-        f"  card_id = {saved_id}\n"
-        f"  stage   = {stage}\n"
+        f"  card_id   = {saved_id}\n"
+        f"  card_name = {name}\n"
+        f"  stage     = {stage}\n"
         f"Use card_id={saved_id} in get_card_status, predict_properties, "
         f"or subsequent inverse stages."
     )
+
+
+@tool
+def save_processing_conditions(
+    card_id: int,
+    bead_width: float = -1.0,
+    bead_height: float = -1.0,
+    nozzle_diameter: float = -1.0,
+    print_speed: float = -1.0,
+    notes: str = "",
+) -> str:
+    """
+    Save printing process conditions to an existing material card.
+
+    card_id:         the card to attach conditions to (from save_to_card)
+    bead_width:      bead width in mm (-1 if unknown)
+    bead_height:     bead height / layer thickness in mm (-1 if unknown)
+    nozzle_diameter: nozzle diameter in mm (-1 if unknown)
+    print_speed:     print speed in mm/s (-1 if unknown)
+    notes:           any other process notes (temperature, infill pattern, etc.)
+
+    Call this after save_to_card. At least one of the numeric fields or notes
+    must be provided. Pass -1 for any value the user does not have.
+    """
+    if card_id < 0:
+        return "card_id is required. Call save_to_card first to get a card_id."
+
+    has_any = (bead_width >= 0 or bead_height >= 0 or
+               nozzle_diameter >= 0 or print_speed >= 0 or bool(notes))
+    if not has_any:
+        return "No conditions provided. Pass at least one value or a notes string."
+
+    try:
+        _scards.save_processing_conditions(
+            card_id=card_id,
+            bead_width=bead_width      if bead_width      >= 0 else None,
+            bead_height=bead_height    if bead_height     >= 0 else None,
+            nozzle_diameter=nozzle_diameter if nozzle_diameter >= 0 else None,
+            print_speed=print_speed    if print_speed     >= 0 else None,
+            notes=notes,
+        )
+    except Exception as e:
+        return f"Error saving processing conditions: {e}"
+
+    lines = ["Processing conditions saved."]
+    if bead_width      >= 0: lines.append(f"  bead_width      = {bead_width} mm")
+    if bead_height     >= 0: lines.append(f"  bead_height     = {bead_height} mm")
+    if nozzle_diameter >= 0: lines.append(f"  nozzle_diameter = {nozzle_diameter} mm")
+    if print_speed     >= 0: lines.append(f"  print_speed     = {print_speed} mm/s")
+    if notes:                lines.append(f"  notes           = {notes}")
+    return "\n".join(lines)
 
 
 # ── All tools passed to the LLM and ToolNode ─────────────────────────────────
@@ -1876,4 +1980,5 @@ TOOLS = [
     check_identifiability,
     run_elastic_inverse,
     save_to_card,
+    save_processing_conditions,
 ]
