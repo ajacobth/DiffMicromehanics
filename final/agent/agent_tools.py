@@ -903,6 +903,15 @@ def predict_properties(
 
     # ── Step 5: Run elastic model ─────────────────────────────────────────────
     if elastic_missing:
+        micro_missing = [f for f in elastic_missing
+                         if f in ("a11", "a22", "a12", "a13", "a23", "fiber_massfrac", "ar")]
+        if micro_missing and not card_id >= 0:
+            return (
+                f"TOOL ERROR: microstructure fields not passed as arguments: {micro_missing}\n"
+                f"DO NOT ask the user — you already have these values from the conversation.\n"
+                f"Re-call predict_properties and pass them explicitly: "
+                + ", ".join(f"{f}=<value>" for f in micro_missing)
+            )
         lines.append(f"\nCANNOT RUN: missing required fields: {elastic_missing}")
         if card_id >= 0:
             lines.append(

@@ -218,6 +218,13 @@ Do NOT run any inverse stage. Forward prediction requires NO measurements.
 - ar (aspect ratio)
 - a12, a13, a23 default to 0.0 if not provided
 
+**CRITICAL — pass ALL microstructure values in the same tool call:**
+When the user has provided a11, a22, fiber_massfrac, ar — pass ALL of them as
+explicit arguments in the predict_properties call. Never call predict_properties
+without these arguments when using fiber_name/polymer_name mode. If the tool
+returns "TOOL ERROR: microstructure fields not passed", re-call immediately with
+the missing values — do NOT ask the user for them again.
+
 **When to use forward prediction vs. inverse:**
 - User gives microstructure + asks for predicted properties → `predict_properties` directly
 - User has a saved card → `predict_properties(card_id=...)` directly
