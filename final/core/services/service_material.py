@@ -166,6 +166,49 @@ def add_printer(name: str, manufacturer: str = "") -> int:
     return _db.add_printer(name=name, manufacturer=manufacturer.strip())
 
 
+def _get_densities(fiber_id: int, polymer_id: int) -> tuple[float, float]:
+    """Return (rho_f, rho_m) from DB. Raises ValueError if either is missing."""
+    rho_f = get_fiber_inputs(fiber_id).get("fiber_density")
+    rho_m = get_polymer_inputs(polymer_id).get("matrix_density")
+    if rho_f is None:
+        raise ValueError(f"Fiber id={fiber_id} has no density in the database.")
+    if rho_m is None:
+        raise ValueError(f"Polymer id={polymer_id} has no density in the database.")
+    return rho_f, rho_m
+
+
+def convert_mass_to_volume_fraction(
+    fiber_id: int,
+    polymer_id: int,
+    mass_fraction: float,
+) -> dict:
+    """Convert fiber mass fraction (wf) → volume fraction (Vf).
+
+    Formula: Vf = (wf · ρ_m) / (wf · ρ_m + (1 − wf) · ρ_f)
+    Returns: {"vf": float, "wf": float, "rho_f": float, "rho_m": float}
+    """
+    rho_f, rho_m = _get_densities(fiber_id, polymer_id)
+    wf = mass_fraction
+    vf = (wf * rho_m) / (wf * rho_m + (1.0 - wf) * rho_f)
+    return {"vf": vf, "wf": wf, "rho_f": rho_f, "rho_m": rho_m}
+
+
+def convert_volume_to_mass_fraction(
+    fiber_id: int,
+    polymer_id: int,
+    volume_fraction: float,
+) -> dict:
+    """Convert fiber volume fraction (Vf) → mass fraction (wf).
+
+    Formula: wf = (Vf · ρ_f) / (Vf · ρ_f + (1 − Vf) · ρ_m)
+    Returns: {"wf": float, "vf": float, "rho_f": float, "rho_m": float}
+    """
+    rho_f, rho_m = _get_densities(fiber_id, polymer_id)
+    vf = volume_fraction
+    wf = (vf * rho_f) / (vf * rho_f + (1.0 - vf) * rho_m)
+    return {"wf": wf, "vf": vf, "rho_f": rho_f, "rho_m": rho_m}
+
+
 def get_model_inputs(
     fiber_id: int,
     polymer_id: int,

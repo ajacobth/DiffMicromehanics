@@ -16,7 +16,10 @@ _FINAL = Path(__file__).parent
 if str(_FINAL) not in sys.path:
     sys.path.insert(0, str(_FINAL))
 
-from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
+load_dotenv()
+
+from langchain_anthropic import ChatAnthropic
 from agent.graph import build_app
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -28,7 +31,7 @@ st.set_page_config(
 )
 
 PROMPTS_DIR = _FINAL / "agent" / "prompts"
-MODEL_NAME  = "qwen2.5:14b-instruct-q4_K_M"
+MODEL_NAME  = "claude-haiku-4-5-20251001"
 
 
 # ── Cached resources (survive Streamlit reruns) ───────────────────────────────
@@ -37,7 +40,7 @@ MODEL_NAME  = "qwen2.5:14b-instruct-q4_K_M"
 def get_app():
     system = (PROMPTS_DIR / "system_prompt.md").read_text()
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()
-    llm = ChatOllama(model=MODEL_NAME, temperature=0, streaming=True)
+    llm = ChatAnthropic(model=MODEL_NAME, temperature=0)
     return build_app(llm, f"{system}\n\n---\n\n{vocab}")
 
 
@@ -160,7 +163,13 @@ if prompt := st.chat_input("Ask about your composite materials…"):
 
                     # LLM is generating text (final response, not a tool call)
                     if chunk.content and not chunk.tool_call_chunks:
-                        full_text += chunk.content
+                        content = chunk.content
+                        if isinstance(content, list):
+                            content = "".join(
+                                b["text"] if isinstance(b, dict) and b.get("type") == "text" else ""
+                                for b in content
+                            )
+                        full_text += content
                         text_box.markdown(full_text + "▌")
 
                 # ── Tool result ───────────────────────────────────────────

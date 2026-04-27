@@ -8,6 +8,7 @@ Current tools:
     search_knowledge_base         — RAG over agent/knowledge/ PDFs
     list_materials                — list all fibers, polymers, printers in the DB
     get_material_details          — full datasheet for one fiber or polymer by name
+    convert_fraction              — convert fiber mass fraction ↔ volume fraction using DB densities
     list_cards                    — list all material cards and their stage status
     get_card_status               — full detail view of one material card
     get_model_inputs_outputs      — field names + units for elastic/thermoelastic models
@@ -503,6 +504,69 @@ def get_material_details(material_name: str) -> str:
         return f"No fiber or polymer found matching '{material_name}'. Call list_materials to see all available materials."
 
     return "\n\n".join(matches)
+
+
+@tool
+def convert_fraction(
+    fiber_name: str,
+    polymer_name: str,
+    fiber_massfrac: float = -1.0,
+    fiber_volfrac: float = -1.0,
+) -> str:
+    """
+    Convert between fiber mass fraction (wf) and fiber volume fraction (Vf)
+    using material densities from the database.
+
+    Pass exactly one of:
+      fiber_massfrac — convert wf → Vf
+      fiber_volfrac  — convert Vf → wf
+
+    Use this tool for any fraction conversion. Do NOT compute manually.
+    """
+    if fiber_massfrac < 0 and fiber_volfrac < 0:
+        return "Provide either fiber_massfrac or fiber_volfrac (not both negative)."
+    if fiber_massfrac >= 0 and fiber_volfrac >= 0:
+        return "Provide only one of fiber_massfrac or fiber_volfrac, not both."
+
+    fibers   = _smat.list_fibers()
+    polymers = _smat.list_polymers()
+
+    fn = fiber_name.strip().lower()
+    pn = polymer_name.strip().lower()
+
+    fiber   = next((f for f in fibers   if fn in f["name"].lower()), None)
+    polymer = next((p for p in polymers if pn in p["name"].lower()), None)
+
+    if fiber is None:
+        return f"Fiber '{fiber_name}' not found. Call list_materials to see available fibers."
+    if polymer is None:
+        return f"Polymer '{polymer_name}' not found. Call list_materials to see available polymers."
+
+    try:
+        if fiber_massfrac >= 0:
+            result = _smat.convert_mass_to_volume_fraction(
+                fiber_id=fiber["id"], polymer_id=polymer["id"],
+                mass_fraction=fiber_massfrac,
+            )
+            return (
+                f"Fiber: {fiber['name']}  ρ_f = {result['rho_f']} kg/m³\n"
+                f"Polymer: {polymer['name']}  ρ_m = {result['rho_m']} kg/m³\n"
+                f"Mass fraction wf = {result['wf']}\n"
+                f"Volume fraction Vf = {result['vf']:.4f}"
+            )
+        else:
+            result = _smat.convert_volume_to_mass_fraction(
+                fiber_id=fiber["id"], polymer_id=polymer["id"],
+                volume_fraction=fiber_volfrac,
+            )
+            return (
+                f"Fiber: {fiber['name']}  ρ_f = {result['rho_f']} kg/m³\n"
+                f"Polymer: {polymer['name']}  ρ_m = {result['rho_m']} kg/m³\n"
+                f"Volume fraction Vf = {result['vf']}\n"
+                f"Mass fraction wf = {result['wf']:.4f}"
+            )
+    except ValueError as e:
+        return f"Cannot compute: {e}"
 
 
 # ── Card inspection tool ──────────────────────────────────────────────────────
