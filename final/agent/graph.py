@@ -40,8 +40,6 @@ def build_app(llm: BaseChatModel, system_prompt: str):
         )
         messages = [SystemMessage(system_prompt + context)] + state["messages"]
         response = llm_with_tools.invoke(messages)
-        print(f"[DEBUG] tool_calls: {getattr(response, 'tool_calls', None)}")
-        print(f"[DEBUG] response type: {type(response).__name__}")
         return {"messages": [response]}
 
     tool_executor = ToolNode(TOOLS)

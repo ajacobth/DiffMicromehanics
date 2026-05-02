@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langchain_anthropic import ChatAnthropic
+from langchain_ollama import ChatOllama
 from agent.graph import build_app
 
 # ── Page config ───────────────────────────────────────────────────────────────
@@ -31,7 +32,23 @@ st.set_page_config(
 )
 
 PROMPTS_DIR = _FINAL / "agent" / "prompts"
-MODEL_NAME  = "claude-haiku-4-5-20251001"
+
+# ── Model selection — change ACTIVE_MODEL to switch ──────────────────────────
+MODELS = {
+    "haiku":  ("anthropic", "claude-haiku-4-5-20251001"),
+    "sonnet": ("anthropic", "claude-sonnet-4-6"),
+    "local":  ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
+    "local2": ("ollama",    "qwen3:8b"),
+    "local3": ("ollama",    "qwen3:14b"),
+}
+ACTIVE_MODEL = "local"   # ← change this: "haiku" | "sonnet" | "local" | "local2" | "local3"
+
+
+def _build_llm():
+    provider, model_id = MODELS[ACTIVE_MODEL]
+    if provider == "anthropic":
+        return ChatAnthropic(model=model_id, temperature=0)
+    return ChatOllama(model=model_id, temperature=0, streaming=True)
 
 
 # ── Cached resources (survive Streamlit reruns) ───────────────────────────────
@@ -40,8 +57,7 @@ MODEL_NAME  = "claude-haiku-4-5-20251001"
 def get_app():
     system = (PROMPTS_DIR / "system_prompt.md").read_text()
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()
-    llm = ChatAnthropic(model=MODEL_NAME, temperature=0)
-    return build_app(llm, f"{system}\n\n---\n\n{vocab}")
+    return build_app(_build_llm(), f"{system}\n\n---\n\n{vocab}")
 
 
 # ── Session state initialisation ─────────────────────────────────────────────
@@ -69,7 +85,7 @@ def get_graph_state() -> dict:
 
 with st.sidebar:
     st.title("🧪 MateriAl")
-    st.caption(f"Model: `{MODEL_NAME}`")
+    st.caption(f"Model: `{ACTIVE_MODEL}` ({MODELS[ACTIVE_MODEL][1]})")
     st.divider()
 
     graph_state       = get_graph_state()

@@ -22,6 +22,7 @@ long-term fine-tuning roadmap.
 11. [Hardware Requirements](#11-hardware-requirements)
 12. [LangGraph — State Tracking and Routing](#12-langgraph--state-tracking-and-routing)
 13. [Session Persistence and Memory Restoration](#13-session-persistence-and-memory-restoration)
+14. [Intent Routing — Mode-Based Tool Filtering](#14-intent-routing--mode-based-tool-filtering)
 
 ---
 
@@ -1262,6 +1263,139 @@ of that stays in the model via the system prompt.
 If any of these decisions were encoded as graph edges, the design would drift
 towards tool-smart behavior. The graph is a state carrier and a loop, not a
 decision tree.
+
+---
+
+## 14. Intent Routing — Mode-Based Tool Filtering
+
+### The problem
+
+Small local models (≤14B) fail at intent classification when all 16 tools are
+visible simultaneously. Given a prediction request, the model may still reach
+for an inverse solver. Given a database query, it may call `predict_properties`.
+Prompt rules help but are unreliable — the model reads past them.
+
+The root cause: asking a small model to (1) classify intent, (2) select tools,
+(3) handle physics reasoning, and (4) format the response — all in one pass —
+is too much. Intent routing offloads step 1 to the graph so the model never
+faces the choice.
+
+---
+
+### Approach: graph-level mode routing with per-message re-classification
+
+A lightweight `mode_router` node runs before every LLM call. It reads the
+user's message, classifies the intent, and passes only the relevant tool subset
+to the model. The model cannot call tools outside its assigned mode because
+they are not in its bound list for that turn.
+
+Modes are **per-message, not per-session** — the router re-classifies every
+new human message. This means the user can switch naturally between prediction,
+inverse, and database queries within the same conversation without mode-lock.
+
+---
+
+### Two router implementations
+
+**Option A — Keyword prefix (explicit, zero latency)**
+
+User types a prefix: `PREDICT:`, `INVERSE:`, `SEARCH:`, `CARD:`, `DATABASE:`,
+`SAVE:`. The router does a string match. No model call, <1ms.
+
+Tradeoff: requires user training. Good for power users or developers. Better
+than nothing while the BERT router is being built.
+
+**Option B — Mini NLI classifier (transparent to user, ~20-50ms)**
+
+A tiny zero-shot NLI model (e.g. `cross-encoder/nli-MiniLM2-L6-H4`, 67 MB)
+scores the user message against each mode's description and picks the highest.
+The user types naturally. Runs fully offline on CPU in <50ms on M2 Max.
+
+This is the target architecture. Both options share the same downstream graph
+structure — only the `mode_router` node internals differ.
+
+---
+
+### Mode → tool mapping
+
+| Mode | Primary use | Tools available |
+|---|---|---|
+| `predict` | Forward property prediction | `predict_properties`, `predict_thermal_conductivity`, `convert_fraction`, `get_material_details`, `list_materials`, `get_card_status`, `list_cards` |
+| `inverse` | Elastic / thermoelastic / thermal inverse solvers | `run_elastic_inverse`, `run_thermoelastic_inverse`, `run_thermal_inverse`, `check_identifiability`, `convert_fraction`, `get_material_details`, `list_materials`, `get_card_status`, `list_cards`, `save_to_card`, `save_processing_conditions` |
+| `search` | Knowledge base queries | `search_knowledge_base` |
+| `predict_search` | Predict + knowledge base together | predict tools + `search_knowledge_base` |
+| `card` | Inspect and browse saved material cards | `list_cards`, `get_card_status`, `inspect_card_inputs`, `get_model_inputs_outputs`, `get_material_details` |
+| `database` | Add or query materials in the library | `add_fiber`, `add_polymer`, `list_materials`, `get_material_details` |
+| `save` | Save results after a solve | `save_to_card`, `save_processing_conditions`, `get_card_status`, `list_cards` |
+| `default` | No mode detected — backward compatible | all tools |
+
+**Bridge tools** appear in multiple modes because they are needed mid-workflow
+regardless of the primary intent. `get_card_status` and `list_cards` appear in
+`predict`, `inverse`, `card`, and `save` — you often need to look up a card
+before or after any operation. `save_to_card` appears in both `inverse` and
+`save` so you can save immediately after a solve without mode-switching.
+
+---
+
+### Updated graph structure
+
+```
+START
+  │
+  ▼
+mode_router          ← per-message: classifies intent, writes active_mode to state
+  │                    pure Python (keyword match or NLI model) — no LLM call
+  ▼
+agent_node           ← LLM bound to mode-specific tool subset only
+  │
+  ├─ tool calls? ─YES─→ tool_executor ─→ stage_updater ─→ agent_node (loop)
+  │
+  └─ NO ──────────────────────────────────────────────────→ END
+```
+
+`mode_router` is a pure Python node — zero LLM calls.
+`tool_executor` uses the full TOOLS list (the LLM can only call what it was
+bound to, so restriction at bind time is sufficient).
+`stage_updater` is unchanged from Section 12.
+
+---
+
+### State change
+
+One field added to `AgentState`:
+
+```python
+active_mode: str  # "predict" | "inverse" | "search" | "predict_search" |
+                  # "card" | "database" | "save" | "default"
+```
+
+---
+
+### Implementation status
+
+Not yet implemented. The tool set must be complete before the routing map is
+finalised — adding `run_thermoelastic_inverse` and `run_thermal_inverse` to the
+TOOLS list will affect which tools belong in the `inverse` mode. See the build
+order note below.
+
+---
+
+### Recommended build order
+
+**Finish core tools first, then wire the router.**
+
+The `inverse` mode tool list is currently incomplete — `run_thermoelastic_inverse`
+and `run_thermal_inverse` are implemented in `core/` but not yet exposed in
+`agent_tools.py`. Adding them after the router is built means revisiting the
+mode map, the NLI label descriptions, and any mode-specific prompt injections.
+
+Correct order:
+1. Add `run_thermoelastic_inverse` to `agent_tools.py` (Stage 2 — CTE)
+2. Add `run_thermal_inverse` to `agent_tools.py` (Stage 3 — thermal conductivity)
+3. Finalise the `inverse` mode tool list
+4. Implement `mode_router` (keyword first, NLI second)
+5. Add `active_mode` to `AgentState`
+6. Update `agent_node` to use pre-bound LLM variants per mode
 
 ---
 

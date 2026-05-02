@@ -40,8 +40,8 @@ _OUT_IDX = {"k11": 0, "k12": 1, "k13": 2, "k22": 3, "k23": 4, "k33": 5}
 
 # ── Optimisation bounds [lo, hi] — physical constraints ──────────────────────
 PARAM_BOUNDS = [
-    (0.0,  10e-3),   # p1  polymer conductivity scaling  [W/(m·°C)]
-    (0.0,  15e-2),   # p2  polymer conductivity offset   [W/(m·°C)]
+    (0.0,  0.05),   # p1  polymer conductivity scaling  [W/(m·°C)]  — allows k_m up to ~0.4 at 200°C
+    (0.0,  0.40),   # p2  polymer conductivity offset   [W/(m·°C)]  — covers 0.05–0.4 W/m·K range
     (1.0, 20.0),    # l2  fiber longitudinal conductivity [W/(m·°C)]
     (1.01, 6.0),    # t   fiber anisotropy ratio (K_f1/K_f2)  [–]
 ]
