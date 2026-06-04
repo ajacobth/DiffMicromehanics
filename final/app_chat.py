@@ -91,7 +91,6 @@ with st.sidebar:
     graph_state       = get_graph_state()
     current_card_id   = graph_state.get("current_card_id")
     completed_stages  = graph_state.get("completed_stages") or []
-
     st.subheader("Session")
     st.caption(f"Thread: `{st.session_state.thread_id}`")
 
@@ -115,11 +114,16 @@ with st.sidebar:
     st.divider()
     st.caption("Tips")
     st.markdown(
-        "- *\"list materials\"* — see available fibers & polymers\n"
-        "- *\"what cards do we have\"* — show all material cards\n"
-        "- *\"inspect card 1\"* — see resolved inputs before predicting\n"
-        "- *\"predict card 1\"* — run forward prediction\n"
-        "- *\"can I infer a11 from E1?\"* — identifiability check\n"
+        "**Prefix your message with:**\n\n"
+        "- `PREDICT` — forward prediction\n"
+        "- `INVERSE` — characterize from measurements\n"
+        "- `SEARCH` — material lookup / theory\n\n"
+        "**Examples:**\n\n"
+        "- *\"PREDICT card 1\"*\n"
+        "- *\"INVERSE elastic stage for T300/PESU\"*\n"
+        "- *\"SEARCH what is the modulus of carbon fiber\"*\n"
+        "- *\"what cards do we have\"*\n"
+        "- *\"can I infer a11 from E1?\"*"
     )
 
 
@@ -139,7 +143,7 @@ for msg in st.session_state.display_msgs:
 
 # ── Input and streaming response ──────────────────────────────────────────────
 
-if prompt := st.chat_input("Ask about your composite materials…"):
+if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your composite materials…"):
 
     # Show user message immediately
     st.session_state.display_msgs.append({"role": "user", "content": prompt, "tools": []})

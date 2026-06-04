@@ -1270,6 +1270,48 @@ def predict_thermal_conductivity(
     return "\n".join(lines)
 
 
+# ── Parameter sweep tool ─────────────────────────────────────────────────────
+
+@tool
+def sweep_parameter(
+    card_id: int,
+    parameter: str,
+    values: list[float],
+    target_property: str = "E1",
+) -> str:
+    """
+    Sweep one microstructure or constituent parameter over a list of values
+    and show how a target composite property changes. Use for what-if analysis,
+    e.g. finding the aspect ratio that gives E1 = 15 GPa.
+
+    Parameters
+    ----------
+    card_id         : card to base the sweep on
+    parameter       : ar | a11 | a22 | fiber_massfrac | matrix_modulus |
+                      matrix_poisson | f_cte1 | f_cte2 | m_cte
+    values          : list of values to try, e.g. [10, 12, 14, 16, 18, 20]
+    target_property : output to highlight, e.g. "E1", "E2", "G12", "CTE11"
+    """
+    try:
+        result = _sfwd.sweep_parameter(card_id, parameter, values, target_property)
+    except Exception as e:
+        return f"SWEEP ERROR: {e}"
+
+    prop = result["target_property"]
+    rows = result["rows"]
+
+    lines = [f"Sweep: {result['parameter']} → {prop}  (Card #{card_id})\n"]
+    lines.append(f"{'Value':>10}  {prop:>14}")
+    lines.append("-" * 28)
+    for row in rows:
+        val  = row["value"]
+        pval = row["properties"].get(prop.lower()) or row["properties"].get(prop)
+        pstr = f"{pval:,.2f}" if pval is not None else "N/A"
+        lines.append(f"{val:>10.3f}  {pstr:>14}")
+
+    return "\n".join(lines)
+
+
 # ── Material library tools ────────────────────────────────────────────────────
 
 @tool
@@ -2418,6 +2460,7 @@ TOOLS = [
     add_fiber,
     add_polymer,
     check_identifiability,
+    sweep_parameter,
     run_elastic_inverse,
     run_thermoelastic_inverse,
     run_thermal_inverse,

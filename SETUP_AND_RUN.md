@@ -1160,7 +1160,112 @@ from the thermal inverse GUI.
 
 ---
 
-## 15. Common Errors and Fixes
+## 15. Run the MateriAl Chat Agent
+
+MateriAl is a conversational AI assistant that guides you through the full
+characterisation workflow in plain English. Instead of operating the GUI step
+by step, you describe your measurements and the agent runs the correct solvers,
+checks the results, and saves them to a material card — no Python knowledge
+required.
+
+> **Full instructions are in `final/AGENT_SETUP.md`.**
+> The summary below is enough to get started quickly.
+
+
+### What you need
+
+**Ollama** — a free tool that runs AI models locally on your computer. Your
+characterisation data never leaves the machine.
+
+1. Download Ollama from **https://ollama.com** and install it (click through
+   the installer — no configuration needed).
+2. Open a terminal and download the language model (this is a one-time
+   download, about 9 GB):
+
+   ```bash
+   ollama pull qwen2.5:14b-instruct-q4_K_M
+   ```
+
+   Wait for it to finish. You only need to do this once.
+
+### Install additional Python packages
+
+Make sure your environment is activated, then from the `final/` folder:
+
+```bash
+pip install streamlit langchain-anthropic anthropic python-dotenv langchain-ollama langchain-core langgraph pypdf chromadb langchain-chroma langchain-text-splitters
+```
+
+> If you already ran `pip install -r requirements.txt` these may already be
+> installed. Re-running `pip install` will skip packages that are up to date.
+
+### Build the knowledge base (one-time)
+
+The agent can answer theory questions using a library of reference PDFs.
+Build it once:
+
+```bash
+cd /path/to/DiffMicromehanics/final
+conda activate jax_trial
+python agent/build_kb.py
+```
+
+Skip this step if there are no PDFs in `agent/knowledge/` — the agent works
+without it.
+
+### Run the agent
+
+```bash
+cd /path/to/DiffMicromehanics/final
+conda activate jax_trial
+streamlit run app_chat.py
+```
+
+A browser tab opens automatically. Type your measurements into the chat box.
+
+### Example conversation
+
+```
+You:    I have a T300/PESU composite printed on CAMRI. I measured E1 = 15.1 GPa,
+        E2 = 5.2 GPa, and G12 = 2.4 GPa. Fiber mass fraction is 0.20.
+
+Agent:  Ready to run elastic inverse:
+        Fiber: T300 Carbon Fiber (Toray), Polymer: PESU Ultrason (BASF)
+        Measurements: E1=15100 MPa, E2=5200 MPa, G12=2400 MPa, mf fixed at 0.20
+        Confirm? (yes / change something)
+
+You:    yes
+
+Agent:  [runs solver]
+        fit_error = 0.008  (excellent fit)
+        a11 = 0.74, a22 = 0.14, ar = 18.2, matrix_modulus = 3820 MPa
+        [QUALITY CHECK: all PASS]
+        Save to card?
+
+You:    yes, call it T300_PESU_CAMRI
+```
+
+### Using an Anthropic model instead (optional)
+
+If you want to use a cloud model (Claude Haiku or Sonnet) instead of local
+Qwen, create a file called `.env` inside the `final/` folder:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Then open `final/app_chat.py` and change the `ACTIVE_MODEL` line near the top:
+
+```python
+ACTIVE_MODEL = "haiku"   # or "sonnet"
+```
+
+> Note: using a cloud model sends your inputs to Anthropic's servers.
+> Use the local model if your data is proprietary.
+
+---
+
+## 16. Common Errors and Fixes
 
 ### "ModuleNotFoundError: No module named 'jax'"
 

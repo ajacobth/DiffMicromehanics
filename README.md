@@ -47,6 +47,13 @@ It provides four core capabilities:
 | **Thermal inverse** | Measured K vs T data | Inferred fiber and matrix conductivities |
 | **Physics-informed transfer** | Source card + new printer's measurements | Composite property predictions for the new printer |
 
+All four capabilities are available through graphical GUIs and through **MateriAl**
+— a conversational AI agent that lets you run the full characterisation workflow
+in plain English, without operating any GUI or writing code.
+
+**For GUI setup:** see `SETUP_AND_RUN.md`
+**For agent setup:** see `final/AGENT_SETUP.md`
+
 The key insight that ties all four together is that **constituent properties are
 printer-independent**. Once you characterise a fiber-polymer pair on one
 printer, those inferred constituent properties can be combined with any other

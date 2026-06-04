@@ -48,6 +48,64 @@ def get_output_fields(model_name: str) -> list[str]:
     return list(get_model(model_name).output_fields)
 
 
+def sweep_parameter(
+    card_id: int,
+    parameter: str,
+    values: list[float],
+    target_property: str = "E1",
+) -> dict:
+    """Sweep one microstructure or constituent parameter and return predictions at each value.
+
+    Parameters
+    ----------
+    card_id         : base card to load inputs from
+    parameter       : ar | a11 | a22 | fiber_massfrac | matrix_modulus |
+                      matrix_poisson | f_cte1 | f_cte2 | m_cte
+    values          : list of values to evaluate
+    target_property : output field to highlight (e.g. "E1", "CTE11")
+
+    Returns
+    -------
+    dict with keys: parameter, target_property, rows, card_id
+    """
+    import core.services.service_cards as _scards
+
+    PARAM_MAP = {
+        "ar":             "ar",
+        "a11":            "a11",
+        "a22":            "a22",
+        "fiber_massfrac": "fiber_massfrac",
+        "mf":             "fiber_massfrac",
+        "matrix_modulus": "matrix_modulus",
+        "matrix_poisson": "matrix_poisson",
+        "f_cte1":         "f_cte1",
+        "f_cte2":         "f_cte2",
+        "m_cte":          "m_cte",
+    }
+    field = PARAM_MAP.get(parameter.lower())
+    if field is None:
+        raise ValueError(f"Unknown parameter '{parameter}'. Choose from: {sorted(PARAM_MAP)}")
+
+    inputs_base = _scards.load_card_inputs(card_id)
+
+    rows = []
+    for val in values:
+        inputs = dict(inputs_base)
+        inputs[field] = val
+        if field in ("a11", "a22"):
+            inputs["a33"] = 1.0 - inputs["a11"] - inputs["a22"]
+        el_out = run_forward("elastic", inputs)
+        te_out = run_forward("thermoelastic", inputs)
+        rows.append({"value": val, "properties": {**el_out, **te_out}})
+
+    return {
+        "parameter":       parameter,
+        "target_property": target_property.upper(),
+        "rows":            rows,
+        "card_id":         card_id,
+    }
+
+
 def warm_up_model(model_name: str) -> None:
     """Trigger JAX JIT compilation for a model by running a dummy prediction.
 

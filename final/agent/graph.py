@@ -2,13 +2,16 @@
 LangGraph application for the DiffMicromechanics agent.
 
 Graph structure:
-    agent_node  →  (has tool calls?) → YES → tool_executor → agent_node
+    agent_node  →  (has tool calls?) → YES → tool_executor → checker → agent_node
                                       → NO  → END
+
+    checker appends a PASS/FAIL quality report to inverse solver results
+    before the agent reads them. Non-inverse tool results pass through untouched.
 
 Call build_app() to get a compiled graph ready for invoke().
 """
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, ToolMessage
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
@@ -16,6 +19,13 @@ from langgraph.prebuilt import ToolNode
 
 from agent.state import AgentState
 from agent.agent_tools import TOOLS
+import core.services.service_checklist as _sc
+
+QUALITY_CHECKED_TOOLS = {
+    "run_elastic_inverse",
+    "run_thermoelastic_inverse",
+    "run_thermal_inverse",
+}
 
 
 def build_app(llm: BaseChatModel, system_prompt: str):
@@ -44,6 +54,19 @@ def build_app(llm: BaseChatModel, system_prompt: str):
 
     tool_executor = ToolNode(TOOLS)
 
+    def checker_node(state: AgentState) -> dict:
+        """Append a quality report to inverse solver results before the agent reads them."""
+        last = state["messages"][-1]
+        if not isinstance(last, ToolMessage) or last.name not in QUALITY_CHECKED_TOOLS:
+            return {}
+        report = _sc.evaluate(last.name, last.content)
+        updated = ToolMessage(
+            content=last.content + report,
+            tool_call_id=last.tool_call_id,
+            name=last.name,
+        )
+        return {"messages": [updated]}
+
     # ── Routing ───────────────────────────────────────────────────────────────
 
     def should_use_tool(state: AgentState) -> str:
@@ -59,10 +82,12 @@ def build_app(llm: BaseChatModel, system_prompt: str):
 
     graph.add_node("agent", agent_node)
     graph.add_node("tool_executor", tool_executor)
+    graph.add_node("checker", checker_node)
 
     graph.set_entry_point("agent")
 
     graph.add_conditional_edges("agent", should_use_tool)
-    graph.add_edge("tool_executor", "agent")
+    graph.add_edge("tool_executor", "checker")
+    graph.add_edge("checker", "agent")
 
     return graph.compile(checkpointer=MemorySaver())

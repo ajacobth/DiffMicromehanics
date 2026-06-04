@@ -87,6 +87,69 @@ python scripts/test_setup.py
 
 ---
 
+## 2b. Chat Agent (MateriAl)
+
+The application includes a conversational AI agent — **MateriAl** — that lets you
+run the full characterisation workflow in plain English, without operating the GUI
+or writing any code.
+
+### Running the agent
+
+```bash
+# From the final/ directory
+streamlit run app_chat.py
+```
+
+Opens a browser tab with a chat interface. Type your measurements and the agent
+runs the correct solvers, enforces stage order, checks results for physical
+plausibility, and saves to a material card.
+
+### Model selection
+
+Edit the `ACTIVE_MODEL` line near the top of `app_chat.py`:
+
+```python
+MODELS = {
+    "haiku":  ("anthropic", "claude-haiku-4-5-20251001"),
+    "sonnet": ("anthropic", "claude-sonnet-4-6"),
+    "local":  ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
+}
+ACTIVE_MODEL = "local"   # change to "haiku" or "sonnet" for Anthropic models
+```
+
+**Local model (default):** requires [Ollama](https://ollama.com) installed and the
+model pulled:
+```bash
+ollama pull qwen2.5:14b-instruct-q4_K_M
+```
+
+**Anthropic models:** create a file `final/.env` containing:
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+### Knowledge base (one-time setup)
+
+The agent can answer questions about composite mechanics theory using a PDF
+knowledge base. To build it, place PDF references in `agent/knowledge/` then run:
+
+```bash
+python agent/build_kb.py
+```
+
+This only needs to be done once, or when new PDFs are added.
+
+### What the agent can do
+
+| Prefix | Mode | Example |
+|---|---|---|
+| `INVERSE` | Characterisation from measurements | `INVERSE E1=15 GPa, E2=5 GPa, mf=0.20, T300/PESU` |
+| `PREDICT` | Forward property prediction | `PREDICT card 3 with a11=0.75, mf=0.25` |
+| `SEARCH` | Material lookup / theory | `SEARCH what is the CTE of T300?` |
+| *(none)* | Agent decides | Works for most requests |
+
+---
+
 ## 3. Directory Structure
 
 ```
