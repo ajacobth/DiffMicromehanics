@@ -296,29 +296,101 @@ Save the file and re-run `streamlit run app_chat.py`.
 
 ### Keyword prefixes (optional)
 
-You can start your message with a keyword to tell the agent which mode to use.
-The keyword is optional — the agent will figure it out from context.
+You can start your message with a keyword to help the agent route correctly.
+The keyword is optional — the agent infers intent from context — but it makes
+responses more reliable, especially for short or ambiguous messages.
 
-| Prefix | Mode | Use when |
-|---|---|---|
-| `INVERSE` | Characterisation from measurements | You have measured E1, E2, CTE, K vs T |
-| `PREDICT` | Forward property prediction | You want to predict properties for a given microstructure |
-| `SEARCH` | Material lookup / theory | You want material properties or theory answers |
+| Prefix | Use when |
+|---|---|
+| `INVERSE` | You have measured properties and want to infer microstructure or constituent properties |
+| `PREDICT` | You want to predict properties for a saved card or a given microstructure |
+| `SEARCH` | You want to look up material data or ask a theory question |
 
-### Full characterisation workflow
+---
 
-**Stage 1 — Elastic inverse** (always first)
+### Browsing your saved cards
+
+The most reliable starting point is to check what you already have:
 
 ```
-INVERSE I have a T300/PESU composite on CAMRI printer.
-E1 = 15.1 GPa, E2 = 5.2 GPa, G12 = 2.4 GPa.
-Fiber mass fraction is 0.20.
+what cards do we have saved?
 ```
 
-The agent asks for confirmation, runs the solver, reports the quality check,
-and asks if you want to save. Say **yes** and give it a card name.
+The agent returns a numbered list of all saved cards with fiber, polymer, printer,
+and completed stages. Then you can drill into one:
 
-**Stage 2 — Thermoelastic inverse** (after Stage 1 is saved)
+```
+tell me about the properties of card 1
+what are the predicted elastic properties for card 1
+PREDICT: elastic properties for card 4
+```
+
+---
+
+### Running a parameter sweep
+
+One of the most useful things the agent can do is answer "what if" questions
+by sweeping a parameter and showing how it affects a target property.
+
+```
+what mass fraction would I need for E1 to be 18 GPa?
+```
+
+The agent runs a coarse sweep (e.g. mf = 0.15, 0.20, 0.25, 0.30) and
+interpolates to the target. You can then ask for a finer result:
+
+```
+give me a more exact value
+```
+
+You can sweep any microstructure parameter — aspect ratio, mass fraction,
+fiber alignment — against any composite property.
+
+```
+how much should I reduce the aspect ratio to get E1 to be 15 GPa?
+how do all properties change at mass fraction 0.258?
+```
+
+---
+
+### Comparing predictions to measurements
+
+If a card has experimental measurements saved, you can ask the agent to
+compare them directly:
+
+```
+PREDICT: elastic properties for card 4
+compare these predictions to the experimental values on the database
+```
+
+The agent will retrieve the stored measurements and show a side-by-side
+comparison of predicted vs measured E1, E2, E3, CTE11, etc.
+
+---
+
+### Running a new characterisation (elastic inverse)
+
+To infer microstructure from measurements, give the agent everything in one
+message. The more you provide upfront, the fewer clarifying questions it asks:
+
+```
+INVERSE  Fiber: AF, Polymer: AP, Printer: CAMRI
+fiber mass fraction = 0.21, aspect ratio = 21
+E1 = 15 GPa, E2 = 5 GPa, E3 = 4 GPa
+```
+
+> **Tip:** Always include the printer name. If you omit it, the agent will ask
+> for it before running the solver, which adds a round-trip.
+
+> **Tip:** If the quality check flags your mass fraction — e.g. "above typical
+> range of 0.01 to 0.30" — that is a warning, not necessarily an error. High
+> mass fractions (> 0.30) are physically possible in some systems. Review the
+> predicted vs target differences and decide whether to proceed.
+
+After the solver runs, the agent asks if you want to save to a card. Say
+**yes** and provide a card name.
+
+**Stage 2 — Thermoelastic inverse** (requires Stage 1 saved)
 
 ```
 INVERSE thermoelastic for card 1.
@@ -327,7 +399,7 @@ CTE11 = 10 ppm/K, CTE22 = 55 ppm/K.
 
 The agent loads microstructure and matrix modulus from the card automatically.
 
-**Stage 3 — Thermal inverse** (after Stage 1 is saved)
+**Stage 3 — Thermal inverse** (requires Stage 1 saved)
 
 Place your K vs T CSV file in `final/data/uploads/` then:
 
@@ -344,30 +416,30 @@ temperature_C,K11_WmK,K22_WmK,K33_WmK
 75,0.58,0.39,0.39
 ```
 
-**Stage 4 — Forward prediction on a new printer**
+---
+
+### Asking about materials and theory
 
 ```
-PREDICT card 1 with a11=0.60, a22=0.18, fiber_massfrac=0.22, ar=18
+what fibers do we have?
+what polymers are available?
+SEARCH: how does flame retardant affect polymer stiffness?
+SEARCH: what is the CTE of carbon fiber?
 ```
 
-### Useful questions
+The SEARCH prefix causes the agent to check the knowledge base (if you have
+built it) as well as the material database.
 
-```
-what materials do we have?
-what cards have been saved?
-what is the status of card 3?
-convert 0.20 mass fraction to volume fraction for T300/PESU
-what is the CTE of Carbon Fiber T300?
-```
+---
 
 ### Units
 
-The agent converts units for you, but confirm if unsure:
+The agent converts units automatically, but state what you are providing:
 
-| Property | Tell the agent | Agent converts to |
+| Property | Tell the agent | Agent uses internally |
 |---|---|---|
-| Stiffness | GPa | MPa (x1000) |
-| CTE | ppm/K | 1/K (x1e-6) |
+| Stiffness | GPa | MPa (× 1000) |
+| CTE | ppm/K | 1/K (× 1e-6) |
 | Conductivity | W/m·K | W/m·K (no change) |
 
 ---

@@ -16,3 +16,6 @@ final/INTENT_ROUTING_PLAN.md
 
 # Runtime database — rebuilt locally via python db/init_db.py
 final/data/micromechanics.db
+
+# Temporary files
+final/temp_/
