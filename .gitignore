@@ -13,3 +13,6 @@ final/agent/knowledge/*.*
 final/AGENT_ORCHESTRATION.md
 final/USER_GUIDE.md
 final/INTENT_ROUTING_PLAN.md
+
+# Runtime database — rebuilt locally via python db/init_db.py
+final/data/micromechanics.db

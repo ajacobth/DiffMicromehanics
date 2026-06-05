@@ -59,10 +59,19 @@ material experiments.
 
 All commands are run from the `final/` directory.
 
-```bash
-# One-time database setup
-python db/init_db.py
+**First-time setup (run once after cloning):**
 
+```bash
+conda activate jax_trial
+bash setup.sh
+```
+
+This installs packages, creates the uploads folder, and initialises the
+database in one step. See `AGENT_SETUP.md` for details.
+
+**After setup:**
+
+```bash
 # Forward prediction GUI (elastic, thermoelastic, thermal)
 python gui.py
 

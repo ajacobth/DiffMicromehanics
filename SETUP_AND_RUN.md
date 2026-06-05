@@ -135,11 +135,11 @@ of your computer, and activating/deactivating it is like opening or closing
 that box.
 
 ```bash
-conda create -n diffmech python=3.10 -y
+conda create -n jax_trial python=3.10 -y
 ```
 
 - `conda create` makes a new environment.
-- `-n diffmech` gives it the name `diffmech` (you can choose any name).
+- `-n jax_trial` gives it the name `jax_trial` (you can choose any name).
 - `python=3.10` pins the Python version (3.10 is stable and tested).
 - `-y` automatically says "yes" to all prompts.
 
@@ -150,10 +150,10 @@ This takes about 1–2 minutes.
 ### Step 3 – Activate the environment
 
 ```bash
-conda activate diffmech
+conda activate jax_trial
 ```
 
-Your prompt will change from `(base)` to `(diffmech)`. This tells you the
+Your prompt will change from `(base)` to `(jax_trial)`. This tells you the
 environment is active. **Every time you open a new Anaconda Prompt, you must
 run this command again before running the GUIs.**
 
@@ -311,7 +311,7 @@ when you want CPU-only execution.
 Open **Terminal** and run:
 
 ```bash
-conda create -n diffmech python=3.10 -y
+conda create -n jax_trial python=3.10 -y
 ```
 
 ---
@@ -319,10 +319,10 @@ conda create -n diffmech python=3.10 -y
 ### Step 3 – Activate the environment
 
 ```bash
-conda activate diffmech
+conda activate jax_trial
 ```
 
-Your prompt will change to show `(diffmech)`. Remember: run this every time
+Your prompt will change to show `(jax_trial)`. Remember: run this every time
 you open a new Terminal window before using the GUIs.
 
 To deactivate:
@@ -429,8 +429,8 @@ Close and reopen your terminal.
 ### Step 2 – Create and activate the environment
 
 ```bash
-conda create -n diffmech python=3.10 -y
-conda activate diffmech
+conda create -n jax_trial python=3.10 -y
+conda activate jax_trial
 ```
 
 ---
@@ -522,7 +522,7 @@ fiber and polymer material library:
 
 ```bash
 cd /path/to/DiffMicromehanics/final
-conda activate diffmech
+conda activate jax_trial
 python db/init_db.py
 ```
 
@@ -551,7 +551,7 @@ that everything is working.
 
 Make sure you are:
 1. In the `final/` folder (run `cd .../DiffMicromehanics/final`)
-2. The `diffmech` environment is activated (your prompt shows `(diffmech)`)
+2. The `jax_trial` environment is activated (your prompt shows `(jax_trial)`)
 
 Then run:
 
@@ -1272,7 +1272,7 @@ ACTIVE_MODEL = "haiku"   # or "sonnet"
 The environment is not activated, or jax was not installed.
 
 ```bash
-conda activate diffmech
+conda activate jax_trial
 pip install "jax[cpu]==0.4.26"
 ```
 

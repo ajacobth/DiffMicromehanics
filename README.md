@@ -51,6 +51,13 @@ All four capabilities are available through graphical GUIs and through **MateriA
 — a conversational AI agent that lets you run the full characterisation workflow
 in plain English, without operating any GUI or writing code.
 
+**First-time setup (run once after cloning):**
+```bash
+cd final
+conda activate jax_trial
+bash setup.sh
+```
+
 **For GUI setup:** see `SETUP_AND_RUN.md`
 **For agent setup:** see `final/AGENT_SETUP.md`
 

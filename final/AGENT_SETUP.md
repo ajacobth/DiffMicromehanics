@@ -62,26 +62,28 @@ Your terminal prompt will change to show `(jax_trial)`.
 
 ---
 
-## 3. Install packages
+## 3. Install packages and initialise the database
 
-From the `final/` folder with the environment active:
+The fastest way is to run the setup script, which installs packages, creates
+the uploads folder, and initialises the database in one step:
+
+```bash
+cd /path/to/DiffMicromehanics/final
+conda activate jax_trial
+bash setup.sh
+```
+
+The script will ask before overwriting an existing database and shows a
+summary when done.
+
+**Manual alternative** — if you prefer to run steps individually:
 
 ```bash
 pip install -r requirements.txt
+mkdir -p data/uploads
+python db/init_db.py
+python scripts/test_setup.py
 ```
-
-This installs all packages in one step, including the agent dependencies
-(`streamlit`, `langgraph`, `langchain-core`, `langchain-ollama`,
-`langchain-anthropic`, `python-dotenv`, `chromadb`, etc.).
-
-To verify the key packages are present:
-
-```bash
-python -c "import streamlit, langgraph, langchain_ollama; print('OK')"
-```
-
-You should see `OK`. If you get a `ModuleNotFoundError`, re-run
-`pip install -r requirements.txt`.
 
 ---
 
