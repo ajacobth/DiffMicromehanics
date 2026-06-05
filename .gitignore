@@ -8,3 +8,8 @@ final/agent/knowledge/*.*
 # API keys — never commit
 .env
 **/.env
+
+# Internal design and planning docs
+final/AGENT_ORCHESTRATION.md
+final/USER_GUIDE.md
+final/INTENT_ROUTING_PLAN.md
