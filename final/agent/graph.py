@@ -25,6 +25,7 @@ QUALITY_CHECKED_TOOLS = {
     "run_elastic_inverse",
     "run_thermoelastic_inverse",
     "run_thermal_inverse",
+    "run_full_pipeline",
 }
 
 

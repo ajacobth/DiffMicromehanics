@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 from core.services.service_forward import get_model
 
@@ -23,12 +23,13 @@ _ALIASES: dict[str, str] = {
 
 
 class InverseResult(TypedDict):
-    model:             str
-    opt_free:          dict   # field -> float, model units
-    predicted_outputs: dict   # all output fields, model units
-    target_outputs:    dict   # targets only, model units
-    final_error:       float
-    solver_cfg:        dict
+    model:               str
+    opt_free:            dict   # field -> float, model units
+    predicted_outputs:   dict   # all output fields, model units
+    target_outputs:      dict   # targets only, model units
+    final_error:         float
+    solver_cfg:          dict
+    orientation_warning: Optional[str]  # set if the solved a_ij is not PSD
 
 
 def run_inverse(
@@ -128,6 +129,10 @@ def run_inverse(
     opt_free = {k: float(v) for k, v in zip(free_inputs, free_vec)}
     predicted_outputs = {k: float(y_np[model.out_idx[k]]) for k in model.output_fields}
 
+    # Orientation tensor may have been (partially) free — re-check PSD on the
+    # solved values merged with whatever was fixed.
+    orientation_warning = validate_orientation_tensor({**fixed_inputs, **opt_free})
+
     return InverseResult(
         model=model_name,
         opt_free=opt_free,
@@ -135,6 +140,7 @@ def run_inverse(
         target_outputs=dict(target_outputs),
         final_error=final_err,
         solver_cfg=cfg,
+        orientation_warning=orientation_warning,
     )
 
 

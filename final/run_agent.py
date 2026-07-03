@@ -2,9 +2,12 @@
 DiffMicromechanics conversational agent.
 
 Run from final/:
-    python run_agent.py
-    python run_agent.py --card 3        # resume an existing card by ID
-    python run_agent.py --card "Carbon" # resume by name (partial match)
+    python run_agent.py                         # default: qwen2.5 14B
+    python run_agent.py --model 32b             # qwen2.5 32B (needs ~20GB RAM)
+    python run_agent.py --model qwen2.5:14b-instruct-q4_K_M  # explicit Ollama tag
+    python run_agent.py --card 3                # resume an existing card by ID
+    python run_agent.py --card "Carbon"         # resume by name (partial match)
+    python run_agent.py --model 32b --card 3   # combine flags
 """
 
 import argparse
@@ -21,6 +24,17 @@ from agent.graph import build_app
 
 PROMPTS_DIR = Path(__file__).parent / "agent" / "prompts"
 
+# ── Model registry ─────────────────────────────────────────────────────────────
+
+_MODEL_ALIASES = {
+    "14b": "qwen2.5:14b-instruct-q4_K_M",
+    "32b": "qwen2.5:32b-instruct-q4_K_M",
+}
+
+def resolve_model(alias: str) -> str:
+    """Resolve a short alias (14b, 32b) or pass through a full Ollama model tag."""
+    return _MODEL_ALIASES.get(alias.lower(), alias)
+
 # ── Prompt loading ─────────────────────────────────────────────────────────────
 
 def load_system_prompt() -> str:
@@ -29,22 +43,19 @@ def load_system_prompt() -> str:
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()
     return f"{system}\n\n---\n\n{vocab}"
 
-# ── LLM ───────────────────────────────────────────────────────────────────────
+# ── LLM + Graph (built after args are parsed) ─────────────────────────────────
 
-llm = ChatOllama(
-    model="qwen2.5:14b-instruct-q4_K_M",
-    temperature=0,
-    streaming=True,
-)
-
-# ── Graph ─────────────────────────────────────────────────────────────────────
-
-SYSTEM_PROMPT = load_system_prompt()
-app = build_app(llm, SYSTEM_PROMPT)
+def build_agent(model_tag: str):
+    llm = ChatOllama(
+        model=model_tag,
+        temperature=0,
+        streaming=True,
+    )
+    return build_app(llm, load_system_prompt())
 
 # ── Streaming ─────────────────────────────────────────────────────────────────
 
-def run_turn(user_input: str, config: dict) -> None:
+def run_turn(app, user_input: str, config: dict) -> None:
     """Run one conversation turn and print the response."""
     result = app.invoke(
         {"messages": [HumanMessage(user_input)]},
@@ -88,13 +99,13 @@ def restore_state(card_id: Optional[int]) -> dict:
 
 # ── Main conversation loop ────────────────────────────────────────────────────
 
-def chat_loop(card_id: Optional[int]) -> None:
+def chat_loop(app, card_id: Optional[int], model_tag: str) -> None:
     state  = restore_state(card_id)
     thread = f"card_{card_id}" if card_id else "new_session"
     config = {"configurable": {"thread_id": thread}}
 
     print("\nDiffMicromechanics Agent")
-    print(f"Card: {card_id or 'none'} | Stages: {state['completed_stages'] or 'none'}")
+    print(f"Model: {model_tag} | Card: {card_id or 'none'} | Stages: {state['completed_stages'] or 'none'}")
     print("Type 'quit' to exit.\n")
 
     while True:
@@ -109,12 +120,16 @@ def chat_loop(card_id: Optional[int]) -> None:
         if user_input.lower() in ("quit", "exit"):
             break
 
-        run_turn(user_input, config)
+        run_turn(app, user_input, config)
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="DiffMicromechanics agent")
+    parser.add_argument(
+        "--model", default="14b",
+        help="Model alias (14b, 32b) or full Ollama tag (default: 14b)"
+    )
     parser.add_argument(
         "--card", default=None,
         help="Card ID or name to resume (e.g. --card 3 or --card 'Carbon')"
@@ -122,6 +137,8 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 if __name__ == "__main__":
-    args    = parse_args()
-    card_id = resolve_card(args.card)
-    chat_loop(card_id)
+    args      = parse_args()
+    model_tag = resolve_model(args.model)
+    card_id   = resolve_card(args.card)
+    app       = build_agent(model_tag)
+    chat_loop(app, card_id, model_tag)

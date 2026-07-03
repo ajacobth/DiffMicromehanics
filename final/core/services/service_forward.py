@@ -49,20 +49,22 @@ def get_output_fields(model_name: str) -> list[str]:
 
 
 def sweep_parameter(
-    card_id: int,
     parameter: str,
     values: list[float],
     target_property: str = "E1",
+    card_id: int = -1,
+    base_inputs: dict | None = None,
 ) -> dict:
     """Sweep one microstructure or constituent parameter and return predictions at each value.
 
     Parameters
     ----------
-    card_id         : base card to load inputs from
     parameter       : ar | a11 | a22 | fiber_massfrac | matrix_modulus |
                       matrix_poisson | f_cte1 | f_cte2 | m_cte
     values          : list of values to evaluate
     target_property : output field to highlight (e.g. "E1", "CTE11")
+    card_id         : base card to load inputs from (use -1 if providing base_inputs directly)
+    base_inputs     : pre-built inputs dict; used when card_id == -1
 
     Returns
     -------
@@ -86,7 +88,12 @@ def sweep_parameter(
     if field is None:
         raise ValueError(f"Unknown parameter '{parameter}'. Choose from: {sorted(PARAM_MAP)}")
 
-    inputs_base = _scards.load_card_inputs(card_id)
+    if card_id >= 0:
+        inputs_base = _scards.load_card_inputs(card_id)
+    elif base_inputs is not None:
+        inputs_base = dict(base_inputs)
+    else:
+        raise ValueError("Provide either card_id >= 0 or base_inputs.")
 
     rows = []
     for val in values:

@@ -35,13 +35,14 @@ PROMPTS_DIR = _FINAL / "agent" / "prompts"
 
 # ── Model selection — change ACTIVE_MODEL to switch ──────────────────────────
 MODELS = {
-    "haiku":  ("anthropic", "claude-haiku-4-5-20251001"),
-    "sonnet": ("anthropic", "claude-sonnet-4-6"),
-    "local":  ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
-    "local2": ("ollama",    "qwen3:8b"),
-    "local3": ("ollama",    "qwen3:14b"),
+    "haiku":   ("anthropic", "claude-haiku-4-5-20251001"),
+    "sonnet":  ("anthropic", "claude-sonnet-4-6"),
+    "local":   ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
+    "local32": ("ollama",    "qwen2.5:32b-instruct-q3_K_M"),
+    "local2":  ("ollama",    "qwen3:8b"),
+    "local3":  ("ollama",    "qwen3:14b"),
 }
-ACTIVE_MODEL = "local"   # ← change this: "haiku" | "sonnet" | "local" | "local2" | "local3"
+ACTIVE_MODEL = "local2"  # ← change this: "haiku" | "sonnet" | "local" | "local32" | "local2" | "local3"
 
 
 def _build_llm():

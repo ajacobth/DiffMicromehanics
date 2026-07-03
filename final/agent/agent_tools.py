@@ -13,7 +13,7 @@ Current tools:
     get_card_status               — full detail view of one material card
     get_model_inputs_outputs      — field names + units for elastic/thermoelastic models
     inspect_card_inputs           — preview resolved inputs before predicting
-    predict_properties            — forward prediction (elastic + thermoelastic)
+    predict_properties            — forward prediction (elastic + thermoelastic); accepts card, DB name, or raw constituent values
     predict_thermal_conductivity  — forward prediction (thermal) at one T or across a T range
     add_fiber                     — add a new fiber to the material library
     add_polymer                   — add a new polymer to the material library
@@ -123,6 +123,11 @@ _STAGE1_FREE_KEYS = frozenset([
 # Structure: {"result": dict compatible with save_inverse_result, "meta": {fiber_id, ...}}
 _pending_save: dict = {}
 
+# Holds pipeline results across all 3 stages — populated by run_full_pipeline,
+# consumed by save_to_card when this dict is non-empty.
+# Structure: {"stage1": ..., "stage2": ..., "stage3": ..., "meta": {fiber_id, ...}}
+_pending_pipeline: dict = {}
+
 _T_REF = 1.0  # reference temperature for polymer conductivity model (°C), matches inverse_thermal.py
 
 
@@ -153,15 +158,19 @@ def _resolve_k_at_T(inputs: dict, T: float) -> tuple:
 
 
 _DEFAULT_BOUNDS = {
+    # Intentionally wider than config/problem.json — the agent handles a broader
+    # range of materials and printers than the GUI's single example problem.
+    # a11: GUI uses [0.2, 0.81]; agent uses [0.50, 0.85] (excludes near-random)
+    # a22: GUI uses [0.01, 0.2]; agent uses [0.01, 0.4] (allows more transverse)
     "a11":            (0.50,    0.85),
-    "a22":            (0.01,    0.4),   # matches problem.json
+    "a22":            (0.01,    0.4),
     "a12":            (-0.10,   0.10),
     "a13":            (-0.10,   0.10),
     "a23":            (-0.10,   0.10),
     "fiber_massfrac": (0.05,    0.60),
     "ar":             (5.0,    100.0),
-    "matrix_modulus": (2000.0, 5000.0),  # matches problem.json
-    "matrix_poisson": (0.33,    0.42),   # matches problem.json
+    "matrix_modulus": (2000.0, 5000.0),
+    "matrix_poisson": (0.33,    0.42),
     "f_cte1":         (-2e-6,   5e-6),
     "f_cte2":         (5e-6,   30e-6),
     "m_cte":          (30e-6, 120e-6),
@@ -812,18 +821,29 @@ def predict_properties(
     f_cte1_per_K: float = -1.0,
     f_cte2_per_K: float = -1.0,
     m_cte_per_K: float = -1.0,
+    fiber_E1_MPa: float = -1.0,
+    fiber_E2_MPa: float = -1.0,
+    fiber_G12_MPa: float = -1.0,
+    fiber_nu12: float = -1.0,
+    fiber_nu23: float = -1.0,
+    fiber_density_kg_m3: float = -1.0,
+    matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
     Run elastic (and optionally thermoelastic) forward prediction.
 
-    Two ways to specify the material system — pick ONE:
+    Three ways to specify the material system — pick ONE:
       1. card_id >= 0: load everything from a saved material card (fiber + polymer
          + microstructure + any inferred constituent properties). Best option when
          Stage 1 has already been run. Any override arguments still apply.
       2. fiber_name + polymer_name (no card): load fiber and polymer datasheet
-         properties by name. You MUST then provide all microstructure fields
-         explicitly via the override arguments (a11, a22, a12, a13, a23,
-         fiber_massfrac, ar). Off-diagonal terms default to 0.0 if not provided.
+         properties by name from the database. You MUST then provide all
+         microstructure fields (a11, a22, a12, a13, a23, fiber_massfrac, ar).
+      3. Fully explicit inputs (no card, no DB lookup): provide all constituent
+         properties directly — use when the fiber/polymer is NOT in the database.
+         Required: fiber_E1_MPa, fiber_E2_MPa, fiber_G12_MPa, fiber_nu12,
+         fiber_nu23, fiber_density_kg_m3, matrix_modulus_MPa, matrix_poisson,
+         matrix_density_kg_m3 — PLUS all microstructure fields.
 
     Any argument set to a value != -1.0 overrides what was loaded from the card or
     datasheet. Use this for what-if scenarios — e.g. change a11 while keeping
@@ -836,9 +856,8 @@ def predict_properties(
     Units: moduli in MPa, CTE in 1/K (NOT ppm/K — multiply ppm/K by 1e-6 first).
 
     IMPORTANT: This tool does NOT require measured composite properties. It only
-    needs the material names (or card_id) and microstructure inputs. Call it
-    directly when the user asks for a forward prediction or wants to see predicted
-    composite properties.
+    needs constituent inputs and microstructure. Call it directly when the user
+    asks for a forward prediction or wants to see predicted composite properties.
     """
     # ── Step 1: Load base inputs ──────────────────────────────────────────────
     inputs = {}
@@ -871,12 +890,32 @@ def predict_properties(
         except Exception as e:
             return f"Database error loading materials: {e}"
 
+    elif fiber_E1_MPa > 0:
+        # Option C: all constituent properties provided directly — no DB needed
+        inputs = {
+            "e1":             fiber_E1_MPa,
+            "e2":             fiber_E2_MPa   if fiber_E2_MPa   > 0 else None,
+            "g12":            fiber_G12_MPa  if fiber_G12_MPa  > 0 else None,
+            "f_nu12":         fiber_nu12     if fiber_nu12     > 0 else None,
+            "f_nu23":         fiber_nu23     if fiber_nu23     > 0 else None,
+            "fiber_density":  fiber_density_kg_m3 if fiber_density_kg_m3 > 0 else None,
+            "rho_f":          fiber_density_kg_m3 if fiber_density_kg_m3 > 0 else None,
+            "matrix_density": matrix_density_kg_m3 if matrix_density_kg_m3 > 0 else None,
+            "rho_m":          matrix_density_kg_m3 if matrix_density_kg_m3 > 0 else None,
+            "a12": 0.0, "a13": 0.0, "a23": 0.0,
+        }
+        inputs = {k: v for k, v in inputs.items() if v is not None}
+        source_label = "Explicit constituent inputs (no DB)"
+
     else:
         return (
             "Specify the material system:\n"
             "  option A — card_id >= 0  (loads fiber + polymer + microstructure from a saved card)\n"
             "  option B — fiber_name='AF' and polymer_name='AP'  "
-            "(loads datasheets; also provide a11, a22, fiber_massfrac, ar)"
+            "(loads datasheets; also provide a11, a22, fiber_massfrac, ar)\n"
+            "  option C — provide fiber_E1_MPa, fiber_E2_MPa, fiber_G12_MPa, fiber_nu12, "
+            "fiber_nu23, fiber_density_kg_m3, matrix_modulus_MPa, matrix_poisson, "
+            "matrix_density_kg_m3 plus microstructure (a11, a22, fiber_massfrac, ar)"
         )
 
     # ── Step 2: Apply overrides (sentinel -1.0 means "not provided") ─────────
@@ -905,17 +944,10 @@ def predict_properties(
             else:
                 overrides_applied.append(f"  {field} = {val:.4g}  [provided]")
 
-    # ── Orientation tensor semi-positive definiteness check ──────────────────
-    _a11 = inputs.get("a11")
-    _a22 = inputs.get("a22")
-    if _a11 is not None and _a22 is not None:
-        _a33 = 1.0 - _a11 - _a22
-        if _a33 < 0.0:
-            return (
-                f"Invalid orientation tensor: a11 + a22 = {_a11:.4g} + {_a22:.4g} = {_a11 + _a22:.4g} > 1.\n"
-                f"a33 = 1 - a11 - a22 = {_a33:.4g} < 0, which violates semi-positive definiteness.\n"
-                f"Reduce a11 or a22 so their sum is at most 1.0."
-            )
+    # ── Orientation tensor positive semi-definiteness check ──────────────────
+    _orientation_err = _sinv.validate_orientation_tensor(inputs)
+    if _orientation_err:
+        return f"Invalid orientation tensor: {_orientation_err}"
 
     # Ensure both density aliases are present
     if "matrix_density" not in inputs and "rho_m" in inputs:
@@ -1137,6 +1169,11 @@ def predict_thermal_conductivity(
             else:
                 overrides_applied.append(f"  {field} = {val:.4g}  [provided]")
 
+    # ── Orientation tensor positive semi-definiteness check ──────────────────
+    _orientation_err = _sinv.validate_orientation_tensor(inputs)
+    if _orientation_err:
+        return f"Invalid orientation tensor: {_orientation_err}"
+
     # ── Step 4: Collect explicit k overrides ─────────────────────────────────
     explicit_k: dict = {}
     if k_f1_WmK != -1.0:
@@ -1274,33 +1311,154 @@ def predict_thermal_conductivity(
 
 @tool
 def sweep_parameter(
-    card_id: int,
     parameter: str,
     values: list[float],
     target_property: str = "E1",
+    card_id: int = -1,
+    fiber_name: str = "",
+    polymer_name: str = "",
+    a11: float = -1.0,
+    a22: float = -1.0,
+    a12: float = 0.0,
+    a13: float = 0.0,
+    a23: float = 0.0,
+    fiber_massfrac: float = -1.0,
+    ar: float = -1.0,
+    matrix_modulus_MPa: float = -1.0,
+    matrix_poisson: float = -1.0,
+    fiber_E1_MPa: float = -1.0,
+    fiber_E2_MPa: float = -1.0,
+    fiber_G12_MPa: float = -1.0,
+    fiber_nu12: float = -1.0,
+    fiber_nu23: float = -1.0,
+    fiber_density_kg_m3: float = -1.0,
+    matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
     Sweep one microstructure or constituent parameter over a list of values
     and show how a target composite property changes. Use for what-if analysis,
-    e.g. finding the aspect ratio that gives E1 = 15 GPa.
+    e.g. "how much do I need to increase fiber_massfrac to reach E1 = 13 GPa?"
+
+    Three ways to specify the base material system — pick ONE:
+      1. card_id >= 0: load everything from a saved card.
+      2. fiber_name + polymer_name + microstructure fields (a11, a22, fiber_massfrac, ar):
+         use when no card exists yet. All microstructure fields not being swept must
+         be provided explicitly.
+      3. Explicit constituent values (fiber_E1_MPa > 0, no card or DB name needed):
+         provide all fiber moduli, densities, and matrix properties directly.
+         Microstructure fields (a11, a22, fiber_massfrac, ar) must still be given,
+         except for the parameter being swept.
 
     Parameters
     ----------
-    card_id         : card to base the sweep on
-    parameter       : ar | a11 | a22 | fiber_massfrac | matrix_modulus |
-                      matrix_poisson | f_cte1 | f_cte2 | m_cte
-    values          : list of values to try, e.g. [10, 12, 14, 16, 18, 20]
-    target_property : output to highlight, e.g. "E1", "E2", "G12", "CTE11"
+    parameter            : ar | a11 | a22 | fiber_massfrac | matrix_modulus | matrix_poisson
+    values               : list of values to try, e.g. [0.10, 0.15, 0.20, 0.25]
+    target_property      : output to highlight, e.g. "E1", "E2", "G12", "CTE11"
+    card_id              : card to base sweep on (option 1)
+    fiber_name           : fiber material name (option 2)
+    polymer_name         : polymer material name (option 2)
+    a11, a22, a12, a13, a23, fiber_massfrac, ar : microstructure (options 2 & 3)
+    matrix_modulus_MPa, matrix_poisson           : matrix elastic properties (options 2 & 3)
+    fiber_E1_MPa         : fiber axial modulus in MPa — triggers option 3 when > 0
+    fiber_E2_MPa         : fiber transverse modulus in MPa
+    fiber_G12_MPa        : fiber shear modulus in MPa
+    fiber_nu12           : fiber axial Poisson ratio
+    fiber_nu23           : fiber transverse Poisson ratio
+    fiber_density_kg_m3  : fiber density in kg/m³
+    matrix_density_kg_m3 : matrix density in kg/m³
     """
+    base_inputs = None
+
+    if card_id < 0:
+        if fiber_E1_MPa > 0:
+            # Option C — explicit constituent values, no DB lookup
+            base_inputs = {
+                "e1":   fiber_E1_MPa,
+                "a12":  0.0, "a13": 0.0, "a23": 0.0,
+            }
+            if fiber_E2_MPa        > 0: base_inputs["e2"]            = fiber_E2_MPa
+            if fiber_G12_MPa       > 0: base_inputs["g12"]           = fiber_G12_MPa
+            if fiber_nu12          > 0: base_inputs["f_nu12"]        = fiber_nu12
+            if fiber_nu23          > 0: base_inputs["f_nu23"]        = fiber_nu23
+            if fiber_density_kg_m3 > 0:
+                base_inputs["rho_f"]        = fiber_density_kg_m3
+                base_inputs["fiber_density"] = fiber_density_kg_m3
+            if matrix_density_kg_m3 > 0:
+                base_inputs["rho_m"]         = matrix_density_kg_m3
+                base_inputs["matrix_density"] = matrix_density_kg_m3
+            if matrix_modulus_MPa  > 0: base_inputs["matrix_modulus"]  = matrix_modulus_MPa
+            if matrix_poisson      > 0: base_inputs["matrix_poisson"]  = matrix_poisson
+
+            micro_overrides = {
+                "a11": a11, "a22": a22, "a12": a12, "a13": a13, "a23": a23,
+                "fiber_massfrac": fiber_massfrac, "ar": ar,
+            }
+            for k, v in micro_overrides.items():
+                if v != -1.0:
+                    base_inputs[k] = v
+
+        elif fiber_name.strip() and polymer_name.strip():
+            # Option B — DB lookup by name
+            try:
+                fiber_id, polymer_id = _resolve_fiber_polymer(fiber_name, polymer_name)
+                base_inputs = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
+            except ValueError as e:
+                return str(e)
+            except Exception as e:
+                return f"SWEEP ERROR loading materials: {e}"
+
+            overrides = {
+                "a11": a11, "a22": a22, "a12": a12, "a13": a13, "a23": a23,
+                "fiber_massfrac": fiber_massfrac, "ar": ar,
+                "matrix_modulus": matrix_modulus_MPa, "matrix_poisson": matrix_poisson,
+            }
+            for k, v in overrides.items():
+                if v != -1.0:
+                    base_inputs[k] = v
+
+        else:
+            return (
+                "SWEEP ERROR: provide one of:\n"
+                "  option A — card_id >= 0\n"
+                "  option B — fiber_name + polymer_name + microstructure\n"
+                "  option C — fiber_E1_MPa (and other constituent values) + microstructure"
+            )
+
+        # Validate microstructure (excluding the parameter being swept)
+        MICRO_FIELDS = {"a11", "a22", "a12", "a13", "a23", "fiber_massfrac", "ar"}
+        required = MICRO_FIELDS - {parameter}
+        missing_micro = required - set(base_inputs)
+        if missing_micro:
+            return (
+                f"SWEEP ERROR: missing microstructure fields: {sorted(missing_micro)}. "
+                f"Re-call with those values set explicitly "
+                f"(e.g. a22=0.5 when sweeping a11)."
+            )
+
+        if "a11" in base_inputs and "a22" in base_inputs:
+            base_inputs["a33"] = 1.0 - base_inputs["a11"] - base_inputs["a22"]
+
     try:
-        result = _sfwd.sweep_parameter(card_id, parameter, values, target_property)
+        result = _sfwd.sweep_parameter(
+            parameter=parameter,
+            values=values,
+            target_property=target_property,
+            card_id=card_id,
+            base_inputs=base_inputs,
+        )
     except Exception as e:
         return f"SWEEP ERROR: {e}"
 
     prop = result["target_property"]
     rows = result["rows"]
 
-    lines = [f"Sweep: {result['parameter']} → {prop}  (Card #{card_id})\n"]
+    if card_id >= 0:
+        header = f"Card #{card_id}"
+    elif fiber_E1_MPa > 0:
+        header = "Explicit constituent inputs"
+    else:
+        header = f"{fiber_name}/{polymer_name}"
+    lines = [f"Sweep: {result['parameter']} → {prop}  ({header})\n"]
     lines.append(f"{'Value':>10}  {prop:>14}")
     lines.append("-" * 28)
     for row in rows:
@@ -1891,9 +2049,15 @@ def run_elastic_inverse(
         val = free.get(key, float("nan"))
         return f"  {label} = {val:{fmt}}{suffix}  (inferred)"
 
-    lines = [
-        "ELASTIC INVERSE — COMPLETE",
-        "",
+    lines = ["ELASTIC INVERSE — COMPLETE", ""]
+    if inv.get("orientation_warning"):
+        lines += [
+            f"WARNING: {inv['orientation_warning']}",
+            "The solved orientation tensor is not physically valid. Do not save this result —",
+            "tighten the a11/a22 bounds or fix more microstructure values and re-run.",
+            "",
+        ]
+    lines += [
         "Microstructure:",
         _fmt_micro("a11", "a11           ", suffix="  (alignment — print direction)"),
         _fmt_micro("a22", "a22           ", suffix="  (transverse)"),
@@ -2325,23 +2489,247 @@ def run_thermal_inverse(
 
 
 @tool
+def run_full_pipeline(
+    file_path: str,
+    fiber_name: str,
+    polymer_name: str,
+    printer_name: str,
+    fiber_massfrac: float = -1.0,
+    aspect_ratio: float = -1.0,
+    a11: float = -1.0,
+    a22: float = -1.0,
+    n_restarts: int = 20,
+) -> str:
+    """
+    Run all 3 inverse stages (elastic → thermoelastic → thermal) from a single
+    Excel measurements file. Results are held in memory — call save_to_card()
+    with a card name after reviewing the results.
+
+    Use this when the user provides a file path (.xlsx) containing experimental
+    measurements. Do NOT use if the user is providing measurements directly in
+    the conversation — use run_elastic_inverse instead.
+
+    The .xlsx file must have:
+      - Sheet 'measurements': key-value table (column A = field name, column B = value).
+        Elastic fields: E1_MPa, E2_MPa, E3_MPa, G12_MPa, G13_MPa, G23_MPa, nu12, nu13, nu23
+        Uncertainty:    E1_sigma_MPa, E2_sigma_MPa, ... nu12_sigma, nu13_sigma, nu23_sigma
+        CTE fields:     CTE11_per_K, CTE22_per_K, CTE33_per_K (optional)
+        CTE sigma:      CTE11_sigma_per_K, CTE22_sigma_per_K, CTE33_sigma_per_K
+        Omit any field you don't have — do NOT put fiber/polymer/printer names in this sheet.
+      - Sheet 'thermal' (optional): columns temperature_c and K11_WmK (+ optional K22_WmK, K33_WmK)
+        If absent, Stage 3 is skipped.
+
+    Material identity (fiber_name, polymer_name, printer_name) must be confirmed
+    in the database before calling this — use list_materials() first, and
+    add_fiber()/add_polymer() if needed.
+
+    Microstructure params (fiber_massfrac, aspect_ratio, a11, a22) are optional —
+    pass values only if the user provided them from CT or process data.
+    Pass -1.0 (default) to let the solver infer them.
+
+    After this tool returns, ask the user for a card name, then call
+    save_to_card(card_name='...') to persist all results with correct provenance.
+    """
+    import core.services.service_pipeline as _spipeline
+
+    # Resolve names to IDs
+    try:
+        fiber_id, polymer_id, printer_id = _resolve_material_ids(
+            fiber_name, polymer_name, printer_name
+        )
+    except ValueError as e:
+        return f"Material lookup error: {e}"
+
+    result = _spipeline.run_pipeline(
+        file_path=file_path,
+        fiber_id=fiber_id,
+        polymer_id=polymer_id,
+        printer_id=printer_id,
+        fiber_massfrac=fiber_massfrac,
+        aspect_ratio=aspect_ratio,
+        a11=a11,
+        a22=a22,
+        n_restarts=n_restarts,
+    )
+
+    # ── Store for save_to_card ────────────────────────────────────────────────
+    _pending_pipeline.clear()
+    _pending_pipeline.update(result)
+    _pending_pipeline["meta"] = {
+        "fiber_id":   fiber_id,
+        "polymer_id": polymer_id,
+        "printer_id": printer_id,
+        "fiber_name": fiber_name,
+        "polymer_name": polymer_name,
+        "printer_name": printer_name,
+    }
+
+    # ── Format report ─────────────────────────────────────────────────────────
+    def _stage_header(n: int, label: str, stage: dict) -> str:
+        status = stage["status"].upper()
+        err    = stage.get("fit_error")
+        err_str = f"  fit_error = {err:.5f}" if err is not None else ""
+        return f"STAGE {n} — {label}: {status}{err_str}"
+
+    def _fmt_cte(v: float) -> str:
+        return f"{v * 1e6:.4f} ppm/K"
+
+    s1 = result["stage1"]
+    s2 = result["stage2"]
+    s3 = result["stage3"]
+
+    lines = ["=== BATCH PIPELINE REPORT ===", ""]
+
+    # Stage 1
+    lines.append(_stage_header(1, "Elastic Inverse", s1))
+    if s1["status"] == "pass":
+        inf = s1["inferred"]
+        lines += [
+            f"  matrix_modulus  = {inf.get('matrix_modulus', float('nan')):.1f} MPa",
+            f"  matrix_poisson  = {inf.get('matrix_poisson', float('nan')):.4f}",
+            f"  a11             = {inf.get('a11', float('nan')):.4f}",
+            f"  a22             = {inf.get('a22', float('nan')):.4f}",
+            f"  fiber_massfrac  = {inf.get('fiber_massfrac', float('nan')):.4f}",
+            f"  ar              = {inf.get('ar', float('nan')):.2f}",
+        ]
+    elif s1.get("note"):
+        lines.append(f"  {s1['note']}")
+    lines.append("")
+
+    # Stage 2
+    lines.append(_stage_header(2, "Thermoelastic Inverse", s2))
+    if s2["status"] == "pass":
+        inf = s2["inferred"]
+        lines += [
+            f"  f_cte1 (fiber axial)      = {_fmt_cte(inf.get('f_cte1', float('nan')))}",
+            f"  f_cte2 (fiber transverse) = {_fmt_cte(inf.get('f_cte2', float('nan')))}",
+            f"  m_cte  (matrix)           = {_fmt_cte(inf.get('m_cte',  float('nan')))}",
+        ]
+    elif s2.get("note"):
+        lines.append(f"  {s2['note']}")
+    lines.append("")
+
+    # Stage 3
+    lines.append(_stage_header(3, "Thermal Inverse", s3))
+    if s3["status"] == "pass":
+        inf = s3["inferred"]
+        k_m25 = inf["p1"] * (25.0 ** 0.5) + inf["p2"]
+        lines += [
+            f"  k_f1 (fiber longitudinal) = {inf.get('k_f1', float('nan')):.4f} W/m·K",
+            f"  k_f2 (fiber transverse)   = {inf.get('k_f2', float('nan')):.4f} W/m·K",
+            f"  p1 (polymer scaling)      = {inf.get('p1', float('nan')):.4e} W/m·K",
+            f"  p2 (polymer offset)       = {inf.get('p2', float('nan')):.4f} W/m·K",
+            f"  k_m @ 25°C               = {k_m25:.4f} W/m·K",
+        ]
+    elif s3.get("note"):
+        lines.append(f"  {s3['note']}")
+    lines.append("")
+
+    # Errors
+    if result["errors"]:
+        lines += ["ERRORS:"]
+        for e in result["errors"]:
+            lines.append(f"  • {e}")
+        lines.append("")
+
+    # Always end with the save prompt
+    ran = [f"Stage {i+1}" for i, s in enumerate([s1, s2, s3]) if s["status"] == "pass"]
+    lines.append(
+        f"Results in memory ({', '.join(ran)} complete). "
+        "Call save_to_card(card_name='...') with a name of your choice to save all results."
+    )
+
+    return "\n".join(lines)
+
+
+@tool
 def save_to_card(card_name: str = "", card_id: int = -1) -> str:
     """
-    Save the most recent solver result to the database.
+    Save the most recent solver result (or full pipeline result) to the database.
 
-    card_name: name for the new card (e.g. "AF/AP CAMRI Stage1"). ALWAYS ask
+    card_name: name for the new card (e.g. "T300/PESU CAMRI run1"). ALWAYS ask
                the user for a card name before calling this tool if card_id=-1.
     card_id = -1  → create a new material card using card_name
     card_id >= 0  → save to an existing card (updates it in place, card_name ignored)
 
     Only call this after:
-      1. A solver tool (run_elastic_inverse, etc.) returned a successful result, AND
+      1. A solver tool (run_elastic_inverse, run_full_pipeline, etc.) returned a
+         successful result, AND
       2. The user has explicitly confirmed they want to save, AND
       3. You have asked for and received a card_name (when card_id=-1).
 
-    Do NOT call automatically — always ask first.
+    Do NOT call automatically — always ask the user for a card name first.
     Returns the card_id so subsequent tools can reference it.
     """
+    # ── Pipeline save: run_full_pipeline stored results in _pending_pipeline ───
+    if _pending_pipeline:
+        name = card_name.strip()
+        if not name:
+            return "Please provide a card_name to save the pipeline results."
+
+        meta = _pending_pipeline.get("meta", {})
+        s1   = _pending_pipeline.get("stage1", {})
+        s2   = _pending_pipeline.get("stage2", {})
+        s3   = _pending_pipeline.get("stage3", {})
+
+        if s1.get("status") != "pass" or s1.get("save_data") is None:
+            return (
+                "Pipeline Stage 1 did not complete successfully — nothing to save. "
+                "Check the pipeline report for errors."
+            )
+
+        saved_stages = []
+        try:
+            # Stage 1 — creates the card and gets card_id
+            sd1 = s1["save_data"]
+            saved_id = _scards.save_inverse_result(
+                result=sd1["result"],
+                fiber_id=sd1["fiber_id"],
+                polymer_id=sd1["polymer_id"],
+                printer_id=sd1["printer_id"],
+                card_id=None,
+                card_name=name,
+            )
+            saved_stages.append("Stage 1 (elastic)")
+
+            # Stage 2 — save thermoelastic to the same card
+            if s2.get("status") == "pass" and s2.get("save_data") is not None:
+                sd2 = s2["save_data"]
+                _scards.save_inverse_result(
+                    result=sd2["result"],
+                    fiber_id=sd2["fiber_id"],
+                    polymer_id=sd2["polymer_id"],
+                    printer_id=sd2["printer_id"],
+                    card_id=saved_id,
+                    card_name=name,
+                )
+                saved_stages.append("Stage 2 (thermoelastic)")
+
+            # Stage 3 — save thermal to the same card
+            if s3.get("status") == "pass" and s3.get("save_data") is not None:
+                sd3 = s3["save_data"]
+                _scards.save_thermal_result(
+                    result=sd3["result"],
+                    fiber_id=sd3["fiber_id"],
+                    polymer_id=sd3["polymer_id"],
+                    card_id=saved_id,
+                )
+                saved_stages.append("Stage 3 (thermal)")
+
+        except Exception as e:
+            return f"Save error during pipeline save: {e}"
+
+        _pending_pipeline.clear()
+        return (
+            f"Pipeline saved successfully.\n"
+            f"  card_id    = {saved_id}\n"
+            f"  card_name  = {name}\n"
+            f"  Stages saved: {', '.join(saved_stages)}\n"
+            f"Use card_id={saved_id} in get_card_status, predict_properties, "
+            f"or predict_thermal_conductivity."
+        )
+
+    # ── Single-stage save: run_elastic_inverse / run_thermal_inverse ──────────
     if not _pending_save:
         return (
             "No result in memory to save. "
@@ -2391,6 +2779,82 @@ def save_to_card(card_name: str = "", card_id: int = -1) -> str:
         f"Use card_id={saved_id} in get_card_status, predict_properties, "
         f"or subsequent inverse stages."
     )
+
+
+@tool
+def delete_card(card_id: int, confirm: bool = False) -> str:
+    """
+    Delete a material card and all data scoped to it from the database.
+
+    Deletes: microstructure snapshots, inference runs, experimental measurements,
+    composite property values, thermal predictions, property preferences, and
+    printing conditions — everything tied to this card_id.
+
+    Does NOT delete constituent properties (matrix_modulus, f_cte1, k_f1, etc.)
+    because they are stored globally against the fiber/polymer pair and may be
+    shared with other cards that use the same materials.
+
+    confirm=False (default): performs a dry run — shows exactly what would be
+    deleted without making any changes. Always call with confirm=False first.
+
+    confirm=True: performs the actual deletion. Only call after showing the user
+    the dry-run summary and receiving explicit confirmation.
+
+    card_id: the card_id to delete (from list_cards or get_card_status).
+    """
+    try:
+        result = _db.delete_card(card_id, dry_run=not confirm)
+    except ValueError as e:
+        return f"Card not found: {e}"
+    except Exception as e:
+        return f"Delete error: {e}"
+
+    name = result["card_name"]
+
+    if result["dry_run"]:
+        would = result["would_delete"]
+        cpv   = result["would_null_cpv_run_ids"]
+        lines = [
+            f"DRY RUN — nothing deleted yet.",
+            f"Card: \"{name}\"  (card_id={card_id})",
+            "",
+            "Would delete:",
+        ]
+        for table, count in would.items():
+            if count:
+                lines.append(f"  {table:<36} {count} row{'s' if count != 1 else ''}")
+        if cpv:
+            lines.append(
+                f"\n  constituent_property_values: {cpv} row{'s' if cpv != 1 else ''} "
+                f"will have inference_run_id set to NULL\n"
+                f"  (values and provenance tags are preserved — only the audit trail link is broken)"
+            )
+        lines += [
+            "",
+            "Constituent properties (matrix_modulus, f_cte1, k_f1, …) are NOT deleted",
+            "— they are global to the fiber/polymer pair.",
+            "",
+            f"To confirm deletion, call delete_card(card_id={card_id}, confirm=True).",
+        ]
+        return "\n".join(lines)
+
+    # Confirmed deletion
+    deleted = result["rows_deleted"]
+    cpv     = result["constituent_property_values_inference_run_id_nulled"]
+    total   = sum(deleted.values())
+    lines   = [
+        f"Card \"{name}\" (card_id={card_id}) deleted.",
+        f"Total rows removed: {total}",
+    ]
+    for table, count in deleted.items():
+        if count:
+            lines.append(f"  {table:<36} {count} row{'s' if count != 1 else ''} deleted")
+    if cpv:
+        lines.append(
+            f"  constituent_property_values: {cpv} row{'s' if cpv != 1 else ''} "
+            f"had inference_run_id set to NULL"
+        )
+    return "\n".join(lines)
 
 
 @tool
@@ -2444,6 +2908,197 @@ def save_processing_conditions(
     return "\n".join(lines)
 
 
+# ── System administration tools ──────────────────────────────────────────────
+
+@tool
+def reinitialize_knowledge_base(full_reset: bool = False) -> str:
+    """
+    Rebuild the knowledge base from PDFs in agent/knowledge/.
+
+    Use this when:
+      - The user adds new PDF papers or datasheets to agent/knowledge/ and wants
+        the agent to be able to search them.
+      - The user says the knowledge base is missing a paper they added.
+      - The knowledge base returns stale or incorrect results.
+
+    full_reset=False (default): incremental — adds any new PDFs not yet indexed,
+      skips PDFs that are already in the vector store. Safe to run at any time.
+
+    full_reset=True: wipes the entire vector store (.chroma and .parents) and
+      re-ingests all PDFs from scratch. Use this if the embeddings seem wrong or
+      the user wants a clean rebuild. Takes longer than incremental.
+
+    Lists PDFs currently in agent/knowledge/ before and after ingestion.
+    """
+    import shutil
+    import agent.rag as _rag
+    from agent.ingest import ingest, KNOWLEDGE_DIR, CHROMA_DIR, PARENTS_DIR
+
+    pdfs = sorted(KNOWLEDGE_DIR.glob("*.pdf"))
+    pdf_names = [p.name for p in pdfs]
+
+    if not pdfs:
+        return (
+            f"No PDF files found in agent/knowledge/.\n"
+            f"Add PDFs to that directory, then call reinitialize_knowledge_base() again."
+        )
+
+    if full_reset:
+        removed = []
+        if CHROMA_DIR.exists():
+            shutil.rmtree(CHROMA_DIR)
+            removed.append(".chroma (vector store)")
+        if PARENTS_DIR.exists():
+            shutil.rmtree(PARENTS_DIR)
+            removed.append(".parents (full-page cache)")
+        if removed:
+            reset_note = f"Wiped: {', '.join(removed)}\n"
+        else:
+            reset_note = "Nothing to wipe — starting fresh.\n"
+    else:
+        reset_note = ""
+
+    # Invalidate the lazy singleton so the next search picks up the new index
+    _rag._retriever = None
+
+    try:
+        ingest()
+    except Exception as e:
+        return f"Ingest error: {e}"
+
+    lines = [
+        f"{'Full rebuild' if full_reset else 'Incremental update'} complete.",
+        reset_note.strip(),
+        f"PDFs indexed ({len(pdfs)}):",
+    ]
+    for name in pdf_names:
+        lines.append(f"  • {name}")
+    lines.append(
+        "\nThe knowledge base is ready. "
+        "Use search_knowledge_base() to query it."
+    )
+    return "\n".join(l for l in lines if l)
+
+
+@tool
+def reset_material_database(keep_library: bool = True, confirm: bool = False) -> str:
+    """
+    Reset the material database.
+
+    Two modes — choose based on what the user wants to keep:
+
+    keep_library=True (default): clears all characterization results
+      (material cards, microstructure snapshots, inference runs, constituent
+      property values, composite predictions, experimental measurements) but
+      keeps the fiber, polymer, and printer entries. Use this when the user
+      wants to redo characterization from scratch without losing their
+      material library.
+
+    keep_library=False: full factory reset — drops every table and reseeds
+      from the JSON seed files (data/fibers.json, data/polymers.json).
+      WARNING: any fibers, polymers, or printers the user added manually
+      via add_fiber() / add_polymer() will be permanently lost.
+
+    confirm=False (default): dry run — describes exactly what would be
+      deleted without making any changes. Always show this first.
+
+    confirm=True: performs the actual reset. Only call after the user has
+      explicitly confirmed after seeing the dry-run output.
+    """
+    import db.init_db as _init_db
+
+    if not confirm:
+        # Dry run — count rows without touching anything
+        with _db._connect() as conn:
+            def _count(table):
+                return conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+
+            card_tables = {
+                "print_configs":               _count("print_configs"),
+                "microstructure_snapshots":    _count("microstructure_snapshots"),
+                "inference_runs":              _count("inference_runs"),
+                "constituent_property_values": _count("constituent_property_values"),
+                "experimental_measurements":   _count("experimental_measurements"),
+                "composite_property_values":   _count("composite_property_values"),
+                "current_composite_properties":_count("current_composite_properties"),
+                "thermal_k_predictions":       _count("thermal_k_predictions"),
+                "property_preferences":        _count("property_preferences"),
+                "processing_conditions":       _count("processing_conditions"),
+            }
+            library = {
+                "fibers":   _count("fibers"),
+                "polymers": _count("polymers"),
+                "printers": _count("printers"),
+            }
+
+        lines = [
+            "DRY RUN — nothing deleted yet.",
+            "",
+            f"Mode: {'clear cards only (keep fiber/polymer/printer library)' if keep_library else 'full factory reset (library will be reseeded from JSON)'}",
+            "",
+            "Would delete (characterization data):",
+        ]
+        for tbl, n in card_tables.items():
+            if n:
+                lines.append(f"  {tbl:<36} {n} row{'s' if n != 1 else ''}")
+
+        if not keep_library:
+            lines += ["", "Would also wipe and reseed:"]
+            for tbl, n in library.items():
+                lines.append(f"  {tbl:<36} {n} row{'s' if n != 1 else ''} → replaced by seed JSON")
+        else:
+            lines += ["", "Would keep (library):"]
+            for tbl, n in library.items():
+                lines.append(f"  {tbl:<36} {n} row{'s' if n != 1 else ''} preserved")
+
+        lines += [
+            "",
+            f"To confirm, call reset_material_database(keep_library={keep_library}, confirm=True).",
+        ]
+        return "\n".join(lines)
+
+    # ── Confirmed reset ────────────────────────────────────────────────────────
+    if keep_library:
+        _CARD_TABLES = (
+            "thermal_k_predictions",
+            "current_composite_properties",
+            "property_preferences",
+            "composite_property_values",
+            "experimental_measurements",
+            "constituent_property_values",
+            "microstructure_snapshots",
+            "inference_runs",
+            "print_configs",
+            "processing_conditions",
+        )
+        with _db._connect() as conn:
+            conn.execute("PRAGMA foreign_keys=OFF")
+            for tbl in _CARD_TABLES:
+                conn.execute(f"DELETE FROM {tbl}")
+            conn.execute("PRAGMA foreign_keys=ON")
+            conn.commit()
+        return (
+            "Characterization data cleared.\n"
+            "All material cards, inference runs, microstructure snapshots, "
+            "and experimental measurements have been deleted.\n"
+            "Fiber, polymer, and printer library is intact.\n"
+            "You can now start fresh characterization with run_elastic_inverse "
+            "or run_full_pipeline."
+        )
+    else:
+        try:
+            _init_db.init(reset=True)
+        except Exception as e:
+            return f"Full reset error: {e}"
+        return (
+            "Full factory reset complete.\n"
+            "All tables dropped and recreated. "
+            "Fibers, polymers seeded from data/fibers.json and data/polymers.json.\n"
+            "Any materials you added manually (add_fiber, add_polymer) have been removed.\n"
+            "You can verify the library with list_materials()."
+        )
+
+
 # ── All tools passed to the LLM and ToolNode ─────────────────────────────────
 
 TOOLS = [
@@ -2464,6 +3119,10 @@ TOOLS = [
     run_elastic_inverse,
     run_thermoelastic_inverse,
     run_thermal_inverse,
+    run_full_pipeline,
     save_to_card,
+    delete_card,
     save_processing_conditions,
+    reinitialize_knowledge_base,
+    reset_material_database,
 ]

@@ -31,6 +31,7 @@ Model input units (what the surrogate expects):
         / get_current_composite_properties
     set_property_preference / get_canonical_value
     get_print_config_card
+    delete_card
 
 ── Thermal helpers ───────────────────────────────────────────────────────────────
     save_thermal_inverse_results
@@ -1239,3 +1240,145 @@ def import_thermal_csv(
                 )
                 count += 1
     return count
+
+
+# ── Card deletion ─────────────────────────────────────────────────────────────
+
+def delete_card(print_config_id: int, dry_run: bool = False) -> dict:
+    """Delete a material card and all data scoped to it.
+
+    Constituent properties (matrix_modulus, f_cte1, k_f1, …) are stored globally
+    with print_config_id=NULL and are intentionally NOT deleted — they belong to the
+    fiber/polymer pair and may be shared with other cards.
+
+    The inference_run_id foreign key in constituent_property_values is NULLed out
+    (audit trail link is broken, but the values and provenance tags are preserved).
+
+    Args:
+        print_config_id: ID of the card to delete.
+        dry_run: If True, return a summary of what would be deleted without
+                 making any changes to the database.
+
+    Returns:
+        dict with keys:
+            card_name    : str
+            rows_deleted : dict {table_name: count}   (0 for every table on dry_run)
+            dry_run      : bool
+    """
+    cfg = get_print_config(print_config_id)
+    if cfg is None:
+        raise ValueError(f"Card id={print_config_id} not found.")
+
+    card_name            = cfg.get("name", f"card_{print_config_id}")
+    processing_cond_id   = cfg.get("processing_condition_id")
+
+    # ── Gather counts for the report (and for dry_run) ─────────────────────────
+    with _connect() as conn:
+        def _count(table: str, where: str, params: tuple) -> int:
+            return conn.execute(
+                f"SELECT COUNT(*) FROM {table} WHERE {where}", params
+            ).fetchone()[0]
+
+        run_ids_rows = conn.execute(
+            "SELECT id FROM inference_runs WHERE print_config_id = ?",
+            (print_config_id,),
+        ).fetchall()
+        run_ids = [r[0] for r in run_ids_rows]
+        run_ids_placeholder = ",".join("?" * len(run_ids)) if run_ids else "NULL"
+
+        counts: dict[str, int] = {
+            "thermal_k_predictions":       _count("thermal_k_predictions",       "print_config_id = ?", (print_config_id,)),
+            "composite_property_values":   _count("composite_property_values",   "print_config_id = ?", (print_config_id,)),
+            "experimental_measurements":   _count("experimental_measurements",   "print_config_id = ?", (print_config_id,)),
+            "property_preferences":        _count("property_preferences",        "print_config_id = ?", (print_config_id,)),
+            "current_composite_properties":_count("current_composite_properties","print_config_id = ?", (print_config_id,)),
+            "microstructure_snapshots":    _count("microstructure_snapshots",    "print_config_id = ?", (print_config_id,)),
+            "inference_runs":              len(run_ids),
+            "print_configs":               1,
+            "processing_conditions":       (1 if processing_cond_id else 0),
+        }
+        # constituent_property_values rows that reference this card's runs
+        cpv_nulled = 0
+        if run_ids:
+            cpv_nulled = conn.execute(
+                f"SELECT COUNT(*) FROM constituent_property_values "
+                f"WHERE inference_run_id IN ({run_ids_placeholder})",
+                run_ids,
+            ).fetchone()[0]
+
+    if dry_run:
+        return {
+            "card_name":    card_name,
+            "rows_deleted": {k: 0 for k in counts},
+            "constituent_property_values_inference_run_id_nulled": 0,
+            "dry_run": True,
+            "would_delete": counts,
+            "would_null_cpv_run_ids": cpv_nulled,
+        }
+
+    # ── Execute deletion in safe order ─────────────────────────────────────────
+    with _connect() as conn:
+        conn.execute("PRAGMA foreign_keys=OFF")
+
+        conn.execute(
+            "DELETE FROM thermal_k_predictions WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM composite_property_values WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM experimental_measurements WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM property_preferences WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM current_composite_properties WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+
+        # NULL out constituent_property_values audit trail links before deleting runs
+        if run_ids:
+            conn.execute(
+                f"UPDATE constituent_property_values SET inference_run_id = NULL "
+                f"WHERE inference_run_id IN ({run_ids_placeholder})",
+                run_ids,
+            )
+
+        # Break circular FK before deleting snapshots
+        conn.execute(
+            "UPDATE inference_runs SET microstructure_snap_id = NULL "
+            "WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM microstructure_snapshots WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM inference_runs WHERE print_config_id = ?",
+            (print_config_id,),
+        )
+        conn.execute(
+            "DELETE FROM print_configs WHERE id = ?",
+            (print_config_id,),
+        )
+        if processing_cond_id:
+            conn.execute(
+                "DELETE FROM processing_conditions WHERE id = ?",
+                (processing_cond_id,),
+            )
+
+        conn.execute("PRAGMA foreign_keys=ON")
+        conn.commit()
+
+    return {
+        "card_name":    card_name,
+        "rows_deleted": counts,
+        "constituent_property_values_inference_run_id_nulled": cpv_nulled,
+        "dry_run": False,
+    }

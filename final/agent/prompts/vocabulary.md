@@ -23,6 +23,17 @@ All tools use the canonical names and model units listed here.
 | fiber mass fraction, fiber loading, fiber content, wf, weight fraction | fiber_massfrac | dimensionless | typical range 0.01–0.60 |
 | aspect ratio, fiber length, l/d ratio, slenderness | ar | dimensionless | typical range 5–100 |
 
+### Orientation shorthand — resolve BEFORE calling any tool
+
+| User says | a11 | a22 | a33 | Notes |
+|---|---|---|---|---|
+| random, random orientation, isotropic, randomly oriented | 0.333 | 0.333 | 0.333 | 3D random — fibers equally distributed in all directions |
+| 2D random, in-plane random, planar random | 0.5 | 0.5 | 0.0 | Fibers randomly distributed within a plane |
+| aligned, unidirectional, UD, fully aligned | 1.0 | 0.0 | 0.0 | All fibers along print direction |
+| transverse, cross-ply | 0.0 | 1.0 | 0.0 | All fibers perpendicular to print direction |
+
+**Rule:** If the user gives orientation as a keyword (e.g. "random"), look up the exact values above and pass them directly. Never invent or approximate orientation values.
+
 ---
 
 ## Elastic composite properties

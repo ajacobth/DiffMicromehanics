@@ -1,0 +1,99 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+E1,E1,12513.1,,True,1,108.87,
+E1,E2,2974.6,,True,1,108.87,
+E1,E3,2931.4,,True,1,108.87,
+E1,G12,1421.0,,True,1,108.87,
+E1,G13,1406.7,,True,1,108.87,
+E1,G23,995.6,,True,1,108.87,
+E1,nu12,0.42413,,True,1,108.87,
+E1,nu13,0.42281,,True,1,108.87,
+E1,nu23,0.52105,,True,1,108.87,
+E2,E1,9216.0,,True,1,40.11,
+E2,E2,3717.2,,True,1,40.11,
+E2,E3,3309.3,,True,1,40.11,
+E2,G12,1833.8,,True,1,40.11,
+E2,G13,1590.4,,True,1,40.11,
+E2,G23,1207.2,,True,1,40.11,
+E2,nu12,0.41907,,True,1,40.11,
+E2,nu13,0.4127,,True,1,40.11,
+E2,nu23,0.47494,,True,1,40.11,
+E3,E1,6224.4,,True,1,42.2,
+E3,E2,5503.2,,True,1,42.2,
+E3,E3,3464.2,,True,1,42.2,
+E3,G12,2250.8,,True,1,42.2,
+E3,G13,1446.0,,True,1,42.2,
+E3,G23,1414.5,,True,1,42.2,
+E3,nu12,0.32553,,True,1,42.2,
+E3,nu13,0.43058,,True,1,42.2,
+E3,nu23,0.44237,,True,1,42.2,
+E4,E1,13611.8,,True,1,37.54,
+E4,E2,2677.0,,True,1,37.54,
+E4,E3,2660.5,,True,1,37.54,
+E4,G12,1264.4,,True,1,37.54,
+E4,G13,1181.4,,True,1,37.54,
+E4,G23,905.6,,True,1,37.54,
+E4,nu12,0.42583,,True,1,37.54,
+E4,nu13,0.41209,,True,1,37.54,
+E4,nu23,0.55337,,True,1,37.54,
+E5,E1,10205.4,,True,1,37.94,
+E5,E2,3382.4,,True,1,37.94,
+E5,E3,3273.7,,True,1,37.94,
+E5,G12,1643.6,,True,1,37.94,
+E5,G13,1632.3,,True,1,37.94,
+E5,G23,1130.1,,True,1,37.94,
+E5,nu12,0.42272,,True,1,37.94,
+E5,nu13,0.42231,,True,1,37.94,
+E5,nu23,0.47675,,True,1,37.94,
+T1,E1,12513.1,,True,1,32.89,
+T1,E2,2974.6,,True,1,32.89,
+T1,G12,1421.0,,True,1,32.89,
+T1,nu12,0.42413,,True,1,32.89,
+T1,CTE11,6.9477e-06,,True,1,32.89,
+T1,CTE22,7.7821e-05,,True,1,32.89,
+T1,CTE33,7.78e-05,,True,1,32.89,
+T2,E1,9216.0,,True,1,32.0,
+T2,E2,3717.2,,True,1,32.0,
+T2,G12,1833.8,,True,1,32.0,
+T2,nu12,0.41907,,True,1,32.0,
+T2,CTE11,6.7497e-06,,True,1,32.0,
+T2,CTE22,5.9981e-05,,True,1,32.0,
+T2,CTE33,7.634e-05,,True,1,32.0,
+T3,E1,6224.4,,True,1,33.54,
+T3,E2,5503.2,,True,1,33.54,
+T3,G12,2250.8,,True,1,33.54,
+T3,nu12,0.32553,,True,1,33.54,
+T3,CTE11,-1.0097e-07,,True,1,33.54,
+T3,CTE22,-7.0311e-07,,True,1,33.54,
+T3,CTE33,1.5023e-05,,True,1,33.54,
+T4,E1,11278.7,,True,1,40.34,
+T4,E2,3161.9,,True,1,40.34,
+T4,G12,1516.3,,True,1,40.34,
+T4,nu12,0.42266,,True,1,40.34,
+T4,CTE11,7.7122e-06,,True,1,40.34,
+T4,CTE22,7.6251e-05,,True,1,40.34,
+T4,CTE33,7.3002e-05,,True,1,40.34,
+K1,k11_25C,,,True,1,16.65,not found in output
+K1,k22_25C,,,True,1,16.65,not found in output
+K1,k33_25C,,,True,1,16.65,not found in output
+K2,k11_50C,2.41419,,True,7,98.41,
+K2,k22_50C,1.06784,,True,7,98.41,
+K2,k33_50C,0.89495,,True,7,98.41,
+K2,k11_100C,2.41419,,True,7,98.41,
+K2,k22_100C,1.06784,,True,7,98.41,
+K2,k33_100C,0.89495,,True,7,98.41,
+K3,k11_25C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+K3,k22_25C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+K3,k33_25C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+K3,k11_100C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+K3,k22_100C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+K3,k33_100C,,,False,0,200.34,"ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
+S1,—,,,True,1,17.92,sweep — tool routing only
+S2,—,,,True,1,24.73,sweep — tool routing only
+S3,—,,,False,0,138.59,"sweep — tool routing only | ERROR: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT"
