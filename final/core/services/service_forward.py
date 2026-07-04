@@ -95,6 +95,9 @@ def sweep_parameter(
     else:
         raise ValueError("Provide either card_id >= 0 or base_inputs.")
 
+    CTE_FIELDS = {"f_cte1", "f_cte2", "m_cte"}
+    has_cte = CTE_FIELDS.issubset(inputs_base)
+
     rows = []
     for val in values:
         inputs = dict(inputs_base)
@@ -102,7 +105,7 @@ def sweep_parameter(
         if field in ("a11", "a22"):
             inputs["a33"] = 1.0 - inputs["a11"] - inputs["a22"]
         el_out = run_forward("elastic", inputs)
-        te_out = run_forward("thermoelastic", inputs)
+        te_out = run_forward("thermoelastic", inputs) if has_cte else {}
         rows.append({"value": val, "properties": {**el_out, **te_out}})
 
     return {

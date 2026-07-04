@@ -14,7 +14,7 @@ Current tools:
     get_model_inputs_outputs      — field names + units for elastic/thermoelastic models
     inspect_card_inputs           — preview resolved inputs before predicting
     predict_properties            — forward prediction (elastic + thermoelastic); accepts card, DB name, or raw constituent values
-    predict_thermal_conductivity  — forward prediction (thermal) at one T or across a T range
+    predict_thermal_conductivity  — forward prediction (thermal) at one T or across a T range; accepts card, DB name, or raw constituent values
     add_fiber                     — add a new fiber to the material library
     add_polymer                   — add a new polymer to the material library
     check_identifiability         — FIM analysis: can these measurements identify these unknowns?
@@ -1060,6 +1060,8 @@ def predict_thermal_conductivity(
     k_f1_WmK: float = -1.0,
     k_f2_WmK: float = -1.0,
     k_m_WmK: float = -1.0,
+    p1_WmK: float = -1.0,
+    p2_WmK: float = -1.0,
     a11: float = -1.0,
     a22: float = -1.0,
     a12: float = -1.0,
@@ -1067,6 +1069,8 @@ def predict_thermal_conductivity(
     a23: float = -1.0,
     fiber_massfrac: float = -1.0,
     ar: float = -1.0,
+    fiber_density_kg_m3: float = -1.0,
+    matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
     Predict composite thermal conductivity (k11, k22, k33) using the thermal surrogate.
@@ -1080,17 +1084,21 @@ def predict_thermal_conductivity(
                and return a conductivity vs temperature table
 
     Material loading — pick ONE:
-      card_id >= 0                          — load fiber + polymer + microstructure from a card
-      fiber_name + polymer_name (strings)   — load from datasheets by name (you must also
-                                              provide a11, a22, fiber_massfrac, ar)
+      1. card_id >= 0                         — load fiber + polymer + microstructure from a card
+      2. fiber_name + polymer_name (strings)  — load from datasheets by name (you must also
+                                                provide a11, a22, fiber_massfrac, ar)
+      3. Explicit constituent values (fiber_density_kg_m3 > 0, no card or DB name needed):
+         provide fiber_density_kg_m3, matrix_density_kg_m3, microstructure (a11, a22,
+         fiber_massfrac, ar), and conductivities — use option 3 when the user supplies
+         raw numbers without naming a material in the database.
 
     Constituent conductivity — resolved in priority order:
-      1. Explicit overrides (k_f1_WmK, k_f2_WmK, k_m_WmK) — temperature-independent
-      2. Stage 3 parametric model stored on the card (p1, p2, l2, t):
-           k_m(T) = p1 * sqrt(T) + p2   (temperature-dependent polymer conductivity)
-           k_f1   = l2                   (constant)
-           k_f2   = l2 / t               (constant)
-      3. Scalar k_f1, k_f2, k_m values from the card or datasheet (temperature-independent)
+      1. All three of k_f1_WmK + k_f2_WmK + k_m_WmK — temperature-independent scalar
+      2. Parametric: p1_WmK + p2_WmK + k_f1_WmK + k_f2_WmK:
+           k_m(T) = p1 * sqrt(T) + p2   (temperature-dependent)
+           k_f1, k_f2 are constant.
+      3. Stage 3 parametric model stored on the card (p1, p2, k_f1, k_f2).
+      4. Scalar k_f1, k_f2, k_m values from the card or datasheet.
       If none are available, ask the user to run Stage 3 or provide explicit overrides.
 
     Microstructure overrides (a11, a22, a12, a13, a23, fiber_massfrac, ar):
@@ -1129,12 +1137,23 @@ def predict_thermal_conductivity(
         except Exception as e:
             return f"Database error loading materials: {e}"
 
+    elif fiber_density_kg_m3 > 0:
+        # Option C: explicit constituent values — no DB lookup needed
+        inputs = {"a12": 0.0, "a13": 0.0, "a23": 0.0}
+        inputs["rho_f"] = fiber_density_kg_m3
+        inputs["fiber_density"] = fiber_density_kg_m3
+        if matrix_density_kg_m3 > 0:
+            inputs["rho_m"] = matrix_density_kg_m3
+            inputs["matrix_density"] = matrix_density_kg_m3
+        source_label = "Explicit constituent inputs (no DB)"
+
     else:
         return (
             "Specify the material system:\n"
             "  option A — card_id >= 0  (loads fiber + polymer + microstructure from a saved card)\n"
-            "  option B — fiber_name='AF' and polymer_name='AP'  "
-            "(also provide a11, a22, fiber_massfrac, ar)"
+            "  option B — fiber_name + polymer_name  (also provide a11, a22, fiber_massfrac, ar)\n"
+            "  option C — fiber_density_kg_m3 + matrix_density_kg_m3 + microstructure + k values\n"
+            "             (use when supplying raw numbers without a DB material name)"
         )
 
     # ── Step 2: Ensure density and field-name aliases ─────────────────────────
@@ -1174,18 +1193,28 @@ def predict_thermal_conductivity(
     if _orientation_err:
         return f"Invalid orientation tensor: {_orientation_err}"
 
-    # ── Step 4: Collect explicit k overrides ─────────────────────────────────
+    # ── Step 4: Collect k overrides and parametric model inputs ─────────────
     explicit_k: dict = {}
     if k_f1_WmK != -1.0:
         explicit_k["k_f1"] = k_f1_WmK
+        inputs["k_f1"] = k_f1_WmK   # also in inputs for parametric model check
         overrides_applied.append(f"  k_f1 = {k_f1_WmK:.4g} W/m·K  [override]")
     if k_f2_WmK != -1.0:
         explicit_k["k_f2"] = k_f2_WmK
+        inputs["k_f2"] = k_f2_WmK   # also in inputs for parametric model check
         overrides_applied.append(f"  k_f2 = {k_f2_WmK:.4g} W/m·K  [override]")
     if k_m_WmK != -1.0:
         explicit_k["k_m"] = k_m_WmK
         overrides_applied.append(f"  k_m = {k_m_WmK:.4g} W/m·K  [override]")
     use_explicit_k = len(explicit_k) == 3
+
+    # Parametric k_m model: k_m(T) = p1 * sqrt(T) + p2
+    if p1_WmK != -1.0:
+        inputs["p1"] = p1_WmK
+        overrides_applied.append(f"  p1 = {p1_WmK:.4g} W/m·K  [parametric model]")
+    if p2_WmK != -1.0:
+        inputs["p2"] = p2_WmK
+        overrides_applied.append(f"  p2 = {p2_WmK:.4g} W/m·K  [parametric model]")
 
     # ── Step 5: Check availability ────────────────────────────────────────────
     struct_missing = [f for f in _THERMAL_STRUCTURAL_REQUIRED if f not in inputs]
@@ -1229,8 +1258,10 @@ def predict_thermal_conductivity(
         lines.append(
             "\nCANNOT RUN: no thermal conductivity data found for this material system.\n"
             "  Options:\n"
-            "  - Run Stage 3 (thermal inverse) to infer p1, p2, l2, t from k vs T data\n"
-            "  - Provide explicit overrides: k_f1_WmK, k_f2_WmK, k_m_WmK"
+            "  - Scalar: provide k_f1_WmK, k_f2_WmK, k_m_WmK\n"
+            "  - Parametric: provide k_f1_WmK, k_f2_WmK, p1_WmK, p2_WmK\n"
+            "    (k_m(T) = p1*sqrt(T) + p2)\n"
+            "  - Run Stage 3 (thermal inverse) to infer from k vs T data"
         )
         return "\n".join(lines)
 

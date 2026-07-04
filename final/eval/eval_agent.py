@@ -39,15 +39,17 @@ from langchain_ollama import ChatOllama
 from agent.graph import build_app
 
 from eval.prompts import (
-    PROMPTS, GUI_INPUTS, SCORED_PROPERTIES, EXPECTED_TOOL,
+    PROMPTS, GUI_INPUTS, SCORED_PROPERTIES, EXPECTED_TOOL, PROMPT_GOALS,
 )
 
 PROMPTS_DIR = _FINAL / "agent" / "prompts"
 RESULTS_DIR = _EVAL  / "results"
 
 _MODEL_ALIASES = {
-    "14b": "qwen2.5:14b-instruct-q4_K_M",
-    "32b": "qwen2.5:32b-instruct-q3_K_M",
+    "14b":   "qwen2.5:14b-instruct-q4_K_M",
+    "32b":   "qwen2.5:32b-instruct-q3_K_M",
+    "8b":    "qwen3:8b",
+    "q3-14": "qwen3:14b",
 }
 
 _CATEGORY_LABEL = {
@@ -61,7 +63,9 @@ _CATEGORY_LABEL = {
 # ── Agent builder ─────────────────────────────────────────────────────────────
 
 def build_agent(model_tag: str):
-    llm    = ChatOllama(model=model_tag, temperature=0, streaming=False)
+    think = False if model_tag.startswith("qwen3") else None
+    kwargs = {"think": think} if think is not None else {}
+    llm    = ChatOllama(model=model_tag, temperature=0, streaming=False, **kwargs)
     system = (PROMPTS_DIR / "system_prompt.md").read_text()
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()
     return build_app(llm, f"{system}\n\n---\n\n{vocab}")
@@ -280,54 +284,108 @@ def write_csv(run_results: list[dict], model_tag: str) -> Path:
 
 # ── Scorer ────────────────────────────────────────────────────────────────────
 
+_PASS_THRESHOLD = 1.5  # % — MAPE below this = pass (any real input error exceeds this)
+
+
+def _short_challenge(key: str) -> str:
+    """One short phrase describing what a prompt tests, for the results table."""
+    goal = PROMPT_GOALS.get(key, "")
+    # The goals are formatted "Label: description — detail."
+    # Extract just the description part (after colon, before " — ")
+    if ":" in goal:
+        goal = goal.split(":", 1)[1].strip()
+    if " — " in goal:
+        goal = goal.split(" — ")[0].strip()
+    return goal[:40]
+
+
 def score_csv(csv_path: Path) -> None:
     """
-    Read a filled CSV and print MAPE report.
+    Read a filled CSV and print a pass/fail results table.
 
-    Skips rows where gui_value is empty (not yet filled in) or property is "—".
-    Uses relative error: |agent - gui| / |gui|  × 100 %.
-    For near-zero values (|gui| < 1e-10) falls back to absolute error.
+    Pass criteria (per prompt):
+      - tool_correct == True
+      - MAPE across all scored properties < _PASS_THRESHOLD %
+
+    Any prompt above the threshold is listed in a failure-detail section
+    with per-property breakdown so the reader knows exactly what went wrong.
     """
     rows: list[dict] = []
     with open(csv_path, newline="") as f:
         rows = list(csv.DictReader(f))
 
-    # Split into scoreable vs skipped
-    scoreable = [
-        r for r in rows
-        if r["gui_value"].strip() and r["property"] != "—"
-    ]
-    skipped = [r for r in rows if not r["gui_value"].strip() or r["property"] == "—"]
-
-    if not scoreable:
-        print("No rows have gui_value filled in yet. Fill the gui_value column and re-run.")
+    if not rows:
+        print("Empty CSV.")
         return
 
-    # Per-row error
-    errors_by_key: dict[str, list[float]] = {}
-    problem_rows = []
-
-    for r in scoreable:
-        try:
-            agent = float(r["agent_value"])
-            gui   = float(r["gui_value"])
-        except ValueError:
-            problem_rows.append(r)
-            continue
-
-        denom = abs(gui) if abs(gui) > 1e-10 else 1.0
-        pct   = abs(agent - gui) / denom * 100
-        errors_by_key.setdefault(r["key"], []).append(pct)
-
-    # ── Per-prompt table ──────────────────────────────────────────────────────
-    print(f"\n{'Key':<5}  {'Tool':<6}  {'Properties':>12}  {'MAPE':>8}  {'Max err':>9}  Notes")
-    print("-" * 65)
-
-    prev_cat = None
-    all_mapes: list[float] = []
+    # ── Compute per-prompt result ─────────────────────────────────────────────
+    prompt_results: dict[str, dict] = {}
 
     for key in PROMPTS:
-        if key not in errors_by_key and key not in [r["key"] for r in skipped]:
+        key_rows = [r for r in rows if r["key"] == key]
+        if not key_rows:
+            continue
+
+        tool_ok     = key_rows[0]["tool_correct"].strip().lower() == "true"
+        scored_rows = [
+            r for r in key_rows
+            if r.get("gui_value", "").strip() and r["property"] != "—"
+        ]
+
+        if not scored_rows:
+            prompt_results[key] = {
+                "tool_ok": tool_ok, "scored": False,
+                "passed": False, "mape": None,
+                "prop_errors": [], "n_filled": 0,
+            }
+            continue
+
+        prop_errors: list[tuple[str, float]] = []
+        for r in scored_rows:
+            try:
+                agent = float(r["agent_value"])
+                gui   = float(r["gui_value"])
+            except ValueError:
+                continue
+            denom = abs(gui) if abs(gui) > 1e-10 else 1.0
+            prop_errors.append((r["property"], abs(agent - gui) / denom * 100))
+
+        if not prop_errors:
+            prompt_results[key] = {
+                "tool_ok": tool_ok, "scored": False,
+                "passed": False, "mape": None,
+                "prop_errors": [], "n_filled": 0,
+            }
+            continue
+
+        mape   = sum(e for _, e in prop_errors) / len(prop_errors)
+        passed = tool_ok and mape < _PASS_THRESHOLD
+
+        prompt_results[key] = {
+            "tool_ok":     tool_ok,
+            "scored":      True,
+            "passed":      passed,
+            "mape":        mape,
+            "prop_errors": sorted(prop_errors, key=lambda x: -x[1]),
+            "n_filled":    len(prop_errors),
+            "n_expected":  len(SCORED_PROPERTIES.get(key, [])),
+        }
+
+    # ── Main results table ────────────────────────────────────────────────────
+    W = 76
+    print(f"\n{'═' * W}")
+    print(f"  MateriAl Agent — Benchmark Results  (pass threshold: {_PASS_THRESHOLD}%)")
+    print(f"{'═' * W}")
+    print(f"\n  {'Key':<5}  {'Challenge':<40}  {'Tool':<5}  {'Pass':<5}  Notes")
+    print(f"  {'─'*5}  {'─'*40}  {'─'*5}  {'─'*5}  {'─'*16}")
+
+    prev_cat   = None
+    n_pass     = 0
+    n_total    = 0
+    hard_cases: list[tuple[str, dict]] = []
+
+    for key in PROMPTS:
+        if key not in prompt_results:
             continue
 
         cat = key[0]
@@ -335,54 +393,60 @@ def score_csv(csv_path: Path) -> None:
             print(f"\n  ── {_CATEGORY_LABEL.get(cat, cat)} ──")
             prev_cat = cat
 
-        errs = errors_by_key.get(key, [])
-        # Tool routing from first row for this key
-        key_rows = [r for r in rows if r["key"] == key]
-        tool_ok  = key_rows[0]["tool_correct"] if key_rows else "?"
-        tool_str = "✓" if tool_ok == "True" else "✗"
+        res       = prompt_results[key]
+        tool_str  = "✓" if res["tool_ok"] else "✗"
+        challenge = _short_challenge(key)
 
-        if not errs:
-            props_str = f"0/{len(SCORED_PROPERTIES.get(key, []))}"
-            print(f"{key:<5}  {tool_str:<6}  {props_str:>12}  {'—':>8}  {'—':>9}  "
-                  f"not filled / sweep")
+        if not res["scored"]:
+            print(f"  {key:<5}  {challenge:<40}  {tool_str:<5}  {'—':<5}  not filled")
             continue
 
-        mape    = sum(errs) / len(errs)
-        max_err = max(errs)
-        filled  = f"{len(errs)}/{len(SCORED_PROPERTIES.get(key,[]))}"
-        all_mapes.append(mape)
+        n_total += 1
+        if res["passed"]:
+            n_pass += 1
+            pass_str = "✓"
+            notes    = ""
+        else:
+            pass_str = "✗"
+            if not res["tool_ok"]:
+                notes = "wrong tool"
+            elif res["prop_errors"]:
+                worst_prop, worst_err = res["prop_errors"][0]
+                notes = f"{worst_prop} off {worst_err:.1f}%"
+            else:
+                notes = f"MAPE {res['mape']:.1f}%"
+            hard_cases.append((key, res))
 
-        flag = ""
-        if mape > 10:
-            flag = " ← HIGH"
-        elif mape > 2:
-            flag = " ← check"
+        filled_str = f"{res['n_filled']}/{res['n_expected']}"
+        print(f"  {key:<5}  {challenge:<40}  {tool_str:<5}  {pass_str:<5}  "
+              f"{notes}  [{filled_str} props]")
 
-        print(f"{key:<5}  {tool_str:<6}  {filled:>12}  {mape:>7.2f}%  {max_err:>8.2f}%{flag}")
+    # ── Summary ───────────────────────────────────────────────────────────────
+    print(f"\n{'═' * W}")
+    n_prompts  = len(prompt_results)
+    tool_ok_n  = sum(1 for r in prompt_results.values() if r.get("tool_ok"))
+    tool_pct   = tool_ok_n / n_prompts * 100 if n_prompts else 0
+    pass_pct   = n_pass / n_total * 100 if n_total else 0
 
-    # ── Per-category summary ──────────────────────────────────────────────────
-    print(f"\n{'='*65}")
-    cat_keys = {"E": [], "T": [], "K": [], "S": []}
-    for k, errs in errors_by_key.items():
-        cat_keys[k[0]].append(sum(errs) / len(errs))
+    print(f"  Tool routing : {tool_ok_n}/{n_prompts}  ({tool_pct:.0f}%)")
+    print(f"  Pass rate    : {n_pass}/{n_total}  ({pass_pct:.0f}%)"
+          + ("  — all filled prompts passed" if n_pass == n_total else ""))
 
-    for cat, mapes in cat_keys.items():
-        if mapes:
-            print(f"  {_CATEGORY_LABEL[cat]:<18}  avg MAPE = {sum(mapes)/len(mapes):.2f}%")
+    # ── Failed prompt detail ──────────────────────────────────────────────────
+    if hard_cases:
+        print(f"\n  ── Failed prompts ──────────────────────────────────────────")
+        for key, res in hard_cases:
+            goal = PROMPT_GOALS.get(key, "")
+            print(f"\n  {key}  {goal}")
+            if not res["tool_ok"]:
+                print(f"    → wrong tool called")
+            if res["prop_errors"]:
+                print(f"    → MAPE {res['mape']:.2f}%")
+                for prop, err in res["prop_errors"]:
+                    flag = "  ←" if err >= _PASS_THRESHOLD else ""
+                    print(f"       {prop:<10}  {err:>7.3f}%{flag}")
 
-    if all_mapes:
-        overall = sum(all_mapes) / len(all_mapes)
-        print(f"  {'OVERALL':<18}  avg MAPE = {overall:.2f}%")
-
-    tool_correct_rows = [r for r in rows if r["tool_correct"] == "True"]
-    tool_acc = len(tool_correct_rows) / len(rows) * 100 if rows else 0
-    print(f"\n  Tool routing accuracy : {tool_acc:.0f}%  ({len(tool_correct_rows)}/{len(rows)} prompts)")
-
-    if skipped:
-        print(f"  Skipped (no gui_value): {len(skipped)} rows")
-    if problem_rows:
-        print(f"  Parse errors          : {len(problem_rows)} rows")
-    print(f"{'='*65}\n")
+    print(f"{'═' * W}\n")
 
 
 # ── GUI worksheet printer ─────────────────────────────────────────────────────
@@ -404,20 +468,22 @@ def print_worksheet(keys: list[str]) -> None:
 
         info = GUI_INPUTS[key]
         print(f"\n  {key}")
-        for field in ("fiber", "matrix", "micro", "CTE", "k", "density",
+        for field in ("goal", "fiber", "matrix", "micro", "CTE", "k", "density",
                       "score_at", "note"):
             val = info.get(field)
             if val:
                 label = {
-                    "fiber": "Fiber   ", "matrix": "Matrix  ",
-                    "micro": "Micro   ", "CTE":    "CTE     ",
+                    "goal":  "Goal    ", "fiber": "Fiber   ", "matrix": "Matrix  ",
+                    "micro": "Micro   ", "CTE":   "CTE     ",
                     "k":     "k inputs", "density":"Density ",
-                    "score_at": "Score @ ", "note":  "Note    ",
+                    "score_at": "Score @ ", "note": "Note    ",
                 }[field]
                 print(f"    {label}: {val}")
 
     print("\n" + "═" * 65)
-    print("  Fill eval/results/*.csv → gui_value column, then run --score")
+    print("  Fill eval/results/*.csv → gui_value column, then:")
+    print("  python eval/eval_agent.py --score <csv>")
+    print("  Pass = tool correct + MAPE < 1% vs gui_value")
     print("═" * 65 + "\n")
 
 
@@ -475,6 +541,32 @@ def main() -> None:
     print(f"\nMateriAl Agent Benchmark — Run Phase")
     print(f"  Model   : {model_tag}")
     print(f"  Prompts : {keys}\n")
+
+    # Pre-warm JAX JIT for all three surrogate models so the first thermal
+    # prompt (K1) doesn't pay the 30-60s compilation cost mid-benchmark.
+    print("  Pre-warming JAX models ...", end="", flush=True)
+    import core.services.service_forward as _sfw
+    _dummy = {
+        "e1": 230000.0, "e2": 15000.0, "g12": 15000.0,
+        "f_nu12": 0.2, "f_nu23": 0.25,
+        "ar": 20.0, "fiber_massfrac": 0.20,
+        "fiber_density": 1760.0, "matrix_modulus": 3100.0,
+        "matrix_poisson": 0.37, "matrix_density": 1280.0,
+        "a11": 0.60, "a22": 0.15, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+        "f_cte1": -0.5e-6, "f_cte2": 15.0e-6, "m_cte": 60.0e-6,
+    }
+    _thermal_dummy = {
+        "k_f1": 8.0, "k_f2": 1.0, "k_m": 0.2,
+        "ar_f": 20.0, "w_f": 0.20, "rho_f": 1760.0, "rho_m": 1280.0,
+        "a11": 0.60, "a22": 0.15, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+    }
+    try:
+        _sfw.run_forward("elastic",      _dummy)
+        _sfw.run_forward("thermoelastic", _dummy)
+        _sfw.run_forward("thermal",       _thermal_dummy)
+        print(" done")
+    except Exception as exc:
+        print(f" skipped ({exc})")
 
     app          = build_agent(model_tag)
     run_results  = []

@@ -49,13 +49,42 @@ def _build_llm():
     provider, model_id = MODELS[ACTIVE_MODEL]
     if provider == "anthropic":
         return ChatAnthropic(model=model_id, temperature=0)
-    return ChatOllama(model=model_id, temperature=0, streaming=True)
+    think = False if model_id.startswith("qwen3") else None
+    kwargs = {"think": think} if think is not None else {}
+    return ChatOllama(model=model_id, temperature=0, streaming=True, **kwargs)
 
 
 # ── Cached resources (survive Streamlit reruns) ───────────────────────────────
 
 @st.cache_resource
+def _prewarm_models():
+    """Trigger JAX JIT compilation for all three surrogate models at startup."""
+    import core.services.service_forward as _sfw
+    _dummy = {
+        "e1": 230000.0, "e2": 15000.0, "g12": 15000.0,
+        "f_nu12": 0.2, "f_nu23": 0.25,
+        "ar": 20.0, "fiber_massfrac": 0.20,
+        "fiber_density": 1760.0, "matrix_modulus": 3100.0,
+        "matrix_poisson": 0.37, "matrix_density": 1280.0,
+        "a11": 0.60, "a22": 0.15, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+        "f_cte1": -0.5e-6, "f_cte2": 15.0e-6, "m_cte": 60.0e-6,
+    }
+    _thermal_dummy = {
+        "k_f1": 8.0, "k_f2": 1.0, "k_m": 0.2,
+        "ar_f": 20.0, "w_f": 0.20, "rho_f": 1760.0, "rho_m": 1280.0,
+        "a11": 0.60, "a22": 0.15, "a12": 0.0, "a13": 0.0, "a23": 0.0,
+    }
+    try:
+        _sfw.run_forward("elastic", _dummy)
+        _sfw.run_forward("thermoelastic", _dummy)
+        _sfw.run_forward("thermal", _thermal_dummy)
+    except Exception:
+        pass  # warmup failure is non-fatal
+
+
+@st.cache_resource
 def get_app():
+    _prewarm_models()
     system = (PROMPTS_DIR / "system_prompt.md").read_text()
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()
     return build_app(_build_llm(), f"{system}\n\n---\n\n{vocab}")
@@ -225,5 +254,4 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
         "tools":   tools_shown,
     })
 
-    # Refresh sidebar card state after the turn
-    st.rerun()
+    # Sidebar card state refreshes naturally on the next user interaction
