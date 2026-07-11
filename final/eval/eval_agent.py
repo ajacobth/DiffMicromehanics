@@ -53,11 +53,23 @@ _MODEL_ALIASES = {
 }
 
 _CATEGORY_LABEL = {
-    "E": "ELASTIC",
-    "T": "THERMOELASTIC",
-    "K": "THERMAL",
-    "S": "SWEEP",
+    "E":  "FORWARD — ELASTIC",
+    "T":  "FORWARD — THERMOELASTIC",
+    "K":  "FORWARD — THERMAL",
+    "S":  "FORWARD — SWEEP",
+    "IE": "INVERSE — ELASTIC",
+    "IT": "INVERSE — THERMOELASTIC",
+    "IK": "INVERSE — THERMAL",
 }
+
+# Inverse prompts that require a confirmation turn before the tool is called.
+_NEEDS_CONFIRMATION: set[str] = {
+    "IE1", "IE2", "IE3", "IE4", "IE5",
+    "IT1", "IT2",
+}
+
+# fit_error threshold for inverse pass/fail (solver convergence proxy).
+_INV_FIT_THRESHOLD = 0.05
 
 
 # ── Agent builder ─────────────────────────────────────────────────────────────
@@ -77,13 +89,21 @@ def parse_tool_output(tool_text: str, key: str) -> dict[str, float]:
     """
     Extract predicted numerical values from a tool's return string.
 
-    Handles three formats produced by the tools:
-      Elastic/thermoelastic  — "  E1     =   23332.1 MPa"  /  "  CTE11 = -2.5e-07 /K"
-      Thermal single-temp    — "  k11 (print direction) = 1.234 W/m·K"
-      Thermal matrix         — table rows: "  25.0  0.278  1.234  0.456  0.456"
+    Handles four formats:
+      Elastic/thermoelastic forward — "  E1 = 23332.1 MPa" / "  CTE11 = -2.5e-07 /K"
+      Thermal single-temp           — "  k11 (print direction) = 1.234 W/m·K"
+      Thermal matrix                — table rows: "  25.0  0.278  1.234  0.456  0.456"
+      Inverse (IE/IT)               — "  fit_error = 0.00234  (EXCELLENT)"
     """
     values: dict[str, float] = {}
-    cat = key[0]
+    cat = key[:2] if key[:2] in ("IE", "IT", "IK") else key[0]
+
+    # ── Inverse: extract fit_error ────────────────────────────────────────────
+    if cat in ("IE", "IT", "IK"):
+        m = re.search(r'fit_error\s*=\s*([\d.e+\-]+)', tool_text)
+        if m:
+            values["fit_error"] = float(m.group(1))
+        return values
 
     if cat in ("E", "T"):
         # Elastic outputs: E1, E2, E3, G12, G13, G23, nu12, nu13, nu23
@@ -149,12 +169,28 @@ def parse_tool_output(tool_text: str, key: str) -> dict[str, float]:
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 
+def _extract_tool_calls(messages: list) -> list[dict]:
+    """Return list of {tool, args} dicts for every tool call in a message list."""
+    calls = []
+    for msg in messages:
+        if isinstance(msg, AIMessage) and getattr(msg, "tool_calls", None):
+            for tc in msg.tool_calls:
+                calls.append({"tool": tc["name"], "args": tc.get("args", {})})
+    return calls
+
+
 def run_one(app, key: str) -> dict:
-    """Run one prompt in a fresh thread; return tool calls, parsed values, timing."""
-    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-    t0     = time.perf_counter()
-    error  = None
+    """Run one prompt in a fresh thread; return tool calls, parsed values, timing.
+
+    Inverse prompts (IE/IT/IK) require a confirmation step: the agent shows a
+    summary and waits for 'yes'. We send a single follow-up 'yes, go ahead' if
+    the expected tool was not called on the first turn.
+    """
+    config  = {"configurable": {"thread_id": str(uuid.uuid4())}}
+    t0      = time.perf_counter()
+    error   = None
     all_messages: list = []
+    n_turns = 0
 
     try:
         result       = app.invoke(
@@ -162,17 +198,28 @@ def run_one(app, key: str) -> dict:
             config,
         )
         all_messages = result.get("messages", [])
+        n_turns     += 1
+
+        # For inverse prompts: if expected tool wasn't called, send confirmation.
+        expected = EXPECTED_TOOL[key]
+        if key in _NEEDS_CONFIRMATION and expected is not None:
+            tool_calls_so_far = _extract_tool_calls(all_messages)
+            expected_called   = any(tc["tool"] == expected for tc in tool_calls_so_far)
+            if not expected_called:
+                result2      = app.invoke(
+                    {"messages": [HumanMessage(content="Yes, go ahead.")]},
+                    config,
+                )
+                all_messages = result2.get("messages", [])
+                n_turns     += 1
+
     except Exception as exc:
         error = str(exc)
 
     elapsed = round(time.perf_counter() - t0, 2)
 
     # Extract all tool calls (name + args)
-    tool_calls = []
-    for msg in all_messages:
-        if isinstance(msg, AIMessage) and getattr(msg, "tool_calls", None):
-            for tc in msg.tool_calls:
-                tool_calls.append({"tool": tc["name"], "args": tc.get("args", {})})
+    tool_calls = _extract_tool_calls(all_messages)
 
     # Extract tool result text(s) — each ToolMessage content
     tool_outputs = [
@@ -185,18 +232,25 @@ def run_one(app, key: str) -> dict:
     predicted: dict[str, float] = {}
     expected = EXPECTED_TOOL[key]
     for out in tool_outputs:
-        if out["tool"] == expected:
+        if expected is not None and out["tool"] == expected:
             predicted.update(parse_tool_output(out["content"], key))
 
     # First tool called by the agent
     first_tool = tool_calls[0]["tool"] if tool_calls else None
 
+    # IE5 special case: expected_tool=None means the agent should call NOTHING.
+    if expected is None:
+        tool_correct = first_tool is None
+    else:
+        tool_correct = first_tool == expected
+
     return {
         "key":          key,
         "first_tool":   first_tool,
         "expected_tool":expected,
-        "tool_correct": first_tool == expected,
+        "tool_correct": tool_correct,
         "n_calls":      len(tool_calls),
+        "n_turns":      n_turns,
         "predicted":    predicted,
         "elapsed_s":    elapsed,
         "error":        error,
@@ -242,8 +296,10 @@ def write_csv(run_results: list[dict], model_tag: str) -> Path:
             predicted  = r["predicted"]
 
             if not props:
-                # Sweeps — one summary row
-                notes = "sweep — tool routing only"
+                # Routing-only (sweeps, IE3, IE5)
+                cat   = key[:2] if key[:2] in _CATEGORY_LABEL else key[0]
+                notes = "inverse — tool routing only" if cat in ("IE","IT","IK") \
+                        else "sweep — tool routing only"
                 if err:
                     notes += f" | ERROR: {err}"
                 writer.writerow({
@@ -318,6 +374,9 @@ def score_csv(csv_path: Path) -> None:
         print("Empty CSV.")
         return
 
+    def _cat(k: str) -> str:
+        return k[:2] if k[:2] in _CATEGORY_LABEL else k[0]
+
     # ── Compute per-prompt result ─────────────────────────────────────────────
     prompt_results: dict[str, dict] = {}
 
@@ -326,58 +385,104 @@ def score_csv(csv_path: Path) -> None:
         if not key_rows:
             continue
 
-        tool_ok     = key_rows[0]["tool_correct"].strip().lower() == "true"
-        scored_rows = [
-            r for r in key_rows
-            if r.get("gui_value", "").strip() and r["property"] != "—"
-        ]
+        tool_ok = key_rows[0]["tool_correct"].strip().lower() == "true"
+        cat     = _cat(key)
+        is_inv  = cat in ("IE", "IT", "IK")
 
-        if not scored_rows:
+        # IE5 / routing-only: no scored properties expected
+        if not SCORED_PROPERTIES.get(key):
             prompt_results[key] = {
-                "tool_ok": tool_ok, "scored": False,
-                "passed": False, "mape": None,
-                "prop_errors": [], "n_filled": 0,
+                "tool_ok": tool_ok, "scored": True,
+                "passed": tool_ok, "mape": None,
+                "prop_errors": [], "n_filled": 0, "n_expected": 0,
+                "fit_error": None,
             }
             continue
 
-        prop_errors: list[tuple[str, float]] = []
-        for r in scored_rows:
-            try:
-                agent = float(r["agent_value"])
-                gui   = float(r["gui_value"])
-            except ValueError:
+        if is_inv:
+            # ── Inverse scoring: fit_error < _INV_FIT_THRESHOLD ──────────────
+            fe_rows = [r for r in key_rows if r["property"] == "fit_error"]
+            if not fe_rows or not fe_rows[0].get("agent_value", "").strip():
+                prompt_results[key] = {
+                    "tool_ok": tool_ok, "scored": False,
+                    "passed": False, "mape": None,
+                    "prop_errors": [], "n_filled": 0, "n_expected": 1,
+                    "fit_error": None,
+                }
                 continue
-            denom = abs(gui) if abs(gui) > 1e-10 else 1.0
-            prop_errors.append((r["property"], abs(agent - gui) / denom * 100))
-
-        if not prop_errors:
+            try:
+                fe = float(fe_rows[0]["agent_value"])
+            except ValueError:
+                fe = float("inf")
+            passed = tool_ok and fe < _INV_FIT_THRESHOLD
             prompt_results[key] = {
-                "tool_ok": tool_ok, "scored": False,
-                "passed": False, "mape": None,
-                "prop_errors": [], "n_filled": 0,
+                "tool_ok":    tool_ok,
+                "scored":     True,
+                "passed":     passed,
+                "mape":       None,
+                "prop_errors": [("fit_error", fe)],
+                "n_filled":   1,
+                "n_expected": 1,
+                "fit_error":  fe,
             }
-            continue
 
-        mape   = sum(e for _, e in prop_errors) / len(prop_errors)
-        passed = tool_ok and mape < _PASS_THRESHOLD
+        else:
+            # ── Forward scoring: MAPE vs gui_value ───────────────────────────
+            scored_rows = [
+                r for r in key_rows
+                if r.get("gui_value", "").strip() and r["property"] != "—"
+            ]
+            if not scored_rows:
+                prompt_results[key] = {
+                    "tool_ok": tool_ok, "scored": False,
+                    "passed": False, "mape": None,
+                    "prop_errors": [], "n_filled": 0,
+                    "n_expected": len(SCORED_PROPERTIES.get(key, [])),
+                    "fit_error": None,
+                }
+                continue
 
-        prompt_results[key] = {
-            "tool_ok":     tool_ok,
-            "scored":      True,
-            "passed":      passed,
-            "mape":        mape,
-            "prop_errors": sorted(prop_errors, key=lambda x: -x[1]),
-            "n_filled":    len(prop_errors),
-            "n_expected":  len(SCORED_PROPERTIES.get(key, [])),
-        }
+            prop_errors: list[tuple[str, float]] = []
+            for r in scored_rows:
+                try:
+                    agent = float(r["agent_value"])
+                    gui   = float(r["gui_value"])
+                except ValueError:
+                    continue
+                denom = abs(gui) if abs(gui) > 1e-10 else 1.0
+                prop_errors.append((r["property"], abs(agent - gui) / denom * 100))
+
+            if not prop_errors:
+                prompt_results[key] = {
+                    "tool_ok": tool_ok, "scored": False,
+                    "passed": False, "mape": None,
+                    "prop_errors": [], "n_filled": 0,
+                    "n_expected": len(SCORED_PROPERTIES.get(key, [])),
+                    "fit_error": None,
+                }
+                continue
+
+            mape   = sum(e for _, e in prop_errors) / len(prop_errors)
+            passed = tool_ok and mape < _PASS_THRESHOLD
+            prompt_results[key] = {
+                "tool_ok":     tool_ok,
+                "scored":      True,
+                "passed":      passed,
+                "mape":        mape,
+                "prop_errors": sorted(prop_errors, key=lambda x: -x[1]),
+                "n_filled":    len(prop_errors),
+                "n_expected":  len(SCORED_PROPERTIES.get(key, [])),
+                "fit_error":   None,
+            }
 
     # ── Main results table ────────────────────────────────────────────────────
-    W = 76
+    W = 80
     print(f"\n{'═' * W}")
-    print(f"  MateriAl Agent — Benchmark Results  (pass threshold: {_PASS_THRESHOLD}%)")
+    print(f"  MateriAl Agent — Benchmark Results")
+    print(f"  Forward pass: MAPE < {_PASS_THRESHOLD}%  |  Inverse pass: fit_error < {_INV_FIT_THRESHOLD}")
     print(f"{'═' * W}")
-    print(f"\n  {'Key':<5}  {'Challenge':<40}  {'Tool':<5}  {'Pass':<5}  Notes")
-    print(f"  {'─'*5}  {'─'*40}  {'─'*5}  {'─'*5}  {'─'*16}")
+    print(f"\n  {'Key':<6}  {'Challenge':<40}  {'Tool':<5}  {'Pass':<5}  Notes")
+    print(f"  {'─'*6}  {'─'*40}  {'─'*5}  {'─'*5}  {'─'*16}")
 
     prev_cat   = None
     n_pass     = 0
@@ -388,7 +493,7 @@ def score_csv(csv_path: Path) -> None:
         if key not in prompt_results:
             continue
 
-        cat = key[0]
+        cat = _cat(key)
         if cat != prev_cat:
             print(f"\n  ── {_CATEGORY_LABEL.get(cat, cat)} ──")
             prev_cat = cat
@@ -410,16 +515,23 @@ def score_csv(csv_path: Path) -> None:
             pass_str = "✗"
             if not res["tool_ok"]:
                 notes = "wrong tool"
+            elif res["fit_error"] is not None:
+                notes = f"fit_error {res['fit_error']:.4f}"
             elif res["prop_errors"]:
                 worst_prop, worst_err = res["prop_errors"][0]
                 notes = f"{worst_prop} off {worst_err:.1f}%"
             else:
-                notes = f"MAPE {res['mape']:.1f}%"
+                notes = f"MAPE {res['mape']:.1f}%" if res["mape"] is not None else "no data"
             hard_cases.append((key, res))
 
-        filled_str = f"{res['n_filled']}/{res['n_expected']}"
-        print(f"  {key:<5}  {challenge:<40}  {tool_str:<5}  {pass_str:<5}  "
-              f"{notes}  [{filled_str} props]")
+        if res.get("n_expected", 0) == 0:
+            filled_str = "routing"
+        elif res.get("fit_error") is not None:
+            filled_str = f"fe={res['fit_error']:.4f}"
+        else:
+            filled_str = f"{res['n_filled']}/{res['n_expected']}"
+        print(f"  {key:<6}  {challenge:<40}  {tool_str:<5}  {pass_str:<5}  "
+              f"{notes}  [{filled_str}]")
 
     # ── Summary ───────────────────────────────────────────────────────────────
     print(f"\n{'═' * W}")
@@ -437,10 +549,14 @@ def score_csv(csv_path: Path) -> None:
         print(f"\n  ── Failed prompts ──────────────────────────────────────────")
         for key, res in hard_cases:
             goal = PROMPT_GOALS.get(key, "")
+            cat  = _cat(key)
             print(f"\n  {key}  {goal}")
             if not res["tool_ok"]:
                 print(f"    → wrong tool called")
-            if res["prop_errors"]:
+            if cat in ("IE", "IT", "IK") and res["fit_error"] is not None:
+                flag = "  ← exceeds threshold" if res["fit_error"] >= _INV_FIT_THRESHOLD else ""
+                print(f"    → fit_error = {res['fit_error']:.5f}{flag}")
+            elif res["prop_errors"] and res["mape"] is not None:
                 print(f"    → MAPE {res['mape']:.2f}%")
                 for prop, err in res["prop_errors"]:
                     flag = "  ←" if err >= _PASS_THRESHOLD else ""
@@ -461,7 +577,7 @@ def print_worksheet(keys: list[str]) -> None:
     for key in keys:
         if key not in GUI_INPUTS:
             continue
-        cat = key[0]
+        cat = key[:2] if key[:2] in _CATEGORY_LABEL else key[0]
         if cat != prev_cat:
             print(f"\n── {_CATEGORY_LABEL.get(cat, cat)} ─────────────────────────────")
             prev_cat = cat

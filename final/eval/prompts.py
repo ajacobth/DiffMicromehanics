@@ -3,8 +3,8 @@ prompts.py — Benchmark data for MateriAl agent evaluation.
 
 Contains:
   PROMPT_GOALS      — one-line test objective per prompt
-  PROMPTS           — 12 natural-language prompts (E, T, K categories)
-  GUI_INPUTS        — exact values to enter in gui.py for each prompt
+  PROMPTS           — natural-language prompts (E, T, K, IE, IT categories)
+  GUI_INPUTS        — exact values to enter in gui.py for each forward prompt
   SCORED_PROPERTIES — which output fields to extract and compare per prompt
   EXPECTED_TOOL     — which tool the agent should call for each prompt
 
@@ -13,11 +13,38 @@ Prompt design principle
 Each category introduces one new parsing / routing challenge per prompt.
 Within a category the prompts roughly increase in ambiguity so early prompts
 act as a sanity baseline and later ones stress-test edge cases.
+
+Inverse prompt categories (IE/IT):
+  IE — elastic inverse (run_elastic_inverse).  Self-contained: no prior card needed.
+       Scored on fit_error from solver output (< 0.05 = converged = inputs were correct).
+       Known-answer: synthetic measurements from forward run with ground-truth inputs:
+         T300/PESU/CAMRI,  E_m=3100 MPa,  a11=0.70 a22=0.15 mf=0.25 ar=30
+         Predicted: E1=20654 E2=6338 E3=6257 G12=3287 nu12=0.40 nu13=0.40 (all MPa)
+
+  IT — thermoelastic inverse (run_thermoelastic_inverse).
+       Requires a saved elastic inverse card (card_id=1 assumed).
+       Synthetic CTE targets from same ground truth:
+         CTE11=5.26 ppm/K  CTE22=45.05 ppm/K  CTE33=44.50 ppm/K
+
+  Multi-turn: inverse prompts require a confirmation step. The eval runner sends
+  a follow-up "yes, go ahead" if the expected tool was not called on the first turn.
 """
 
 # ── Test objectives ───────────────────────────────────────────────────────────
 
 PROMPT_GOALS: dict[str, str] = {
+    # ── Inverse: elastic ──────────────────────────────────────────────────────
+    "IE1": "Baseline: E1+E2+G12+nu12 in GPa, named DB materials, go-ahead in prompt.",
+    "IE2": "Measurements given in MPa (unusual) — agent must still pass them correctly.",
+    "IE3": "Only E1+E2 — agent should warn about identifiability and still call tool.",
+    "IE4": "CT-measured orientation (a11/a22 fixed) combined with elastic measurements.",
+    "IE5": "Ambiguous range input ('~20 GPa') — RULE 1 should block tool call.",
+
+    # ── Inverse: thermoelastic ────────────────────────────────────────────────
+    "IT1": "Baseline: CTE in ppm/K, card_id provided explicitly.",
+    "IT2": "CTE in 1/K scientific notation — no unit conversion needed but must parse.",
+
+    # ── Forward ───────────────────────────────────────────────────────────────
     # Elastic
     "E1": "Baseline: all inputs spelled out with explicit labels and GPa units.",
     "E2": "Material name ('CF ABS') alongside explicit numbers — agent must use Option C, not DB lookup.",
@@ -40,6 +67,69 @@ PROMPT_GOALS: dict[str, str] = {
 
 PROMPTS: dict[str, str] = {
 
+    # ── Inverse: elastic ──────────────────────────────────────────────────────
+    # Synthetic ground truth: T300/PESU Ultrason/CAMRI
+    #   E_m=3100 MPa, nu_m=0.37,  a11=0.70 a22=0.15 mf=0.25 ar=30
+    #   → E1=20654 E2=6338 E3=6257 G12=3287 G13=3259 G23=2230 nu12=0.40 nu13=0.40 nu23=0.42 (MPa)
+
+    # IE1: baseline — GPa measurements, DB material names, "go ahead" included
+    "IE1": (
+        "I've run tensile and shear tests on my Carbon Fiber T300 / PESU Ultrason specimens "
+        "printed on the CAMRI printer. My results: E1=20.65 GPa, E2=6.34 GPa, G12=3.29 GPa, "
+        "nu12=0.40. The fiber mass fraction is around 25% and the aspect ratio is around 30. "
+        "Please run the elastic inverse — go ahead."
+    ),
+
+    # IE2: measurements in MPa instead of GPa — agent should recognise they're already in MPa
+    "IE2": (
+        "Elastic characterisation of Carbon Fiber T300 / PESU Ultrason / CAMRI — "
+        "my DIC data in MPa: E1=20654 MPa, E2=6338 MPa, E3=6257 MPa, G12=3287 MPa, "
+        "nu12=0.40, nu13=0.40. Starting guess: fiber mass fraction 0.25, aspect ratio 30. "
+        "Run the elastic inverse and go ahead."
+    ),
+
+    # IE3: only E1+E2 — underdetermined, identifiability warning expected
+    "IE3": (
+        "I only have axial and transverse tensile data for my T300 / PESU Ultrason / CAMRI "
+        "specimen: E1=20.65 GPa and E2=6.34 GPa. Mass fraction around 25%, AR around 30. "
+        "Please run the elastic inverse and go ahead."
+    ),
+
+    # IE4: CT orientation fixed, agent should pass a11/a22 as fixed inputs
+    "IE4": (
+        "We used micro-CT to characterise the fibre orientation in our T300 / PESU Ultrason / "
+        "CAMRI part and measured a11=0.70, a22=0.15. My elastic test results are: "
+        "E1=20.65 GPa, E2=6.34 GPa, G12=3.29 GPa, nu12=0.40. Mass fraction 0.25, AR 30. "
+        "Use the CT orientation as fixed and run the elastic inverse — go ahead."
+    ),
+
+    # IE5: ambiguous range — RULE 1 should block tool call, no tool expected
+    "IE5": (
+        "I have some T300 / PESU Ultrason / CAMRI test data but my measurements have pretty "
+        "wide scatter: E1 is roughly 20-21 GPa and E2 is somewhere around 6 GPa. "
+        "Can you run the elastic inverse for me?"
+    ),
+
+    # ── Inverse: thermoelastic ────────────────────────────────────────────────
+    # Requires card_id=1 from a prior elastic inverse save.
+    # Synthetic CTE from same ground truth (f_cte1=-0.7 ppm/K, f_cte2=10 ppm/K, m_cte=55 ppm/K):
+    #   CTE11=5.26 ppm/K  CTE22=45.05 ppm/K  CTE33=44.50 ppm/K
+
+    # IT1: CTE in ppm/K — baseline thermoelastic inverse
+    "IT1": (
+        "I've completed Stage 1 for card 1. Now I have dilatometry results: "
+        "CTE11=5.26 ppm/K and CTE22=45.05 ppm/K. "
+        "Please run the thermoelastic inverse and go ahead."
+    ),
+
+    # IT2: CTE in 1/K scientific notation — no conversion needed but tricky to parse
+    "IT2": (
+        "Stage 2 for card 1. My CTE measurements in /K: "
+        "CTE11=5.26e-6 /K, CTE22=4.505e-5 /K, CTE33=4.450e-5 /K. "
+        "Run thermoelastic inverse — go ahead."
+    ),
+
+    # ── Forward ───────────────────────────────────────────────────────────────
     # ── Elastic ────────────────────────────────────────────────────────────────
     # E1: baseline — every value labelled, GPa units throughout
     "E1": (
@@ -166,8 +256,66 @@ PROMPTS: dict[str, str] = {
 # Exact values to enter in gui.py to produce the ground-truth reference output.
 # Fill the gui_value column in the CSV with the numbers gui.py reports, then
 # run --score to compute MAPE.
+#
+# For IE/IT prompts: no gui_value needed. Scored on fit_error from solver output.
+# "note" field describes what property the solver should recover (ground truth).
 
 GUI_INPUTS: dict[str, dict] = {
+    # ── Inverse: elastic ──────────────────────────────────────────────────────
+    "IE1": {
+        "goal":  PROMPT_GOALS["IE1"],
+        "note": (
+            "Ground truth: T300/PESU Ultrason/CAMRI, E_m=3100 MPa, nu_m=0.37, "
+            "a11=0.70 a22=0.15 mf=0.25 ar=30. "
+            "Scored on fit_error < 0.05 — no gui_value needed."
+        ),
+    },
+    "IE2": {
+        "goal": PROMPT_GOALS["IE2"],
+        "note": (
+            "Same ground truth as IE1 but measurements given in MPa. "
+            "Agent must recognise they're already in model units and not multiply by 1000. "
+            "Scored on fit_error < 0.05."
+        ),
+    },
+    "IE3": {
+        "goal": PROMPT_GOALS["IE3"],
+        "note": (
+            "Underdetermined — only E1+E2. Agent should warn about aspect ratio / nu_m "
+            "identifiability before calling tool. Tool routing scored only (fit_error likely poor)."
+        ),
+    },
+    "IE4": {
+        "goal": PROMPT_GOALS["IE4"],
+        "note": (
+            "CT orientation a11=0.70 a22=0.15 must be passed as fixed. "
+            "Scored on fit_error < 0.05."
+        ),
+    },
+    "IE5": {
+        "goal": PROMPT_GOALS["IE5"],
+        "note": (
+            "RULE 1 prompt — agent should NOT call any tool. "
+            "Pass = tool_correct where expected_tool=None (no tool call expected)."
+        ),
+    },
+    # ── Inverse: thermoelastic ────────────────────────────────────────────────
+    "IT1": {
+        "goal": PROMPT_GOALS["IT1"],
+        "note": (
+            "Requires card_id=1 to exist from a prior elastic inverse save. "
+            "Ground truth CTE: f_cte1=-0.7 ppm/K f_cte2=10 ppm/K m_cte=55 ppm/K. "
+            "Scored on fit_error < 0.05."
+        ),
+    },
+    "IT2": {
+        "goal": PROMPT_GOALS["IT2"],
+        "note": (
+            "CTE in 1/K — agent must pass values as-is (already model units). "
+            "Scored on fit_error < 0.05."
+        ),
+    },
+    # ── Forward ───────────────────────────────────────────────────────────────
     # ── Elastic ────────────────────────────────────────────────────────────────
     "E1": {
         "goal":   PROMPT_GOALS["E1"],
@@ -275,10 +423,21 @@ GUI_INPUTS: dict[str, dict] = {
 
 
 # ── Which output properties to extract and score per prompt ───────────────────
-# Key format for thermal: k{component}_{temp}C  e.g. k11_25C
-# K1 is excluded from numerical scoring (CANNOT RUN — k_m missing from prompt).
+# Forward (E/T/K): composite output fields — compared to gui_value via MAPE.
+# Inverse (IE/IT): "fit_error" — scored directly against _INV_FIT_THRESHOLD (no gui_value).
+# IE5: empty list — tool routing only (no tool call expected).
 
 SCORED_PROPERTIES: dict[str, list[str]] = {
+    # Inverse elastic
+    "IE1": ["fit_error"],
+    "IE2": ["fit_error"],
+    "IE3": [],            # tool routing only — underdetermined, fit_error unreliable
+    "IE4": ["fit_error"],
+    "IE5": [],            # RULE 1 — no tool expected, routing-only check
+    # Inverse thermoelastic
+    "IT1": ["fit_error"],
+    "IT2": ["fit_error"],
+    # Forward
     "E1": ["E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"],
     "E2": ["E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"],
     "E3": ["E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"],
@@ -297,8 +456,20 @@ SCORED_PROPERTIES: dict[str, list[str]] = {
 
 
 # ── Expected tool per prompt ──────────────────────────────────────────────────
+# IE5: None — RULE 1 should block tool call entirely.
 
-EXPECTED_TOOL: dict[str, str] = {
+from typing import Optional as _Opt
+EXPECTED_TOOL: dict[str, _Opt[str]] = {
+    # Inverse elastic
+    "IE1": "run_elastic_inverse",
+    "IE2": "run_elastic_inverse",
+    "IE3": "run_elastic_inverse",
+    "IE4": "run_elastic_inverse",
+    "IE5": None,                       # no tool expected
+    # Inverse thermoelastic
+    "IT1": "run_thermoelastic_inverse",
+    "IT2": "run_thermoelastic_inverse",
+    # Forward
     "E1": "predict_properties",
     "E2": "predict_properties",
     "E3": "predict_properties",

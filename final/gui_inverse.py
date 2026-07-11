@@ -300,7 +300,11 @@ class InverseGUI:
         # ── row 1: action buttons + material selectors + unit system ─────────
         ttk.Button(top, text="🌡  Open Thermal Inverse Solver",
                    command=self._open_thermal_inverse).grid(
-            row=1, column=0, columnspan=4, sticky="w", padx=(0, 8), pady=(6, 0))
+            row=1, column=0, columnspan=2, sticky="w", padx=(0, 8), pady=(6, 0))
+
+        ttk.Button(top, text="📊  Identifiability Check",
+                   command=self._open_identifiability).grid(
+            row=1, column=2, columnspan=2, sticky="w", padx=(0, 8), pady=(6, 0))
 
         self._load_card_btn = ttk.Button(top, text="📂  Load from Card",
                                          command=self._on_load_from_card)
@@ -1167,6 +1171,11 @@ class InverseGUI:
         self._units_hint_lbl.config(
             text=f"Unit system: {UM.current_system}  ·  "
                  f"E/G in {mod_u}  ·  CTE in {cte_u}  ·  \u03bd dimensionless")
+
+    def _open_identifiability(self):
+        from gui_identifiability import open_identifiability_window
+        open_identifiability_window(self.root, model=self.model,
+                                    model_name=self._model_var.get())
 
     def _open_thermal_inverse(self):
         from gui_thermal_inverse import ThermalInverseWindow

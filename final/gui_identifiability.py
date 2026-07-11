@@ -46,7 +46,7 @@ def _load_field_labels():
 
 
 def _load_problem():
-    path = os.path.join(_HERE, "problem.json")
+    path = os.path.join(_HERE, "config", "problem.json")
     try:
         with open(path) as f:
             return json.load(f)
@@ -410,14 +410,21 @@ class IdentifiabilityWindow:
                       if not isinstance(k, str) or not k.startswith("_")}
         missing_bounds = [k for k in free_inputs if k not in bounds_raw]
         if missing_bounds:
-            messagebox.showerror(
-                "Bounds Required",
-                f"Bounds required for identifiability analysis.\n"
-                f"Missing bounds for: {', '.join(missing_bounds)}\n\n"
-                "Add bounds to problem.json.",
+            # Fall back to ±50% of nominal value; warn the user
+            fixed_vals = {k: float(v) for k, v in self._problem.get("fixed_inputs", {}).items()
+                          if not str(k).startswith("_")}
+            for k in missing_bounds:
+                nom = fixed_vals.get(k, 1.0)
+                lo  = nom * 0.5 if nom > 0 else nom * 1.5
+                hi  = nom * 1.5 if nom > 0 else nom * 0.5
+                bounds_raw[k] = (lo if lo != hi else nom * 0.5, hi if lo != hi else nom * 1.5)
+            messagebox.showwarning(
+                "Default Bounds Used",
+                f"No bounds found for: {', '.join(missing_bounds)}\n\n"
+                "Using ±50% of the nominal value as fallback bounds.\n"
+                "For more accurate results add explicit bounds to config/problem.json.",
                 parent=self.win,
             )
-            return
 
         # Collect target outputs
         target_outputs_display = {k: 0.0 for k, v in self._target_vars.items() if v.get()}
