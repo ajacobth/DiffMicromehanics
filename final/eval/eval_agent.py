@@ -64,12 +64,15 @@ _CATEGORY_LABEL = {
 
 # Inverse prompts that require a confirmation turn before the tool is called.
 _NEEDS_CONFIRMATION: set[str] = {
-    "IE1", "IE2", "IE3", "IE4", "IE5",
+    "IE1", "IE2", "IE3", "IE4",
     "IT1", "IT2",
+    "IK1", "IK2",
 }
 
 # fit_error threshold for inverse pass/fail (solver convergence proxy).
 _INV_FIT_THRESHOLD = 0.05
+# MAPE threshold for recovered inverse parameters vs ground truth.
+_INV_PARAM_THRESHOLD = 5.0
 
 
 # ── Agent builder ─────────────────────────────────────────────────────────────
@@ -98,11 +101,51 @@ def parse_tool_output(tool_text: str, key: str) -> dict[str, float]:
     values: dict[str, float] = {}
     cat = key[:2] if key[:2] in ("IE", "IT", "IK") else key[0]
 
-    # ── Inverse: extract fit_error ────────────────────────────────────────────
+    # ── Inverse: extract fit_error + actual inferred parameters ──────────────
     if cat in ("IE", "IT", "IK"):
         m = re.search(r'fit_error\s*=\s*([\d.e+\-]+)', tool_text)
         if m:
             values["fit_error"] = float(m.group(1))
+
+        if cat == "IE":
+            # Microstructure + constituent properties from elastic inverse output.
+            # "aspect_ratio" is the label used in the output block (not "ar").
+            for field, pattern in [
+                ("a11",            r'a11\s*=\s*([\d.e+\-]+)'),
+                ("a22",            r'a22\s*=\s*([\d.e+\-]+)'),
+                ("fiber_massfrac", r'fiber_massfrac\s*=\s*([\d.e+\-]+)'),
+                ("ar",             r'aspect_ratio\s*=\s*([\d.e+\-]+)'),
+                ("matrix_modulus", r'matrix_modulus\s*=\s*([\d.e+\-]+)'),
+                ("matrix_poisson", r'matrix_poisson\s*=\s*([\d.e+\-]+)'),
+            ]:
+                m = re.search(pattern, tool_text)
+                if m:
+                    values[field] = float(m.group(1))
+
+        elif cat == "IT":
+            # CTE values as ppm/K — _fmt_cte prints "X.XXXX ppm/K  (Xe-XX 1/K)"
+            # Use [^=\n] so we never cross a newline into the next field's value.
+            for field, pattern in [
+                ("f_cte1_ppm", r'f_cte1\b[^=\n]+=[ \t]*([-\d.]+)[ \t]*ppm'),
+                ("f_cte2_ppm", r'f_cte2\b[^=\n]+=[ \t]*([-\d.]+)[ \t]*ppm'),
+                ("m_cte_ppm",  r'\bm_cte\b[^=\n]+=[ \t]*([-\d.]+)[ \t]*ppm'),
+            ]:
+                m = re.search(pattern, tool_text)
+                if m:
+                    values[field] = float(m.group(1))
+
+        elif cat == "IK":
+            # Thermal conductivities from thermal inverse output.
+            for field, pattern in [
+                ("k_f1", r'k_f1[^=]+=\s*([\d.e+\-]+)\s*W'),
+                ("k_f2", r'k_f2[^=]+=\s*([\d.e+\-]+)\s*W'),
+                ("p1",   r'\bp1\b[^=]+=\s*([\d.e+\-]+)'),
+                ("p2",   r'\bp2\b[^=]+=\s*([\d.e+\-]+)'),
+            ]:
+                m = re.search(pattern, tool_text)
+                if m:
+                    values[field] = float(m.group(1))
+
         return values
 
     if cat in ("E", "T"):
@@ -328,7 +371,7 @@ def write_csv(run_results: list[dict], model_tag: str) -> Path:
                     "key":          key,
                     "property":     prop,
                     "agent_value":  agent_val,
-                    "gui_value":    "",          # ← you fill this in
+                    "gui_value":    "",   # fill from gui.py (forward) or gui_inverse.py (inverse)
                     "tool_correct": tool_ok,
                     "n_calls":      n_calls,
                     "elapsed_s":    elapsed,
@@ -400,30 +443,76 @@ def score_csv(csv_path: Path) -> None:
             continue
 
         if is_inv:
-            # ── Inverse scoring: fit_error < _INV_FIT_THRESHOLD ──────────────
-            fe_rows = [r for r in key_rows if r["property"] == "fit_error"]
-            if not fe_rows or not fe_rows[0].get("agent_value", "").strip():
+            # ── Inverse scoring ───────────────────────────────────────────────
+            # Gate 1 (optional): fit_error < _INV_FIT_THRESHOLD — only applied
+            #   when "fit_error" is listed in SCORED_PROPERTIES for this prompt.
+            # Gate 2: MAPE of recovered parameters < _INV_PARAM_THRESHOLD.
+            scored_props = SCORED_PROPERTIES.get(key, [])
+            has_fe_gate  = "fit_error" in scored_props
+
+            fe_rows    = [r for r in key_rows if r["property"] == "fit_error"]
+            param_rows = [r for r in key_rows if r["property"] not in ("fit_error", "—")]
+
+            # Require fit_error row only when it's a scored gate for this prompt.
+            if has_fe_gate and (not fe_rows or not fe_rows[0].get("agent_value", "").strip()):
                 prompt_results[key] = {
                     "tool_ok": tool_ok, "scored": False,
                     "passed": False, "mape": None,
-                    "prop_errors": [], "n_filled": 0, "n_expected": 1,
+                    "prop_errors": [], "n_filled": 0,
+                    "n_expected": len(scored_props),
                     "fit_error": None,
                 }
                 continue
-            try:
-                fe = float(fe_rows[0]["agent_value"])
-            except ValueError:
-                fe = float("inf")
-            passed = tool_ok and fe < _INV_FIT_THRESHOLD
+
+            fe    = None
+            fe_ok = True  # pass by default when not a scored gate
+            if has_fe_gate and fe_rows:
+                try:
+                    fe    = float(fe_rows[0]["agent_value"])
+                    fe_ok = fe < _INV_FIT_THRESHOLD
+                except ValueError:
+                    fe    = float("inf")
+                    fe_ok = False
+
+            # Score recovered parameters against gui_value filled from gui_inverse.py.
+            param_errors: list[tuple[str, float]] = []
+            for r in param_rows:
+                if r.get("gui_value", "").strip() and r.get("agent_value", "").strip():
+                    try:
+                        agent = float(r["agent_value"])
+                        gt    = float(r["gui_value"])
+                        denom = abs(gt) if abs(gt) > 1e-10 else 1.0
+                        param_errors.append((r["property"], abs(agent - gt) / denom * 100))
+                    except ValueError:
+                        pass
+
+            # Nothing scored yet (fe not gated, no params with gui_value filled)
+            if not has_fe_gate and not param_errors:
+                prompt_results[key] = {
+                    "tool_ok": tool_ok, "scored": False,
+                    "passed": False, "mape": None,
+                    "prop_errors": [], "n_filled": 0,
+                    "n_expected": len(scored_props),
+                    "fit_error": None,
+                }
+                continue
+
+            param_mape = sum(e for _, e in param_errors) / len(param_errors) \
+                         if param_errors else None
+            param_ok = param_mape is None or param_mape < _INV_PARAM_THRESHOLD
+            passed   = tool_ok and fe_ok and param_ok
+
             prompt_results[key] = {
-                "tool_ok":    tool_ok,
-                "scored":     True,
-                "passed":     passed,
-                "mape":       None,
-                "prop_errors": [("fit_error", fe)],
-                "n_filled":   1,
-                "n_expected": 1,
-                "fit_error":  fe,
+                "tool_ok":     tool_ok,
+                "scored":      True,
+                "passed":      passed,
+                "mape":        param_mape,
+                "prop_errors": param_errors if param_errors else (
+                    [("fit_error", fe)] if fe is not None else []
+                ),
+                "n_filled":    len(param_errors) + (1 if fe is not None else 0),
+                "n_expected":  len(scored_props),
+                "fit_error":   fe,
             }
 
         else:
@@ -479,7 +568,8 @@ def score_csv(csv_path: Path) -> None:
     W = 80
     print(f"\n{'═' * W}")
     print(f"  MateriAl Agent — Benchmark Results")
-    print(f"  Forward pass: MAPE < {_PASS_THRESHOLD}%  |  Inverse pass: fit_error < {_INV_FIT_THRESHOLD}")
+    print(f"  Forward pass: MAPE < {_PASS_THRESHOLD}%  |  "
+          f"Inverse pass: fit_error < {_INV_FIT_THRESHOLD}  +  param MAPE < {_INV_PARAM_THRESHOLD}%")
     print(f"{'═' * W}")
     print(f"\n  {'Key':<6}  {'Challenge':<40}  {'Tool':<5}  {'Pass':<5}  Notes")
     print(f"  {'─'*6}  {'─'*40}  {'─'*5}  {'─'*5}  {'─'*16}")
@@ -584,15 +674,18 @@ def print_worksheet(keys: list[str]) -> None:
 
         info = GUI_INPUTS[key]
         print(f"\n  {key}")
-        for field in ("goal", "fiber", "matrix", "micro", "CTE", "k", "density",
-                      "score_at", "note"):
+        for field in ("goal", "gui", "fiber", "matrix", "micro", "meas", "CTE", "k",
+                      "density", "csv", "score_at", "fill", "note"):
             val = info.get(field)
             if val:
                 label = {
-                    "goal":  "Goal    ", "fiber": "Fiber   ", "matrix": "Matrix  ",
-                    "micro": "Micro   ", "CTE":   "CTE     ",
-                    "k":     "k inputs", "density":"Density ",
-                    "score_at": "Score @ ", "note": "Note    ",
+                    "goal":     "Goal    ", "gui":     "GUI     ",
+                    "fiber":    "Fiber   ", "matrix":  "Matrix  ",
+                    "micro":    "Micro   ", "meas":    "Meas    ",
+                    "CTE":      "CTE     ", "k":       "k inputs",
+                    "density":  "Density ", "csv":     "CSV     ",
+                    "score_at": "Score @ ", "fill":    "Fill    ",
+                    "note":     "Note    ",
                 }[field]
                 print(f"    {label}: {val}")
 

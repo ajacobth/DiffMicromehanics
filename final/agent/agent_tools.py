@@ -44,6 +44,7 @@ import core.services.service_forward as _sfwd
 import core.services.service_fim as _sfim
 import core.services.service_inverse as _sinv
 import core.inverse_thermal as _ithermal
+import core.services.service_thermal as _sthermal
 
 
 # ── Module-level constants for forward/FIM tools ──────────────────────────────
@@ -196,7 +197,6 @@ _TE_INIT = {
 }
 
 # Stage 3 — thermal inverse forward model (lazy-loaded on first call)
-_THERMAL_FWD_MODEL = None
 
 # Fallback nominal inputs when no fiber/polymer/card is provided
 _NOMINAL_INPUTS = {
@@ -1832,44 +1832,72 @@ import db.db as _db
 
 
 def _resolve_fiber_polymer(fiber_name: str, polymer_name: str) -> tuple[int, int]:
-    """Resolve fiber and polymer names to DB IDs. Raises ValueError if not found."""
-    fibers   = {f["name"].lower(): f["id"] for f in _db.get_all_fibers()}
-    polymers = {p["name"].lower(): p["id"] for p in _db.get_all_polymers()}
+    """Resolve fiber and polymer names to DB IDs. Supports partial/case-insensitive matching."""
+    all_fibers   = _db.get_all_fibers()
+    all_polymers = _db.get_all_polymers()
     fn = fiber_name.strip().lower()
     pn = polymer_name.strip().lower()
-    if fn not in fibers:
-        raise ValueError(f"Fiber '{fiber_name}' not found. Available: {', '.join(fibers)}")
-    if pn not in polymers:
-        raise ValueError(f"Polymer '{polymer_name}' not found. Available: {', '.join(polymers)}")
-    return fibers[fn], polymers[pn]
+
+    fiber_matches = [f for f in all_fibers if fn in f["name"].lower()]
+    if not fiber_matches:
+        raise ValueError(
+            f"Fiber '{fiber_name}' not found. Available: {', '.join(f['name'] for f in all_fibers)}"
+        )
+    if len(fiber_matches) > 1:
+        names = ", ".join(f["name"] for f in fiber_matches)
+        raise ValueError(f"Fiber '{fiber_name}' matches multiple entries: {names}. Be more specific.")
+
+    polymer_matches = [p for p in all_polymers if pn in p["name"].lower()]
+    if not polymer_matches:
+        raise ValueError(
+            f"Polymer '{polymer_name}' not found. Available: {', '.join(p['name'] for p in all_polymers)}"
+        )
+    if len(polymer_matches) > 1:
+        names = ", ".join(p["name"] for p in polymer_matches)
+        raise ValueError(f"Polymer '{polymer_name}' matches multiple entries: {names}. Be more specific.")
+
+    return fiber_matches[0]["id"], polymer_matches[0]["id"]
 
 
 def _resolve_material_ids(
     fiber_name: str, polymer_name: str, printer_name: str
 ) -> tuple[int, int, int]:
-    """Resolve material names to DB IDs. Raises ValueError with a helpful message if not found."""
-    fibers   = {f["name"].lower(): f["id"] for f in _db.get_all_fibers()}
-    polymers = {p["name"].lower(): p["id"] for p in _db.get_all_polymers()}
-    printers = {p["name"].lower(): p["id"] for p in _db.get_all_printers()}
-
+    """Resolve material names to DB IDs. Supports partial/case-insensitive matching."""
+    all_fibers   = _db.get_all_fibers()
+    all_polymers = _db.get_all_polymers()
+    all_printers = _db.get_all_printers()
     fn = fiber_name.strip().lower()
     pn = polymer_name.strip().lower()
     rn = printer_name.strip().lower()
 
-    if fn not in fibers:
+    fiber_matches = [f for f in all_fibers if fn in f["name"].lower()]
+    if not fiber_matches:
         raise ValueError(
-            f"Fiber '{fiber_name}' not found. Available: {', '.join(f['name'] for f in _db.get_all_fibers())}"
+            f"Fiber '{fiber_name}' not found. Available: {', '.join(f['name'] for f in all_fibers)}"
         )
-    if pn not in polymers:
-        raise ValueError(
-            f"Polymer '{polymer_name}' not found. Available: {', '.join(p['name'] for p in _db.get_all_polymers())}"
-        )
-    if rn not in printers:
-        raise ValueError(
-            f"Printer '{printer_name}' not found. Available: {', '.join(p['name'] for p in _db.get_all_printers())}"
-        )
+    if len(fiber_matches) > 1:
+        names = ", ".join(f["name"] for f in fiber_matches)
+        raise ValueError(f"Fiber '{fiber_name}' matches multiple entries: {names}. Be more specific.")
 
-    return fibers[fn], polymers[pn], printers[rn]
+    polymer_matches = [p for p in all_polymers if pn in p["name"].lower()]
+    if not polymer_matches:
+        raise ValueError(
+            f"Polymer '{polymer_name}' not found. Available: {', '.join(p['name'] for p in all_polymers)}"
+        )
+    if len(polymer_matches) > 1:
+        names = ", ".join(p["name"] for p in polymer_matches)
+        raise ValueError(f"Polymer '{polymer_name}' matches multiple entries: {names}. Be more specific.")
+
+    printer_matches = [p for p in all_printers if rn in p["name"].lower()]
+    if not printer_matches:
+        raise ValueError(
+            f"Printer '{printer_name}' not found. Available: {', '.join(p['name'] for p in all_printers)}"
+        )
+    if len(printer_matches) > 1:
+        names = ", ".join(p["name"] for p in printer_matches)
+        raise ValueError(f"Printer '{printer_name}' matches multiple entries: {names}. Be more specific.")
+
+    return fiber_matches[0]["id"], polymer_matches[0]["id"], printer_matches[0]["id"]
 
 
 @tool
@@ -1905,6 +1933,9 @@ def run_elastic_inverse(
     a12: float = 0.0,
     a13: float = 0.0,
     a23: float = 0.0,
+    # Known constituent properties (pass to fix; omit to let solver infer)
+    matrix_modulus_MPa: Optional[float] = None,
+    matrix_poisson: Optional[float] = None,
     card_name: str = "",
 ) -> str:
     """
@@ -1915,9 +1946,42 @@ def run_elastic_inverse(
     Pass material NAMES (not IDs) — e.g. fiber_name="AF", polymer_name="AP",
     printer_name="CAMRI". IDs are resolved automatically.
 
-    If the user already knows some microstructure values (from CT, datasheet, etc.),
-    pass them as ar/fiber_massfrac/a11/a22/a12/a13/a23 — they will be fixed and not
-    inferred. Omit (or pass None) to let the solver infer them.
+    ORIENTATION (a11, a22):
+    - Only pass a11/a22 if the user has explicitly measured them (e.g. from micro-CT
+      or a supplier datasheet). Passing them fixes those values and removes them from
+      inference.
+    - If the user has NOT measured orientation, omit a11 and a22 entirely — the solver
+      will infer them from the elastic measurements. Never assume or guess a default
+      orientation (e.g. do not set a11=a22=0.333 for "random" unless the user said so).
+
+    MICROSTRUCTURE (ar, fiber_massfrac):
+    - If the user provides these (e.g. "mass fraction around 25%"), pass them to fix
+      them and reduce the free parameter count.
+    - If not provided, omit them — the solver will infer them, though with less certainty.
+
+    CONSTITUENT PROPERTIES (matrix_modulus_MPa, matrix_poisson):
+    - Pass matrix_modulus_MPa to fix the matrix stiffness (e.g. if known from neat
+      resin testing). Must be a positive value (> 0). If omitted or 0, it is always inferred.
+    - Pass matrix_poisson to fix the Poisson ratio regardless of what measurements are
+      present. Must be a positive value (> 0). If omitted or 0, it is fixed at the
+      datasheet value when no shear/Poisson measurements are available, and freed
+      automatically when they are.
+
+    IDENTIFIABILITY:
+    - E1+E2 only: a11, a22, ar, and matrix_modulus are all free — the problem is
+      underdetermined. Warn the user that results may not be unique, then call once.
+    - E1+E2+G12+nu12 or E1+E2+E3: well-constrained. Call without warning.
+    - matrix_poisson is only identifiable when at least one shear or Poisson measurement
+      is present (G12, G13, G23, nu12, nu13, nu23). Without those it stays fixed at the
+      datasheet value automatically — do not try to infer it.
+
+    IDENTIFIABILITY:
+    - Run check_identifiability before calling this tool when measurements are sparse.
+    - This tool does not run its own FIM — use the separate check_identifiability tool.
+
+    CALL DISCIPLINE:
+    - Call this tool exactly once per user request. If the result is poor, report it
+      and ask the user how to proceed — do not re-run automatically.
 
     All elastic measurement arguments (E1_MPa, etc.) must be in MPa.
     Sigma arguments are 1-sigma uncertainty in the same units. Use 0.0 if unknown.
@@ -1981,18 +2045,42 @@ def run_elastic_inverse(
 
     # Determine free variables first, then build fixed_inputs as everything else.
     # matrix_poisson is only identifiable when shear/Poisson measurements are present;
-    # without them it stays fixed at the datasheet value.
+    # without them it stays fixed at the datasheet value — unless user explicitly fixes it.
     has_shear = bool(set(targets.keys()) & _SHEAR_POISSON_MEASUREMENTS)
     base_free = _STAGE1_FREE if has_shear else _STAGE1_FREE_WITHOUT_POISSON
 
     # Free variables = chosen base set minus whatever the user already fixed
     free_vars = [v for v in base_free if v not in known_micro]
 
-    # Fixed inputs = full datasheet minus the actual free vars + user-provided microstructure.
-    # This ensures fields like matrix_poisson are always present in fixed_inputs when not free.
+    # Apply user-supplied constituent overrides: remove from free list and fix in inputs.
+    known_constituent: dict = {}
+    if matrix_modulus_MPa is not None and matrix_modulus_MPa > 0:
+        known_constituent["matrix_modulus"] = matrix_modulus_MPa
+        free_vars = [v for v in free_vars if v != "matrix_modulus"]
+    if matrix_poisson is not None and matrix_poisson > 0:
+        known_constituent["matrix_poisson"] = matrix_poisson
+        free_vars = [v for v in free_vars if v != "matrix_poisson"]
+
+    # Fixed inputs = full datasheet minus the actual free vars + user-provided microstructure
+    # + user-provided constituent overrides.
     free_set = set(free_vars)
     fixed_inputs = {k: v for k, v in datasheet.items() if k not in free_set}
     fixed_inputs.update(known_micro)
+    fixed_inputs.update(known_constituent)
+
+    # ── Underdetermined check (fast, no JAX) ──────────────────────────────────
+    n_meas  = len(targets)
+    n_free  = len(free_vars)
+    if n_meas < n_free - 2:
+        return (
+            f"IDENTIFIABILITY WARNING: {n_meas} measurement(s) provided for {n_free} free "
+            f"parameter(s) ({', '.join(free_vars)}). The system is underdetermined — "
+            "results would be unreliable.\n\n"
+            "Recommended minimum measurements: E1 + E2 + E3 (3 measurements).\n"
+            "Best: E1 + E2 + E3 + G12 + nu12.\n\n"
+            "Run check_identifiability to see which parameters are identifiable with your "
+            "current measurement set, or add more measurements before calling this tool."
+        )
 
     # ── Run solver ────────────────────────────────────────────────────────────
     # Strip keys the model doesn't know (e.g. rho_f, rho_m alias fields from DB)
@@ -2000,6 +2088,35 @@ def run_elastic_inverse(
     fixed_inputs = {k: v for k, v in fixed_inputs.items() if k in _model_fields}
 
     bounds = {k: _DEFAULT_BOUNDS[k] for k in free_vars if k in _DEFAULT_BOUNDS}
+
+    # ── Identifiability check (automatic, N=30 — lightweight) ────────────────
+    _identifiability_warning = ""
+    try:
+        _fim_result = _sfim.run_fim(
+            model_name="elastic",
+            fixed_inputs=fixed_inputs,
+            free_inputs=free_vars,
+            bounds=bounds,
+            target_outputs={m: 0.0 for m in targets},
+            n_samples=30,
+        )
+        _poor     = [p for p in free_vars if _fim_result["status"].get(p) == "POOR"]
+        _marginal = [p for p in free_vars if _fim_result["status"].get(p) == "MARGINAL"]
+        if _poor or _marginal:
+            _parts = []
+            if _poor:
+                _parts.append(f"POOR: {', '.join(_poor)}")
+            if _marginal:
+                _parts.append(f"MARGINAL: {', '.join(_marginal)}")
+            _identifiability_warning = (
+                "IDENTIFIABILITY WARNING: The solver ran and results are shown below, "
+                "but the available measurements cannot reliably constrain all free parameters "
+                f"— {'; '.join(_parts)}. Do NOT call this tool again. "
+                "Report the results as-is and warn the user that affected parameters have "
+                "high uncertainty. Suggest additional measurements to improve confidence."
+            )
+    except Exception:
+        pass  # FIM failure is non-fatal — solver runs regardless
 
     # Initial guess: orientation defaults from problem.json; material-specific fields
     # (matrix_modulus, matrix_poisson) fall through to the datasheet so they match
@@ -2081,6 +2198,8 @@ def run_elastic_inverse(
         return f"  {label} = {val:{fmt}}{suffix}  (inferred)"
 
     lines = ["ELASTIC INVERSE — COMPLETE", ""]
+    if _identifiability_warning:
+        lines += [_identifiability_warning, ""]
     if inv.get("orientation_warning"):
         lines += [
             f"WARNING: {inv['orientation_warning']}",
@@ -2099,7 +2218,11 @@ def run_elastic_inverse(
         _fmt_micro("ar",  "aspect_ratio  ", fmt=".2f"),
         "",
         "Inferred constituent properties:",
+        f"  matrix_modulus  = {known_constituent['matrix_modulus']:.1f} MPa  (fixed — user provided)"
+        if "matrix_modulus" in known_constituent else
         f"  matrix_modulus  = {free.get('matrix_modulus', float('nan')):.1f} MPa  (inferred)",
+        f"  matrix_poisson  = {known_constituent['matrix_poisson']:.4f}  (fixed — user provided)"
+        if "matrix_poisson" in known_constituent else
         f"  matrix_poisson  = {fixed_inputs.get('matrix_poisson', free.get('matrix_poisson', float('nan'))):.4f}"
         + ("  (inferred — shear measurements present)" if has_shear else "  (fixed — datasheet; add G12/nu12 to infer)"),
         "",
@@ -2147,63 +2270,142 @@ def run_elastic_inverse(
 
 @tool
 def run_thermoelastic_inverse(
-    card_id: int,
     CTE11_per_K: float,
     CTE22_per_K: float,
     CTE33_per_K: float = -1.0,
     CTE11_sigma_per_K: float = 0.0,
     CTE22_sigma_per_K: float = 0.0,
     CTE33_sigma_per_K: float = 0.0,
+    # ── Path A: load Stage 1 from a saved card ────────────────────────────────
+    card_id: int = -1,
+    # ── Path B: explicit inputs (no saved card needed) ────────────────────────
+    fiber_name: str = "",
+    polymer_name: str = "",
+    printer_name: str = "",
+    a11: float = -1.0,
+    a22: float = -1.0,
+    a12: float = 0.0,
+    a13: float = 0.0,
+    a23: float = 0.0,
+    fiber_massfrac: float = -1.0,
+    ar: float = -1.0,
+    matrix_modulus_MPa: float = -1.0,
+    matrix_poisson: float = -1.0,
 ) -> str:
     """
     Run Stage 2 thermoelastic inverse: infer fiber CTEs (f_cte1, f_cte2) and
     matrix CTE (m_cte) from measured composite thermal expansion coefficients.
 
-    Requires Stage 1 (elastic inverse) to be saved on this card first.
-    Loads microstructure and matrix modulus from the card automatically —
-    those values are held fixed; do not re-enter them.
+    Two input paths — use exactly one:
 
-    card_id: the card_id returned by save_to_card() after Stage 1.
-    CTE11_per_K: measured composite CTE along the print direction (1/K). Required.
-    CTE22_per_K: measured composite CTE transverse to print direction (1/K). Required.
-    CTE33_per_K: measured composite CTE out-of-plane (1/K). Pass -1.0 to exclude.
-    CTE11/22/33_sigma_per_K: 1-sigma measurement uncertainty (1/K). Use 0.0 if unknown.
-      Convert ppm/K → 1/K before passing: ppm/K × 1e-6.
+    PATH A (card): provide card_id from a completed Stage 1 save. Microstructure
+      and matrix properties are loaded from the card automatically.
 
-    Inferred CTEs are constituent (printer-independent) and will be saved
-    globally — reusable for any card with the same fiber and polymer.
+    PATH B (explicit): provide fiber_name, polymer_name, printer_name plus all
+      Stage 1 outputs directly. Use when no card has been saved yet, or to run
+      Stage 2 standalone without a prior elastic inverse.
+      Required explicit fields: a11, a22, fiber_massfrac, ar,
+        matrix_modulus_MPa (in MPa), matrix_poisson.
+      a12, a13, a23 default to 0.0 if omitted.
 
-    Results held in memory. Call save_to_card(card_id=<same id>) to persist.
+    CTE11_per_K: composite CTE along print direction (1/K). Required.
+    CTE22_per_K: composite CTE transverse to print direction (1/K). Required.
+    CTE33_per_K: out-of-plane CTE (1/K). Pass -1.0 to exclude.
+    CTE sigma fields: 1-sigma uncertainty (1/K). Use 0.0 if unknown.
+    Convert ppm/K → 1/K before passing: value × 1e-6.
+
+    Inferred CTEs are constituent (printer-independent) and reusable across
+    printers with the same fiber and polymer.
+    Results held in memory. Call save_to_card() to persist.
     """
-    # ── Load card metadata ────────────────────────────────────────────────────
-    try:
-        card = _scards.load_card(card_id)
-    except Exception as e:
-        return f"Card lookup error: {e}"
+    # ── Resolve inputs: card or explicit ─────────────────────────────────────
+    if card_id > 0:
+        # Path A: load from saved card
+        try:
+            card = _scards.load_card(card_id)
+        except Exception as e:
+            return f"Card lookup error: {e}"
 
-    if card is None:
-        return f"Card id={card_id} not found. Use list_cards() to see available cards."
+        if card is None:
+            return f"Card id={card_id} not found. Use list_cards() to see available cards."
 
-    cfg        = card["config"]
-    fiber_id   = cfg["fiber_id"]
-    polymer_id = cfg["polymer_id"]
-    printer_id = cfg.get("printer_id")
+        cfg        = card["config"]
+        fiber_id   = cfg["fiber_id"]
+        polymer_id = cfg["polymer_id"]
+        printer_id = cfg.get("printer_id")
+        card_name  = cfg.get("name", "")
 
-    # ── Load Stage 1 resolved inputs ──────────────────────────────────────────
-    try:
-        all_inputs = _scards.load_card_inputs(card_id)
-    except Exception as e:
-        return f"Error loading card inputs: {e}"
+        try:
+            all_inputs = _scards.load_card_inputs(card_id)
+        except Exception as e:
+            return f"Error loading card inputs: {e}"
 
-    if "matrix_modulus" not in all_inputs:
+        if "matrix_modulus" not in all_inputs:
+            return (
+                f"Stage 1 (elastic inverse) has not been saved for card id={card_id}. "
+                "Run run_elastic_inverse first, call save_to_card, then run Stage 2."
+            )
+        if "a11" not in all_inputs:
+            return (
+                f"No microstructure snapshot found for card id={card_id}. "
+                "Run run_elastic_inverse first, save to this card, then run Stage 2."
+            )
+
+        free_set   = set(_TE_FREE)
+        _te_fields = set(_sfwd.get_input_fields("thermoelastic"))
+        fixed_inputs = {
+            k: v for k, v in all_inputs.items()
+            if k not in free_set and k in _te_fields
+        }
+
+    elif fiber_name.strip() and polymer_name.strip() and printer_name.strip():
+        # Path B: explicit inputs
+        missing = []
+        if a11 < 0:           missing.append("a11")
+        if a22 < 0:           missing.append("a22")
+        if fiber_massfrac < 0: missing.append("fiber_massfrac")
+        if ar < 0:            missing.append("ar")
+        if matrix_modulus_MPa < 0: missing.append("matrix_modulus_MPa")
+        if matrix_poisson < 0: missing.append("matrix_poisson")
+        if missing:
+            return (
+                f"Explicit path requires: {', '.join(missing)}. "
+                "These are the Stage 1 elastic inverse outputs. "
+                "Either run Stage 1 and save a card first (then pass card_id), "
+                "or supply all required fields explicitly."
+            )
+
+        try:
+            fiber_id, polymer_id, printer_id = _resolve_material_ids(
+                fiber_name, polymer_name, printer_name
+            )
+        except ValueError as e:
+            return f"Material lookup error: {e}"
+
+        try:
+            datasheet = _smat.get_model_inputs(fiber_id, polymer_id)
+        except Exception as e:
+            return f"Error loading material datasheets: {e}"
+
+        explicit_stage1 = {
+            "a11": a11, "a22": a22, "a12": a12, "a13": a13, "a23": a23,
+            "fiber_massfrac": fiber_massfrac, "ar": ar,
+            "matrix_modulus": matrix_modulus_MPa,
+            "matrix_poisson": matrix_poisson,
+        }
+        free_set   = set(_TE_FREE)
+        _te_fields = set(_sfwd.get_input_fields("thermoelastic"))
+        fixed_inputs = {k: v for k, v in datasheet.items() if k not in free_set and k in _te_fields}
+        fixed_inputs.update({k: v for k, v in explicit_stage1.items() if k not in free_set and k in _te_fields})
+        card_name  = ""
+        card_id    = -1
+
+    else:
         return (
-            f"Stage 1 (elastic inverse) has not been saved for card id={card_id}. "
-            "Run run_elastic_inverse first, call save_to_card, then run Stage 2."
-        )
-    if "a11" not in all_inputs:
-        return (
-            f"No microstructure snapshot found for card id={card_id}. "
-            "Run run_elastic_inverse first, save to this card, then run Stage 2."
+            "Provide either:\n"
+            "  card_id=<N>  (Path A — loads Stage 1 from a saved card)\n"
+            "  fiber_name, polymer_name, printer_name + a11, a22, fiber_massfrac, ar, "
+            "matrix_modulus_MPa, matrix_poisson  (Path B — explicit Stage 1 inputs)"
         )
 
     # ── Targets and sigmas ────────────────────────────────────────────────────
@@ -2218,17 +2420,43 @@ def run_thermoelastic_inverse(
     if CTE33_per_K != -1.0 and CTE33_sigma_per_K > 0.0:
         sigmas["CTE33"] = CTE33_sigma_per_K
 
-    # ── Fixed inputs (Stage 1 values, filtered to thermoelastic model fields) ─
-    free_set   = set(_TE_FREE)
-    _te_fields = set(_sfwd.get_input_fields("thermoelastic"))
-    fixed_inputs = {
-        k: v for k, v in all_inputs.items()
-        if k not in free_set and k in _te_fields
-    }
-
     # ── Bounds and initial values ─────────────────────────────────────────────
     bounds    = {k: _DEFAULT_BOUNDS[k] for k in _TE_FREE if k in _DEFAULT_BOUNDS}
     init_vals = [_TE_INIT.get(k, 0.0) for k in _TE_FREE]
+
+    # ── Identifiability check (automatic, N=20) ───────────────────────────────
+    _identifiability_warning = ""
+    try:
+        _fim_result = _sfim.run_fim(
+            model_name="thermoelastic",
+            fixed_inputs=fixed_inputs,
+            free_inputs=_TE_FREE,
+            bounds=bounds,
+            target_outputs={m: 0.0 for m in targets},
+            n_samples=20,
+        )
+        _poor     = [p for p in _TE_FREE if _fim_result["status"].get(p) == "POOR"]
+        _marginal = [p for p in _TE_FREE if _fim_result["status"].get(p) == "MARGINAL"]
+        if _poor or _marginal:
+            _parts = []
+            if _poor:
+                _parts.append(f"POOR: {', '.join(_poor)}")
+            if _marginal:
+                _parts.append(f"MARGINAL: {', '.join(_marginal)}")
+            _cte33_hint = (
+                " Adding CTE33 typically improves separation of f_cte2 and m_cte."
+                if "CTE33" not in targets else
+                " Even with CTE33, f_cte2 and m_cte are inherently coupled in the composite CTE —"
+                " this is a fundamental model limitation, not a missing measurement."
+            )
+            _identifiability_warning = (
+                "IDENTIFIABILITY WARNING: The solver ran and results are shown below, "
+                "but the available CTE measurements cannot reliably constrain all free parameters "
+                f"— {'; '.join(_parts)}. Do NOT call this tool again. "
+                f"Report the results as-is and warn the user.{_cte33_hint}"
+            )
+    except Exception:
+        pass  # FIM failure is non-fatal
 
     # ── Solver config ─────────────────────────────────────────────────────────
     solver_cfg = dict(_ELASTIC_SOLVER_CFG)
@@ -2266,7 +2494,7 @@ def run_thermoelastic_inverse(
         "fiber_id":   fiber_id,
         "polymer_id": polymer_id,
         "printer_id": printer_id,
-        "card_name":  cfg.get("name", ""),
+        "card_name":  card_name,
     }
 
     # ── Format result ─────────────────────────────────────────────────────────
@@ -2283,9 +2511,10 @@ def run_thermoelastic_inverse(
         "POOR — check measurements or material assignment"
     )
 
-    lines = [
-        "THERMOELASTIC INVERSE — COMPLETE",
-        "",
+    lines = ["THERMOELASTIC INVERSE — COMPLETE", ""]
+    if _identifiability_warning:
+        lines += [_identifiability_warning, ""]
+    lines += [
         "Inferred constituent CTEs:",
         f"  f_cte1 (fiber axial CTE)       = {_fmt_cte(free['f_cte1'])}",
         f"  f_cte2 (fiber transverse CTE)  = {_fmt_cte(free['f_cte2'])}",
@@ -2310,7 +2539,8 @@ def run_thermoelastic_inverse(
         "These CTEs are printer-independent and will be saved globally",
         "(reusable for any card with the same fiber and polymer).",
         "",
-        f"Results in memory. Call save_to_card(card_id={card_id}) to persist.",
+        "Results in memory. Call save_to_card() to persist."
+        + (f" Use card_id={card_id}." if card_id > 0 else " Provide a card name to create a new card."),
     ]
     return "\n".join(lines)
 
@@ -2379,114 +2609,172 @@ def _parse_thermal_csv(csv_path: str):
 
 @tool
 def run_thermal_inverse(
-    card_id: int,
     csv_path: str,
-    n_restarts: int = 20,
+    # ── Path A: load Stage 1 from a saved card ────────────────────────────────
+    card_id: int = -1,
+    # ── Path B: explicit inputs (no saved card needed) ────────────────────────
+    fiber_name: str = "",
+    polymer_name: str = "",
+    printer_name: str = "",
+    a11: float = -1.0,
+    a22: float = -1.0,
+    a12: float = 0.0,
+    a13: float = 0.0,
+    a23: float = 0.0,
+    fiber_massfrac: float = -1.0,
+    ar: float = -1.0,
+    n_restarts: int = 100,
 ) -> str:
     """
     Run Stage 3 thermal inverse: infer fiber conductivities (k_f1 = l2, k_f2 = l2/t)
     and polymer conductivity model parameters (p1, p2) where K_m(T) = p1·√T + p2.
 
-    Requires Stage 1 (elastic inverse) saved on this card.
-    Microstructure and material inputs are loaded from the card automatically.
+    Two input paths — use exactly one:
 
-    card_id    : card_id from Stage 1 save.
+    PATH A (card): provide card_id from a completed Stage 1 save. Microstructure
+      and material densities are loaded from the card automatically.
+
+    PATH B (explicit): provide fiber_name, polymer_name, printer_name plus Stage 1
+      microstructure directly. Use when no card has been saved yet.
+      Required: a11, a22, fiber_massfrac, ar.
+      Optional: a12, a13, a23 (default 0.0).
+      Fiber and polymer densities are loaded from the DB automatically.
+
     csv_path   : absolute path to CSV file. Required columns:
-                   temperature_C  (°C) and K11_WmK  (W/m·K)
-                 Optional columns: K22_WmK, K33_WmK — improve fit if available.
+                   temperature_C (°C) and K11_WmK (W/m·K).
+                 Optional: K22_WmK, K33_WmK — improve fit if available.
                  Header row required; column names are case-insensitive.
     n_restarts : optimisation restarts (default 20).
 
-    Results are held in memory. Call save_to_card(card_id=<same id>) to persist.
+    Results held in memory. Call save_to_card() to persist.
     """
-    global _THERMAL_FWD_MODEL
+    # ── Resolve inputs: card or explicit ─────────────────────────────────────
+    if card_id > 0:
+        # Path A: load from saved card
+        try:
+            card = _scards.load_card(card_id)
+        except Exception as e:
+            return f"Card lookup error: {e}"
+        if card is None:
+            return f"Card id={card_id} not found. Use list_cards() to see available cards."
 
-    # ── Load card ─────────────────────────────────────────────────────────────
-    try:
-        card = _scards.load_card(card_id)
-    except Exception as e:
-        return f"Card lookup error: {e}"
-    if card is None:
-        return f"Card id={card_id} not found. Use list_cards() to see available cards."
+        cfg        = card["config"]
+        fiber_id   = cfg["fiber_id"]
+        polymer_id = cfg["polymer_id"]
+        printer_id = cfg.get("printer_id")
+        card_name  = cfg.get("name", "")
 
-    cfg        = card["config"]
-    fiber_id   = cfg["fiber_id"]
-    polymer_id = cfg["polymer_id"]
-    printer_id = cfg.get("printer_id")
+        try:
+            all_inputs = _scards.load_card_inputs(card_id)
+        except Exception as e:
+            return f"Error loading card inputs: {e}"
 
-    # ── Load Stage 1 inputs ───────────────────────────────────────────────────
-    try:
-        all_inputs = _scards.load_card_inputs(card_id)
-    except Exception as e:
-        return f"Error loading card inputs: {e}"
+        if "matrix_modulus" not in all_inputs or "a11" not in all_inputs:
+            return (
+                f"Stage 1 (elastic inverse) has not been saved for card id={card_id}. "
+                "Run run_elastic_inverse first, save to this card, then run Stage 3."
+            )
 
-    if "matrix_modulus" not in all_inputs or "a11" not in all_inputs:
+        fixed_inputs = {
+            "ar_f":  all_inputs.get("ar",            all_inputs.get("ar_f")),
+            "w_f":   all_inputs.get("fiber_massfrac", all_inputs.get("w_f")),
+            "rho_f": all_inputs.get("rho_f"),
+            "rho_m": all_inputs.get("rho_m"),
+            "a11":   all_inputs["a11"],
+            "a22":   all_inputs["a22"],
+            "a12":   all_inputs.get("a12", 0.0),
+            "a13":   all_inputs.get("a13", 0.0),
+            "a23":   all_inputs.get("a23", 0.0),
+        }
+        missing = [k for k, v in fixed_inputs.items() if v is None]
+        if missing:
+            return f"Missing required fields from card: {missing}. Check that the card has complete Stage 1 data."
+
+    elif fiber_name.strip() and polymer_name.strip() and printer_name.strip():
+        # Path B: explicit inputs
+        missing = []
+        if a11 < 0:            missing.append("a11")
+        if a22 < 0:            missing.append("a22")
+        if fiber_massfrac < 0: missing.append("fiber_massfrac")
+        if ar < 0:             missing.append("ar")
+        if missing:
+            return (
+                f"Explicit path requires: {', '.join(missing)}. "
+                "These are Stage 1 elastic inverse outputs. "
+                "Either pass card_id or supply all required microstructure fields."
+            )
+
+        try:
+            fiber_id, polymer_id, printer_id = _resolve_material_ids(
+                fiber_name, polymer_name, printer_name
+            )
+        except ValueError as e:
+            return f"Material lookup error: {e}"
+
+        try:
+            datasheet = _smat.get_model_inputs(fiber_id, polymer_id)
+        except Exception as e:
+            return f"Error loading material datasheets: {e}"
+
+        fixed_inputs = {
+            "ar_f":  ar,
+            "w_f":   fiber_massfrac,
+            "rho_f": datasheet.get("fiber_density"),
+            "rho_m": datasheet.get("matrix_density"),
+            "a11":   a11,
+            "a22":   a22,
+            "a12":   a12,
+            "a13":   a13,
+            "a23":   a23,
+        }
+        missing = [k for k, v in fixed_inputs.items() if v is None]
+        if missing:
+            return f"Missing fields from datasheet: {missing}."
+        card_name = ""
+        card_id   = -1
+
+    else:
         return (
-            f"Stage 1 (elastic inverse) has not been saved for card id={card_id}. "
-            "Run run_elastic_inverse first, save to this card, then run Stage 3."
+            "Provide either:\n"
+            "  card_id=<N>  (Path A — loads Stage 1 from a saved card)\n"
+            "  fiber_name, polymer_name, printer_name + a11, a22, fiber_massfrac, ar"
+            "  (Path B — explicit Stage 1 inputs)"
         )
-
-    # ── Build fixed_inputs (remap card field names to inverse_thermal.py names) ─
-    fixed_inputs = {
-        "ar_f":  all_inputs.get("ar",            all_inputs.get("ar_f")),
-        "w_f":   all_inputs.get("fiber_massfrac", all_inputs.get("w_f")),
-        "rho_f": all_inputs.get("rho_f"),
-        "rho_m": all_inputs.get("rho_m"),
-        "a11":   all_inputs["a11"],
-        "a22":   all_inputs["a22"],
-        "a12":   all_inputs.get("a12", 0.0),
-        "a13":   all_inputs.get("a13", 0.0),
-        "a23":   all_inputs.get("a23", 0.0),
-    }
-    missing = [k for k, v in fixed_inputs.items() if v is None]
-    if missing:
-        return f"Missing required fields from card: {missing}. Check that the card has complete Stage 1 data."
 
     # ── Parse CSV ─────────────────────────────────────────────────────────────
     try:
-        temperatures, K_data = _parse_thermal_csv(csv_path)
+        temperatures, K_data = _sthermal.load_thermal_data(csv_path)
     except Exception as e:
         return f"CSV error: {e}"
 
     n_temps   = len(temperatures)
     k_present = [k for k, v in K_data.items() if v is not None]
 
-    # ── Load thermal forward model ────────────────────────────────────────────
-    try:
-        if _THERMAL_FWD_MODEL is None:
-            _THERMAL_FWD_MODEL = _sfwd.load_forward("thermal")
-        predictor = _ithermal.make_batched_predictor(_THERMAL_FWD_MODEL)
-    except Exception as e:
-        return f"Error loading thermal model: {e}"
-
     # ── Run inverse estimation ────────────────────────────────────────────────
     try:
-        best_params, best_loss = _ithermal.run_inverse_estimation(
+        result = _sthermal.run_thermal_inverse(
+            fixed_inputs=fixed_inputs,
             temperatures=temperatures,
             K_data=K_data,
-            predictor=predictor,
-            fixed_inputs=fixed_inputs,
             n_restarts=n_restarts,
+            seed=0,
         )
     except Exception as e:
         return f"Solver error: {e}"
 
     # ── Cache for save_to_card ────────────────────────────────────────────────
     _pending_save.clear()
-    _pending_save["result"] = {
-        "model":       "thermal",
-        "best_params": best_params,
-        "best_loss":   best_loss,
-    }
+    _pending_save["result"] = dict(result, model="thermal")
     _pending_save["meta"] = {
         "fiber_id":   fiber_id,
         "polymer_id": polymer_id,
         "printer_id": printer_id,
-        "card_name":  cfg.get("name", ""),
+        "card_name":  card_name,
     }
 
     # ── Format output ─────────────────────────────────────────────────────────
-    p1, p2, l2, t = best_params.p1, best_params.p2, best_params.l2, best_params.t
+    p1, p2, l2, t = result["p1"], result["p2"], result["l2"], result["t"]
+    best_loss = result["best_loss"]
     k_f1 = l2
     k_f2 = l2 / t
     k_m_25 = p1 * (25.0 ** 0.5) + p2
@@ -2516,6 +2804,24 @@ def run_thermal_inverse(
         "",
         f"Results in memory. Call save_to_card(card_id={card_id}) to persist.",
     ]
+
+    missing_channels = [c for c in ("K11", "K22", "K33") if c not in k_present]
+    if missing_channels:
+        lines += [
+            "",
+            "[WARNING — INCOMPLETE CHANNEL DATA]",
+            f"  Missing channels: {', '.join(missing_channels)}.",
+            "  All four parameters (k_f1, k_f2, p1, p2) are best recovered when",
+            "  K11, K22, and K33 are all available:",
+            "    K11 constrains k_f1 (fiber longitudinal conductivity).",
+            "    K22 / K33 constrain k_f2 (fiber transverse conductivity).",
+            "    All three together constrain p1, p2 (polymer model).",
+            f"  With only {', '.join(k_present)}, inferred values — especially",
+            "  k_f2 and the p1/p2 split — may be unreliable.",
+            "  Recommend: re-measure with all three channels before saving.",
+            "  Do NOT call this tool again — report this warning to the user instead.",
+        ]
+
     return "\n".join(lines)
 
 

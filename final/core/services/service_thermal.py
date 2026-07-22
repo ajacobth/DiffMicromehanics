@@ -7,6 +7,15 @@ import numpy as np
 
 from core.services.service_forward import get_model
 
+# Canonical bounds for the 4 free parameters [p1, p2, l2, t].
+# Changing these here propagates to both the agent and the GUI.
+THERMAL_BOUNDS = [
+    (0.0,  0.05),   # p1  polymer conductivity scaling  [W/m·K]
+    (0.0,  0.40),   # p2  polymer conductivity offset   [W/m·K]
+    (1.0, 20.0),    # l2  fiber longitudinal conductivity [W/m·K]
+    (1.01, 15.0),   # t   fiber anisotropy ratio [-]
+]
+
 
 class ThermalResult(TypedDict):
     p1:           float   # polymer conductivity scaling [W/m·K]
@@ -43,12 +52,13 @@ def load_thermal_data(
         )
     temperatures = df[tcol].to_numpy(dtype=float)
 
+    # Column aliases: K11 → ["k11", "k11_wmk"], K22 → ["k22", "k22_wmk"], etc.
+    _K_ALIASES = {k: [k.lower(), f"{k.lower()}_wmk"] for k in k_cols}
+
     K_data: dict[str, np.ndarray | None] = {}
     for col in k_cols:
-        K_data[col] = (
-            df[col.lower()].to_numpy(dtype=float)
-            if col.lower() in df.columns else None
-        )
+        matched = next((a for a in _K_ALIASES[col] if a in df.columns), None)
+        K_data[col] = df[matched].to_numpy(dtype=float) if matched else None
 
     return temperatures, K_data
 
@@ -110,6 +120,7 @@ def run_thermal_inverse(
         n_restarts=n_restarts,
         seed=seed,
         progress_cb=progress_cb,
+        bounds=THERMAL_BOUNDS,
     )
 
     K_pred_arr = compute_composite_conductivity(

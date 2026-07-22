@@ -271,9 +271,6 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
         for i in range(n_free)
     ]
 
-    # ── per-parameter CR bound ────────────────────────────────────────────────
-    F_inv = _safe_fim_inverse(F)
-
     # ── per-parameter status from eigenvalues ────────────────────────────────
     # Use eigenvalue-based thresholds (dimensionless, same scale as normalised FIM):
     #   lambda >= 100  -> WELL
@@ -310,6 +307,15 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
             cr_std_dict[k] = None
         else:
             cr_std_dict[k] = cr_norm * param_range
+
+    # Sanity clamp: F_inv[j,j] already picks up contamination from near-null
+    # eigenvectors even when the argmax heuristic missed it. If the CR std
+    # exceeds the full parameter range the parameter is practically POOR —
+    # override the heuristic label so status and bound are consistent.
+    for j, k in enumerate(param_list):
+        if cr_std_dict[k] is not None and cr_std_dict[k] > (bounds[k][1] - bounds[k][0]):
+            status_dict[k] = "POOR"
+            cr_std_dict[k] = None
 
     # sensitivity matrix (selected targets vs free params) 
     target_out_indices = [out_idx[k] for k in target_keys]
@@ -363,52 +369,3 @@ def run_identifiability_check(predict_array, x_template, free_inputs,
         "sensitivity_param_names":  param_list,
         "F":                        F,
     }
-
-
-def rank_candidate_experiments(predict_array, x_template, free_inputs,
-                                free_indices, current_targets, out_idx,
-                                sigmas, bounds, all_output_names, N_samples=200):
-    """
-    Rank candidate experiments by E-optimality improvement.
-
-    Returns list of dicts sorted descending by improvement_factor:
-        [{"name": str, "improvement_factor": float, "new_min_eigenvalue": float}, ...]
-    """
-    F_base       = compute_normalised_fim(
-        predict_array, x_template, free_inputs, free_indices,
-        current_targets, out_idx, sigmas, bounds, N_samples=N_samples,
-    )
-    base_eigvals    = np.linalg.eigvalsh(F_base)
-    lambda_min_base = max(float(np.min(base_eigvals)), 1e-12)
-    baseline_is_singular = lambda_min_base < 1.0
-
-    current_keys = set(current_targets.keys())
-    candidates   = [n for n in all_output_names if n not in current_keys and n in out_idx]
-
-    results = []
-    for cand in candidates:
-        new_targets       = dict(current_targets)
-        new_targets[cand] = 0.0
-        new_sigmas        = dict(sigmas)
-        if cand not in new_sigmas or new_sigmas[cand] <= 0:
-            new_sigmas[cand] = 1.0
-
-        F_new          = compute_normalised_fim(
-            predict_array, x_template, free_inputs, free_indices,
-            new_targets, out_idx, new_sigmas, bounds, N_samples=N_samples,
-        )
-        new_eigvals    = np.linalg.eigvalsh(F_new)
-        lambda_min_new = max(float(np.min(new_eigvals)), 1e-12)
-        improvement    = lambda_min_new / lambda_min_base
-
-        results.append({
-            "name":               cand,
-            "improvement_factor": improvement,
-            "new_min_eigenvalue": lambda_min_new,
-        })
-
-    if baseline_is_singular:
-        results.sort(key=lambda d: d["new_min_eigenvalue"], reverse=True)
-    else:
-        results.sort(key=lambda d: d["improvement_factor"], reverse=True)
-    return results

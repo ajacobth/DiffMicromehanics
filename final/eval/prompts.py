@@ -36,13 +36,17 @@ PROMPT_GOALS: dict[str, str] = {
     # ── Inverse: elastic ──────────────────────────────────────────────────────
     "IE1": "Baseline: E1+E2+G12+nu12 in GPa, named DB materials, go-ahead in prompt.",
     "IE2": "Measurements given in MPa (unusual) — agent must still pass them correctly.",
-    "IE3": "Only E1+E2 — agent should warn about identifiability and still call tool.",
-    "IE4": "CT-measured orientation (a11/a22 fixed) combined with elastic measurements.",
-    "IE5": "Ambiguous range input ('~20 GPa') — RULE 1 should block tool call.",
+    # IE3: identifiability multi-turn flow — run manually, not in automated eval
+    "IE3": "CT-measured orientation (a11/a22 fixed) combined with elastic measurements.",
+    "IE4": "Ambiguous range input ('~20 GPa') — RULE 1 should block tool call.",
 
     # ── Inverse: thermoelastic ────────────────────────────────────────────────
     "IT1": "Baseline: CTE in ppm/K, card_id provided explicitly.",
     "IT2": "CTE in 1/K scientific notation — no unit conversion needed but must parse.",
+
+    # ── Inverse: thermal ─────────────────────────────────────────────────────
+    "IK1": "All 3 K channels, wide T range (25–200°C) — explicit Stage 1 inputs, should converge cleanly.",
+    "IK2": "K11 only, narrow T range (25–50°C) — tool should warn that missing K22/K33 may hurt accuracy.",
 
     # ── Forward ───────────────────────────────────────────────────────────────
     # Elastic
@@ -75,58 +79,96 @@ PROMPTS: dict[str, str] = {
     # IE1: baseline — GPa measurements, DB material names, "go ahead" included
     "IE1": (
         "I've run tensile and shear tests on my Carbon Fiber T300 / PESU Ultrason specimens "
-        "printed on the CAMRI printer. My results: E1=20.65 GPa, E2=6.34 GPa, G12=3.29 GPa, "
-        "nu12=0.40. The fiber mass fraction is around 25% and the aspect ratio is around 30. "
-        "Please run the elastic inverse — go ahead."
+        "printed on the CAMRI printer. My results: E1=15.45 GPa error of around 0.25 Gpa, E2=5.14 GPa error of around 0.1 GPa, E3=4.21 GPa error of around 0.1 Gpa, "
+        "nThe fiber mass fraction is 0.20 and the aspect ratio is 21. Fix the polymer poisson ratio to 0.34"
+        "Please run the elastic inverse and report the results "
     ),
+
 
     # IE2: measurements in MPa instead of GPa — agent should recognise they're already in MPa
     "IE2": (
         "Elastic characterisation of Carbon Fiber T300 / PESU Ultrason / CAMRI — "
         "my DIC data in MPa: E1=20654 MPa, E2=6338 MPa, E3=6257 MPa, G12=3287 MPa, "
-        "nu12=0.40, nu13=0.40. Starting guess: fiber mass fraction 0.25, aspect ratio 30. "
-        "Run the elastic inverse and go ahead."
+        "nu12=0.40, nu13=0.40.Fiber mass fraction 0.25, aspect ratio 30. "
+        "Run the elastic inverse and reportthe results."
     ),
 
     # IE3: only E1+E2 — underdetermined, identifiability warning expected
-    "IE3": (
-        "I only have axial and transverse tensile data for my T300 / PESU Ultrason / CAMRI "
-        "specimen: E1=20.65 GPa and E2=6.34 GPa. Mass fraction around 25%, AR around 30. "
-        "Please run the elastic inverse and go ahead."
-    ),
+    #"IE3": (
+    #    "I only have axial tensile data for my T300 / PESU Ultrason / CAMRI "
+    #    "specimen: E1=20.65 GPa. Mass fraction is 25%, AR is 30. "
+    #    "Please run the elastic inverse and tell me the results"
+    #),
 
-    # IE4: CT orientation fixed, agent should pass a11/a22 as fixed inputs
-    "IE4": (
-        "We used micro-CT to characterise the fibre orientation in our T300 / PESU Ultrason / "
+# I only have axial tensile data for my T300 / PESU Ultrason / CAMRI specimen: E1=20.65 GPa. Mass fraction is 25%, AR around 30. Please run the elastic inverse and tell me the results
+    
+# IE3: CT orientation fixed, agent should pass a11/a22 as fixed inputs
+    "IE3": (
+        "We used micro-CT to characterize the fiber orientation in our T300 / PESU Ultrason / "
         "CAMRI part and measured a11=0.70, a22=0.15. My elastic test results are: "
         "E1=20.65 GPa, E2=6.34 GPa, G12=3.29 GPa, nu12=0.40. Mass fraction 0.25, AR 30. "
-        "Use the CT orientation as fixed and run the elastic inverse — go ahead."
+        "Use the CT orientation as fixed and run the elastic inverse and report the results"
     ),
 
-    # IE5: ambiguous range — RULE 1 should block tool call, no tool expected
-    "IE5": (
+    # IE4: ambiguous range — RULE 1 should block tool call, no tool expected
+    "IE4": (
         "I have some T300 / PESU Ultrason / CAMRI test data but my measurements have pretty "
         "wide scatter: E1 is roughly 20-21 GPa and E2 is somewhere around 6 GPa. "
         "Can you run the elastic inverse for me?"
     ),
 
     # ── Inverse: thermoelastic ────────────────────────────────────────────────
-    # Requires card_id=1 from a prior elastic inverse save.
-    # Synthetic CTE from same ground truth (f_cte1=-0.7 ppm/K, f_cte2=10 ppm/K, m_cte=55 ppm/K):
+    # Self-contained (Path B — no card needed). Ground truth Stage 1 outputs:
+    #   T300/PESU Ultrason/CAMRI, matrix_modulus=3100 MPa, matrix_poisson=0.37
+    #   a11=0.70, a22=0.15, fiber_massfrac=0.25, ar=30
+    # Synthetic CTE targets (f_cte1=-0.7 ppm/K, f_cte2=10 ppm/K, m_cte=55 ppm/K):
     #   CTE11=5.26 ppm/K  CTE22=45.05 ppm/K  CTE33=44.50 ppm/K
 
-    # IT1: CTE in ppm/K — baseline thermoelastic inverse
+    # IT1: CTE in ppm/K — baseline thermoelastic inverse, explicit Stage 1 inputs
     "IT1": (
-        "I've completed Stage 1 for card 1. Now I have dilatometry results: "
+        "I have CTE DIC results for my T300 / PESU Ultrason / CAMRI specimens: "
         "CTE11=5.26 ppm/K and CTE22=45.05 ppm/K. "
-        "Please run the thermoelastic inverse and go ahead."
+        "From my earlier elastic inverse I know: a11=0.70, a22=0.15, fiber mass fraction=0.25, "
+        "aspect ratio=30, matrix modulus=3100 MPa, matrix Poisson ratio=0.37. "
+        "Please run the thermoelastic inverse and report the results"
     ),
 
-    # IT2: CTE in 1/K scientific notation — no conversion needed but tricky to parse
+    # IT2: CTE in 1/K scientific notation + CTE33 included
     "IT2": (
-        "Stage 2 for card 1. My CTE measurements in /K: "
-        "CTE11=5.26e-6 /K, CTE22=4.505e-5 /K, CTE33=4.450e-5 /K. "
-        "Run thermoelastic inverse — go ahead."
+        "Thermoelastic characterisation of T300 / PESU Ultrason / CAMRI. "
+        "My dilatometry data in 1/K: CTE11=5.26e-6, CTE22=4.505e-5, CTE33=4.450e-5. "
+        "Stage 1 results to use as fixed inputs: a11=0.70, a22=0.15, "
+        "fiber_massfrac=0.25, AR=30, matrix_modulus=3100 MPa, matrix_poisson=0.37. "
+        "Run the thermoelastic inverse — go ahead."
+    ),
+
+    # ── Inverse: thermal conductivity ────────────────────────────────────────
+    # Self-contained (Path B). Ground truth:
+    #   T300/PESU Ultrason/CAMRI,  k_f1=8 W/mK (l2=8), k_f2=1 W/mK (t=8), p1=0.02, p2=0.18
+    #   Microstructure from Stage 1: a11=0.70, a22=0.15, mf=0.25, ar=30
+    #   Note: solver recovers k_f2 well; l2/t individually may vary (ridge in objective at mf=0.25).
+    #   IK2 scored on fit_error convergence (< 0.05), not exact parameter recovery.
+
+    # IK1: wide T range, all 3 channels — should converge cleanly
+    "IK1": (
+        "I've measured thermal conductivity vs temperature for my T300 / PESU Ultrason "
+        "composite printed on the CAMRI printer using laser flash analysis. "
+        "All three channels (K11, K22, K33) are available over 25–200°C. "
+        "The data file is at "
+        "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/final/eval/data/synthetic_K_wide.csv. "
+        "From my Stage 1 elastic inverse: a11=0.70, a22=0.15, fiber mass fraction=0.25, aspect ratio=30. "
+        "Fiber is T300, polymer is PESU Ultrason, printer is CAMRI. "
+        "Run the thermal inverse and go ahead."
+    ),
+
+    # IK2: narrow T range (25–50°C), K11 only — missing channels warning expected
+    "IK2": (
+        "Thermal conductivity measurement on my Carbon Fiber T300 / PESU Ultrason / CAMRI specimens — "
+        "only K11 was measured and the equipment only went up to 50°C. "
+        "Data file: "
+        "/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/final/eval/data/synthetic_K_narrow.csv. "
+        "Stage 1 elastic inverse outputs: a11=0.70, a22=0.15, fiber mass fraction=0.25, aspect ratio=30. "
+        "Run the thermal inverse and tell me the results."
     ),
 
     # ── Forward ───────────────────────────────────────────────────────────────
@@ -264,57 +306,65 @@ GUI_INPUTS: dict[str, dict] = {
     # ── Inverse: elastic ──────────────────────────────────────────────────────
     "IE1": {
         "goal":  PROMPT_GOALS["IE1"],
-        "note": (
-            "Ground truth: T300/PESU Ultrason/CAMRI, E_m=3100 MPa, nu_m=0.37, "
-            "a11=0.70 a22=0.15 mf=0.25 ar=30. "
-            "Scored on fit_error < 0.05 — no gui_value needed."
-        ),
+        "gui":   "python gui_inverse.py  (Stage 1 — Elastic)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":  "E1=15.45 GPa  E2=5.14 GPa  E3=4.21 GPa ",
+        "micro": "mf=0.20  AR=21  |  fix nu_m=0.34",
+        "fill":  "Read off: a11, a22, matrix_modulus → fill gui_value column.",
     },
     "IE2": {
-        "goal": PROMPT_GOALS["IE2"],
-        "note": (
-            "Same ground truth as IE1 but measurements given in MPa. "
-            "Agent must recognise they're already in model units and not multiply by 1000. "
-            "Scored on fit_error < 0.05."
-        ),
+        "goal":  PROMPT_GOALS["IE2"],
+        "gui":   "python gui_inverse.py  (Stage 1 — Elastic)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":  "E1=20654 MPa  E2=6338 MPa  E3=6257 MPa  G12=3287 MPa  nu12=0.40  nu13=0.40",
+        "micro": "mf=0.25  AR=30  (both as starting guess; leave free)",
+        "fill":  "Read off: a11, a22, matrix_modulus → fill gui_value column.",
     },
     "IE3": {
-        "goal": PROMPT_GOALS["IE3"],
-        "note": (
-            "Underdetermined — only E1+E2. Agent should warn about aspect ratio / nu_m "
-            "identifiability before calling tool. Tool routing scored only (fit_error likely poor)."
-        ),
+        "goal":  PROMPT_GOALS["IE3"],
+        "gui":   "python gui_inverse.py  (Stage 1 — Elastic)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":  "E1=20.65 GPa  E2=6.34 GPa  G12=3.29 GPa  nu12=0.40",
+        "micro": "mf=0.25  AR=30  |  fix a11=0.70  a22=0.15  (CT-measured orientation)",
+        "fill":  "Read off: fiber_massfrac, ar, matrix_modulus, matrix_poisson → fill gui_value column.",
     },
     "IE4": {
-        "goal": PROMPT_GOALS["IE4"],
-        "note": (
-            "CT orientation a11=0.70 a22=0.15 must be passed as fixed. "
-            "Scored on fit_error < 0.05."
-        ),
-    },
-    "IE5": {
-        "goal": PROMPT_GOALS["IE5"],
-        "note": (
-            "RULE 1 prompt — agent should NOT call any tool. "
-            "Pass = tool_correct where expected_tool=None (no tool call expected)."
-        ),
+        "goal":  PROMPT_GOALS["IE4"],
+        "note":  "RULE 1 prompt — agent should NOT call any tool. Pass = tool_correct where expected_tool=None.",
     },
     # ── Inverse: thermoelastic ────────────────────────────────────────────────
     "IT1": {
-        "goal": PROMPT_GOALS["IT1"],
-        "note": (
-            "Requires card_id=1 to exist from a prior elastic inverse save. "
-            "Ground truth CTE: f_cte1=-0.7 ppm/K f_cte2=10 ppm/K m_cte=55 ppm/K. "
-            "Scored on fit_error < 0.05."
-        ),
+        "goal":  PROMPT_GOALS["IT1"],
+        "gui":   "python gui_inverse.py  (Stage 2 — Thermoelastic)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":  "CTE11=5.26e-6 /K  CTE22=45.05e-6 /K",
+        "micro": "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
+        "note":  "CTE given in ppm/K in the prompt — agent must convert to 1/K (×1e-6) before passing.",
+        "fill":  "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
     },
     "IT2": {
-        "goal": PROMPT_GOALS["IT2"],
-        "note": (
-            "CTE in 1/K — agent must pass values as-is (already model units). "
-            "Scored on fit_error < 0.05."
-        ),
+        "goal":  PROMPT_GOALS["IT2"],
+        "gui":   "python gui_inverse.py  (Stage 2 — Thermoelastic)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":  "CTE11=5.26e-6 /K  CTE22=4.505e-5 /K  CTE33=4.450e-5 /K",
+        "micro": "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
+        "note":  "CTE already in 1/K — no conversion needed.",
+        "fill":  "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
     },
+    # ── Inverse: thermal ─────────────────────────────────────────────────────
+    "IK1": {
+        "goal":  PROMPT_GOALS["IK1"],
+        "gui":   "python gui_thermal_inverse.py  (Stage 3 — Thermal)",
+        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "csv":   "eval/data/synthetic_K_wide.csv  (8 points 25–200°C, K11+K22+K33)",
+        "micro": "a11=0.70  a22=0.15  mf=0.25  AR=30",
+        "fill":  "Read off: k_f1, k_f2, p1, p2 → fill gui_value column.",
+    },
+    "IK2": {
+        "goal":  PROMPT_GOALS["IK2"],
+        "note":  "K11 only, 4 points. Tool emits [WARNING — INCOMPLETE CHANNEL DATA]. Pass = agent reports warning.",
+    },
+
     # ── Forward ───────────────────────────────────────────────────────────────
     # ── Elastic ────────────────────────────────────────────────────────────────
     "E1": {
@@ -424,19 +474,23 @@ GUI_INPUTS: dict[str, dict] = {
 
 # ── Which output properties to extract and score per prompt ───────────────────
 # Forward (E/T/K): composite output fields — compared to gui_value via MAPE.
-# Inverse (IE/IT): "fit_error" — scored directly against _INV_FIT_THRESHOLD (no gui_value).
-# IE5: empty list — tool routing only (no tool call expected).
+# Inverse (IE): inferred param values only — scored on param MAPE.  No fit_error gate.
+# Inverse (IT/IK): fit_error (scored gate) + inferred param values.
+#   fit_error gated against _INV_FIT_THRESHOLD; params against _INV_PARAM_THRESHOLD.
+# IE4 / IK2: empty list — routing-only.
 
 SCORED_PROPERTIES: dict[str, list[str]] = {
-    # Inverse elastic
-    "IE1": ["fit_error"],
-    "IE2": ["fit_error"],
-    "IE3": [],            # tool routing only — underdetermined, fit_error unreliable
-    "IE4": ["fit_error"],
-    "IE5": [],            # RULE 1 — no tool expected, routing-only check
-    # Inverse thermoelastic
-    "IT1": ["fit_error"],
-    "IT2": ["fit_error"],
+    # Inverse elastic — no fit_error gate; scored on recovered param MAPE only
+    "IE1": ["a11", "a22", "matrix_modulus"],
+    "IE2": ["a11", "a22", "matrix_modulus"],
+    "IE3": ["fiber_massfrac", "ar", "matrix_modulus", "matrix_poisson"],  # a11/a22 fixed from CT
+    "IE4": [],              # RULE 1 — no tool expected, routing-only check
+    # Inverse thermoelastic — fit_error gate retained
+    "IT1": ["fit_error", "f_cte1_ppm", "f_cte2_ppm", "m_cte_ppm"],
+    "IT2": ["fit_error", "f_cte1_ppm", "f_cte2_ppm", "m_cte_ppm"],
+    # Inverse thermal
+    "IK1": ["fit_error", "k_f1", "k_f2", "p1", "p2"],
+    "IK2": [],              # missing channel warning check — no fit_error threshold
     # Forward
     "E1": ["E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"],
     "E2": ["E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"],
@@ -464,11 +518,13 @@ EXPECTED_TOOL: dict[str, _Opt[str]] = {
     "IE1": "run_elastic_inverse",
     "IE2": "run_elastic_inverse",
     "IE3": "run_elastic_inverse",
-    "IE4": "run_elastic_inverse",
-    "IE5": None,                       # no tool expected
+    "IE4": None,                       # RULE 1 — no tool expected
     # Inverse thermoelastic
     "IT1": "run_thermoelastic_inverse",
     "IT2": "run_thermoelastic_inverse",
+    # Inverse thermal
+    "IK1": "run_thermal_inverse",
+    "IK2": "run_thermal_inverse",
     # Forward
     "E1": "predict_properties",
     "E2": "predict_properties",

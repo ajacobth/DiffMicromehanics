@@ -43,7 +43,7 @@ PARAM_BOUNDS = [
     (0.0,  0.05),   # p1  polymer conductivity scaling  [W/(m·°C)]  — allows k_m up to ~0.4 at 200°C
     (0.0,  0.40),   # p2  polymer conductivity offset   [W/(m·°C)]  — covers 0.05–0.4 W/m·K range
     (1.0, 20.0),    # l2  fiber longitudinal conductivity [W/(m·°C)]
-    (1.01, 6.0),    # t   fiber anisotropy ratio (K_f1/K_f2)  [–]
+    (1.01, 15.0),   # t   fiber anisotropy ratio (K_f1/K_f2)  [–]
 ]
 
 
@@ -251,6 +251,7 @@ def run_inverse_estimation(
     n_restarts: int = 10,
     seed: int = 0,
     progress_cb: Optional[Callable[[int, int, float], None]] = None,
+    bounds: Optional[list] = None,
 ) -> Tuple[ConstituentParams, float]:
     """
     Multi-start L-BFGS-B to estimate constituent thermal conductivity parameters.
@@ -264,15 +265,18 @@ def run_inverse_estimation(
     n_restarts   : number of random restarts
     seed         : RNG seed
     progress_cb  : optional callback(restart, n_restarts, loss) for GUI updates
+    bounds       : list of (lo, hi) per parameter [p1, p2, l2, t];
+                   defaults to PARAM_BOUNDS if not supplied
 
     Returns
     -------
     best_params : ConstituentParams
     best_loss   : float
     """
+    active_bounds = bounds if bounds is not None else PARAM_BOUNDS
     rng = np.random.default_rng(seed)
-    lo  = np.array([b[0] for b in PARAM_BOUNDS])
-    hi  = np.array([b[1] for b in PARAM_BOUNDS])
+    lo  = np.array([b[0] for b in active_bounds])
+    hi  = np.array([b[1] for b in active_bounds])
 
     best_params: Optional[ConstituentParams] = None
     best_loss   = np.inf
@@ -284,7 +288,7 @@ def run_inverse_estimation(
             x0      = x0,
             args    = (temperatures, K_data, predictor, fixed_inputs),
             method  = "L-BFGS-B",
-            bounds  = PARAM_BOUNDS,
+            bounds  = active_bounds,
             options = {"maxiter": 2000, "ftol": 1e-15, "gtol": 1e-10},
         )
         loss = float(res.fun)

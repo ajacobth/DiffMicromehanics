@@ -365,21 +365,29 @@ def save_thermal_result(
     """Persist a thermal inverse result. Returns inference_run_id.
     Wraps db.save_thermal_inverse_results.
 
-    result must contain:
-        best_params  — ConstituentParams namedtuple with .p1, .p2, .l2, .t
-        best_loss    — float
+    result must contain either:
+      flat keys p1, p2, l2, t, best_loss  (ThermalResult / service format), or
+      "best_params" ConstituentParams + "best_loss"  (legacy core format).
     card_id is the print_config_id to attach this result to (required).
     """
     if card_id is None:
         raise ValueError("save_thermal_result requires card_id (print_config_id)")
 
-    params = result["best_params"]
-    parametric_outputs = {
-        "p1": float(params.p1),
-        "p2": float(params.p2),
-        "l2": float(params.l2),
-        "t":  float(params.t),
-    }
+    if "best_params" in result:
+        params = result["best_params"]
+        parametric_outputs = {
+            "p1": float(params.p1),
+            "p2": float(params.p2),
+            "l2": float(params.l2),
+            "t":  float(params.t),
+        }
+    else:
+        parametric_outputs = {
+            "p1": float(result["p1"]),
+            "p2": float(result["p2"]),
+            "l2": float(result["l2"]),
+            "t":  float(result["t"]),
+        }
 
     return _db.save_thermal_inverse_results(
         print_config_id=card_id,
