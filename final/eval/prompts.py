@@ -136,7 +136,7 @@ PROMPTS: dict[str, str] = {
     # IT2: CTE in 1/K scientific notation + CTE33 included
     "IT2": (
         "Thermoelastic characterisation of T300 / PESU Ultrason / CAMRI. "
-        "My dilatometry data in 1/K: CTE11=5.26e-6, CTE22=4.505e-5, CTE33=4.450e-5. "
+        "My  data in 1/K: CTE11=5.26e-6, CTE22=4.505e-5, CTE33=4.450e-5. "
         "Stage 1 results to use as fixed inputs: a11=0.70, a22=0.15, "
         "fiber_massfrac=0.25, AR=30, matrix_modulus=3100 MPa, matrix_poisson=0.37. "
         "Run the thermoelastic inverse — go ahead."

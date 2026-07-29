@@ -74,6 +74,9 @@ def run_inverse(
 
     model = get_model(model_name)
 
+    # Drop any fixed_inputs whose keys aren't in this model (e.g. rho_f for elastic)
+    fixed_inputs = {k: v for k, v in fixed_inputs.items() if k in model.in_idx}
+
     constraints = []
     c = make_orientation_sum_constraint(free_inputs)
     if c is not None:

@@ -45,6 +45,7 @@ import core.services.service_fim as _sfim
 import core.services.service_inverse as _sinv
 import core.inverse_thermal as _ithermal
 import core.services.service_thermal as _sthermal
+import core.services.service_transfer as _stransfer
 
 
 # ── Module-level constants for forward/FIM tools ──────────────────────────────
@@ -1591,6 +1592,36 @@ def add_polymer(
     )
 
 
+@tool
+def add_printer(
+    name: str,
+    manufacturer: str = "",
+) -> str:
+    """
+    Add a new printer to the database.
+
+    name         — printer name (e.g. "BAAM", "CAMRI-2")
+    manufacturer — optional manufacturer name
+
+    Returns the new printer_id. Use this when the user names a printer that is
+    not yet in the database before running run_transfer.
+    """
+    try:
+        pid = _smat.add_printer(name=name.strip(), manufacturer=manufacturer.strip())
+    except ValueError as e:
+        return f"Cannot add printer: {e}"
+    except Exception as e:
+        return f"Database error: {e}"
+
+    return (
+        f"Printer added successfully.\n"
+        f"  printer_id   = {pid}\n"
+        f"  name         = \"{name}\"\n"
+        f"  manufacturer = \"{manufacturer}\"\n"
+        f"You can now use \"{name}\" as the target printer in run_transfer."
+    )
+
+
 # ── Identifiability tool ──────────────────────────────────────────────────────
 
 @tool
@@ -2825,6 +2856,176 @@ def run_thermal_inverse(
     return "\n".join(lines)
 
 
+# ── Transfer tool ─────────────────────────────────────────────────────────────
+
+@tool
+def run_transfer(
+    source_card_id: int,
+    new_printer: str,
+    E1_MPa: float = -1.0,
+    E2_MPa: float = -1.0,
+    E3_MPa: float = -1.0,
+    G12_MPa: float = -1.0,
+    G13_MPa: float = -1.0,
+    G23_MPa: float = -1.0,
+    nu12: float = -1.0,
+    nu13: float = -1.0,
+    nu23: float = -1.0,
+    E1_sigma_MPa: float = 0.0,
+    E2_sigma_MPa: float = 0.0,
+    E3_sigma_MPa: float = 0.0,
+    G12_sigma_MPa: float = 0.0,
+    nu12_sigma: float = 0.0,
+    ar: Optional[float] = None,
+) -> str:
+    """Stage 4 — Transfer constituent properties from a fully-characterized source card
+    to a new printer by re-running the elastic inverse with constituent properties fixed.
+
+    Free parameters: orientation tensor (a11, a22). If ar is not provided, AR is also
+    inferred — run check_identifiability first to verify it is identifiable.
+
+    source_card_id : card that is fully characterized (elastic + thermoelastic + thermal).
+    new_printer    : name of the target printer (must exist in the database).
+    E*_MPa / nu*   : elastic measurements on the new printer (-1.0 to omit).
+    ar             : fiber aspect ratio. If known (e.g. from micro-CT), pass it here to
+                     fix it. If omitted, AR is inferred from the elastic measurements.
+    """
+    # ── Pre-flight 1: source card exists ─────────────────────────────────────
+    card = _db.get_print_config(source_card_id)
+    if card is None:
+        return (
+            f"Card {source_card_id} not found. "
+            "Use list_cards() to see available cards."
+        )
+    fiber_id   = card["fiber_id"]
+    polymer_id = card["polymer_id"]
+
+    # ── Pre-flight 2: fully characterized ────────────────────────────────────
+    stages   = _smat.get_completed_stages(source_card_id, fiber_id, polymer_id)
+    required = {"elastic", "thermoelastic", "thermal"}
+    missing  = required - set(stages)
+    if missing:
+        return (
+            f"Card {source_card_id} is not fully characterized. "
+            f"Missing stages: {', '.join(sorted(missing))}. "
+            "Complete these before transferring."
+        )
+
+    # ── Pre-flight 3: constituent props resolvable ────────────────────────────
+    constituent_props = _stransfer.resolve_constituent_props(source_card_id)
+    missing_props = [k for k, v in constituent_props.items() if v is None]
+    if missing_props:
+        return (
+            f"Cannot transfer — these constituent properties are missing from "
+            f"card {source_card_id}: {', '.join(missing_props)}. "
+            "Ensure all three inverse stages completed and saved successfully."
+        )
+
+    # ── Pre-flight 4: resolve or create printer ───────────────────────────────
+    all_printers = _db.get_all_printers()
+    pn = new_printer.strip().lower()
+    printer_matches = [p for p in all_printers if pn in p["name"].lower()]
+    if len(printer_matches) > 1:
+        names = ", ".join(p["name"] for p in printer_matches)
+        return f"Printer '{new_printer}' matches multiple entries: {names}. Be more specific."
+    if not printer_matches:
+        # Printer doesn't exist — create it automatically.
+        # The user named it explicitly, which is implicit authorization.
+        target_printer_id = _db.add_printer(new_printer.strip(), manufacturer="")
+        _printer_created = True
+    else:
+        target_printer_id = printer_matches[0]["id"]
+        _printer_created = False
+
+    # ── Build target outputs and sigmas ──────────────────────────────────────
+    _elastic_map = {
+        "E1": (E1_MPa, E1_sigma_MPa), "E2": (E2_MPa, E2_sigma_MPa),
+        "E3": (E3_MPa, E3_sigma_MPa), "G12": (G12_MPa, G12_sigma_MPa),
+        "G13": (G13_MPa, 0.0),        "G23": (G23_MPa, 0.0),
+        "nu12": (nu12, nu12_sigma),   "nu13": (nu13, 0.0), "nu23": (nu23, 0.0),
+    }
+    target_outputs: dict[str, float] = {}
+    sigmas: dict[str, float]         = {}
+    for prop, (val, sig) in _elastic_map.items():
+        if val is not None and val > 0:
+            target_outputs[prop] = float(val)
+            if sig > 0:
+                sigmas[prop] = float(sig)
+
+    if not target_outputs:
+        return (
+            "No elastic measurements provided. "
+            "Supply at least E1_MPa, E2_MPa, or G12_MPa for the new printer."
+        )
+
+    # ── Fixed microstructure: mass fraction always fixed from source card ─────
+    fixed_micro: dict[str, float] = {}
+    snap = _db.get_latest_microstructure(source_card_id)
+    if snap:
+        _mf = snap.get("fiber_massfrac") or snap.get("mf")
+        if _mf is not None:
+            fixed_micro["fiber_massfrac"] = float(_mf)
+
+    if ar is not None:
+        fixed_micro["ar"] = float(ar)
+
+    # ── Run transfer solver ───────────────────────────────────────────────────
+    try:
+        result = _stransfer.run_transfer(
+            source_card_id=source_card_id,
+            target_outputs=target_outputs,
+            sigmas=sigmas or None,
+            fixed_micro=fixed_micro,
+        )
+    except Exception as e:
+        return f"Transfer solver error: {e}"
+
+    # ── Cache for save_to_card ────────────────────────────────────────────────
+    _pending_save.clear()
+    _pending_save["result"] = dict(result, model="transfer")
+    _pending_save["meta"]   = {
+        "fiber_id":         fiber_id,
+        "polymer_id":       polymer_id,
+        "source_card_id":   source_card_id,
+        "target_printer_id": target_printer_id,
+        "new_printer":      new_printer.strip(),
+    }
+
+    # ── Format output ─────────────────────────────────────────────────────────
+    micro = result["opt_microstructure"]
+    lines = [
+        f"TRANSFER RESULT — card {source_card_id} → {new_printer}",
+    ]
+    if _printer_created:
+        lines.append(f"  (printer '{new_printer}' was not in the database — added automatically)")
+    lines += [
+        "",
+        "CONSTITUENT PROPERTIES (carried over):",
+    ]
+    for key, info in constituent_props.items():
+        if info:
+            tag = info.get("source_tag", "")
+            lines.append(f"  {key:<18s} = {info['value']:.4g}  [{tag}]")
+
+    ar_val    = micro.get("ar") or micro.get("ar_f") or fixed_micro.get("ar")
+    ar_status = "fixed" if ar is not None else "inferred"
+    mf_val    = fixed_micro.get("fiber_massfrac", "—")
+
+    lines += [
+        "",
+        f"INFERRED MICROSTRUCTURE ({new_printer}):",
+        f"  a11              = {micro.get('a11', 0.0):.4f}",
+        f"  a22              = {micro.get('a22', 0.0):.4f}",
+        f"  ar               = {ar_val:.2f}  ({ar_status})" if ar_val else f"  ar               = — ({ar_status})",
+        f"  fiber_massfrac   = {mf_val:.4f}  (fixed from source card)" if isinstance(mf_val, float) else f"  fiber_massfrac   = {mf_val}",
+        "",
+        f"Elastic fit error  = {result['elastic_error']:.5f}",
+        "",
+        "Call save_to_card(card_name='...') to create the new card.",
+    ]
+    return "\n".join(lines)
+
+
 @tool
 def run_full_pipeline(
     file_path: str,
@@ -3080,6 +3281,24 @@ def save_to_card(card_name: str = "", card_id: int = -1) -> str:
     name = card_name.strip() or meta.get("card_name", "")
 
     try:
+        if result.get("model") == "transfer":
+            target_printer_id = meta.get("target_printer_id")
+            source_card_id    = meta.get("source_card_id")
+            saved_id = _scards.save_transfer_result(
+                result=result,
+                source_card_id=source_card_id,
+                target_printer_id=target_printer_id,
+            )
+            _pending_save.clear()
+            return (
+                f"Transfer saved successfully.\n"
+                f"  card_id    = {saved_id}\n"
+                f"  card_name  = {name}\n"
+                f"  source     = card {source_card_id}\n"
+                f"  printer    = {meta.get('new_printer', '')}\n"
+                f"Use card_id={saved_id} in predict_properties or get_card_status."
+            )
+
         if result.get("model") == "thermal":
             if card_id == -1:
                 return (
@@ -3451,11 +3670,13 @@ TOOLS = [
     predict_thermal_conductivity,
     add_fiber,
     add_polymer,
+    add_printer,
     check_identifiability,
     sweep_parameter,
     run_elastic_inverse,
     run_thermoelastic_inverse,
     run_thermal_inverse,
+    run_transfer,
     run_full_pipeline,
     save_to_card,
     delete_card,

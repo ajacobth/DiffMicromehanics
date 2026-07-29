@@ -383,7 +383,7 @@ def write_csv(run_results: list[dict], model_tag: str) -> Path:
 
 # ── Scorer ────────────────────────────────────────────────────────────────────
 
-_PASS_THRESHOLD = 1.5  # % — MAPE below this = pass (any real input error exceeds this)
+_PASS_THRESHOLD = 0.1  # % — MAPE below this = pass for forward predictions
 
 
 def _short_challenge(key: str) -> str:

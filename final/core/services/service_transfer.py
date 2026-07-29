@@ -334,11 +334,16 @@ def run_transfer(
     bounds:         dict[str, tuple[float, float]] | None = None,
     solver_cfg:     dict | None = None,
     manual_props:   dict[str, float] | None = None,
+    fixed_micro:    dict[str, float] | None = None,
 ) -> TransferResult:
     """Full transfer workflow:
       1. Load source card + resolve constituent props
       2. Run elastic inverse (microstructure free, constituent props fixed)
       3. Run all three forward models
+
+    fixed_micro: microstructure fields to hold fixed (e.g. {"ar": 30.0, "fiber_massfrac": 0.25}).
+                 These are removed from free_fields and added to fixed_fields. Aliases
+                 (ar/ar_f, fiber_massfrac/w_f) are handled automatically.
 
     Returns TransferResult — no DB writes.
     """
@@ -359,6 +364,19 @@ def run_transfer(
     elastic_model = get_model("elastic")
     free_fields   = [f for f in elastic_model.input_fields if f in _MICRO_FREE]
     fixed_fields  = {f: v for f, v in base_inputs.items() if f not in _MICRO_FREE}
+
+    # Apply fixed_micro overrides: move named fields from free to fixed.
+    # Handles canonical/alias pairs so the solver never sees conflicting free/fixed.
+    if fixed_micro:
+        _aliases = {"fiber_massfrac": "w_f", "w_f": "fiber_massfrac",
+                    "ar": "ar_f", "ar_f": "ar"}
+        for k, v in fixed_micro.items():
+            fixed_fields[k] = float(v)
+            free_fields = [f for f in free_fields if f != k]
+            alias = _aliases.get(k)
+            if alias:
+                fixed_fields[alias] = float(v)
+                free_fields = [f for f in free_fields if f != alias]
 
     # Build bounds: use defaults for microstructure fields
     effective_bounds = {**_MICRO_BOUNDS_DEFAULT}
