@@ -1,0 +1,10 @@
+{"time":"2026-08-03T13:22:50.279599-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/THEL_surrogate/wandb/run-20260803_132250-8rrxp28v/logs/debug-core.log"}
+{"time":"2026-08-03T13:22:50.389484-04:00","level":"INFO","msg":"created new stream","id":"8rrxp28v"}
+{"time":"2026-08-03T13:22:50.389533-04:00","level":"INFO","msg":"stream: started","id":"8rrxp28v"}
+{"time":"2026-08-03T13:22:50.389557-04:00","level":"INFO","msg":"handler: started","stream_id":"8rrxp28v"}
+{"time":"2026-08-03T13:22:50.389563-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"8rrxp28v"}
+{"time":"2026-08-03T13:22:50.38963-04:00","level":"INFO","msg":"sender: started","stream_id":"8rrxp28v"}
+{"time":"2026-08-03T13:22:50.97598-04:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-08-03T13:24:24.765124-04:00","level":"INFO","msg":"stream: closing","id":"8rrxp28v"}
+{"time":"2026-08-03T13:24:24.765188-04:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-08-03T13:24:24.76595-04:00","level":"INFO","msg":"Stopped system monitor"}

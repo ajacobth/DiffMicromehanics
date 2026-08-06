@@ -1,0 +1,21 @@
+{"time":"2026-08-03T20:51:05.8876-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/THEL_surrogate/wandb/run-20260803_205105-eh0x1wvl/logs/debug-core.log"}
+{"time":"2026-08-03T20:51:05.996261-04:00","level":"INFO","msg":"created new stream","id":"eh0x1wvl"}
+{"time":"2026-08-03T20:51:05.996306-04:00","level":"INFO","msg":"stream: started","id":"eh0x1wvl"}
+{"time":"2026-08-03T20:51:05.996332-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T20:51:05.996431-04:00","level":"INFO","msg":"handler: started","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T20:51:05.996438-04:00","level":"INFO","msg":"sender: started","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T20:51:06.459563-04:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-08-03T20:59:39.733422-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:00:57.046564-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:02:16.233031-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:03:39.752866-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:05:13.089788-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:07:03.739801-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/eh0x1wvl/file_stream\": dial tcp 34.8.250.101:443: connect: operation timed out"}
+{"time":"2026-08-03T21:07:33.408631-04:00","level":"INFO","msg":"stream: closing","id":"eh0x1wvl"}
+{"time":"2026-08-03T21:07:33.40865-04:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-08-03T21:07:33.409165-04:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-08-03T21:07:34.070825-04:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-08-03T21:08:04.504306-04:00","level":"INFO","msg":"handler: closed","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T21:08:04.504278-04:00","level":"INFO","msg":"writer: Close: closed","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T21:08:04.504294-04:00","level":"INFO","msg":"sender: closed","stream_id":"eh0x1wvl"}
+{"time":"2026-08-03T21:08:04.50507-04:00","level":"INFO","msg":"stream: closed","id":"eh0x1wvl"}

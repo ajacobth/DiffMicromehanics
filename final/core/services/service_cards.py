@@ -389,6 +389,19 @@ def save_thermal_result(
             "t":  float(result["t"]),
         }
 
+    # Pass K vs T prediction curves so the thermal stage is detected as complete
+    temperatures = result.get("temperatures")
+    K_pred       = result.get("K_pred")
+    k_pred_arr   = None
+    if temperatures is not None and K_pred is not None:
+        import numpy as np
+        temperatures = np.asarray(temperatures)
+        k_pred_arr   = np.column_stack([
+            K_pred.get("K11", np.zeros(len(temperatures))),
+            K_pred.get("K22", np.zeros(len(temperatures))),
+            K_pred.get("K33", np.zeros(len(temperatures))),
+        ])
+
     return _db.save_thermal_inverse_results(
         print_config_id=card_id,
         fiber_id=fiber_id,
@@ -397,6 +410,8 @@ def save_thermal_result(
         solver_cfg={},
         loss=float(result["best_loss"]),
         notes=notes,
+        temperatures=temperatures,
+        K_pred=k_pred_arr,
     )
 
 

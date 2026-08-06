@@ -456,7 +456,7 @@ class ThermalInverseWindow:
         try:
             from core.services import load_thermal_data, run_thermal_inverse
 
-            temperatures, K_data = load_thermal_data(data_path)
+            K_data = load_thermal_data(data_path)
 
             def _progress(i, n, loss):
                 self._win.after(
@@ -466,7 +466,6 @@ class ThermalInverseWindow:
 
             result = run_thermal_inverse(
                 fixed_inputs = fixed_inputs,
-                temperatures = temperatures,
                 K_data       = K_data,
                 n_restarts   = n_restarts,
                 seed         = seed,
@@ -550,8 +549,9 @@ class ThermalInverseWindow:
             lb = labels[key]
             ax.plot(temperatures, np.array(K_pred[key]) * k_fac, color=c, lw=2.2,
                     label=f"{lb} (surrogate)")
-            if K_data.get(key) is not None:
-                ax.scatter(temperatures, K_data[key] * k_fac, color=c,
+            ch = K_data.get(key)
+            if ch is not None:
+                ax.scatter(ch["T"], ch["K"] * k_fac, color=c,
                            s=60, zorder=5, marker="o",
                            label=f"{lb} (measured)")
         ax.set_xlabel("Temperature  (°C)", fontsize=9)
@@ -693,20 +693,38 @@ class ThermalInverseWindow:
             r      = self._result
             T      = np.asarray(r["temperatures"])
             curves = compute_conductivity_curves(r["p1"], r["p2"], r["l2"], r["t"], T)
-            nan_   = np.full(len(T), np.nan)
-            df     = pd.DataFrame({
-                "Temperature":   T,
+
+            # Prediction curves — all on the shared evaluation grid
+            df_pred = pd.DataFrame({
+                "T_pred":        T,
                 "K_polymer":     curves["k_polymer"],
                 "K_fiber_long":  curves["k_fiber_long"],
                 "K_fiber_trans": curves["k_fiber_trans"],
                 "K11_pred":      r["K_pred"]["K11"],
                 "K22_pred":      r["K_pred"]["K22"],
                 "K33_pred":      r["K_pred"]["K33"],
-                "K11_data":      r["K_data"]["K11"] if r["K_data"]["K11"] is not None else nan_,
-                "K22_data":      r["K_data"]["K22"] if r["K_data"]["K22"] is not None else nan_,
-                "K33_data":      r["K_data"]["K33"] if r["K_data"]["K33"] is not None else nan_,
             })
-            df.to_csv(path, index=False, float_format="%.6f")
+
+            # Experimental data — per-channel, possibly different lengths
+            exp_cols: dict[str, list] = {}
+            max_len = 0
+            for key in ("K11", "K22", "K33"):
+                ch = r["K_data"].get(key)
+                if ch is not None:
+                    exp_cols[f"T_{key}_data"] = list(ch["T"])
+                    exp_cols[f"{key}_data"]   = list(ch["K"])
+                    max_len = max(max_len, len(ch["T"]))
+            # Pad shorter columns with NaN so DataFrame is rectangular
+            for col_vals in exp_cols.values():
+                col_vals += [np.nan] * (max_len - len(col_vals))
+            df_exp = pd.DataFrame(exp_cols) if exp_cols else pd.DataFrame()
+
+            # Write prediction block, blank separator row, then experimental block
+            with open(path, "w", newline="") as fh:
+                df_pred.to_csv(fh, index=False, float_format="%.6f")
+                if not df_exp.empty:
+                    fh.write("\n")
+                    df_exp.to_csv(fh, index=False, float_format="%.6f")
             self._status_var.set(f"CSV saved: {os.path.basename(path)}")
         except Exception as exc:
             messagebox.showerror("Save error", str(exc), parent=self._win)

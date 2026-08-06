@@ -69,28 +69,37 @@ def has_inferred_data(fiber_id: int, polymer_id: int) -> bool:
 def get_completed_stages(card_id: int, fiber_id: int, polymer_id: int) -> list[str]:
     """Return which characterization stages are complete for a card.
 
-    Checks constituent_property_values for the sentinel inferred properties
-    that each stage writes:
-        elastic       → polymer inferred matrix_modulus
-        thermoelastic → fiber inferred f_cte1
-        thermal       → fiber inferred k_f1
+    A stage is complete when BOTH conditions hold:
+      1. An inference run scoped to this card exists for that stage.
+      2. At least one experimental measurement is saved for this card
+         that is relevant to that stage.
 
-    Returns a list in order, e.g. ["elastic", "thermoelastic"].
+    Stage sentinel properties (experimental measurement keys):
+        elastic       → any of: E1, E2, E3, G12, G13, G23, nu12, nu13, nu23
+        thermoelastic → any of: CTE11, CTE22, CTE33
+        thermal       → any of: k11, k22, k33, K11, K22, K33
+
+    Returns a list in stage order, e.g. ["elastic", "thermoelastic"].
     """
+    runs = _db.get_inference_runs(card_id)
+    run_stages = {r["stage"] for r in runs}
+
+    measurements = _db.get_experimental_measurements(card_id)
+    meas_props = {m["property_name"] for m in measurements}
+
+    _ELASTIC_PROPS       = {"E1", "E2", "E3", "G12", "G13", "G23", "nu12", "nu13", "nu23"}
+    _THERMOELASTIC_PROPS = {"CTE11", "CTE22", "CTE33"}
+
+    # Thermal input data is stored in thermal_k_predictions, not experimental_measurements,
+    # so we check that table directly instead of meas_props.
+    has_thermal_data = bool(_db.get_thermal_k_predictions(card_id))
+
     stages = []
-
-    def _has_inferred(ctype: str, cid: int, prop: str) -> bool:
-        rows = _db.get_constituent_properties(
-            ctype, cid, property_name=prop,
-            print_config_id=card_id, include_global=True,
-        )
-        return any(r["source_tag"] == "inferred" for r in rows)
-
-    if _has_inferred("polymer", polymer_id, "matrix_modulus"):
+    if "elastic" in run_stages and meas_props & _ELASTIC_PROPS:
         stages.append("elastic")
-    if _has_inferred("fiber", fiber_id, "f_cte1"):
+    if "thermoelastic" in run_stages and meas_props & _THERMOELASTIC_PROPS:
         stages.append("thermoelastic")
-    if _has_inferred("fiber", fiber_id, "k_f1"):
+    if ("thermal_inverse" in run_stages or "thermal" in run_stages) and has_thermal_data:
         stages.append("thermal")
 
     return stages
@@ -126,6 +135,18 @@ def add_fiber(
     )
 
 
+def update_fiber(fiber_id: int, **kwargs) -> None:
+    """Update one or more fields of an existing fiber.
+
+    Keyword arguments map directly to DB column names:
+        name, supplier,
+        neat_E1, neat_E2, neat_G12, neat_nu12, neat_nu23, neat_rho,
+        neat_CTE1, neat_CTE2, neat_k1, neat_k2, neat_notes
+    Raises ValueError if fiber_id not found or no valid fields supplied.
+    """
+    _db.update_fiber(fiber_id, kwargs)
+
+
 def add_polymer(
     name: str,
     supplier: str,
@@ -150,6 +171,18 @@ def add_polymer(
         supplier=supplier.strip(),
         neat={"E1": E1, "nu12": nu12, "rho": rho, "notes": notes},
     )
+
+
+def update_polymer(polymer_id: int, **kwargs) -> None:
+    """Update one or more fields of an existing polymer.
+
+    Keyword arguments map directly to DB column names:
+        name, supplier,
+        neat_E1, neat_E2, neat_G12, neat_nu12, neat_rho,
+        neat_CTE, neat_k, neat_notes
+    Raises ValueError if polymer_id not found or no valid fields supplied.
+    """
+    _db.update_polymer(polymer_id, kwargs)
 
 
 def add_printer(name: str, manufacturer: str = "") -> int:

@@ -20,7 +20,7 @@ Usage
     fwd = load_forward("thermal")
     predictor = make_batched_predictor(fwd)
     best_params, best_loss = run_inverse_estimation(
-        temperatures, K_data, predictor, fixed_inputs,
+        K_data, predictor, fixed_inputs,
         n_restarts=10, seed=0)
 """
 
@@ -207,8 +207,7 @@ def compute_composite_conductivity(
 
 def objective_function(
     x: np.ndarray,
-    temperatures: np.ndarray,
-    K_data: Dict[str, Optional[np.ndarray]],
+    K_data: Dict[str, Optional[Dict[str, np.ndarray]]],
     predictor: Callable,
     fixed_inputs: Dict[str, float],
 ) -> float:
@@ -218,8 +217,10 @@ def objective_function(
     Parameters
     ----------
     x            : (4,) array [p1, p2, l2, t]
-    temperatures : (N,) array of temperatures in °C
-    K_data       : dict {K11, K22, K33} → np.ndarray or None
+    K_data       : dict {K11, K22, K33} → {"T": ndarray, "K": ndarray} or None.
+                   Each channel carries its own temperature array so measurements
+                   from separate test runs can be used without aligning to a
+                   common temperature grid.
     predictor    : callable (N, 12) → (N, 6)
     fixed_inputs : structural parameters
 
@@ -228,13 +229,15 @@ def objective_function(
     loss : float — normalised MSE [(W/(m·°C))²]
     """
     params = ConstituentParams.from_array(x)
-    K_pred = compute_composite_conductivity(params, temperatures, predictor, fixed_inputs)
-
     loss, n_pts = 0.0, 0
     for key, col in [("K11", 0), ("K22", 1), ("K33", 2)]:
-        if K_data.get(key) is not None:
-            loss  += float(np.sum((K_pred[:, col] - K_data[key]) ** 2))
-            n_pts += len(temperatures)
+        ch = K_data.get(key)
+        if ch is None:
+            continue
+        K_pred = compute_composite_conductivity(params, ch["T"], predictor, fixed_inputs)
+        scale  = float(np.mean(ch["K"])) or 1.0   # per-channel mean → equal relative weight
+        loss  += float(np.sum(((K_pred[:, col] - ch["K"]) / scale) ** 2))
+        n_pts += len(ch["T"])
 
     return loss / max(n_pts, 1)
 
@@ -244,8 +247,7 @@ def objective_function(
 # ═════════════════════════════════════════════════════════════════════════════
 
 def run_inverse_estimation(
-    temperatures: np.ndarray,
-    K_data: Dict[str, Optional[np.ndarray]],
+    K_data: Dict[str, Optional[Dict[str, np.ndarray]]],
     predictor: Callable,
     fixed_inputs: Dict[str, float],
     n_restarts: int = 10,
@@ -258,8 +260,8 @@ def run_inverse_estimation(
 
     Parameters
     ----------
-    temperatures : (N,) temperatures in °C
-    K_data       : {K11, K22, K33} → np.ndarray or None
+    K_data       : {K11, K22, K33} → {"T": ndarray, "K": ndarray} or None.
+                   Each channel carries its own temperature vector.
     predictor    : callable (N, 12) → (N, 6)
     fixed_inputs : structural parameters
     n_restarts   : number of random restarts
@@ -286,7 +288,7 @@ def run_inverse_estimation(
         res = minimize(
             fun     = objective_function,
             x0      = x0,
-            args    = (temperatures, K_data, predictor, fixed_inputs),
+            args    = (K_data, predictor, fixed_inputs),
             method  = "L-BFGS-B",
             bounds  = active_bounds,
             options = {"maxiter": 2000, "ftol": 1e-15, "gtol": 1e-10},

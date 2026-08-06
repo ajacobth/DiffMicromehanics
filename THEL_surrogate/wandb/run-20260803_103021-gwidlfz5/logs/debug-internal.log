@@ -1,0 +1,39 @@
+{"time":"2026-08-03T10:30:21.145644-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.7","symlink path":"/Users/akshayjacobthomas/Documents/GitHub/DiffMicromehanics/THEL_surrogate/wandb/run-20260803_103021-gwidlfz5/logs/debug-core.log"}
+{"time":"2026-08-03T10:30:21.256703-04:00","level":"INFO","msg":"created new stream","id":"gwidlfz5"}
+{"time":"2026-08-03T10:30:21.256915-04:00","level":"INFO","msg":"stream: started","id":"gwidlfz5"}
+{"time":"2026-08-03T10:30:21.256991-04:00","level":"INFO","msg":"handler: started","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T10:30:21.257221-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T10:30:21.257237-04:00","level":"INFO","msg":"sender: started","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T10:30:21.895996-04:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-08-03T11:04:41.295964-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:41.287863-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:43.639459-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:43.655931-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:47.935892-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:48.5109-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:56.813729-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:04:57.335023-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:20:37.167423-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:20:37.16942-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:51:41.184663-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:51:43.212912-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:51:47.861777-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T11:51:55.915765-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:10:04.387733-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:10:04.387779-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:10:06.53802-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:10:11.481117-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:26:07.921903-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:43:16.730854-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:43:16.731638-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:45:17.501764-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:45:40.267049-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ai4manufacturing/THERMOELASTIC_Surrogate/gwidlfz5/file_stream\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T12:46:20.491738-04:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": dial tcp: lookup api.wandb.ai: no such host"}
+{"time":"2026-08-03T13:20:47.194288-04:00","level":"INFO","msg":"stream: closing","id":"gwidlfz5"}
+{"time":"2026-08-03T13:20:47.194614-04:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-08-03T13:20:47.200977-04:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-08-03T13:20:48.109622-04:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-08-03T13:20:49.203642-04:00","level":"INFO","msg":"writer: Close: closed","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T13:20:49.203758-04:00","level":"INFO","msg":"sender: closed","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T13:20:49.204017-04:00","level":"INFO","msg":"handler: closed","stream_id":"gwidlfz5"}
+{"time":"2026-08-03T13:20:49.204475-04:00","level":"INFO","msg":"stream: closed","id":"gwidlfz5"}

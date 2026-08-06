@@ -3,3 +3,7 @@ case_1 — 638.6 s
 case_1 — 630.5 s
 case_3 — 676.0 s
 case_4 — 664.3 s
+case_5 — 692.1 s
+case_6 — 8142.2 s
+case_6 — 992.3 s
+case_7 — 983.9 s

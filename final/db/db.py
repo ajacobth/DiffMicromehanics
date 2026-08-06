@@ -187,6 +187,33 @@ def polymer_model_inputs(polymer_id: int) -> dict[str, float]:
     return out
 
 
+def update_fiber(fiber_id: int, fields: dict) -> None:
+    """Update specific fields of an existing fiber.
+
+    Allowed keys (all optional): name, supplier,
+    neat_E1, neat_E2, neat_G12, neat_nu12, neat_nu23, neat_rho,
+    neat_CTE1, neat_CTE2, neat_k1, neat_k2, neat_notes.
+    Raises ValueError if fiber_id not found or fields is empty.
+    """
+    _ALLOWED = {
+        "name", "supplier",
+        "neat_E1", "neat_E2", "neat_G12", "neat_nu12", "neat_nu23", "neat_rho",
+        "neat_CTE1", "neat_CTE2", "neat_k1", "neat_k2", "neat_notes",
+    }
+    updates = {k: v for k, v in fields.items() if k in _ALLOWED}
+    if not updates:
+        raise ValueError("No valid fields to update.")
+    with _connect() as conn:
+        row = conn.execute("SELECT id FROM fibers WHERE id=?", (fiber_id,)).fetchone()
+        if row is None:
+            raise ValueError(f"Fiber id={fiber_id} not found.")
+        set_clause = ", ".join(f"{k}=?" for k in updates)
+        conn.execute(
+            f"UPDATE fibers SET {set_clause} WHERE id=?",
+            (*updates.values(), fiber_id),
+        )
+
+
 def add_polymer(name: str, supplier: str, neat: dict) -> int:
     """Insert a new polymer. Returns new id."""
     with _connect() as conn:
@@ -205,6 +232,33 @@ def add_polymer(name: str, supplier: str, neat: dict) -> int:
             ),
         )
     return cur.lastrowid
+
+
+def update_polymer(polymer_id: int, fields: dict) -> None:
+    """Update specific fields of an existing polymer.
+
+    Allowed keys (all optional): name, supplier,
+    neat_E1, neat_E2, neat_G12, neat_nu12, neat_rho,
+    neat_CTE, neat_k, neat_notes.
+    Raises ValueError if polymer_id not found or fields is empty.
+    """
+    _ALLOWED = {
+        "name", "supplier",
+        "neat_E1", "neat_E2", "neat_G12", "neat_nu12", "neat_rho",
+        "neat_CTE", "neat_k", "neat_notes",
+    }
+    updates = {k: v for k, v in fields.items() if k in _ALLOWED}
+    if not updates:
+        raise ValueError("No valid fields to update.")
+    with _connect() as conn:
+        row = conn.execute("SELECT id FROM polymers WHERE id=?", (polymer_id,)).fetchone()
+        if row is None:
+            raise ValueError(f"Polymer id={polymer_id} not found.")
+        set_clause = ", ".join(f"{k}=?" for k in updates)
+        conn.execute(
+            f"UPDATE polymers SET {set_clause} WHERE id=?",
+            (*updates.values(), polymer_id),
+        )
 
 
 # ── printers ──────────────────────────────────────────────────────────────────

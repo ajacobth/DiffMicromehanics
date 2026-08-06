@@ -1,0 +1,90 @@
+Normalizing dataset: input_mean (19,), input_std (19,)
+                    target_mean (15,), target_std (15,)
+Using 1 device(s).
+num_samples=131072, batch_size=512, num_batches=256, total_steps=128256
+steps_per_epoch=256
+Waiting for JIT...
+
+Epoch 1/501
+I0803 13:21:28.575299 8670306432 utils.py:148] Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+I0803 13:21:28.575482 8670306432 utils.py:160] NumExpr defaulting to 8 threads.
+[13:21:28 - main - INFO] ------------------------------
+[13:21:28 - main - INFO] Iter:   0        Time: 3.357
+[13:21:28 - main - INFO] ---------------  -------------
+[13:21:28 - main - INFO] train/mse_loss   3.129e-02
+[13:21:28 - main - INFO] train/l2_loss    2.643e+03
+[13:21:28 - main - INFO] train/val_error  3.264e-02
+
+Epoch 2/501
+[13:21:30 - main - INFO] ------------------------------
+[13:21:30 - main - INFO] Iter:   1        Time: 1.889
+[13:21:30 - main - INFO] ---------------  -------------
+[13:21:30 - main - INFO] train/mse_loss   2.452e-02
+[13:21:30 - main - INFO] train/l2_loss    2.559e+03
+[13:21:30 - main - INFO] train/val_error  2.446e-02
+
+Epoch 3/501
+[13:21:32 - main - INFO] ------------------------------
+[13:21:32 - main - INFO] Iter:   2        Time: 1.850
+[13:21:32 - main - INFO] ---------------  -------------
+[13:21:32 - main - INFO] train/mse_loss   1.595e-02
+[13:21:32 - main - INFO] train/l2_loss    2.521e+03
+[13:21:32 - main - INFO] train/val_error  1.571e-02
+
+Epoch 4/501
+[13:21:34 - main - INFO] ------------------------------
+[13:21:34 - main - INFO] Iter:   3        Time: 1.846
+[13:21:34 - main - INFO] ---------------  -------------
+[13:21:34 - main - INFO] train/mse_loss   1.415e-02
+[13:21:34 - main - INFO] train/l2_loss    2.495e+03
+[13:21:34 - main - INFO] train/val_error  1.496e-02
+
+Epoch 5/501
+[13:21:36 - main - INFO] ------------------------------
+[13:21:36 - main - INFO] Iter:   4        Time: 1.917
+[13:21:36 - main - INFO] ---------------  -------------
+[13:21:36 - main - INFO] train/mse_loss   9.875e-03
+[13:21:36 - main - INFO] train/l2_loss    2.477e+03
+[13:21:36 - main - INFO] train/val_error  1.020e-02
+
+Epoch 6/501
+[13:21:38 - main - INFO] ------------------------------
+[13:21:38 - main - INFO] Iter:   5        Time: 1.911
+[13:21:38 - main - INFO] ---------------  -------------
+[13:21:38 - main - INFO] train/mse_loss   7.970e-03
+[13:21:38 - main - INFO] train/l2_loss    2.459e+03
+[13:21:38 - main - INFO] train/val_error  8.771e-03
+
+Epoch 7/501
+[13:21:40 - main - INFO] ------------------------------
+[13:21:40 - main - INFO] Iter:   6        Time: 1.854
+[13:21:40 - main - INFO] ---------------  -------------
+[13:21:40 - main - INFO] train/mse_loss   7.485e-03
+[13:21:40 - main - INFO] train/l2_loss    2.443e+03
+[13:21:40 - main - INFO] train/val_error  8.599e-03
+
+Epoch 8/501
+[13:21:41 - main - INFO] ------------------------------
+[13:21:41 - main - INFO] Iter:   7        Time: 1.864
+[13:21:41 - main - INFO] ---------------  -------------
+[13:21:41 - main - INFO] train/mse_loss   6.486e-03
+[13:21:41 - main - INFO] train/l2_loss    2.425e+03
+[13:21:41 - main - INFO] train/val_error  7.048e-03
+
+Epoch 9/501
+[13:21:43 - main - INFO] ------------------------------
+[13:21:43 - main - INFO] Iter:   8        Time: 1.858
+[13:21:43 - main - INFO] ---------------  -------------
+[13:21:43 - main - INFO] train/mse_loss   6.410e-03
+[13:21:43 - main - INFO] train/l2_loss    2.404e+03
+[13:21:43 - main - INFO] train/val_error  7.019e-03
+
+Epoch 10/501
+[13:21:45 - main - INFO] ------------------------------
+[13:21:45 - main - INFO] Iter:   9        Time: 1.852
+[13:21:45 - main - INFO] ---------------  -------------
+[13:21:45 - main - INFO] train/mse_loss   5.652e-03
+[13:21:45 - main - INFO] train/l2_loss    2.391e+03
+[13:21:45 - main - INFO] train/val_error  6.649e-03
+
+Epoch 11/501

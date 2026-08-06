@@ -31,10 +31,26 @@ def load_thermal_data(
     path: str,
     temperature_col: str = "temperature",
     k_cols: list[str] | None = None,
-) -> tuple[np.ndarray, dict[str, np.ndarray | None]]:
+) -> dict[str, dict[str, np.ndarray] | None]:
     """Load temperature-dependent conductivity data from CSV or Excel.
 
-    Returns (temperatures, K_data) where K_data is {"K11": arr|None, ...}.
+    Returns K_data: {"K11": {"T": arr, "K": arr} | None, "K22": ..., "K33": ...}.
+
+    Two CSV layouts are accepted:
+
+    1. Shared temperature column (legacy):
+         Temperature, K11_WmK, K22_WmK, K33_WmK
+         25.6,        1.43,    0.557,    0.294
+
+    2. Per-channel temperature columns (preferred when each direction was
+       measured on a separate run at slightly different temperatures):
+         T_K11, K11_WmK, T_K22, K22_WmK, T_K33, K33_WmK
+         25.6,  1.43,    26.1,  0.557,   25.8,  0.294
+
+    The per-channel layout is detected automatically when any column named
+    t_k11, t_k22, or t_k33 is found.  Rows with NaN in a channel's own T or K
+    column are silently dropped for that channel only, so channels can have
+    different numbers of data points.
     """
     import os
     import pandas as pd
@@ -43,24 +59,52 @@ def load_thermal_data(
     ext = os.path.splitext(path)[1].lower()
     df  = pd.read_excel(path) if ext in (".xlsx", ".xls") else pd.read_csv(path)
     df.columns = [c.strip().lower() for c in df.columns]
+    df = df.dropna(how="all").reset_index(drop=True)
 
-    tcol = temperature_col.lower()
-    if tcol not in df.columns:
-        raise ValueError(
-            f"Temperature column '{temperature_col}' not found. "
-            f"Available columns: {list(df.columns)}"
-        )
-    temperatures = df[tcol].to_numpy(dtype=float)
-
-    # Column aliases: K11 → ["k11", "k11_wmk"], K22 → ["k22", "k22_wmk"], etc.
+    # Column alias maps
     _K_ALIASES = {k: [k.lower(), f"{k.lower()}_wmk"] for k in k_cols}
+    _T_ALIASES = {k: [f"t_{k.lower()}", f"t_{k.lower()}_c", f"temp_{k.lower()}"]
+                  for k in k_cols}
 
-    K_data: dict[str, np.ndarray | None] = {}
-    for col in k_cols:
-        matched = next((a for a in _K_ALIASES[col] if a in df.columns), None)
-        K_data[col] = df[matched].to_numpy(dtype=float) if matched else None
+    # Detect per-channel layout: any t_k11 / t_k22 / t_k33 column present?
+    has_per_channel = any(
+        any(a in df.columns for a in _T_ALIASES[k]) for k in k_cols
+    )
 
-    return temperatures, K_data
+    K_data: dict[str, dict[str, np.ndarray] | None] = {}
+
+    if has_per_channel:
+        for col in k_cols:
+            t_col = next((a for a in _T_ALIASES[col] if a in df.columns), None)
+            k_col = next((a for a in _K_ALIASES[col] if a in df.columns), None)
+            if t_col and k_col:
+                mask = df[[t_col, k_col]].notna().all(axis=1)
+                K_data[col] = {
+                    "T": df.loc[mask, t_col].to_numpy(dtype=float),
+                    "K": df.loc[mask, k_col].to_numpy(dtype=float),
+                }
+            else:
+                K_data[col] = None
+    else:
+        # Shared temperature column — legacy format
+        tcol = temperature_col.lower()
+        if tcol not in df.columns:
+            raise ValueError(
+                f"Temperature column '{temperature_col}' not found. "
+                f"Available columns: {list(df.columns)}"
+            )
+        temperatures = df[tcol].to_numpy(dtype=float)
+        for col in k_cols:
+            matched = next((a for a in _K_ALIASES[col] if a in df.columns), None)
+            if matched:
+                K_data[col] = {
+                    "T": temperatures.copy(),
+                    "K": df[matched].to_numpy(dtype=float),
+                }
+            else:
+                K_data[col] = None
+
+    return K_data
 
 
 def vf_to_wf(vf: float, rho_f: float, rho_m: float) -> float:
@@ -93,14 +137,14 @@ def compute_conductivity_curves(
 
 def run_thermal_inverse(
     fixed_inputs: dict[str, float],
-    temperatures: np.ndarray,
-    K_data: dict[str, np.ndarray | None],
+    K_data: dict[str, dict[str, np.ndarray] | None],
     n_restarts: int = 5,
     seed: int = 42,
     progress_cb: Optional[Callable[[int, int, float], None]] = None,
 ) -> ThermalResult:
     """Run the thermal inverse estimation.
 
+    K_data: {"K11": {"T": arr, "K": arr} | None, ...} — per-channel temperatures.
     progress_cb(restart_idx, n_restarts, current_loss) — optional callback for UI updates.
     """
     from core.inverse_thermal import (
@@ -113,7 +157,6 @@ def run_thermal_inverse(
     predictor  = make_batched_predictor(fwd_model)
 
     best_params, best_loss = run_inverse_estimation(
-        temperatures=temperatures,
         K_data=K_data,
         predictor=predictor,
         fixed_inputs=fixed_inputs,
@@ -123,8 +166,14 @@ def run_thermal_inverse(
         bounds=THERMAL_BOUNDS,
     )
 
+    # Build a sorted evaluation grid from the union of all channel temperatures
+    # so K_pred curves span the full measured range.
+    all_T = np.sort(np.unique(np.concatenate([
+        ch["T"] for ch in K_data.values() if ch is not None
+    ])))
+
     K_pred_arr = compute_composite_conductivity(
-        best_params, temperatures, predictor, fixed_inputs,
+        best_params, all_T, predictor, fixed_inputs,
     )  # (N, 3) ndarray — columns are [K11, K22, K33]
 
     return ThermalResult(
@@ -133,7 +182,7 @@ def run_thermal_inverse(
         l2=float(best_params.l2),
         t=float(best_params.t),
         best_loss=best_loss,
-        temperatures=temperatures.tolist(),
+        temperatures=all_T.tolist(),
         K_pred={
             "K11": K_pred_arr[:, 0].tolist(),
             "K22": K_pred_arr[:, 1].tolist(),

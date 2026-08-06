@@ -15,8 +15,11 @@ Current tools:
     inspect_card_inputs           — preview resolved inputs before predicting
     predict_properties            — forward prediction (elastic + thermoelastic); accepts card, DB name, or raw constituent values
     predict_thermal_conductivity  — forward prediction (thermal) at one T or across a T range; accepts card, DB name, or raw constituent values
+    compare_thermal_fit           — compare Stage 3 model predictions against experimental CSV data; reports per-channel predicted vs measured table with % errors
     add_fiber                     — add a new fiber to the material library
     add_polymer                   — add a new polymer to the material library
+    update_fiber                  — edit fields of an existing fiber (nu23, moduli, CTE, k, etc.)
+    update_polymer                — edit fields of an existing polymer (E, nu, CTE, k, etc.)
     check_identifiability         — FIM analysis: can these measurements identify these unknowns?
 """
 
@@ -173,8 +176,8 @@ _DEFAULT_BOUNDS = {
     "ar":             (5.0,    100.0),
     "matrix_modulus": (2000.0, 5000.0),
     "matrix_poisson": (0.33,    0.42),
-    "f_cte1":         (-2e-6,   5e-6),
-    "f_cte2":         (5e-6,   30e-6),
+    "f_cte1":         (-4e-6,   4e-6),
+    "f_cte2":         (7e-6,   15e-6),
     "m_cte":          (30e-6, 120e-6),
 }
 
@@ -193,7 +196,7 @@ _ELASTIC_SOLVER_CFG = {
 _TE_FREE = ["f_cte1", "f_cte2", "m_cte"]
 _TE_INIT = {
     "f_cte1":  1.5e-6,   # midpoint of bounds; carbon ~0, glass ~5e-6
-    "f_cte2": 17.5e-6,   # midpoint of bounds
+    "f_cte2": 11.0e-6,   # midpoint of bounds [7, 15] ppm/K
     "m_cte":  75.0e-6,   # midpoint of bounds; polymers typically 50-100 ppm/K
 }
 
@@ -299,7 +302,7 @@ def list_cards() -> str:
     if not configs:
         return "No material cards exist yet. Run Stage 1 (elastic inverse) to create the first card."
 
-    lines = ["MATERIAL CARDS\n"]
+    lines = [f"MATERIAL CARDS — {len(configs)} total (report all {len(configs)} to the user)\n"]
     for cfg in configs:
         fiber   = fibers.get(cfg["fiber_id"],   {})
         polymer = polymers.get(cfg["polymer_id"], {})
@@ -310,7 +313,9 @@ def list_cards() -> str:
             printer_name = pr.get("name", f"printer_id={cfg['printer_id']}")
 
         stages = _smat.get_completed_stages(cfg["id"], cfg["fiber_id"], cfg["polymer_id"])
-        stage_str = ", ".join(stages) if stages else "none"
+        stage_str      = ", ".join(stages) if stages else "none"
+        transferable   = {"elastic", "thermoelastic", "thermal"}.issubset(stages)
+        transfer_str   = "yes" if transferable else f"no (missing: {', '.join(sorted({'elastic','thermoelastic','thermal'} - set(stages)))})"
 
         fiber_name   = fiber.get("name",   f"fiber_id={cfg['fiber_id']}")
         polymer_name = polymer.get("name", f"polymer_id={cfg['polymer_id']}")
@@ -321,6 +326,7 @@ def list_cards() -> str:
             f"    Polymer: {polymer_name}\n"
             f"    Printer: {printer_name}\n"
             f"    Completed stages: {stage_str}\n"
+            f"    Transferable: {transfer_str}\n"
             f"    Created: {cfg.get('created_at','?')}"
         )
 
@@ -356,6 +362,8 @@ def get_card_status(card_id: int) -> str:
     printer_name = printer.get("name", "no printer")
 
     stages = _smat.get_completed_stages(card_id, cfg["fiber_id"], cfg["polymer_id"])
+    transferable = {"elastic", "thermoelastic", "thermal"}.issubset(stages)
+    transfer_str = "yes" if transferable else f"no (missing: {', '.join(sorted({'elastic','thermoelastic','thermal'} - set(stages)))})"
 
     lines = [
         f"CARD STATUS — \"{cfg['name']}\"  (card_id={card_id})",
@@ -363,6 +371,7 @@ def get_card_status(card_id: int) -> str:
         f"  Polymer: {polymer_name}",
         f"  Printer: {printer_name}",
         f"  Completed stages: {', '.join(stages) if stages else 'none — no inverse runs saved yet'}",
+        f"  Transferable: {transfer_str}",
     ]
 
     # ── Microstructure ─────────────────────────────────────────────────────────
@@ -1339,6 +1348,131 @@ def predict_thermal_conductivity(
     return "\n".join(lines)
 
 
+# ── Thermal fit comparison tool ───────────────────────────────────────────────
+
+@tool
+def compare_thermal_fit(card_id: int, csv_path: str) -> str:
+    """
+    Compare the card's Stage 3 thermal model predictions against experimental data.
+
+    Loads the inferred constituent thermal properties (p1, p2, k_f1, k_f2) from
+    the card, runs the forward surrogate at the experimental temperatures from the
+    CSV, and returns a per-channel table of predicted vs. measured values with
+    % errors and channel-average RMSE.
+
+    Use this whenever the user asks how the thermal model compares to measurements,
+    wants to validate the thermal fit, or asks for predicted vs experimental values.
+
+    card_id : material card with Stage 3 complete
+    csv_path: path to CSV file (relative paths resolved against final/ directory).
+              Accepted layouts:
+                Shared T  — Temperature, K11_WmK, K22_WmK, K33_WmK
+                Per-channel T — T_K11, K11_WmK, T_K22, K22_WmK, T_K33, K33_WmK
+    """
+    import numpy as np
+
+    # ── Load card inputs ──────────────────────────────────────────────────────
+    try:
+        inputs = _scards.load_card_inputs(card_id)
+    except Exception as e:
+        return f"Card load error: {e}"
+
+    # Alias normalisation
+    for src, dst in [("fiber_density", "rho_f"), ("matrix_density", "rho_m"),
+                     ("fiber_massfrac", "w_f"), ("ar", "ar_f")]:
+        if dst not in inputs and src in inputs:
+            inputs[dst] = inputs[src]
+        if src not in inputs and dst in inputs:
+            inputs[src] = inputs[dst]
+
+    struct_missing = [f for f in _THERMAL_STRUCTURAL_REQUIRED if f not in inputs]
+    if struct_missing:
+        return f"Card {card_id} is missing structural inputs: {struct_missing}. Complete Stage 1 first."
+
+    has_parametric = all(inputs.get(p) is not None for p in ("p1", "p2", "k_f1", "k_f2"))
+    has_scalar     = all(inputs.get(k) is not None for k in ("k_f1", "k_f2", "k_m"))
+    if not (has_parametric or has_scalar):
+        return (
+            f"Card {card_id} has no thermal conductivity parameters (Stage 3 not complete). "
+            "Run run_thermal_inverse first."
+        )
+
+    # ── Build ConstituentParams ───────────────────────────────────────────────
+    k_f1 = float(inputs["k_f1"])
+    k_f2 = float(inputs["k_f2"])
+    if has_parametric:
+        p1 = float(inputs["p1"])
+        p2 = float(inputs["p2"])
+    else:
+        # Scalar k_m — fit a flat polynomial: p1=0, p2=k_m
+        p1 = 0.0
+        p2 = float(inputs["k_m"])
+
+    t = k_f1 / k_f2 if k_f2 > 0 else 1.01
+    params = _ithermal.ConstituentParams(p1=p1, p2=p2, l2=k_f1, t=t)
+
+    fixed_inputs = {k: float(inputs[k]) for k in _THERMAL_STRUCTURAL_REQUIRED}
+
+    # ── Load CSV ──────────────────────────────────────────────────────────────
+    try:
+        K_data = _parse_thermal_csv(csv_path)
+    except Exception as e:
+        return f"CSV error: {e}"
+
+    # ── Load forward model ────────────────────────────────────────────────────
+    try:
+        from core.services.service_forward import get_model
+        predictor = _ithermal.make_batched_predictor(get_model("thermal"))
+    except Exception as e:
+        return f"Model load error: {e}"
+
+    # ── Evaluate per channel and build comparison table ───────────────────────
+    channel_map = [("K11", 0), ("K22", 1), ("K33", 2)]
+    lines = [
+        f"THERMAL FIT COMPARISON — Card #{card_id}",
+        f"Constituent model:  k_f1={k_f1:.4f}  k_f2={k_f2:.4f}  "
+        f"p1={p1:.4e}  p2={p2:.4f}  (k_m(T)=p1·√T+p2)",
+        "",
+    ]
+
+    summary_rows = []
+    for ch_key, col_idx in channel_map:
+        ch = K_data.get(ch_key)
+        if ch is None:
+            lines.append(f"{ch_key}: no experimental data in CSV — skipped.")
+            continue
+
+        T_exp = ch["T"]
+        K_exp = ch["K"]
+        K_pred_arr = _ithermal.compute_composite_conductivity(
+            params, T_exp, predictor, fixed_inputs
+        )
+        K_pred = K_pred_arr[:, col_idx]
+
+        residuals  = K_pred - K_exp
+        pct_errors = residuals / K_exp * 100.0
+        rmse       = float(np.sqrt(np.mean(residuals ** 2)))
+        mae_pct    = float(np.mean(np.abs(pct_errors)))
+
+        lines.append(f"{ch_key}  (RMSE={rmse:.4f} W/m·K  |  MAE={mae_pct:.1f}%)")
+        lines.append(f"  {'T (°C)':>8}  {'Exp (W/m·K)':>13}  {'Pred (W/m·K)':>13}  {'Error %':>8}")
+        lines.append(f"  {'--------':>8}  {'----------':>13}  {'-----------':>13}  {'-------':>8}")
+        for i in range(len(T_exp)):
+            lines.append(
+                f"  {T_exp[i]:>8.1f}  {K_exp[i]:>13.4f}  {K_pred[i]:>13.4f}  {pct_errors[i]:>+8.1f}%"
+            )
+        lines.append("")
+        summary_rows.append((ch_key, rmse, mae_pct))
+
+    if summary_rows:
+        lines.append("SUMMARY")
+        lines.append(f"  {'Channel':<8}  {'RMSE (W/m·K)':>14}  {'MAE (%)':>8}")
+        for ch_key, rmse, mae in summary_rows:
+            lines.append(f"  {ch_key:<8}  {rmse:>14.4f}  {mae:>8.1f}%")
+
+    return "\n".join(lines)
+
+
 # ── Parameter sweep tool ─────────────────────────────────────────────────────
 
 @tool
@@ -1590,6 +1724,114 @@ def add_polymer(
         f"  E = {E_MPa} MPa,  nu12 = {nu12},  density = {density_kg_m3} kg/m³\n"
         f"Use polymer_id={pid} in list_materials, get_material_details, and predict_properties."
     )
+
+
+@tool
+def update_fiber(
+    fiber_id: int,
+    name: Optional[str] = None,
+    supplier: Optional[str] = None,
+    E1_MPa: Optional[float] = None,
+    E2_MPa: Optional[float] = None,
+    G12_MPa: Optional[float] = None,
+    nu12: Optional[float] = None,
+    nu23: Optional[float] = None,
+    density_kg_m3: Optional[float] = None,
+    CTE1: Optional[float] = None,
+    CTE2: Optional[float] = None,
+    k1_WmK: Optional[float] = None,
+    k2_WmK: Optional[float] = None,
+    notes: Optional[str] = None,
+) -> str:
+    """
+    Edit one or more fields of an existing fiber in the material library.
+
+    fiber_id  — id from list_materials or add_fiber (required)
+
+    All other parameters are optional — only the ones you provide are changed:
+      E1_MPa, E2_MPa, G12_MPa — moduli in MPa
+      nu12, nu23               — Poisson ratios
+      density_kg_m3            — density in kg/m³
+      CTE1, CTE2               — axial/transverse CTE in 1/K (datasheet values)
+      k1_WmK, k2_WmK          — axial/transverse conductivity in W/m·K (datasheet values)
+      notes                    — free-text notes
+    """
+    field_map = {
+        "neat_E1":   E1_MPa,
+        "neat_E2":   E2_MPa,
+        "neat_G12":  G12_MPa,
+        "neat_nu12": nu12,
+        "neat_nu23": nu23,
+        "neat_rho":  density_kg_m3,
+        "neat_CTE1": CTE1,
+        "neat_CTE2": CTE2,
+        "neat_k1":   k1_WmK,
+        "neat_k2":   k2_WmK,
+        "neat_notes": notes,
+        "name":      name,
+        "supplier":  supplier,
+    }
+    updates = {k: v for k, v in field_map.items() if v is not None}
+    if not updates:
+        return "No fields specified — nothing to update."
+    try:
+        _smat.update_fiber(fiber_id, **updates)
+    except ValueError as e:
+        return f"Cannot update fiber: {e}"
+    except Exception as e:
+        return f"Database error: {e}"
+
+    changed = ", ".join(f"{k}={v}" for k, v in updates.items())
+    return f"Fiber id={fiber_id} updated successfully.\n  Changed: {changed}"
+
+
+@tool
+def update_polymer(
+    polymer_id: int,
+    name: Optional[str] = None,
+    supplier: Optional[str] = None,
+    E_MPa: Optional[float] = None,
+    nu12: Optional[float] = None,
+    density_kg_m3: Optional[float] = None,
+    CTE: Optional[float] = None,
+    k_WmK: Optional[float] = None,
+    notes: Optional[str] = None,
+) -> str:
+    """
+    Edit one or more fields of an existing polymer in the material library.
+
+    polymer_id — id from list_materials or add_polymer (required)
+
+    All other parameters are optional — only the ones you provide are changed:
+      E_MPa         — Young's modulus (matrix modulus) in MPa
+      nu12          — Poisson ratio
+      density_kg_m3 — density in kg/m³
+      CTE           — matrix CTE in 1/K (datasheet value)
+      k_WmK         — matrix thermal conductivity in W/m·K (datasheet value)
+      notes         — free-text notes
+    """
+    field_map = {
+        "neat_E1":  E_MPa,
+        "neat_nu12": nu12,
+        "neat_rho": density_kg_m3,
+        "neat_CTE": CTE,
+        "neat_k":   k_WmK,
+        "neat_notes": notes,
+        "name":     name,
+        "supplier": supplier,
+    }
+    updates = {k: v for k, v in field_map.items() if v is not None}
+    if not updates:
+        return "No fields specified — nothing to update."
+    try:
+        _smat.update_polymer(polymer_id, **updates)
+    except ValueError as e:
+        return f"Cannot update polymer: {e}"
+    except Exception as e:
+        return f"Database error: {e}"
+
+    changed = ", ".join(f"{k}={v}" for k, v in updates.items())
+    return f"Polymer id={polymer_id} updated successfully.\n  Changed: {changed}"
 
 
 @tool
@@ -2494,20 +2736,40 @@ def run_thermoelastic_inverse(
     if sigmas:
         solver_cfg["use_epsilon_loss"] = True
 
-    # ── Run inverse ───────────────────────────────────────────────────────────
-    try:
-        inv = _sinv.run_inverse(
-            model_name="thermoelastic",
-            fixed_inputs=fixed_inputs,
-            free_inputs=_TE_FREE,
-            bounds=bounds,
-            target_outputs=targets,
-            sigmas=sigmas if sigmas else None,
-            solver_cfg=solver_cfg,
-            init_vals=init_vals,
-        )
-    except Exception as e:
-        return f"Solver error: {e}"
+    # ── Multi-start: 5 runs with random init, keep best ──────────────────────
+    import random as _random
+    _N_STARTS = 5
+    _rng = _random.Random(0)
+    inv = None
+    _best_error = float("inf")
+
+    for _start in range(_N_STARTS):
+        if _start == 0:
+            _init = init_vals  # first run uses the default midpoint init
+        else:
+            _init = [
+                _rng.uniform(_DEFAULT_BOUNDS[k][0], _DEFAULT_BOUNDS[k][1])
+                for k in _TE_FREE
+            ]
+        try:
+            _result = _sinv.run_inverse(
+                model_name="thermoelastic",
+                fixed_inputs=fixed_inputs,
+                free_inputs=_TE_FREE,
+                bounds=bounds,
+                target_outputs=targets,
+                sigmas=sigmas if sigmas else None,
+                solver_cfg=solver_cfg,
+                init_vals=_init,
+            )
+            if _result["final_error"] < _best_error:
+                _best_error = _result["final_error"]
+                inv = _result
+        except Exception:
+            continue
+
+    if inv is None:
+        return "Solver error: all 5 restarts failed."
 
     # ── Cache for save_to_card ────────────────────────────────────────────────
     _pending_save.clear()
@@ -2579,63 +2841,25 @@ def run_thermoelastic_inverse(
 # ── CSV helper for run_thermal_inverse ───────────────────────────────────────
 
 def _parse_thermal_csv(csv_path: str):
-    """Parse a K vs T CSV file. Returns (temperatures, K_data).
+    """Parse a K vs T CSV. Delegates to service_thermal.load_thermal_data.
 
-    temperatures : np.ndarray, shape (N,), °C
-    K_data       : {"K11": array|None, "K22": array|None, "K33": array|None}
+    Returns K_data: {"K11": {"T": arr, "K": arr} | None, "K22": ..., "K33": ...}
 
-    Accepted column names (case-insensitive):
-      Temperature : temperature_c  temperature  t  temp_c  temp
-      K11         : k11_wmk  k11
-      K22         : k22_wmk  k22
-      K33         : k33_wmk  k33
+    Accepted layouts (auto-detected):
+      Shared T column : Temperature, K11_WmK, K22_WmK, K33_WmK
+      Per-channel T   : T_K11, K11_WmK, T_K22, K22_WmK, T_K33, K33_WmK
+
+    Relative paths are resolved against the final/ project root.
     """
-    import csv as _csv
-    import numpy as np
-
-    _T_ALIASES = {"temperature_c", "temperature", "t", "temp_c", "temp"}
-    _K_ALIASES = {
-        "K11": {"k11_wmk", "k11"},
-        "K22": {"k22_wmk", "k22"},
-        "K33": {"k33_wmk", "k33"},
-    }
-
     path = Path(csv_path)
+    if not path.is_absolute():
+        path = _FINAL / csv_path
     if not path.exists():
-        raise FileNotFoundError(f"CSV not found: {csv_path}")
-
-    with open(path, newline="") as f:
-        reader = _csv.DictReader(f)
-        if not reader.fieldnames:
-            raise ValueError("CSV has no header row.")
-        raw = {h.strip().lower(): h for h in reader.fieldnames}
-
-        t_col = next((raw[a] for a in _T_ALIASES if a in raw), None)
-        if t_col is None:
-            raise ValueError(
-                f"No temperature column found in CSV. Expected one of: {sorted(_T_ALIASES)}"
-            )
-
-        k_cols = {
-            key: next((raw[a] for a in aliases if a in raw), None)
-            for key, aliases in _K_ALIASES.items()
-        }
-
-        rows = list(reader)
-
-    if not rows:
-        raise ValueError("CSV is empty (no data rows).")
-
-    temps = np.array([float(r[t_col]) for r in rows])
-    K_data = {
-        key: np.array([float(r[col]) for r in rows]) if col else None
-        for key, col in k_cols.items()
-    }
-
-    if K_data["K11"] is None:
+        raise FileNotFoundError(f"CSV not found: {path}")
+    K_data = _sthermal.load_thermal_data(str(path))
+    if K_data.get("K11") is None:
         raise ValueError("K11 column is required but was not found in the CSV.")
-
-    return temps, K_data
+    return K_data
 
 
 @tool
@@ -2774,18 +2998,17 @@ def run_thermal_inverse(
 
     # ── Parse CSV ─────────────────────────────────────────────────────────────
     try:
-        temperatures, K_data = _sthermal.load_thermal_data(csv_path)
+        K_data = _parse_thermal_csv(csv_path)
     except Exception as e:
         return f"CSV error: {e}"
 
-    n_temps   = len(temperatures)
+    n_temps   = sum(ch["T"].shape[0] for ch in K_data.values() if ch is not None)
     k_present = [k for k, v in K_data.items() if v is not None]
 
     # ── Run inverse estimation ────────────────────────────────────────────────
     try:
         result = _sthermal.run_thermal_inverse(
             fixed_inputs=fixed_inputs,
-            temperatures=temperatures,
             K_data=K_data,
             n_restarts=n_restarts,
             seed=0,
@@ -2801,6 +3024,7 @@ def run_thermal_inverse(
         "polymer_id": polymer_id,
         "printer_id": printer_id,
         "card_name":  card_name,
+        "card_id":    card_id if card_id != -1 else None,
     }
 
     # ── Format output ─────────────────────────────────────────────────────────
@@ -2877,18 +3101,29 @@ def run_transfer(
     G12_sigma_MPa: float = 0.0,
     nu12_sigma: float = 0.0,
     ar: Optional[float] = None,
+    a33: Optional[float] = None,
+    a12: float = 0.0,
+    a13: float = 0.0,
+    a23: float = 0.0,
 ) -> str:
     """Stage 4 — Transfer constituent properties from a fully-characterized source card
     to a new printer by re-running the elastic inverse with constituent properties fixed.
 
-    Free parameters: orientation tensor (a11, a22). If ar is not provided, AR is also
+    Free parameters: a11, a22 (orientation in-plane). If ar is not provided, AR is also
     inferred — run check_identifiability first to verify it is identifiable.
+
+    Off-diagonal orientation terms (a12, a13, a23) default to 0.0 (fixed). Override
+    only if you have a reason to believe they are non-zero.
 
     source_card_id : card that is fully characterized (elastic + thermoelastic + thermal).
     new_printer    : name of the target printer (must exist in the database).
     E*_MPa / nu*   : elastic measurements on the new printer (-1.0 to omit).
     ar             : fiber aspect ratio. If known (e.g. from micro-CT), pass it here to
                      fix it. If omitted, AR is inferred from the elastic measurements.
+    a33            : expected out-of-plane orientation (a33 = 1 - a11 - a22). Providing
+                     this caps a11 + a22 ≤ 1 - a33, preventing the solver from using up
+                     all orientation in-plane. Typical LSAM value: 0.10–0.15.
+    a12, a13, a23  : off-diagonal orientation tensor components (default 0.0 = fixed).
     """
     # ── Pre-flight 1: source card exists ─────────────────────────────────────
     card = _db.get_print_config(source_card_id)
@@ -2900,7 +3135,7 @@ def run_transfer(
     fiber_id   = card["fiber_id"]
     polymer_id = card["polymer_id"]
 
-    # ── Pre-flight 2: fully characterized ────────────────────────────────────
+    # ── Pre-flight 2: source card must be fully characterized ────────────────
     stages   = _smat.get_completed_stages(source_card_id, fiber_id, polymer_id)
     required = {"elastic", "thermoelastic", "thermal"}
     missing  = required - set(stages)
@@ -2969,6 +3204,23 @@ def run_transfer(
     if ar is not None:
         fixed_micro["ar"] = float(ar)
 
+    # Off-diagonal orientation terms are fixed (default 0.0 — physically reasonable
+    # for printed composites; user can override via a12/a13/a23 args).
+    fixed_micro["a12"] = float(a12)
+    fixed_micro["a13"] = float(a13)
+    fixed_micro["a23"] = float(a23)
+
+    # a33 caps the in-plane sum: tighten the upper bound on a11 + a22.
+    # service_transfer uses per-field bounds; cap both a11 and a22 so their
+    # maximum combined value cannot exceed 1 - a33.
+    extra_bounds: dict[str, tuple[float, float]] | None = None
+    if a33 is not None:
+        in_plane_max = max(0.01, 1.0 - float(a33))
+        extra_bounds = {
+            "a11": (0.0, in_plane_max),
+            "a22": (0.0, in_plane_max),
+        }
+
     # ── Run transfer solver ───────────────────────────────────────────────────
     try:
         result = _stransfer.run_transfer(
@@ -2976,6 +3228,7 @@ def run_transfer(
             target_outputs=target_outputs,
             sigmas=sigmas or None,
             fixed_micro=fixed_micro,
+            bounds=extra_bounds,
         )
     except Exception as e:
         return f"Transfer solver error: {e}"
@@ -3011,11 +3264,19 @@ def run_transfer(
     ar_status = "fixed" if ar is not None else "inferred"
     mf_val    = fixed_micro.get("fiber_massfrac", "—")
 
+    _a11 = micro.get("a11", 0.0)
+    _a22 = micro.get("a22", 0.0)
+    _a33 = 1.0 - _a11 - _a22
+
     lines += [
         "",
         f"INFERRED MICROSTRUCTURE ({new_printer}):",
-        f"  a11              = {micro.get('a11', 0.0):.4f}",
-        f"  a22              = {micro.get('a22', 0.0):.4f}",
+        f"  a11              = {_a11:.4f}  (inferred)",
+        f"  a22              = {_a22:.4f}  (inferred)",
+        f"  a33              = {_a33:.4f}  (= 1 - a11 - a22)" + (f"  [target: {a33:.4f}]" if a33 is not None else ""),
+        f"  a12              = {fixed_micro['a12']:.4f}  (fixed)",
+        f"  a13              = {fixed_micro['a13']:.4f}  (fixed)",
+        f"  a23              = {fixed_micro['a23']:.4f}  (fixed)",
         f"  ar               = {ar_val:.2f}  ({ar_status})" if ar_val else f"  ar               = — ({ar_status})",
         f"  fiber_massfrac   = {mf_val:.4f}  (fixed from source card)" if isinstance(mf_val, float) else f"  fiber_massfrac   = {mf_val}",
         "",
@@ -3300,6 +3561,9 @@ def save_to_card(card_name: str = "", card_id: int = -1) -> str:
             )
 
         if result.get("model") == "thermal":
+            # Fall back to the card_id captured during run_thermal_inverse
+            if card_id == -1:
+                card_id = meta.get("card_id") or -1
             if card_id == -1:
                 return (
                     "Thermal results must be saved to an existing card. "
@@ -3668,8 +3932,11 @@ TOOLS = [
     get_model_inputs_outputs,
     predict_properties,
     predict_thermal_conductivity,
+    compare_thermal_fit,
     add_fiber,
     add_polymer,
+    update_fiber,
+    update_polymer,
     add_printer,
     check_identifiability,
     sweep_parameter,
