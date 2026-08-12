@@ -887,19 +887,6 @@ def predict_properties(
         except Exception as e:
             return f"Database error loading card: {e}"
 
-    elif fiber_name.strip() and polymer_name.strip():
-        try:
-            fiber_id, polymer_id = _resolve_fiber_polymer(fiber_name, polymer_name)
-            inputs = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
-            source_label = f"Datasheets: {fiber_name.strip()} / {polymer_name.strip()}"
-            for od in ("a12", "a13", "a23"):
-                if od not in inputs:
-                    inputs[od] = 0.0
-        except ValueError as e:
-            return str(e)
-        except Exception as e:
-            return f"Database error loading materials: {e}"
-
     elif fiber_E1_MPa > 0:
         # Option C: all constituent properties provided directly — no DB needed
         inputs = {
@@ -916,6 +903,20 @@ def predict_properties(
         }
         inputs = {k: v for k, v in inputs.items() if v is not None}
         source_label = "Explicit constituent inputs (no DB)"
+
+    elif fiber_name.strip() and polymer_name.strip():
+        # Option B: DB lookup by name — only reached when fiber_E1_MPa not provided
+        try:
+            fiber_id, polymer_id = _resolve_fiber_polymer(fiber_name, polymer_name)
+            inputs = _smat.get_model_inputs(fiber_id, polymer_id, use_inferred=True)
+            source_label = f"Datasheets: {fiber_name.strip()} / {polymer_name.strip()}"
+            for od in ("a12", "a13", "a23"):
+                if od not in inputs:
+                    inputs[od] = 0.0
+        except ValueError as e:
+            return str(e)
+        except Exception as e:
+            return f"Database error loading materials: {e}"
 
     else:
         return (
@@ -1475,11 +1476,21 @@ def compare_thermal_fit(card_id: int, csv_path: str) -> str:
 
 # ── Parameter sweep tool ─────────────────────────────────────────────────────
 
+_SWEEP_AUTO_RANGE: dict[str, tuple[float, float]] = {
+    "fiber_massfrac": (0.05, 0.45),
+    "a11": (0.05, 0.90), "a22": (0.05, 0.70),
+    "ar": (5.0, 100.0), "matrix_modulus": (1000.0, 10000.0),
+    "matrix_poisson": (0.20, 0.45),
+    "f_cte1": (-2e-6, 0.0), "f_cte2": (5e-6, 30e-6), "m_cte": (30e-6, 100e-6),
+}
+
 @tool
 def sweep_parameter(
     parameter: str,
-    values: list[float],
     target_property: str = "E1",
+    x_min: float = -1.0,
+    x_max: float = -1.0,
+    n_points: int = 6,
     card_id: int = -1,
     fiber_name: str = "",
     polymer_name: str = "",
@@ -1501,38 +1512,29 @@ def sweep_parameter(
     matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
-    Sweep one microstructure or constituent parameter over a list of values
-    and show how a target composite property changes. Use for what-if analysis,
-    e.g. "how much do I need to increase fiber_massfrac to reach E1 = 13 GPa?"
+    Sweep one microstructure or constituent parameter across a range and show
+    how a target composite property changes. Use for what-if analysis,
+    e.g. "how does E1 change as fiber_massfrac increases from 0.10 to 0.25?"
 
     Three ways to specify the base material system — pick ONE:
       1. card_id >= 0: load everything from a saved card.
-      2. fiber_name + polymer_name + microstructure fields (a11, a22, fiber_massfrac, ar):
-         use when no card exists yet. All microstructure fields not being swept must
-         be provided explicitly.
-      3. Explicit constituent values (fiber_E1_MPa > 0, no card or DB name needed):
-         provide all fiber moduli, densities, and matrix properties directly.
-         Microstructure fields (a11, a22, fiber_massfrac, ar) must still be given,
-         except for the parameter being swept.
+      2. fiber_name + polymer_name + microstructure fields (a11, a22, fiber_massfrac, ar).
+      3. Explicit constituent values (fiber_E1_MPa > 0, no card or DB name needed).
 
     Parameters
     ----------
-    parameter            : ar | a11 | a22 | fiber_massfrac | matrix_modulus | matrix_poisson
-    values               : list of values to try, e.g. [0.10, 0.15, 0.20, 0.25]
-    target_property      : output to highlight, e.g. "E1", "E2", "G12", "CTE11"
-    card_id              : card to base sweep on (option 1)
-    fiber_name           : fiber material name (option 2)
-    polymer_name         : polymer material name (option 2)
-    a11, a22, a12, a13, a23, fiber_massfrac, ar : microstructure (options 2 & 3)
-    matrix_modulus_MPa, matrix_poisson           : matrix elastic properties (options 2 & 3)
-    fiber_E1_MPa         : fiber axial modulus in MPa — triggers option 3 when > 0
-    fiber_E2_MPa         : fiber transverse modulus in MPa
-    fiber_G12_MPa        : fiber shear modulus in MPa
-    fiber_nu12           : fiber axial Poisson ratio
-    fiber_nu23           : fiber transverse Poisson ratio
-    fiber_density_kg_m3  : fiber density in kg/m³
-    matrix_density_kg_m3 : matrix density in kg/m³
+    parameter       : fiber_massfrac | a11 | a22 | ar | matrix_modulus | matrix_poisson
+    target_property : output to report, e.g. "E1", "E2", "G12", "CTE11"
+    x_min, x_max    : sweep range — auto-detected from physical bounds if omitted
+    n_points        : number of evenly spaced points (default 6)
     """
+    # Generate sweep values from range
+    auto_lo, auto_hi = _SWEEP_AUTO_RANGE.get(parameter, (0.0, 1.0))
+    lo = auto_lo if x_min == -1.0 else x_min
+    hi = auto_hi if x_max == -1.0 else x_max
+    step = (hi - lo) / max(n_points - 1, 1)
+    values = [round(lo + i * step, 8) for i in range(n_points)]
+
     base_inputs = None
 
     if card_id < 0:
@@ -2135,7 +2137,7 @@ def _resolve_fiber_polymer(fiber_name: str, polymer_name: str) -> tuple[int, int
 def _resolve_material_ids(
     fiber_name: str, polymer_name: str, printer_name: str
 ) -> tuple[int, int, int]:
-    """Resolve material names to DB IDs. Supports partial/case-insensitive matching."""
+    """Resolve material names to DB IDs. Exact match wins; falls back to substring."""
     all_fibers   = _db.get_all_fibers()
     all_polymers = _db.get_all_polymers()
     all_printers = _db.get_all_printers()
@@ -2143,34 +2145,28 @@ def _resolve_material_ids(
     pn = polymer_name.strip().lower()
     rn = printer_name.strip().lower()
 
-    fiber_matches = [f for f in all_fibers if fn in f["name"].lower()]
-    if not fiber_matches:
-        raise ValueError(
-            f"Fiber '{fiber_name}' not found. Available: {', '.join(f['name'] for f in all_fibers)}"
-        )
-    if len(fiber_matches) > 1:
-        names = ", ".join(f["name"] for f in fiber_matches)
-        raise ValueError(f"Fiber '{fiber_name}' matches multiple entries: {names}. Be more specific.")
+    def _resolve(query: str, items: list, label: str) -> dict:
+        exact = [x for x in items if query == x["name"].lower()]
+        if len(exact) == 1:
+            return exact[0]
+        sub = [x for x in items if query in x["name"].lower()]
+        if not sub:
+            raise ValueError(
+                f"{label} '{query}' not found. Available: {', '.join(x['name'] for x in items)}"
+            )
+        if len(sub) == 1:
+            return sub[0]
+        # Multiple substring matches: prefer the shortest (most base) name
+        by_len = sorted(sub, key=lambda x: len(x["name"]))
+        if len(by_len[0]["name"]) < len(by_len[1]["name"]):
+            return by_len[0]
+        names = ", ".join(x["name"] for x in sub)
+        raise ValueError(f"{label} '{query}' matches multiple entries: {names}. Be more specific.")
 
-    polymer_matches = [p for p in all_polymers if pn in p["name"].lower()]
-    if not polymer_matches:
-        raise ValueError(
-            f"Polymer '{polymer_name}' not found. Available: {', '.join(p['name'] for p in all_polymers)}"
-        )
-    if len(polymer_matches) > 1:
-        names = ", ".join(p["name"] for p in polymer_matches)
-        raise ValueError(f"Polymer '{polymer_name}' matches multiple entries: {names}. Be more specific.")
-
-    printer_matches = [p for p in all_printers if rn in p["name"].lower()]
-    if not printer_matches:
-        raise ValueError(
-            f"Printer '{printer_name}' not found. Available: {', '.join(p['name'] for p in all_printers)}"
-        )
-    if len(printer_matches) > 1:
-        names = ", ".join(p["name"] for p in printer_matches)
-        raise ValueError(f"Printer '{printer_name}' matches multiple entries: {names}. Be more specific.")
-
-    return fiber_matches[0]["id"], polymer_matches[0]["id"], printer_matches[0]["id"]
+    fiber   = _resolve(fn, all_fibers,   "Fiber")
+    polymer = _resolve(pn, all_polymers, "Polymer")
+    printer = _resolve(rn, all_printers, "Printer")
+    return fiber["id"], polymer["id"], printer["id"]
 
 
 @tool

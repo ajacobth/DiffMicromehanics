@@ -5,6 +5,7 @@ Run from final/:
     streamlit run app_chat.py
 """
 
+import random
 import sys
 import uuid
 from pathlib import Path
@@ -35,14 +36,41 @@ PROMPTS_DIR = _FINAL / "agent" / "prompts"
 
 # ── Model selection — change ACTIVE_MODEL to switch ──────────────────────────
 MODELS = {
-    "haiku":   ("anthropic", "claude-haiku-4-5-20251001"),
-    "sonnet":  ("anthropic", "claude-sonnet-4-6"),
-    "local":   ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
-    "local32": ("ollama",    "qwen2.5:32b-instruct-q3_K_M"),
-    "local2":  ("ollama",    "qwen3:8b"),
-    "local3":  ("ollama",    "qwen3:14b"),
+    "haiku":    ("anthropic", "claude-haiku-4-5-20251001"),
+    "sonnet":   ("anthropic", "claude-sonnet-4-6"),
+    "local":    ("ollama",    "qwen2.5:14b-instruct-q4_K_M"),
+    "local_q8": ("ollama",    "qwen2.5:14b-instruct-q8_0"),
+    "local32":  ("ollama",    "qwen2.5:32b-instruct-q3_K_M"),
+    "local2":   ("ollama",    "qwen3:8b"),
+    "local3":   ("ollama",    "qwen3:14b"),
 }
-ACTIVE_MODEL = "local2"  # ← change this: "haiku" | "sonnet" | "local" | "local32" | "local2" | "local3"
+# Context window per model — balances speed (prefill ∝ num_ctx) vs capacity
+MODEL_CTX = {
+    "haiku":    None,   # cloud — no num_ctx
+    "sonnet":   None,
+    "local":    8192,   # 14B Q4 — fast prefill, fits system prompt (~7500 tok)
+    "local_q8": 16384,  # 14B Q8 — larger ctx, still fast on 32GB
+    "local32":  16384,
+    "local2":   None,   # 8B — use Ollama default (matches last working commit)
+    "local3":   12288,
+}
+ACTIVE_MODEL = "local2"  # ← change this: "haiku" | "sonnet" | "local" | "local_q8" | "local32" | "local2" | "local3"
+
+_THINKING_MSGS = [
+    "Consulting the orientation tensor…",
+    "Homogenizing the microstructure…",
+    "Warming up the surrogate…",
+    "Exploring Jeffrey's orbit"
+    "Checking the stiffness matrix…",
+    "Running Mori-Tanaka in my head…",
+    "Crunching fiber orientations…",
+    "Asking the neural network nicely…",
+    "Computing effective properties…",
+    "Browsing the material card library…",
+    "Untangling the CTE coupling…",
+    "Aligning the fibers…",
+    "Ensuring FAA complaince…"
+]
 
 
 def _build_llm():
@@ -51,7 +79,16 @@ def _build_llm():
         return ChatAnthropic(model=model_id, temperature=0)
     think = False if model_id.startswith("qwen3") else None
     kwargs = {"think": think} if think is not None else {}
-    return ChatOllama(model=model_id, temperature=0, streaming=True, **kwargs)
+    ctx = MODEL_CTX.get(ACTIVE_MODEL)
+    if ctx is not None:
+        kwargs["num_ctx"] = ctx
+    return ChatOllama(
+        model=model_id,
+        temperature=0,
+        streaming=True,
+        keep_alive=-1,     # keep model loaded between turns (default: unload after 5 min)
+        **kwargs,
+    )
 
 
 # ── Cached resources (survive Streamlit reruns) ───────────────────────────────
@@ -188,6 +225,9 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
         text_box    = st.empty()          # live-updating token display
         full_text   = ""
         tools_shown = []                  # (tool_name, output) pairs for this turn
+
+        # Show a fun waiting message until the first token arrives
+        text_box.markdown(f"*{random.choice(_THINKING_MSGS)}*")
 
         # Track which tool is currently "in flight"
         active_tool_name   = None

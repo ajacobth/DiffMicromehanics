@@ -1,0 +1,22 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T1,E1,12268.9,,True,2,108.83,
+T1,E2,3118.2,,True,2,108.83,
+T1,G12,1591.9,,True,2,108.83,
+T1,nu12,0.36221,,True,2,108.83,
+T1,CTE11,3.8918e-06,,True,2,108.83,
+T1,CTE22,5.3591e-05,,True,2,108.83,
+T1,CTE33,3.2029e-05,,True,2,108.83,
+T2,E1,8885.5,,True,1,128.82,
+T2,E2,3433.5,,True,1,128.82,
+T2,G12,1808.6,,True,1,128.82,
+T2,nu12,0.38423,,True,1,128.82,
+T2,CTE11,,,True,1,128.82,not found in output
+T2,CTE22,,,True,1,128.82,not found in output
+T2,CTE33,,,True,1,128.82,not found in output
+T3,E1,6533.0,,True,2,137.07,
+T3,E2,6461.8,,True,2,137.07,
+T3,G12,2517.0,,True,2,137.07,
+T3,nu12,0.29809,,True,2,137.07,
+T3,CTE11,1.8908e-05,,True,2,137.07,
+T3,CTE22,1.941e-05,,True,2,137.07,
+T3,CTE33,8.6544e-05,,True,2,137.07,

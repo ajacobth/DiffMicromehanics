@@ -1,0 +1,8 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T2,E1,,,True,1,59.54,not found in output
+T2,E2,,,True,1,59.54,not found in output
+T2,G12,,,True,1,59.54,not found in output
+T2,nu12,,,True,1,59.54,not found in output
+T2,CTE11,,,True,1,59.54,not found in output
+T2,CTE22,,,True,1,59.54,not found in output
+T2,CTE33,,,True,1,59.54,not found in output

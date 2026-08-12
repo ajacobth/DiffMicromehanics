@@ -1,0 +1,22 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T1,E1,12268.9,,True,1,81.37,
+T1,E2,3118.2,,True,1,81.37,
+T1,G12,1591.9,,True,1,81.37,
+T1,nu12,0.36221,,True,1,81.37,
+T1,CTE11,3.8918e-06,,True,1,81.37,
+T1,CTE22,5.3591e-05,,True,1,81.37,
+T1,CTE33,3.2029e-05,,True,1,81.37,
+T2,E1,8885.5,,True,1,79.61,
+T2,E2,3433.5,,True,1,79.61,
+T2,G12,1808.6,,True,1,79.61,
+T2,nu12,0.38423,,True,1,79.61,
+T2,CTE11,9.2517e-06,,True,1,79.61,
+T2,CTE22,5.1659e-05,,True,1,79.61,
+T2,CTE33,6.4816e-05,,True,1,79.61,
+T3,E1,,,False,0,76.05,wrong tool: None
+T3,E2,,,False,0,76.05,wrong tool: None
+T3,G12,,,False,0,76.05,wrong tool: None
+T3,nu12,,,False,0,76.05,wrong tool: None
+T3,CTE11,,,False,0,76.05,wrong tool: None
+T3,CTE22,,,False,0,76.05,wrong tool: None
+T3,CTE33,,,False,0,76.05,wrong tool: None

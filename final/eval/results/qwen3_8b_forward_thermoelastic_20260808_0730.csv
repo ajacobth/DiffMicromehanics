@@ -1,0 +1,8 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T3,E1,,,False,0,129.42,wrong tool: None
+T3,E2,,,False,0,129.42,wrong tool: None
+T3,G12,,,False,0,129.42,wrong tool: None
+T3,nu12,,,False,0,129.42,wrong tool: None
+T3,CTE11,,,False,0,129.42,wrong tool: None
+T3,CTE22,,,False,0,129.42,wrong tool: None
+T3,CTE33,,,False,0,129.42,wrong tool: None

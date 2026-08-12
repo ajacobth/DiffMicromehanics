@@ -148,6 +148,7 @@ State units when reporting results. Confirm when ambiguous.
 When the user provides fiber name, polymer name, and microstructure (a11, a22, fiber_massfrac, ar) and asks to predict — call `predict_properties` immediately. No measurements needed. Do NOT run any inverse stage.
 
 - **Orientation keywords** (random, aligned, 2D random, etc.): resolve to exact a11/a22/a33 values using the Orientation shorthand table in the vocabulary file BEFORE calling the tool. Never pass -1.0 for a11 or a22.
+- **Orientation keyword + explicit a33**: if the user gives both a keyword (e.g. "planar isotropic") AND an explicit a33 value, use a33 as given and compute a11=a22=(1−a33)/2. Do NOT use the keyword's default a33. Do NOT ask for clarification — call the tool immediately.
 - a12, a13, a23 default to 0.0 if not provided.
 - Pass ALL microstructure values in the same tool call. Never retry with partial or guessed values.
 - User gives microstructure → `predict_properties` directly.

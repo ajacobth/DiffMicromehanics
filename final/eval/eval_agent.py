@@ -318,8 +318,15 @@ def write_csv(run_results: list[dict], model_tag: str) -> Path:
     """
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     ts       = datetime.now().strftime("%Y%m%d_%H%M")
-    safe_tag = model_tag.replace(":", "_").replace("/", "_")
-    path     = RESULTS_DIR / f"eval_{safe_tag}_{ts}.csv"
+    # short model name: "qwen3:8b" → "qwen3_8b", "qwen2.5:14b-instruct-q4_K_M" → "qwen2.5_14b_q4"
+    m = model_tag.split(":")[0] + "_" + model_tag.split(":")[-1].split("-")[0] if ":" in model_tag else model_tag
+    safe_model = m.replace(".", "_")
+    # category label from keys present in results
+    cats = {r["key"][0] if not r["key"].startswith("I") else r["key"][:2] for r in run_results}
+    _CAT_LABEL = {"E": "forward_elastic", "T": "forward_thermoelastic", "K": "forward_thermal",
+                  "IE": "inverse_elastic", "IT": "inverse_thermoelastic", "IK": "inverse_thermal"}
+    cat_str = "_".join(_CAT_LABEL.get(c, c) for c in sorted(cats)) if len(cats) == 1 else "mixed"
+    path     = RESULTS_DIR / f"{safe_model}_{cat_str}_{ts}.csv"
 
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(
@@ -713,7 +720,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--run",       action="store_true", help="Run agent on benchmark prompts")
     p.add_argument("--score",     metavar="CSV",       help="Score a filled CSV file")
     p.add_argument("--worksheet", action="store_true", help="Print GUI worksheet only (no agent run)")
-    p.add_argument("--model",     default="14b",       help="Model alias: 14b (default) or 32b")
+    p.add_argument("--model",     default="8b",        help="Model alias: 8b (default), 14b, 32b")
     p.add_argument("--keys",      nargs="+",           help="Subset of prompt keys, e.g. E1 T4 S1")
     return p.parse_args()
 
@@ -786,7 +793,7 @@ def main() -> None:
         run_results.append(result)
 
         if result["error"]:
-            status = "ERROR"
+            status = f"ERROR: {result['error']}"
         elif not result["tool_correct"]:
             status = f"✗ wrong tool ({result['first_tool']})"
         elif result["predicted"]:
