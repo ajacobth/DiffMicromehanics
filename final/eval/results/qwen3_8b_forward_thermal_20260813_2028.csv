@@ -1,0 +1,16 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+K1,k11_25C,,,True,1,10.32,not found in output
+K1,k22_25C,,,True,1,10.32,not found in output
+K1,k33_25C,,,True,1,10.32,not found in output
+K2,k11_50C,1.44309,,True,2,23.85,
+K2,k22_50C,0.76981,,True,2,23.85,
+K2,k33_50C,0.65795,,True,2,23.85,
+K2,k11_100C,1.52431,,True,2,23.85,
+K2,k22_100C,0.84221,,True,2,23.85,
+K2,k33_100C,0.73022,,True,2,23.85,
+K3,k11_25C,0.884,,True,4,43.12,
+K3,k22_25C,0.8558,,True,4,43.12,
+K3,k33_25C,0.86939,,True,4,43.12,
+K3,k11_100C,0.998,,True,4,43.12,
+K3,k22_100C,0.96739,,True,4,43.12,
+K3,k33_100C,0.98715,,True,4,43.12,

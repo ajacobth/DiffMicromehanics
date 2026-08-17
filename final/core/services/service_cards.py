@@ -476,6 +476,22 @@ def save_transfer_result(
             notes="Transfer target",
         )
 
+    # Save re-inferred constituent properties card-locally (NOT global NULL).
+    # These are printer-specific values (e.g. in-situ Em differs between printers)
+    # and must not overwrite the source card's globally-stored values.
+    source_card = _db.get_print_config(source_card_id)
+    for prop_name, value in result.get("reinferred_constituents", {}).items():
+        _db.save_constituent_property(
+            constituent_type="polymer",
+            constituent_id=source_card["polymer_id"],
+            property_name=prop_name,
+            value=float(value),
+            source_tag="inferred",
+            print_config_id=cfg_id,
+            inference_run_id=run_id,
+            notes=f"Re-inferred during transfer from card id={source_card_id}",
+        )
+
     # Save all forward predictions across all three models
     predictions = result.get("predictions", {})
     for model_name, preds in predictions.items():

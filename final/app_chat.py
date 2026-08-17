@@ -51,8 +51,8 @@ MODEL_CTX = {
     "local":    8192,   # 14B Q4 — fast prefill, fits system prompt (~7500 tok)
     "local_q8": 16384,  # 14B Q8 — larger ctx, still fast on 32GB
     "local32":  16384,
-    "local2":   None,   # 8B — use Ollama default (matches last working commit)
-    "local3":   12288,
+    "local2":   None,   # 8B — Ollama default (40960); explicit ctx made it slower
+    "local3":   None,    # 14B — Ollama default; explicit ctx was slower
 }
 ACTIVE_MODEL = "local2"  # ← change this: "haiku" | "sonnet" | "local" | "local_q8" | "local32" | "local2" | "local3"
 
@@ -77,8 +77,8 @@ def _build_llm():
     provider, model_id = MODELS[ACTIVE_MODEL]
     if provider == "anthropic":
         return ChatAnthropic(model=model_id, temperature=0)
-    think = False if model_id.startswith("qwen3") else None
-    kwargs = {"think": think} if think is not None else {}
+    # ChatOllama 0.3.x uses `reasoning` (maps to Ollama's `think` field); `think` kwarg is ignored
+    kwargs = {"reasoning": True} if model_id.startswith("qwen3") else {}
     ctx = MODEL_CTX.get(ACTIVE_MODEL)
     if ctx is not None:
         kwargs["num_ctx"] = ctx
@@ -178,20 +178,6 @@ with st.sidebar:
         st.session_state.display_msgs = []
         st.rerun()
 
-    st.divider()
-    st.caption("Tips")
-    st.markdown(
-        "**Prefix your message with:**\n\n"
-        "- `PREDICT` — forward prediction\n"
-        "- `INVERSE` — characterize from measurements\n"
-        "- `SEARCH` — material lookup / theory\n\n"
-        "**Examples:**\n\n"
-        "- *\"PREDICT card 1\"*\n"
-        "- *\"INVERSE elastic stage for T300/PESU\"*\n"
-        "- *\"SEARCH what is the modulus of carbon fiber\"*\n"
-        "- *\"what cards do we have\"*\n"
-        "- *\"can I infer a11 from E1?\"*"
-    )
 
 
 # ── Chat history ──────────────────────────────────────────────────────────────
@@ -210,7 +196,7 @@ for msg in st.session_state.display_msgs:
 
 # ── Input and streaming response ──────────────────────────────────────────────
 
-if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your composite materials…"):
+if prompt := st.chat_input("Ask about your composite materials…"):
 
     # Show user message immediately
     st.session_state.display_msgs.append({"role": "user", "content": prompt, "tools": []})
@@ -233,6 +219,11 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
         active_tool_name   = None
         active_tool_status = None
 
+        # Track thinking (reasoning) token stream
+        thinking_status = None
+        thinking_box    = None
+        thinking_text   = ""
+
         try:
             for chunk, metadata in app.stream(
                 {"messages": [HumanMessage(content=prompt)]},
@@ -241,6 +232,20 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
             ):
                 # ── LLM output ────────────────────────────────────────────
                 if isinstance(chunk, AIMessageChunk):
+
+                    # Surface Qwen3 reasoning/thinking tokens
+                    raw_thinking = (
+                        chunk.additional_kwargs.get("reasoning_content") or
+                        chunk.additional_kwargs.get("thinking") or
+                        ""
+                    )
+                    if raw_thinking:
+                        if thinking_status is None:
+                            text_box.empty()   # remove the waiting message
+                            thinking_status = st.status("Reasoning…", expanded=True)
+                            thinking_box    = thinking_status.empty()
+                        thinking_text += raw_thinking
+                        thinking_box.markdown(thinking_text)
 
                     # LLM is deciding to call a tool
                     for tc in (chunk.tool_call_chunks or []):
@@ -253,6 +258,12 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
 
                     # LLM is generating text (final response, not a tool call)
                     if chunk.content and not chunk.tool_call_chunks:
+                        # Collapse thinking expander when real text starts
+                        if thinking_status is not None:
+                            thinking_status.update(
+                                label="Reasoning", state="complete", expanded=False
+                            )
+                            thinking_status = None
                         content = chunk.content
                         if isinstance(content, list):
                             content = "".join(
@@ -283,6 +294,10 @@ if prompt := st.chat_input("PREDICT / INVERSE / SEARCH — ask about your compos
         except Exception as e:
             st.error(f"Agent error: {e}")
             full_text = f"*(error: {e})*"
+
+        # Ensure thinking expander is closed if turn ended without text
+        if thinking_status is not None:
+            thinking_status.update(label="Reasoning", state="complete", expanded=False)
 
         # Remove streaming cursor, show final text
         text_box.markdown(full_text)

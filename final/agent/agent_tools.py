@@ -596,22 +596,8 @@ def convert_fraction(
 @tool
 def inspect_card_inputs(card_id: int) -> str:
     """
-    Show the exact inputs that would be passed to the forward model for a given
-    material card — after full resolution (inferred values override datasheet,
-    microstructure snapshot fills orientation fields).
-
-    Use this BEFORE calling predict_properties so the user can see exactly what
-    will be used and decide whether to override any values. Nothing is run or
-    written — this is a read-only preview.
-
-    Groups inputs into three sections:
-      Fiber properties     — elastic constants and density from datasheet
-      Polymer properties   — matrix modulus, Poisson ratio, density
-                             (inferred value shown if Stage 1 is complete)
-      Microstructure       — orientation tensor, fiber mass fraction, aspect ratio
-                             (from Stage 1 snapshot if available)
-
-    Also shows which CTE inputs are available (needed for thermoelastic prediction).
+    Preview the resolved inputs for a material card (read-only, nothing is run).
+    Shows fiber props, polymer props, microstructure, and available CTE inputs.
     """
     try:
         inputs = _scards.load_card_inputs(card_id)
@@ -840,34 +826,13 @@ def predict_properties(
     matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
-    Run elastic (and optionally thermoelastic) forward prediction.
-
-    Three ways to specify the material system — pick ONE:
-      1. card_id >= 0: load everything from a saved material card (fiber + polymer
-         + microstructure + any inferred constituent properties). Best option when
-         Stage 1 has already been run. Any override arguments still apply.
-      2. fiber_name + polymer_name (no card): load fiber and polymer datasheet
-         properties by name from the database. You MUST then provide all
-         microstructure fields (a11, a22, a12, a13, a23, fiber_massfrac, ar).
-      3. Fully explicit inputs (no card, no DB lookup): provide all constituent
-         properties directly — use when the fiber/polymer is NOT in the database.
-         Required: fiber_E1_MPa, fiber_E2_MPa, fiber_G12_MPa, fiber_nu12,
-         fiber_nu23, fiber_density_kg_m3, matrix_modulus_MPa, matrix_poisson,
-         matrix_density_kg_m3 — PLUS all microstructure fields.
-
-    Any argument set to a value != -1.0 overrides what was loaded from the card or
-    datasheet. Use this for what-if scenarios — e.g. change a11 while keeping
-    everything else from a saved card.
-
-    Thermoelastic prediction (CTE11, CTE22, CTE33) runs automatically when
-    f_cte1_per_K, f_cte2_per_K, and m_cte_per_K are all available — either
-    from a card with Stage 2 complete or from explicit override arguments.
-
-    Units: moduli in MPa, CTE in 1/K (NOT ppm/K — multiply ppm/K by 1e-6 first).
-
-    IMPORTANT: This tool does NOT require measured composite properties. It only
-    needs constituent inputs and microstructure. Call it directly when the user
-    asks for a forward prediction or wants to see predicted composite properties.
+    Forward elastic (+ thermoelastic) prediction. Material source — pick ONE:
+      A) card_id >= 0: load from saved card.
+      B) fiber_name + polymer_name: DB lookup; also provide microstructure (a11, a22, a12, a13, a23, fiber_massfrac, ar).
+      C) fiber_E1_MPa > 0: all constituent values explicit, no DB. Requires fiber_E1_MPa, fiber_E2_MPa, fiber_G12_MPa, fiber_nu12, fiber_nu23, fiber_density_kg_m3, matrix_modulus_MPa, matrix_poisson, matrix_density_kg_m3 + microstructure.
+    Any arg != -1.0 overrides the loaded value.
+    Thermoelastic (CTE11/CTE22/CTE33) runs automatically when f_cte1_per_K, f_cte2_per_K, m_cte_per_K are all available.
+    Units: moduli in MPa; CTE in 1/K (NOT ppm/K — multiply ppm/K × 1e-6).
     """
     # ── Step 1: Load base inputs ──────────────────────────────────────────────
     inputs = {}
@@ -1084,38 +1049,15 @@ def predict_thermal_conductivity(
     matrix_density_kg_m3: float = -1.0,
 ) -> str:
     """
-    Predict composite thermal conductivity (k11, k22, k33) using the thermal surrogate.
-
-    If the user has not specified a temperature range, ask once whether they want a
-    single temperature or a range. If they have already specified, call this tool immediately.
-
-    temperature_C argument:
-      >= 0   — predict at that single temperature and return k11, k22, k33
-      = -1   — predict across the full range [25, 50, 75, 100, 125, 150, 175, 200°C]
-               and return a conductivity vs temperature table
-
-    Material loading — pick ONE:
-      1. card_id >= 0                         — load fiber + polymer + microstructure from a card
-      2. fiber_name + polymer_name (strings)  — load from datasheets by name (you must also
-                                                provide a11, a22, fiber_massfrac, ar)
-      3. Explicit constituent values (fiber_density_kg_m3 > 0, no card or DB name needed):
-         provide fiber_density_kg_m3, matrix_density_kg_m3, microstructure (a11, a22,
-         fiber_massfrac, ar), and conductivities — use option 3 when the user supplies
-         raw numbers without naming a material in the database.
-
-    Constituent conductivity — resolved in priority order:
-      1. All three of k_f1_WmK + k_f2_WmK + k_m_WmK — temperature-independent scalar
-      2. Parametric: p1_WmK + p2_WmK + k_f1_WmK + k_f2_WmK:
-           k_m(T) = p1 * sqrt(T) + p2   (temperature-dependent)
-           k_f1, k_f2 are constant.
-      3. Stage 3 parametric model stored on the card (p1, p2, k_f1, k_f2).
-      4. Scalar k_f1, k_f2, k_m values from the card or datasheet.
-      If none are available, ask the user to run Stage 3 or provide explicit overrides.
-
-    Microstructure overrides (a11, a22, a12, a13, a23, fiber_massfrac, ar):
-      Any value != -1 overrides the card value.
-
-    Units: conductivity in W/m·K, temperature in °C.
+    Predict composite thermal conductivity (k11, k22, k33).
+    temperature_C: >= 0 for single T; -1 for full range [25–200°C in 25°C steps].
+    Material source — pick ONE:
+      A) card_id >= 0.
+      B) fiber_name + polymer_name (also provide a11, a22, fiber_massfrac, ar).
+      C) fiber_density_kg_m3 > 0: all values explicit, no DB.
+    Conductivity priority: (1) k_f1+k_f2+k_m scalar, (2) p1+p2+k_f1+k_f2 parametric [k_m(T)=p1·√T+p2], (3) card Stage 3, (4) card/datasheet scalars.
+    Any arg != -1.0 overrides the loaded value.
+    Units: W/m·K; temperature in °C.
     """
     # ── Step 1: Load base inputs ──────────────────────────────────────────────
     inputs: dict = {}
@@ -1653,16 +1595,9 @@ def add_fiber(
 ) -> str:
     """
     Add a new fiber to the material library.
-
-    Required mechanical datasheet properties (all from the fiber datasheet):
-      E1_MPa, E2_MPa, G12_MPa — moduli in MPa  (if given in GPa, multiply by 1000)
-      nu12, nu23               — Poisson ratios (dimensionless, typically 0.1–0.4)
-      density_kg_m3            — density in kg/m³  (e.g. carbon fiber ≈ 1750–1800)
-
-    CTE and thermal conductivity are NOT stored here — they are inferred later from
-    composite measurements during Stage 2 (CTE) and Stage 3 (thermal conductivity).
-
-    Returns the new fiber id to use in subsequent calls (fiber_id parameter).
+    Required: E1_MPa, E2_MPa, G12_MPa (MPa), nu12, nu23, density_kg_m3 (kg/m³).
+    CTE and thermal conductivity are inferred later (Stage 2/3), not stored here.
+    Returns fiber_id.
     """
     try:
         fid = _smat.add_fiber(
@@ -1746,17 +1681,10 @@ def update_fiber(
     notes: Optional[str] = None,
 ) -> str:
     """
-    Edit one or more fields of an existing fiber in the material library.
-
-    fiber_id  — id from list_materials or add_fiber (required)
-
-    All other parameters are optional — only the ones you provide are changed:
-      E1_MPa, E2_MPa, G12_MPa — moduli in MPa
-      nu12, nu23               — Poisson ratios
-      density_kg_m3            — density in kg/m³
-      CTE1, CTE2               — axial/transverse CTE in 1/K (datasheet values)
-      k1_WmK, k2_WmK          — axial/transverse conductivity in W/m·K (datasheet values)
-      notes                    — free-text notes
+    Edit fields of an existing fiber (fiber_id from list_materials).
+    Optional: E1_MPa, E2_MPa, G12_MPa (MPa), nu12, nu23, density_kg_m3 (kg/m³),
+    CTE1, CTE2 (1/K), k1_WmK, k2_WmK (W/m·K), name, supplier, notes.
+    Only provided fields are changed.
     """
     field_map = {
         "neat_E1":   E1_MPa,
@@ -1877,28 +1805,11 @@ def check_identifiability(
     card_id: int = -1,
 ) -> str:
     """
-    Fisher Information Matrix (FIM) identifiability analysis.
-
-    Answers questions like: "Can I infer a11 and a22 if I only have E1?"
-    Returns a per-parameter verdict (WELL / MARGINAL / POOR) and recommends
-    which additional measurements would most improve identifiability.
-
-    free_variables: comma-separated list of parameters to infer.
-      Examples: "a11,a22"  |  "a11 a22 fiber_massfrac"  |  "matrix_modulus matrix_poisson"
-      Supported: a11 a22 a12 a13 a23, fiber_massfrac (or mf/wf), ar, matrix_modulus,
-                 matrix_poisson, f_cte1, f_cte2, m_cte
-
-    available_measurements: comma-separated list of composite outputs you have measured.
-      Examples: "E1"  |  "E1,E2,G12,nu12"  |  "CTE11,CTE22"
-      Supported elastic: E1 E2 E3 G12 G13 G23 nu12 nu13 nu23
-      Supported thermoelastic: CTE11 CTE22 CTE33
-
-    fiber_id, polymer_id, card_id: optional — provide realistic nominal material
-      properties for the analysis. If none are given, generic carbon/polymer
-      defaults are used (still gives correct structural identifiability result).
-
-    The model is selected automatically: elastic for mechanical unknowns/measurements,
-    thermoelastic if CTE unknowns (f_cte1, f_cte2, m_cte) or CTE measurements are present.
+    FIM identifiability analysis: can these measurements identify these free parameters?
+    Returns WELL / MARGINAL / POOR per parameter and recommends additional measurements.
+    free_variables: comma/space-separated. Supported: a11 a22 a12 a13 a23, fiber_massfrac, ar, matrix_modulus, matrix_poisson, f_cte1, f_cte2, m_cte.
+    available_measurements: comma/space-separated. Elastic: E1 E2 E3 G12 G13 G23 nu12 nu13 nu23. Thermoelastic: CTE11 CTE22 CTE33.
+    fiber_id, polymer_id, card_id: optional nominal material for analysis.
     """
     # ── Parse free_variables ──────────────────────────────────────────────────
     raw_free = [t.strip().lower() for t in re.split(r"[,\s]+", free_variables.strip()) if t.strip()]
@@ -2208,55 +2119,23 @@ def run_elastic_inverse(
     card_name: str = "",
 ) -> str:
     """
-    Run Stage 1 elastic inverse: infer microstructure (a11, a22, etc.) and
-    in-situ constituent properties (matrix_modulus) from measured composite
-    elastic properties.
+    Stage 1 elastic inverse: infer microstructure (a11, a22) and matrix_modulus from composite elastic measurements.
 
-    Pass material NAMES (not IDs) — e.g. fiber_name="AF", polymer_name="AP",
-    printer_name="CAMRI". IDs are resolved automatically.
+    STOP — do NOT call this tool if ANY of the following are true:
+    - Any measurement value is a range (e.g. "20–21 GPa", "around 6 GPa", "~5 GPa")
+    - The user used words like "roughly", "about", "somewhere around", "maybe", "approximately"
+    - fiber_massfrac or ar has not been asked about yet
+    - The user has not confirmed the pre-run summary
+    Instead: tell the user which value you would use and ask them to confirm a specific number.
 
-    ORIENTATION (a11, a22):
-    - Only pass a11/a22 if the user has explicitly measured them (e.g. from micro-CT
-      or a supplier datasheet). Passing them fixes those values and removes them from
-      inference.
-    - If the user has NOT measured orientation, omit a11 and a22 entirely — the solver
-      will infer them from the elastic measurements. Never assume or guess a default
-      orientation (e.g. do not set a11=a22=0.333 for "random" unless the user said so).
-
-    MICROSTRUCTURE (ar, fiber_massfrac):
-    - If the user provides these (e.g. "mass fraction around 25%"), pass them to fix
-      them and reduce the free parameter count.
-    - If not provided, omit them — the solver will infer them, though with less certainty.
-
-    CONSTITUENT PROPERTIES (matrix_modulus_MPa, matrix_poisson):
-    - Pass matrix_modulus_MPa to fix the matrix stiffness (e.g. if known from neat
-      resin testing). Must be a positive value (> 0). If omitted or 0, it is always inferred.
-    - Pass matrix_poisson to fix the Poisson ratio regardless of what measurements are
-      present. Must be a positive value (> 0). If omitted or 0, it is fixed at the
-      datasheet value when no shear/Poisson measurements are available, and freed
-      automatically when they are.
-
-    IDENTIFIABILITY:
-    - E1+E2 only: a11, a22, ar, and matrix_modulus are all free — the problem is
-      underdetermined. Warn the user that results may not be unique, then call once.
-    - E1+E2+G12+nu12 or E1+E2+E3: well-constrained. Call without warning.
-    - matrix_poisson is only identifiable when at least one shear or Poisson measurement
-      is present (G12, G13, G23, nu12, nu13, nu23). Without those it stays fixed at the
-      datasheet value automatically — do not try to infer it.
-
-    IDENTIFIABILITY:
-    - Run check_identifiability before calling this tool when measurements are sparse.
-    - This tool does not run its own FIM — use the separate check_identifiability tool.
-
-    CALL DISCIPLINE:
-    - Call this tool exactly once per user request. If the result is poor, report it
-      and ask the user how to proceed — do not re-run automatically.
-
-    All elastic measurement arguments (E1_MPa, etc.) must be in MPa.
-    Sigma arguments are 1-sigma uncertainty in the same units. Use 0.0 if unknown.
-
-    Results are held in memory — call save_to_card() if the user wants to persist.
-    Does NOT save automatically.
+    fiber_name, polymer_name, printer_name: material names (not IDs) — resolved automatically.
+    Measurements (E1_MPa … nu23): composite properties in MPa. Pass -1.0 to omit.
+    Sigma fields (E1_sigma_MPa …): 1-sigma uncertainty in MPa. Use 0.0 if unknown.
+    a11, a22: pass ONLY if explicitly measured (e.g. micro-CT). Omit to let solver infer.
+    ar, fiber_massfrac: pass to fix; omit to infer.
+    matrix_modulus_MPa: pass to fix (> 0); omit to always infer.
+    matrix_poisson: pass to fix (> 0); omit — fixed at datasheet unless shear/Poisson measurements present.
+    Results held in memory. Call save_to_card() to persist.
     """
     # ── Resolve names to IDs ──────────────────────────────────────────────────
     try:
@@ -2388,45 +2267,54 @@ def run_elastic_inverse(
         pass  # FIM failure is non-fatal — solver runs regardless
 
     # Initial guess: orientation defaults from problem.json; material-specific fields
-    # (matrix_modulus, matrix_poisson) fall through to the datasheet so they match
-    # the GUI which populates rows from the DB.
-    _PROBLEM_JSON_INIT = {
-        "a11": 0.6, "a22": 0.1, "a12": 0.0, "a13": 0.0, "a23": 0.0,
-        "fiber_massfrac": 0.20, "ar": 20.0,
-    }
-    init_vals = []
-    for k in free_vars:
-        if k in _PROBLEM_JSON_INIT:
-            init_vals.append(_PROBLEM_JSON_INIT[k])
-        elif k in datasheet:
-            init_vals.append(float(datasheet[k]))
-        elif k in fixed_inputs:
-            init_vals.append(float(fixed_inputs[k]))
-        elif k in _DEFAULT_BOUNDS:
-            lo, hi = _DEFAULT_BOUNDS[k]
-            init_vals.append((lo + hi) / 2.0)
-        else:
-            init_vals.append(0.0)
+    # Multi-start: seed (a11, a22) across the orientation space to avoid local minima.
+    # matrix_modulus / matrix_poisson / ar / mf fall back to datasheet or bound midpoint.
+    _MULTI_INITS = [
+        {"a11": 0.60, "a22": 0.10},   # default — highly aligned
+        {"a11": 0.50, "a22": 0.30},   # moderate alignment
+        {"a11": 0.65, "a22": 0.25},   # high alignment, some transverse
+        {"a11": 0.40, "a22": 0.35},   # lower alignment, near-planar
+    ]
+
+    def _build_init(a11_seed, a22_seed):
+        _seed = {"a11": a11_seed, "a22": a22_seed,
+                 "a12": 0.0, "a13": 0.0, "a23": 0.0,
+                 "fiber_massfrac": 0.20, "ar": 20.0}
+        vals = []
+        for k in free_vars:
+            if k in _seed:
+                vals.append(_seed[k])
+            elif k in datasheet:
+                vals.append(float(datasheet[k]))
+            elif k in fixed_inputs:
+                vals.append(float(fixed_inputs[k]))
+            elif k in _DEFAULT_BOUNDS:
+                lo, hi = _DEFAULT_BOUNDS[k]
+                vals.append((lo + hi) / 2.0)
+            else:
+                vals.append(0.0)
+        return vals
 
     # Enable epsilon-insensitive loss when measurement sigmas are provided.
-    # This creates a dead-zone of ±sigma around each target: residuals inside
-    # it contribute zero loss. Measurements with larger sigma exert less pull
-    # on the solution — matching the physical meaning of measurement uncertainty.
     solver_cfg = dict(_ELASTIC_SOLVER_CFG)
     if sigmas:
         solver_cfg["use_epsilon_loss"] = True
 
+    inv = None
     try:
-        inv = _sinv.run_inverse(
-            model_name="elastic",
-            fixed_inputs=fixed_inputs,
-            free_inputs=free_vars,
-            bounds=bounds,
-            target_outputs=targets,
-            sigmas=sigmas if sigmas else None,
-            solver_cfg=solver_cfg,
-            init_vals=init_vals,
-        )
+        for seed in _MULTI_INITS:
+            r = _sinv.run_inverse(
+                model_name="elastic",
+                fixed_inputs=fixed_inputs,
+                free_inputs=free_vars,
+                bounds=bounds,
+                target_outputs=targets,
+                sigmas=sigmas if sigmas else None,
+                solver_cfg=solver_cfg,
+                init_vals=_build_init(seed["a11"], seed["a22"]),
+            )
+            if inv is None or r["final_error"] < inv["final_error"]:
+                inv = r
     except Exception as e:
         return f"Solver error: {e}"
 
@@ -2562,29 +2450,13 @@ def run_thermoelastic_inverse(
     matrix_poisson: float = -1.0,
 ) -> str:
     """
-    Run Stage 2 thermoelastic inverse: infer fiber CTEs (f_cte1, f_cte2) and
-    matrix CTE (m_cte) from measured composite thermal expansion coefficients.
-
-    Two input paths — use exactly one:
-
-    PATH A (card): provide card_id from a completed Stage 1 save. Microstructure
-      and matrix properties are loaded from the card automatically.
-
-    PATH B (explicit): provide fiber_name, polymer_name, printer_name plus all
-      Stage 1 outputs directly. Use when no card has been saved yet, or to run
-      Stage 2 standalone without a prior elastic inverse.
-      Required explicit fields: a11, a22, fiber_massfrac, ar,
-        matrix_modulus_MPa (in MPa), matrix_poisson.
-      a12, a13, a23 default to 0.0 if omitted.
-
-    CTE11_per_K: composite CTE along print direction (1/K). Required.
-    CTE22_per_K: composite CTE transverse to print direction (1/K). Required.
-    CTE33_per_K: out-of-plane CTE (1/K). Pass -1.0 to exclude.
-    CTE sigma fields: 1-sigma uncertainty (1/K). Use 0.0 if unknown.
-    Convert ppm/K → 1/K before passing: value × 1e-6.
-
-    Inferred CTEs are constituent (printer-independent) and reusable across
-    printers with the same fiber and polymer.
+    Stage 2 thermoelastic inverse: infer f_cte1, f_cte2, m_cte from composite CTE measurements.
+    Two paths — use ONE:
+      PATH A (card): card_id from completed Stage 1 — loads microstructure + matrix props automatically.
+      PATH B (explicit): fiber_name, polymer_name, printer_name + a11, a22, fiber_massfrac, ar, matrix_modulus_MPa, matrix_poisson.
+    CTE11_per_K, CTE22_per_K: required (1/K). CTE33_per_K: optional, -1.0 to exclude.
+    Sigma fields: 1-sigma in 1/K. Use 0.0 if unknown.
+    Units: ALL CTE in 1/K. Convert ppm/K → 1/K: × 1e-6.
     Results held in memory. Call save_to_card() to persist.
     """
     # ── Resolve inputs: card or explicit ─────────────────────────────────────
@@ -2877,26 +2749,12 @@ def run_thermal_inverse(
     n_restarts: int = 100,
 ) -> str:
     """
-    Run Stage 3 thermal inverse: infer fiber conductivities (k_f1 = l2, k_f2 = l2/t)
-    and polymer conductivity model parameters (p1, p2) where K_m(T) = p1·√T + p2.
-
-    Two input paths — use exactly one:
-
-    PATH A (card): provide card_id from a completed Stage 1 save. Microstructure
-      and material densities are loaded from the card automatically.
-
-    PATH B (explicit): provide fiber_name, polymer_name, printer_name plus Stage 1
-      microstructure directly. Use when no card has been saved yet.
-      Required: a11, a22, fiber_massfrac, ar.
-      Optional: a12, a13, a23 (default 0.0).
-      Fiber and polymer densities are loaded from the DB automatically.
-
-    csv_path   : absolute path to CSV file. Required columns:
-                   temperature_C (°C) and K11_WmK (W/m·K).
-                 Optional: K22_WmK, K33_WmK — improve fit if available.
-                 Header row required; column names are case-insensitive.
-    n_restarts : optimisation restarts (default 20).
-
+    Stage 3 thermal inverse: infer k_f1, k_f2, p1, p2 where k_m(T) = p1·√T + p2.
+    Two paths — use ONE:
+      PATH A (card): card_id from completed Stage 1 — loads microstructure + densities automatically.
+      PATH B (explicit): fiber_name, polymer_name, printer_name + a11, a22, fiber_massfrac, ar.
+    csv_path: absolute path to CSV. Required columns: temperature_C (°C), K11_WmK (W/m·K). Optional: K22_WmK, K33_WmK.
+    n_restarts: optimisation restarts (default 20).
     Results held in memory. Call save_to_card() to persist.
     """
     # ── Resolve inputs: card or explicit ─────────────────────────────────────
@@ -3095,31 +2953,28 @@ def run_transfer(
     E2_sigma_MPa: float = 0.0,
     E3_sigma_MPa: float = 0.0,
     G12_sigma_MPa: float = 0.0,
+    G13_sigma_MPa: float = 0.0,
+    G23_sigma_MPa: float = 0.0,
     nu12_sigma: float = 0.0,
+    nu13_sigma: float = 0.0,
+    nu23_sigma: float = 0.0,
     ar: Optional[float] = None,
     a33: Optional[float] = None,
     a12: float = 0.0,
     a13: float = 0.0,
     a23: float = 0.0,
+    infer_matrix_modulus: bool = False,
 ) -> str:
-    """Stage 4 — Transfer constituent properties from a fully-characterized source card
-    to a new printer by re-running the elastic inverse with constituent properties fixed.
-
-    Free parameters: a11, a22 (orientation in-plane). If ar is not provided, AR is also
-    inferred — run check_identifiability first to verify it is identifiable.
-
-    Off-diagonal orientation terms (a12, a13, a23) default to 0.0 (fixed). Override
-    only if you have a reason to believe they are non-zero.
-
-    source_card_id : card that is fully characterized (elastic + thermoelastic + thermal).
-    new_printer    : name of the target printer (must exist in the database).
-    E*_MPa / nu*   : elastic measurements on the new printer (-1.0 to omit).
-    ar             : fiber aspect ratio. If known (e.g. from micro-CT), pass it here to
-                     fix it. If omitted, AR is inferred from the elastic measurements.
-    a33            : expected out-of-plane orientation (a33 = 1 - a11 - a22). Providing
-                     this caps a11 + a22 ≤ 1 - a33, preventing the solver from using up
-                     all orientation in-plane. Typical LSAM value: 0.10–0.15.
-    a12, a13, a23  : off-diagonal orientation tensor components (default 0.0 = fixed).
+    """
+    Stage 4: transfer constituent properties from a fully-characterized card to a new printer.
+    Re-runs elastic inverse with constituents fixed. Free: a11, a22 (and ar if omitted).
+    source_card_id: must be fully characterized (elastic + thermoelastic + thermal).
+    E*_MPa / nu*: elastic measurements on new printer (-1.0 to omit). nu13 IS a valid measurement.
+    sigma args: measurement uncertainty (1 std dev) — enables epsilon-insensitive loss.
+    ar: fix aspect ratio (omit to infer). a33: minimum a33 floor (typical LSAM: 0.10–0.15).
+    infer_matrix_modulus: re-infer matrix_modulus for new printer (in-situ Em can differ between printers).
+      matrix_poisson is also freed automatically when shear/Poisson measurements (nu12/nu13/G12 etc.) are present.
+      Re-inferred values are saved card-locally — they do NOT overwrite the source card's global values.
     """
     # ── Pre-flight 1: source card exists ─────────────────────────────────────
     card = _db.get_print_config(source_card_id)
@@ -3172,8 +3027,8 @@ def run_transfer(
     _elastic_map = {
         "E1": (E1_MPa, E1_sigma_MPa), "E2": (E2_MPa, E2_sigma_MPa),
         "E3": (E3_MPa, E3_sigma_MPa), "G12": (G12_MPa, G12_sigma_MPa),
-        "G13": (G13_MPa, 0.0),        "G23": (G23_MPa, 0.0),
-        "nu12": (nu12, nu12_sigma),   "nu13": (nu13, 0.0), "nu23": (nu23, 0.0),
+        "G13": (G13_MPa, G13_sigma_MPa), "G23": (G23_MPa, G23_sigma_MPa),
+        "nu12": (nu12, nu12_sigma), "nu13": (nu13, nu13_sigma), "nu23": (nu23, nu23_sigma),
     }
     target_outputs: dict[str, float] = {}
     sigmas: dict[str, float]         = {}
@@ -3186,7 +3041,7 @@ def run_transfer(
     if not target_outputs:
         return (
             "No elastic measurements provided. "
-            "Supply at least E1_MPa, E2_MPa, or G12_MPa for the new printer."
+            "Supply at least one of: E1_MPa, E2_MPa, E3_MPa, G12_MPa, nu12, nu13, nu23."
         )
 
     # ── Fixed microstructure: mass fraction always fixed from source card ─────
@@ -3225,6 +3080,8 @@ def run_transfer(
             sigmas=sigmas or None,
             fixed_micro=fixed_micro,
             bounds=extra_bounds,
+            min_a33=float(a33) if a33 is not None else 0.0,
+            free_matrix_modulus=bool(infer_matrix_modulus),
         )
     except Exception as e:
         return f"Transfer solver error: {e}"
@@ -3277,6 +3134,15 @@ def run_transfer(
         f"  fiber_massfrac   = {mf_val:.4f}  (fixed from source card)" if isinstance(mf_val, float) else f"  fiber_massfrac   = {mf_val}",
         "",
         f"Elastic fit error  = {result['elastic_error']:.5f}",
+    ]
+
+    reinferred = result.get("reinferred_constituents", {})
+    if reinferred:
+        lines.append("")
+        lines.append("RE-INFERRED CONSTITUENTS (printer-specific, saved to new card only):")
+        for k, v in reinferred.items():
+            lines.append(f"  {k:<18s} = {v:.4g}")
+    lines += [
         "",
         "Call save_to_card(card_name='...') to create the new card.",
     ]
@@ -3296,34 +3162,15 @@ def run_full_pipeline(
     n_restarts: int = 20,
 ) -> str:
     """
-    Run all 3 inverse stages (elastic → thermoelastic → thermal) from a single
-    Excel measurements file. Results are held in memory — call save_to_card()
-    with a card name after reviewing the results.
-
-    Use this when the user provides a file path (.xlsx) containing experimental
-    measurements. Do NOT use if the user is providing measurements directly in
-    the conversation — use run_elastic_inverse instead.
-
-    The .xlsx file must have:
-      - Sheet 'measurements': key-value table (column A = field name, column B = value).
-        Elastic fields: E1_MPa, E2_MPa, E3_MPa, G12_MPa, G13_MPa, G23_MPa, nu12, nu13, nu23
-        Uncertainty:    E1_sigma_MPa, E2_sigma_MPa, ... nu12_sigma, nu13_sigma, nu23_sigma
-        CTE fields:     CTE11_per_K, CTE22_per_K, CTE33_per_K (optional)
-        CTE sigma:      CTE11_sigma_per_K, CTE22_sigma_per_K, CTE33_sigma_per_K
-        Omit any field you don't have — do NOT put fiber/polymer/printer names in this sheet.
-      - Sheet 'thermal' (optional): columns temperature_c and K11_WmK (+ optional K22_WmK, K33_WmK)
-        If absent, Stage 3 is skipped.
-
-    Material identity (fiber_name, polymer_name, printer_name) must be confirmed
-    in the database before calling this — use list_materials() first, and
-    add_fiber()/add_polymer() if needed.
-
-    Microstructure params (fiber_massfrac, aspect_ratio, a11, a22) are optional —
-    pass values only if the user provided them from CT or process data.
-    Pass -1.0 (default) to let the solver infer them.
-
-    After this tool returns, ask the user for a card name, then call
-    save_to_card(card_name='...') to persist all results with correct provenance.
+    Run all 3 inverse stages from a single Excel file (.xlsx).
+    Use when the user provides a file path. Do NOT use if measurements are given inline — use run_elastic_inverse instead.
+    .xlsx sheets:
+      'measurements': col A=field_name, col B=value.
+        Elastic: E1_MPa, E2_MPa, E3_MPa, G12_MPa, G13_MPa, G23_MPa, nu12, nu13, nu23 (+ *_sigma_MPa).
+        CTE (optional): CTE11_per_K, CTE22_per_K, CTE33_per_K (+ *_sigma_per_K).
+      'thermal' (optional): temperature_c, K11_WmK (+ K22_WmK, K33_WmK).
+    fiber_massfrac, aspect_ratio, a11, a22: pass -1.0 to infer.
+    After: ask for card_name, then call save_to_card().
     """
     import core.services.service_pipeline as _spipeline
 
@@ -3440,21 +3287,11 @@ def run_full_pipeline(
 @tool
 def save_to_card(card_name: str = "", card_id: int = -1) -> str:
     """
-    Save the most recent solver result (or full pipeline result) to the database.
-
-    card_name: name for the new card (e.g. "T300/PESU CAMRI run1"). ALWAYS ask
-               the user for a card name before calling this tool if card_id=-1.
-    card_id = -1  → create a new material card using card_name
-    card_id >= 0  → save to an existing card (updates it in place, card_name ignored)
-
-    Only call this after:
-      1. A solver tool (run_elastic_inverse, run_full_pipeline, etc.) returned a
-         successful result, AND
-      2. The user has explicitly confirmed they want to save, AND
-      3. You have asked for and received a card_name (when card_id=-1).
-
-    Do NOT call automatically — always ask the user for a card name first.
-    Returns the card_id so subsequent tools can reference it.
+    Save the most recent solver result to the database.
+    card_id=-1: create new card using card_name (ask user for name first).
+    card_id>=0: update existing card (card_name ignored).
+    Only call after solver success AND user confirmed. Never call automatically.
+    Returns card_id.
     """
     # ── Pipeline save: run_full_pipeline stored results in _pending_pipeline ───
     if _pending_pipeline:

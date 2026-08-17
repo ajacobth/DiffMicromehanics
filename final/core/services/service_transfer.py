@@ -48,15 +48,16 @@ _T_REF     = 1.0    # °C (thermal model's internal reference)
 
 
 class TransferResult(TypedDict):
-    source_card_id:     int
-    constituent_props:  dict   # key → {value, source_tag} or None
-    opt_microstructure: dict   # model units
-    elastic_error:      float
-    elastic_predicted:  dict
-    target_outputs:     dict
-    sigmas:             dict
-    constituent_inputs: dict   # full input dict used for forward models
-    predictions:        dict   # "elastic" | "thermoelastic" | "thermal" → dict | None
+    source_card_id:         int
+    constituent_props:      dict   # key → {value, source_tag} or None
+    opt_microstructure:     dict   # model units
+    reinferred_constituents: dict  # constituents re-inferred at this printer {name: value}
+    elastic_error:          float
+    elastic_predicted:      dict
+    target_outputs:         dict
+    sigmas:                 dict
+    constituent_inputs:     dict   # full input dict used for forward models
+    predictions:            dict   # "elastic" | "thermoelastic" | "thermal" → dict | None
 
 
 def _best_value(rows: list[dict], names: list[str]) -> Optional[dict]:
@@ -327,23 +328,39 @@ def prepare_transfer_inverse(
     return fixed_fields, free_fields, bounds, init_vals
 
 
+_SHEAR_POISSON  = frozenset(["G12", "G13", "G23", "nu12", "nu13", "nu23"])
+# Shear moduli only — Em is matrix-controlled and responds strongly to G12/G23.
+# Poisson ratios alone (nu12, nu13) are mainly orientation-controlled in aligned
+# composites and produce a flat loss landscape in Em; the solver gets stuck at the
+# seed rather than finding the true minimum.
+_SHEAR_MODULI   = frozenset(["G12", "G13", "G23"])
+_CONSTITUENT_BOUNDS = {
+    "matrix_modulus": (500.0, 3500.0),
+    "matrix_poisson": (0.10,  0.49),
+}
+
+
 def run_transfer(
-    source_card_id: int,
-    target_outputs: dict[str, float],
-    sigmas:         dict[str, float] | None = None,
-    bounds:         dict[str, tuple[float, float]] | None = None,
-    solver_cfg:     dict | None = None,
-    manual_props:   dict[str, float] | None = None,
-    fixed_micro:    dict[str, float] | None = None,
+    source_card_id:       int,
+    target_outputs:       dict[str, float],
+    sigmas:               dict[str, float] | None = None,
+    bounds:               dict[str, tuple[float, float]] | None = None,
+    solver_cfg:           dict | None = None,
+    manual_props:         dict[str, float] | None = None,
+    fixed_micro:          dict[str, float] | None = None,
+    min_a33:              float = 0.0,
+    free_matrix_modulus:  bool = False,
 ) -> TransferResult:
     """Full transfer workflow:
       1. Load source card + resolve constituent props
       2. Run elastic inverse (microstructure free, constituent props fixed)
+         If free_matrix_modulus=True, also infers matrix_modulus for the new printer.
+         matrix_poisson is freed automatically when shear/Poisson measurements are present.
       3. Run all three forward models
 
     fixed_micro: microstructure fields to hold fixed (e.g. {"ar": 30.0, "fiber_massfrac": 0.25}).
-                 These are removed from free_fields and added to fixed_fields. Aliases
-                 (ar/ar_f, fiber_massfrac/w_f) are handled automatically.
+    Re-inferred constituents are stored in result["reinferred_constituents"] and must be
+    saved with print_config_id=<new card id> (card-local) to avoid overwriting global values.
 
     Returns TransferResult — no DB writes.
     """
@@ -378,26 +395,99 @@ def run_transfer(
                 fixed_fields[alias] = float(v)
                 free_fields = [f for f in free_fields if f != alias]
 
-    # Build bounds: use defaults for microstructure fields
-    effective_bounds = {**_MICRO_BOUNDS_DEFAULT}
+    # Optionally re-infer constituent props for the new printer.
+    #
+    # Identifiability logic:
+    #   - E1+E2+E3 (3 pure moduli): E2 independently pins a22, leaving E1/E3 to
+    #     constrain a11 and Em. 3 measurements, 3 unknowns (a11, a22, Em) with nu_m
+    #     fixed → well-determined. Free Em alone; keep nu_m fixed.
+    #   - Poisson/shear (nu12, nu13, G12, …): constrain the Em/nu_m combination jointly.
+    #     Free BOTH Em and nu_m together — freeing Em alone with nu_m fixed produces a
+    #     flat landscape and the solver gets stuck at its seed.
+    #   - Pure moduli with fewer than 3 (e.g. E1+E3 only): 2 measurements, 3 unknowns
+    #     (a11, a22, Em) → underdetermined. Em stays fixed.
+    _PURE_MODULI = frozenset(["E1", "E2", "E3"])
+    has_poisson    = bool(set(target_outputs) & _SHEAR_POISSON)
+    has_3_moduli   = _PURE_MODULI.issubset(set(target_outputs))
+    free_constituents: list[str] = []
+    if free_matrix_modulus and has_poisson:
+        free_constituents.append("matrix_modulus")
+        free_constituents.append("matrix_poisson")
+    elif free_matrix_modulus and has_3_moduli:
+        free_constituents.append("matrix_modulus")   # nu_m stays fixed
+
+    for k in free_constituents:
+        # Move from fixed to free, initialise bounds from constituent defaults
+        fixed_fields.pop(k, None)
+        if k not in free_fields:
+            free_fields.append(k)
+
+    # Build bounds: use defaults for microstructure fields + constituent bounds
+    effective_bounds = {**_MICRO_BOUNDS_DEFAULT, **_CONSTITUENT_BOUNDS}
     if bounds:
         effective_bounds.update(bounds)
     active_bounds = {k: effective_bounds[k] for k in free_fields if k in effective_bounds}
 
-    result = run_inverse(
-        model_name="elastic",
-        fixed_inputs=fixed_fields,
-        free_inputs=free_fields,
-        bounds=active_bounds,
-        target_outputs=target_outputs,
-        sigmas=sigmas,
-        solver_cfg=solver_cfg,
-    )
+    # Multi-start: the LSAM solution can be far from the source card's microstructure,
+    # so a single init from source card values often gets trapped in a local minimum.
+    # We run up to 4 inits spanning the orientation space AND (when Em is free) the
+    # likely Em range so the optimizer explores the full (orientation, Em) manifold.
+    # Seed (a11, a22, Em, nu_m): span orientation, Em, and nu_m space.
+    # Em seeds start at 2000–2500 so the optimizer moves toward the true minimum
+    # rather than sitting at a seed that happens to lie on the solution manifold.
+    # Seeds starting at 1800 tend to be "already on" the zero-loss surface and
+    # never move, producing seed-dependent results.
+    _seeds = [
+        (0.60, 0.25, 2000.0, 0.37),
+        (0.55, 0.30, 2200.0, 0.40),
+        (0.65, 0.20, 2500.0, 0.33),
+        (0.50, 0.35, 2000.0, 0.38),
+    ]
 
-    opt_micro = result["opt_free"]
+    best_result = None
+    for _a11_i, _a22_i, _em_i, _nu_i in _seeds:
+        _init = []
+        for f in free_fields:
+            if f == "a11":              _init.append(_a11_i)
+            elif f == "a22":            _init.append(_a22_i)
+            elif f == "matrix_modulus": _init.append(_em_i)
+            elif f == "matrix_poisson": _init.append(_nu_i)
+            elif f in active_bounds:    _init.append(sum(active_bounds[f]) / 2.0)
+            else:                       _init.append(0.0)
+
+        r = run_inverse(
+            model_name="elastic",
+            fixed_inputs=fixed_fields,
+            free_inputs=free_fields,
+            bounds=active_bounds,
+            target_outputs=target_outputs,
+            sigmas=sigmas,
+            solver_cfg=solver_cfg,
+            min_a33=min_a33,
+            init_vals=_init,
+        )
+        # Compare by actual prediction residual, not LBFGSB gradient norm.
+        # When multiple seeds reach near-zero loss the norm comparison is
+        # arbitrary; actual RMS% on target outputs is the meaningful metric.
+        def _rms(res):
+            pred = res["predicted_outputs"]
+            errs = [(pred[k] - v) ** 2 / v ** 2
+                    for k, v in target_outputs.items()
+                    if k in pred and v != 0.0]
+            return sum(errs) ** 0.5 if errs else float("inf")
+
+        if best_result is None or _rms(r) < _rms(best_result):
+            best_result = r
+
+    result = best_result
+    opt_free = result["opt_free"]
+
+    # Split opt_free into microstructure and re-inferred constituents
+    opt_micro           = {k: v for k, v in opt_free.items() if k not in free_constituents}
+    reinferred_consts   = {k: v for k, v in opt_free.items() if k in free_constituents}
 
     # Build full input dict for forward predictions
-    full_inputs = build_forward_inputs(source_card_id, opt_micro)
+    full_inputs = build_forward_inputs(source_card_id, {**opt_micro, **reinferred_consts})
 
     # Run all three forward models
     predictions: dict[str, Optional[dict]] = {}
@@ -420,6 +510,7 @@ def run_transfer(
         source_card_id=source_card_id,
         constituent_props=constituent_props,
         opt_microstructure=opt_micro,
+        reinferred_constituents=reinferred_consts,
         elastic_error=result["final_error"],
         elastic_predicted=result["predicted_outputs"],
         target_outputs=dict(target_outputs),

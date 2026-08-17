@@ -9,7 +9,22 @@ All tools use the canonical names and model units listed here.
 
 | Term | Definition |
 |---|---|
-| CAMRI | Composites Additive Manufacturing Research Instrument — a medium scale extrusion deposition additive manufacturing system developed at Purdue University |
+| CAMRI | Composites Additive Manufacturing Research Instrument — a medium-scale extrusion deposition additive manufacturing system developed at Purdue University |
+| LSAM / Thermwood LSAM | Large-Scale Additive Manufacturing system by Thermwood — a large-format extrusion system with slower cooling rates than CAMRI, leading to different in-situ matrix properties |
+
+### Printer-specific microstructure and constituent expectations
+
+| Printer | a11 typical | a22 typical | a33 typical | In-situ Em | In-situ nu_m | Notes |
+|---|---|---|---|---|---|---|
+| CAMRI | 0.75–0.85 | 0.10–0.20 | 0.03–0.08 | ~2200–2400 MPa | ~0.33–0.37 | High alignment, near-planar, fast cooling |
+| LSAM (Thermwood) | 0.55–0.70 | 0.15–0.30 | 0.08–0.18 | ~1800–1850 MPa | ~0.38–0.42 | Lower alignment due to slower deposition, in-situ matrix softens and nu_m increases vs neat resin |
+
+**Why in-situ Em and nu_m differ between printers:**
+The matrix modulus and Poisson ratio of the printed part differ from the neat resin datasheet because the thermal history (cooling rate, residual stress, crystallinity for semi-crystalline polymers) changes during printing. LSAM's slower cooling produces a more compliant, higher-Poisson matrix than CAMRI.
+When a Poisson measurement (nu12, nu13) or shear modulus (G12) is available in a transfer, both Em and nu_m are re-inferred together — they are co-identified and cannot be separated individually from a single Poisson measurement.
+
+**Em/nu_m solution manifold (for reporting context):**
+Even with E1 + E3 + nu13, the solution is not unique: there is a 1D family of (a11, a22, Em, nu_m) combinations that all fit the measurements exactly. The optimizer converges to one point on this family; the Em result (typically 1800–1835 MPa for LSAM/PESU) is the attractor of the gradient descent, not a uniquely determined value. Adding G12 would fully constrain the system.
 
 ---
 
@@ -28,11 +43,13 @@ All tools use the canonical names and model units listed here.
 | User says | a11 | a22 | a33 | Notes |
 |---|---|---|---|---|
 | random, random orientation, isotropic, randomly oriented | 0.333 | 0.333 | 0.333 | 3D random — fibers equally distributed in all directions |
-| 2D random, in-plane random, planar random | 0.5 | 0.5 | 0.0 | Fibers randomly distributed within a plane |
+| 2D random, in-plane random, planar random, planar isotropic, in-plane isotropic | 0.5 | 0.5 | 0.0 | Fibers randomly distributed within a plane |
 | aligned, unidirectional, UD, fully aligned | 1.0 | 0.0 | 0.0 | All fibers along print direction |
 | transverse, cross-ply | 0.0 | 1.0 | 0.0 | All fibers perpendicular to print direction |
 
 **Rule:** If the user gives orientation as a keyword (e.g. "random"), look up the exact values above and pass them directly. Never invent or approximate orientation values.
+
+**Override rule — keyword + explicit a33:** If the user gives BOTH a keyword AND an explicit a33 value (e.g. "planar isotropic with a33=0.1"), do NOT use the table's default a33. Instead: use the user's a33, then compute a11 = a22 = (1 − a33) / 2. Example: "planar isotropic, a33=0.1" → a33=0.1, a11=a22=(1−0.1)/2=0.45. Verify: a11+a22+a33 must equal 1.0 before calling any tool.
 
 ---
 
@@ -77,7 +94,10 @@ All tools use the canonical names and model units listed here.
 | fiber axial CTE, fiber longitudinal thermal expansion, alpha fiber 1 | f_cte1 | 1/K | inferred in Stage 2 — datasheet values unreliable, always infer |
 | fiber transverse CTE, alpha fiber 2 | f_cte2 | 1/K | inferred in Stage 2 |
 | matrix CTE, polymer CTE, resin CTE | m_cte | 1/K | inferred in Stage 2 |
-| fiber longitudinal conductivity, k fiber axial | k_l2 | W/m·K | inferred in Stage 3 |
+| fiber axial conductivity, fiber longitudinal conductivity, k fiber axial, k_f1 | k_f1_WmK | W/m·K | forward prediction input — pass to predict_thermal_conductivity |
+| fiber transverse conductivity, k fiber transverse, k_f2 | k_f2_WmK | W/m·K | forward prediction input — pass to predict_thermal_conductivity |
+| matrix conductivity, polymer conductivity, resin conductivity, k_m, k matrix | k_m_WmK | W/m·K | scalar matrix conductivity for forward prediction |
+| fiber longitudinal conductivity (inferred) | k_l2 | W/m·K | inferred in Stage 3 |
 | polymer conductivity slope, k matrix p1 | k_p1 | W/m·K | parametric model coefficient — K_m(T) = k_p1*sqrt(T/T_ref) + k_p2 |
 | polymer conductivity intercept, k matrix p2 | k_p2 | W/m·K | parametric model coefficient |
 

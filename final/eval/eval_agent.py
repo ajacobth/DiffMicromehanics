@@ -78,8 +78,7 @@ _INV_PARAM_THRESHOLD = 5.0
 # ── Agent builder ─────────────────────────────────────────────────────────────
 
 def build_agent(model_tag: str):
-    think = False if model_tag.startswith("qwen3") else None
-    kwargs = {"think": think} if think is not None else {}
+    kwargs = {"reasoning": True} if model_tag.startswith("qwen3") else {}
     llm    = ChatOllama(model=model_tag, temperature=0, streaming=False, **kwargs)
     system = (PROMPTS_DIR / "system_prompt.md").read_text()
     vocab  = (PROMPTS_DIR / "vocabulary.md").read_text()

@@ -41,11 +41,13 @@ def run_inverse(
     sigmas:         dict[str, float] | None = None,
     solver_cfg:     dict | None = None,
     init_vals:      list[float] | None = None,
+    min_a33:        float = 0.0,
 ) -> InverseResult:
     """Run the inverse solver.
 
     - Loads (or retrieves cached) model for model_name.
     - Applies orientation sum constraint automatically if a11/a22 are free.
+    - min_a33: enforce a33 = 1 - a11 - a22 >= min_a33 via penalty constraint.
     - Uses "lbfgsb" method by default.
     - All values in model units.
     """
@@ -78,7 +80,8 @@ def run_inverse(
     fixed_inputs = {k: v for k, v in fixed_inputs.items() if k in model.in_idx}
 
     constraints = []
-    c = make_orientation_sum_constraint(free_inputs)
+    limit = max(0.0, 1.0 - float(min_a33))
+    c = make_orientation_sum_constraint(free_inputs, limit=limit)
     if c is not None:
         constraints.append(c)
 
