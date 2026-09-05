@@ -112,7 +112,7 @@ PROMPTS: dict[str, str] = {
 
     # IE4: ambiguous range — RULE 1 should block tool call, no tool expected
     "IE4": (
-        "I have some T300 / PESU Ultrason / CAMRI test data but my measurements have pretty "
+        "I have some T300 / PESU Ultrason test data printed on CAMRI but my measurements have pretty "
         "wide scatter: E1 is roughly 20-21 GPa and E2 is somewhere around 6 GPa. "
         "Can you run the elastic inverse for me?"
     ),
@@ -317,8 +317,9 @@ GUI_INPUTS: dict[str, dict] = {
         "gui":   "python gui_inverse.py  (Stage 1 — Elastic)",
         "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
         "meas":  "E1=20654 MPa  E2=6338 MPa  E3=6257 MPa  G12=3287 MPa  nu12=0.40  nu13=0.40",
-        "micro": "mf=0.25  AR=30  (both as starting guess; leave free)",
-        "fill":  "Read off: a11, a22, matrix_modulus → fill gui_value column.",
+        "micro": "mf=0.25 (FIXED)  AR=30 (FIXED)  |  free: a11, a22, matrix_modulus, matrix_poisson",
+        "note":  "G12+nu12 present → agent also frees matrix_poisson. mf and AR fixed (stated in prompt). Agent runs 4 restarts — (a11,a22)=(0.60,0.10),(0.50,0.30),(0.65,0.25),(0.40,0.35) — picks lowest error. To match: run GUI 4 times with each seed, keep the lowest-error result.",
+        "fill":  "Read off: a11, a22, matrix_modulus, matrix_poisson → fill gui_value column.",
     },
     "IE3": {
         "goal":  PROMPT_GOALS["IE3"],
@@ -334,22 +335,26 @@ GUI_INPUTS: dict[str, dict] = {
     },
     # ── Inverse: thermoelastic ────────────────────────────────────────────────
     "IT1": {
-        "goal":  PROMPT_GOALS["IT1"],
-        "gui":   "python gui_inverse.py  (Stage 2 — Thermoelastic)",
-        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
-        "meas":  "CTE11=5.26e-6 /K  CTE22=45.05e-6 /K",
-        "micro": "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
-        "note":  "CTE given in ppm/K in the prompt — agent must convert to 1/K (×1e-6) before passing.",
-        "fill":  "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
+        "goal":   PROMPT_GOALS["IT1"],
+        "gui":    "python gui_inverse.py  (Stage 2 — Thermoelastic)",
+        "fiber":  "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":   "CTE11=5.26e-6 /K  CTE22=45.05e-6 /K",
+        "micro":  "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
+        "init":   "f_cte1=-0.5 ppm/K (FREE)  f_cte2=11 ppm/K (FREE)  m_cte=75 ppm/K (FREE)",
+        "bounds": "f_cte1: [-4, 4] ppm/K  |  f_cte2: [1, 30] ppm/K  |  m_cte: [30, 120] ppm/K",
+        "note":   "CTE given in ppm/K in the prompt — agent must convert to 1/K (×1e-6) before passing.",
+        "fill":   "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
     },
     "IT2": {
-        "goal":  PROMPT_GOALS["IT2"],
-        "gui":   "python gui_inverse.py  (Stage 2 — Thermoelastic)",
-        "fiber": "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
-        "meas":  "CTE11=5.26e-6 /K  CTE22=4.505e-5 /K  CTE33=4.450e-5 /K",
-        "micro": "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
-        "note":  "CTE already in 1/K — no conversion needed.",
-        "fill":  "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
+        "goal":   PROMPT_GOALS["IT2"],
+        "gui":    "python gui_inverse.py  (Stage 2 — Thermoelastic)",
+        "fiber":  "Carbon Fiber T300  |  polymer: PESU Ultrason  |  printer: CAMRI",
+        "meas":   "CTE11=5.26e-6 /K  CTE22=4.505e-5 /K  CTE33=4.450e-5 /K",
+        "micro":  "a11=0.70  a22=0.15  mf=0.25  AR=30  matrix_modulus=3100 MPa  matrix_poisson=0.37",
+        "init":   "f_cte1=-0.5 ppm/K (FREE)  f_cte2=11 ppm/K (FREE)  m_cte=75 ppm/K (FREE)",
+        "bounds": "f_cte1: [-4, 4] ppm/K  |  f_cte2: [1, 30] ppm/K  |  m_cte: [30, 120] ppm/K",
+        "note":   "CTE already in 1/K — no conversion needed.",
+        "fill":   "Read off: f_cte1_ppm, f_cte2_ppm, m_cte_ppm → fill gui_value column.",
     },
     # ── Inverse: thermal ─────────────────────────────────────────────────────
     "IK1": {
@@ -430,7 +435,7 @@ GUI_INPUTS: dict[str, dict] = {
         "goal":   PROMPT_GOALS["T3"],
         "fiber":  "E1=230 GPa  E2=15 GPa  G12=15 GPa  ν12=0.20  ν23=0.25  ρ=1760 kg/m³",
         "matrix": "E=1600 MPa  ν=0.35  ρ=1330 kg/m³",
-        "micro":  "a11=0.45  a22=0.45  a12=0.00  a13=0.00  a23=0.00  mf=0.25  AR=20",
+        "micro":  "a11=0.5  a22=0.5  a12=0.00  a13=0.00  a23=0.00  mf=0.25  AR=20",
         "CTE":    "f_cte1=-5e-7 /K   f_cte2=1.2e-5 /K   m_cte=8e-5 /K",
         "note":   (
             "Planar isotropic + a33=0.1 is contradictory (planar iso → a33≈0). "
@@ -482,7 +487,7 @@ GUI_INPUTS: dict[str, dict] = {
 SCORED_PROPERTIES: dict[str, list[str]] = {
     # Inverse elastic — no fit_error gate; scored on recovered param MAPE only
     "IE1": ["a11", "a22", "matrix_modulus"],
-    "IE2": ["a11", "a22", "matrix_modulus"],
+    "IE2": ["a11", "a22", "matrix_modulus", "matrix_poisson"],
     "IE3": ["fiber_massfrac", "ar", "matrix_modulus", "matrix_poisson"],  # a11/a22 fixed from CT
     "IE4": [],              # RULE 1 — no tool expected, routing-only check
     # Inverse thermoelastic — fit_error gate retained

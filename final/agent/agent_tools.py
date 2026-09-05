@@ -176,8 +176,8 @@ _DEFAULT_BOUNDS = {
     "ar":             (5.0,    100.0),
     "matrix_modulus": (2000.0, 5000.0),
     "matrix_poisson": (0.33,    0.42),
-    "f_cte1":         (-4e-6,   4e-6),
-    "f_cte2":         (7e-6,   15e-6),
+    "f_cte1":         (-2e-6,   5e-6),
+    "f_cte2":         (4e-6,   16e-6),
     "m_cte":          (30e-6, 120e-6),
 }
 
@@ -188,16 +188,16 @@ _ELASTIC_SOLVER_CFG = {
     "use_epsilon_loss":   False,
     "epsilon_scale":      0.5,
     "maxiter":            300,
-    "tol":                1e-6,
+    "tol":                1e-9,
     "seed":               42,
 }
 
 # Stage 2 — thermoelastic free variables and initial guesses
 _TE_FREE = ["f_cte1", "f_cte2", "m_cte"]
 _TE_INIT = {
-    "f_cte1":  1.5e-6,   # midpoint of bounds; carbon ~0, glass ~5e-6
-    "f_cte2": 11.0e-6,   # midpoint of bounds [7, 15] ppm/K
-    "m_cte":  75.0e-6,   # midpoint of bounds; polymers typically 50-100 ppm/K
+    "f_cte1": -0.5e-6,   # carbon fiber: slightly negative axial CTE; glass: use ~3e-6
+    "f_cte2": 10.0e-6,   # midpoint of bounds [4, 16] ppm/K
+    "m_cte":  75.0e-6,   # midpoint of bounds [30, 120] ppm/K
 }
 
 # Stage 3 — thermal inverse forward model (lazy-loaded on first call)
@@ -950,6 +950,9 @@ def predict_properties(
         lines.append("  Microstructure:")
         for f, v in micro_vals:
             lines.append(f"    {f:<18} = {v:.4g}")
+        a11 = inputs.get("a11", 0.0)
+        a22 = inputs.get("a22", 0.0)
+        lines.append(f"    {'a33':<18} = {1.0 - a11 - a22:.4g}  (= 1 - a11 - a22)")
     em  = inputs.get("matrix_modulus")
     nu  = inputs.get("matrix_poisson")
     if em is not None:
@@ -1414,6 +1417,234 @@ def compare_thermal_fit(card_id: int, csv_path: str) -> str:
             lines.append(f"  {ch_key:<8}  {rmse:>14.4f}  {mae:>8.1f}%")
 
     return "\n".join(lines)
+
+
+# ── Plot tools ───────────────────────────────────────────────────────────────
+
+import core.services.service_plots as _splots
+
+
+@tool
+def plot_thermal_conductivity(
+    card_id: int = -1,
+    csv_path: str = "",
+    a11: float = -1.0,
+    a22: float = -1.0,
+    ar: float = -1.0,
+    fiber_massfrac: float = -1.0,
+    k_f1_WmK: float = -1.0,
+    k_f2_WmK: float = -1.0,
+    p1_WmK: float = -1.0,
+    p2_WmK: float = -1.0,
+    fiber_density_kg_m3: float = -1.0,
+    matrix_density_kg_m3: float = -1.0,
+) -> str:
+    """
+    Plot composite thermal conductivity (K11, K22, K33) vs temperature (25–200°C).
+
+    Material source — pick ONE:
+      A) card_id >= 0: uses Stage 3 parametric model from a saved card.
+         Pass a11, a22, ar, fiber_massfrac to override the card's microstructure.
+      B) card_id == -1 (default, no card needed): supply all values explicitly.
+         Required: k_f1_WmK, k_f2_WmK, a11, a22, ar, fiber_massfrac,
+                   fiber_density_kg_m3, matrix_density_kg_m3.
+         For temperature-dependent k_m: also pass p1_WmK and p2_WmK
+           (k_m(T) = p1·√T + p2 — the user's matrix conductivity formula).
+         Use option B whenever the user provides raw constituent values
+         without referencing a saved card.
+
+    csv_path: optional experimental CSV for overlay. Leave empty for model-only.
+
+    Call this whenever the user says "plot", "show", "visualize", or "chart"
+    in the context of thermal conductivity. Never describe the chart in text
+    instead of calling this tool.
+    """
+    inputs: dict = {}
+
+    if card_id >= 0:
+        try:
+            inputs = _scards.load_card_inputs(card_id)
+        except ValueError as e:
+            return f"Card not found: {e}"
+        except Exception as e:
+            return f"Database error: {e}"
+    else:
+        # Build inputs from explicit parameters — no card or DB needed
+        if fiber_density_kg_m3 > 0:
+            inputs["rho_f"]         = fiber_density_kg_m3
+            inputs["fiber_density"] = fiber_density_kg_m3
+        if matrix_density_kg_m3 > 0:
+            inputs["rho_m"]           = matrix_density_kg_m3
+            inputs["matrix_density"]  = matrix_density_kg_m3
+        inputs["a12"] = 0.0
+        inputs["a13"] = 0.0
+        inputs["a23"] = 0.0
+
+    # Apply microstructure overrides / raw values
+    if a11            != -1.0: inputs["a11"]            = a11
+    if a22            != -1.0: inputs["a22"]            = a22
+    if ar             != -1.0: inputs["ar"]             = ar; inputs["ar_f"] = ar
+    if fiber_massfrac != -1.0: inputs["fiber_massfrac"] = fiber_massfrac; inputs["w_f"] = fiber_massfrac
+
+    # Apply k overrides / raw values
+    if k_f1_WmK != -1.0: inputs["k_f1"] = k_f1_WmK
+    if k_f2_WmK != -1.0: inputs["k_f2"] = k_f2_WmK
+    if p1_WmK   != -1.0: inputs["p1"]   = p1_WmK
+    if p2_WmK   != -1.0: inputs["p2"]   = p2_WmK
+
+    exp_data = None
+    if csv_path.strip():
+        try:
+            exp_data = _parse_thermal_csv(csv_path.strip())
+        except Exception as e:
+            return f"CSV error: {e}"
+
+    try:
+        path = _splots.plot_k_vs_T(inputs, exp_data=exp_data, micro_overrides=None)
+    except ValueError as e:
+        return f"Cannot plot: {e}"
+    except Exception as e:
+        return f"Plot error: {e}"
+
+    overlay_note = " with experimental overlay" if exp_data else ""
+    return f"Thermal conductivity plot opened in browser{overlay_note}."
+
+
+@tool
+def plot_sensitivity(
+    card_id: int,
+    target_property: str = "E1",
+    free_variables: str = "a11 a22 fiber_massfrac matrix_modulus",
+) -> str:
+    """
+    Tornado chart: sensitivity of one composite property to each free parameter.
+    Shows how much the target property changes (as %) when each parameter is swept
+    across its typical range while all others stay at the card's base value.
+
+    card_id         : material card (Stage 1 complete minimum).
+    target_property : output to analyse — e.g. "E1", "E2", "G12", "nu12",
+                      "CTE11", "CTE22". Default: "E1".
+    free_variables  : space-separated list of parameters to include in the analysis.
+                      Supported: a11 a22 fiber_massfrac ar matrix_modulus
+                                 matrix_poisson f_cte1 f_cte2 m_cte
+                      Default: "a11 a22 fiber_massfrac matrix_modulus"
+
+    Call this whenever the user asks which parameter has the most impact,
+    wants a sensitivity or tornado chart, or asks "what drives X the most?"
+    Never answer sensitivity questions from training knowledge — call this tool.
+    """
+    try:
+        inputs = _scards.load_card_inputs(card_id)
+    except ValueError as e:
+        return f"Card not found: {e}"
+    except Exception as e:
+        return f"Database error: {e}"
+
+    params = [p.strip() for p in free_variables.split() if p.strip()]
+    if not params:
+        return "No free_variables provided. Example: 'a11 a22 fiber_massfrac matrix_modulus'"
+
+    try:
+        path = _splots.plot_sensitivity(inputs, target_property, params)
+    except ValueError as e:
+        return f"Cannot plot: {e}"
+    except Exception as e:
+        return f"Plot error: {e}"
+
+    return (
+        f"Sensitivity tornado chart for {target_property} opened in browser.\n"
+        f"Parameters analysed: {', '.join(params)}"
+    )
+
+
+@tool
+def plot_sweep(
+    card_id: int = -1,
+    parameter: str = "",
+    target_properties: str = "",
+    x_min: float = 0.0,
+    x_max: float = 1.0,
+    n_points: int = 10,
+    temperature_C: float = 25.0,
+    # Raw inputs — required when card_id == -1 (no saved card)
+    a11: float = -1.0,
+    a22: float = -1.0,
+    ar: float = -1.0,
+    fiber_massfrac: float = -1.0,
+    k_f1_WmK: float = -1.0,
+    k_f2_WmK: float = -1.0,
+    p1_WmK: float = -1.0,
+    p2_WmK: float = -1.0,
+    fiber_density_kg_m3: float = -1.0,
+    matrix_density_kg_m3: float = -1.0,
+) -> str:
+    """
+    Line plot: one or more composite properties vs a swept input parameter.
+    Use this when the user asks to PLOT how a property (E1, E2, E3, CTE11, G12, nu12,
+    K11, K22, K33…) changes as a parameter varies.
+
+    card_id           : material card to load base inputs from. Use -1 (default) when
+                        no card is saved — then provide raw inputs explicitly (see below).
+    parameter         : the input to vary: fiber_massfrac | a11 | a22 | ar |
+                        matrix_modulus | matrix_poisson | f_cte1 | f_cte2 | m_cte
+    target_properties : space-separated output names — elastic (E1 E2 E3 G12 nu12),
+                        thermoelastic (CTE11 CTE22), or thermal (K11 K22 K33).
+    x_min, x_max      : sweep range for the parameter.
+    n_points          : number of evenly spaced points (default 10).
+    temperature_C     : temperature for thermal sweeps (K11/K22/K33). Default 25°C.
+
+    Raw inputs (use when card_id == -1, i.e. no saved card):
+      a11, a22, ar, fiber_massfrac — microstructure base values (those not being swept)
+      k_f1_WmK, k_f2_WmK          — fiber conductivities (W/m·K)
+      p1_WmK, p2_WmK               — matrix parametric model: k_m(T) = p1·√T + p2
+      fiber_density_kg_m3, matrix_density_kg_m3 — densities
+
+    ROUTING RULE: call this tool whenever the user asks to PLOT or VISUALIZE a sweep.
+    Never make separate sweep_parameter calls and then try to plot — call this tool once.
+    """
+    if card_id >= 0:
+        try:
+            inputs = _scards.load_card_inputs(card_id)
+        except ValueError as e:
+            return f"Card not found: {e}"
+        except Exception as e:
+            return f"Database error: {e}"
+    else:
+        inputs = {"a12": 0.0, "a13": 0.0, "a23": 0.0}
+        if fiber_density_kg_m3   > 0:
+            inputs["rho_f"] = fiber_density_kg_m3
+            inputs["fiber_density"] = fiber_density_kg_m3
+        if matrix_density_kg_m3  > 0:
+            inputs["rho_m"] = matrix_density_kg_m3
+            inputs["matrix_density"] = matrix_density_kg_m3
+
+    # Apply overrides / raw values
+    if a11            != -1.0: inputs["a11"] = a11
+    if a22            != -1.0: inputs["a22"] = a22
+    if ar             != -1.0: inputs["ar"] = ar;              inputs["ar_f"] = ar
+    if fiber_massfrac != -1.0: inputs["fiber_massfrac"] = fiber_massfrac; inputs["w_f"] = fiber_massfrac
+    if k_f1_WmK       != -1.0: inputs["k_f1"] = k_f1_WmK
+    if k_f2_WmK       != -1.0: inputs["k_f2"] = k_f2_WmK
+    if p1_WmK         != -1.0: inputs["p1"] = p1_WmK
+    if p2_WmK         != -1.0: inputs["p2"] = p2_WmK
+
+    props = [p.strip() for p in target_properties.split() if p.strip()]
+    if not props:
+        return "No target_properties provided. Example: 'K11' or 'E1 E2 E3'"
+
+    try:
+        path = _splots.plot_sweep(inputs, parameter, props, x_min, x_max, n_points,
+                                   temperature_C=temperature_C)
+    except ValueError as e:
+        return f"Cannot plot: {e}"
+    except Exception as e:
+        return f"Plot error: {e}"
+
+    return (
+        f"Sweep plot opened in browser: {', '.join(props)} vs {parameter}  "
+        f"[{x_min:.3g} → {x_max:.3g}]  ({n_points} points).\n\n"
+        f"Data:\n{path}"
+    )
 
 
 # ── Parameter sweep tool ─────────────────────────────────────────────────────
@@ -2754,7 +2985,7 @@ def run_thermal_inverse(
       PATH A (card): card_id from completed Stage 1 — loads microstructure + densities automatically.
       PATH B (explicit): fiber_name, polymer_name, printer_name + a11, a22, fiber_massfrac, ar.
     csv_path: absolute path to CSV. Required columns: temperature_C (°C), K11_WmK (W/m·K). Optional: K22_WmK, K33_WmK.
-    n_restarts: optimisation restarts (default 20).
+    n_restarts: optimisation restarts (default 100).
     Results held in memory. Call save_to_card() to persist.
     """
     # ── Resolve inputs: card or explicit ─────────────────────────────────────
@@ -3766,6 +3997,9 @@ TOOLS = [
     predict_properties,
     predict_thermal_conductivity,
     compare_thermal_fit,
+    plot_thermal_conductivity,
+    plot_sensitivity,
+    plot_sweep,
     add_fiber,
     add_polymer,
     update_fiber,

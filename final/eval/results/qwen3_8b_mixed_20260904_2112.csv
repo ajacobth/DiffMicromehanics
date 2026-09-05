@@ -1,0 +1,27 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+IE1,a11,0.7744,0.77457076,FALSE,3,198.44,wrong tool: get_material_details
+IE1,a22,0.1677,0.16744432,FALSE,3,198.44,wrong tool: get_material_details
+IE1,matrix_modulus,2855.6,2855.7092,FALSE,3,198.44,wrong tool: get_material_details
+IE2,a11,0.6986,0.69863677,TRUE,1,91.25,
+IE2,a22,0.1487,0.14870766,TRUE,1,91.25,
+IE2,matrix_modulus,3111.2,3111.26,TRUE,1,91.25,
+IE2,matrix_poisson,0.366,0.36596206,TRUE,1,91.25,
+IE3,fiber_massfrac,0.25,0.25,TRUE,1,129.45,
+IE3,ar,30,30,TRUE,1,129.45,
+IE3,matrix_modulus,3093.9,3093.9424,TRUE,1,129.45,
+IE3,matrix_poisson,0.363,0.36301994,TRUE,1,129.45,
+IE4,—,,,FALSE,4,116.7,inverse — tool routing only
+IT1,fit_error,0,0,TRUE,1,117.08,
+IT1,f_cte1_ppm,0.6008,0.536,TRUE,1,117.08,
+IT1,f_cte2_ppm,10.1379,7.426,TRUE,1,117.08,
+IT1,m_cte_ppm,55.4232,56.03,TRUE,1,117.08,
+IT2,fit_error,0,0,TRUE,1,139.31,
+IT2,f_cte1_ppm,0.4852,4.86E-01,TRUE,1,139.31,
+IT2,f_cte2_ppm,4,4,TRUE,1,139.31,
+IT2,m_cte_ppm,56.4016,56.403707,TRUE,1,139.31,
+IK1,fit_error,0.000223,2.24E-04,TRUE,3,108.93,
+IK1,k_f1,7.5416,7.54162,TRUE,3,108.93,
+IK1,k_f2,0.5052,0.505169,TRUE,3,108.93,
+IK1,p1,0.020776,0.020767,TRUE,3,108.93,
+IK1,p2,0.2033,0.204146,TRUE,3,108.93,
+IK2,—,GOOD,GOOD,TRUE,1,65.54,inverse — tool routing only

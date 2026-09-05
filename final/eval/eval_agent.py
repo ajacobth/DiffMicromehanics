@@ -573,17 +573,13 @@ def score_csv(csv_path: Path) -> None:
     # ── Main results table ────────────────────────────────────────────────────
     W = 80
     print(f"\n{'═' * W}")
-    print(f"  MateriAl Agent — Benchmark Results")
-    print(f"  Forward pass: MAPE < {_PASS_THRESHOLD}%  |  "
-          f"Inverse pass: fit_error < {_INV_FIT_THRESHOLD}  +  param MAPE < {_INV_PARAM_THRESHOLD}%")
+    print(f"  MateriAl Agent — Benchmark Results  (metric: MAPE vs GUI reference)")
     print(f"{'═' * W}")
-    print(f"\n  {'Key':<6}  {'Challenge':<40}  {'Tool':<5}  {'Pass':<5}  Notes")
-    print(f"  {'─'*6}  {'─'*40}  {'─'*5}  {'─'*5}  {'─'*16}")
+    print(f"\n  {'Key':<6}  {'Challenge':<40}  {'Tool':<5}  {'MAPE':>7}  Scored")
+    print(f"  {'─'*6}  {'─'*40}  {'─'*5}  {'─'*7}  {'─'*8}")
 
-    prev_cat   = None
-    n_pass     = 0
-    n_total    = 0
-    hard_cases: list[tuple[str, dict]] = []
+    prev_cat  = None
+    cat_mapes: dict[str, list[float]] = {}   # cat → per-prompt MAPEs
 
     for key in PROMPTS:
         if key not in prompt_results:
@@ -598,66 +594,65 @@ def score_csv(csv_path: Path) -> None:
         tool_str  = "✓" if res["tool_ok"] else "✗"
         challenge = _short_challenge(key)
 
-        if not res["scored"]:
-            print(f"  {key:<5}  {challenge:<40}  {tool_str:<5}  {'—':<5}  not filled")
-            continue
-
-        n_total += 1
-        if res["passed"]:
-            n_pass += 1
-            pass_str = "✓"
-            notes    = ""
-        else:
-            pass_str = "✗"
-            if not res["tool_ok"]:
-                notes = "wrong tool"
-            elif res["fit_error"] is not None:
-                notes = f"fit_error {res['fit_error']:.4f}"
-            elif res["prop_errors"]:
-                worst_prop, worst_err = res["prop_errors"][0]
-                notes = f"{worst_prop} off {worst_err:.1f}%"
-            else:
-                notes = f"MAPE {res['mape']:.1f}%" if res["mape"] is not None else "no data"
-            hard_cases.append((key, res))
-
         if res.get("n_expected", 0) == 0:
             filled_str = "routing"
-        elif res.get("fit_error") is not None:
-            filled_str = f"fe={res['fit_error']:.4f}"
+            mape_str   = "—"
+        elif not res["scored"] or res["mape"] is None:
+            filled_str = f"{res.get('n_filled',0)}/{res.get('n_expected',0)}"
+            mape_str   = "not filled"
         else:
             filled_str = f"{res['n_filled']}/{res['n_expected']}"
-        print(f"  {key:<6}  {challenge:<40}  {tool_str:<5}  {pass_str:<5}  "
-              f"{notes}  [{filled_str}]")
+            mape_str   = f"{res['mape']:.3f}%"
+            cat_mapes.setdefault(cat, []).append(res["mape"])
 
-    # ── Summary ───────────────────────────────────────────────────────────────
+        print(f"  {key:<6}  {challenge:<40}  {tool_str:<5}  {mape_str:>7}  {filled_str}")
+
+    # ── Per-property breakdown ────────────────────────────────────────────────
+    print(f"\n{'─' * W}")
+    print(f"  Per-property MAPE")
+    print(f"{'─' * W}")
+    print(f"  {'Key':<6}  {'Property':<22}  {'MAPE':>8}")
+    print(f"  {'─'*6}  {'─'*22}  {'─'*8}")
+
+    prev_cat = None
+    for key in PROMPTS:
+        if key not in prompt_results:
+            continue
+        res = prompt_results[key]
+        prop_errors = [
+            (p, e) for p, e in res.get("prop_errors", [])
+            if p != "fit_error"
+        ]
+        if not prop_errors:
+            continue
+        cat = _cat(key)
+        if cat != prev_cat:
+            print(f"\n  ── {_CATEGORY_LABEL.get(cat, cat)} ──")
+            prev_cat = cat
+        for prop, err in prop_errors:
+            print(f"  {key:<6}  {prop:<22}  {err:>7.3f}%")
+
+    # ── Category summary ──────────────────────────────────────────────────────
     print(f"\n{'═' * W}")
-    n_prompts  = len(prompt_results)
-    tool_ok_n  = sum(1 for r in prompt_results.values() if r.get("tool_ok"))
-    tool_pct   = tool_ok_n / n_prompts * 100 if n_prompts else 0
-    pass_pct   = n_pass / n_total * 100 if n_total else 0
+    print(f"  Category summary")
+    print(f"  {'─'*38}  {'Prompts':>8}  {'Mean MAPE':>10}")
 
-    print(f"  Tool routing : {tool_ok_n}/{n_prompts}  ({tool_pct:.0f}%)")
-    print(f"  Pass rate    : {n_pass}/{n_total}  ({pass_pct:.0f}%)"
-          + ("  — all filled prompts passed" if n_pass == n_total else ""))
+    all_mapes: list[float] = []
+    for cat, label in _CATEGORY_LABEL.items():
+        mapes = cat_mapes.get(cat, [])
+        if not mapes:
+            continue
+        mean_m = sum(mapes) / len(mapes)
+        all_mapes.extend(mapes)
+        print(f"  {label:<38}  {len(mapes):>8}  {mean_m:>9.3f}%")
 
-    # ── Failed prompt detail ──────────────────────────────────────────────────
-    if hard_cases:
-        print(f"\n  ── Failed prompts ──────────────────────────────────────────")
-        for key, res in hard_cases:
-            goal = PROMPT_GOALS.get(key, "")
-            cat  = _cat(key)
-            print(f"\n  {key}  {goal}")
-            if not res["tool_ok"]:
-                print(f"    → wrong tool called")
-            if cat in ("IE", "IT", "IK") and res["fit_error"] is not None:
-                flag = "  ← exceeds threshold" if res["fit_error"] >= _INV_FIT_THRESHOLD else ""
-                print(f"    → fit_error = {res['fit_error']:.5f}{flag}")
-            elif res["prop_errors"] and res["mape"] is not None:
-                print(f"    → MAPE {res['mape']:.2f}%")
-                for prop, err in res["prop_errors"]:
-                    flag = "  ←" if err >= _PASS_THRESHOLD else ""
-                    print(f"       {prop:<10}  {err:>7.3f}%{flag}")
+    if all_mapes:
+        overall = sum(all_mapes) / len(all_mapes)
+        print(f"  {'Overall':<38}  {len(all_mapes):>8}  {overall:>9.3f}%")
 
+    n_prompts = len(prompt_results)
+    tool_ok_n = sum(1 for r in prompt_results.values() if r.get("tool_ok"))
+    print(f"\n  Tool routing : {tool_ok_n}/{n_prompts}  ({tool_ok_n/n_prompts*100:.0f}%)")
     print(f"{'═' * W}\n")
 
 
@@ -681,7 +676,7 @@ def print_worksheet(keys: list[str]) -> None:
         info = GUI_INPUTS[key]
         print(f"\n  {key}")
         for field in ("goal", "gui", "fiber", "matrix", "micro", "meas", "CTE", "k",
-                      "density", "csv", "score_at", "fill", "note"):
+                      "density", "csv", "init", "bounds", "score_at", "fill", "note"):
             val = info.get(field)
             if val:
                 label = {
@@ -690,6 +685,7 @@ def print_worksheet(keys: list[str]) -> None:
                     "micro":    "Micro   ", "meas":    "Meas    ",
                     "CTE":      "CTE     ", "k":       "k inputs",
                     "density":  "Density ", "csv":     "CSV     ",
+                    "init":     "Init    ", "bounds":  "Bounds  ",
                     "score_at": "Score @ ", "fill":    "Fill    ",
                     "note":     "Note    ",
                 }[field]

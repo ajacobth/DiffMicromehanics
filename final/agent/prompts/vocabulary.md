@@ -42,14 +42,12 @@ Even with E1 + E3 + nu13, the solution is not unique: there is a 1D family of (a
 
 | User says | a11 | a22 | a33 | Notes |
 |---|---|---|---|---|
-| random, random orientation, isotropic, randomly oriented | 0.333 | 0.333 | 0.333 | 3D random — fibers equally distributed in all directions |
-| 2D random, in-plane random, planar random, planar isotropic, in-plane isotropic | 0.5 | 0.5 | 0.0 | Fibers randomly distributed within a plane |
+| random, random orientation, randomly oriented, 3D random, 3D isotropic | 0.333 | 0.333 | 0.333 | 3D random — fibers equally distributed in all directions |
+| 2D random, in-plane random, planar random, planar isotropic, in-plane isotropic, isotropic | 0.5 | 0.5 | 0.0 | Fibers randomly distributed within a plane |
 | aligned, unidirectional, UD, fully aligned | 1.0 | 0.0 | 0.0 | All fibers along print direction |
 | transverse, cross-ply | 0.0 | 1.0 | 0.0 | All fibers perpendicular to print direction |
 
-**Rule:** If the user gives orientation as a keyword (e.g. "random"), look up the exact values above and pass them directly. Never invent or approximate orientation values.
-
-**Override rule — keyword + explicit a33:** If the user gives BOTH a keyword AND an explicit a33 value (e.g. "planar isotropic with a33=0.1"), do NOT use the table's default a33. Instead: use the user's a33, then compute a11 = a22 = (1 − a33) / 2. Example: "planar isotropic, a33=0.1" → a33=0.1, a11=a22=(1−0.1)/2=0.45. Verify: a11+a22+a33 must equal 1.0 before calling any tool.
+**Rule:** If the user gives orientation as a keyword (e.g. "random"), look up the exact values above and pass them directly. Never invent or approximate orientation values. If the user gives a keyword alongside an explicit a33 value that contradicts the keyword's default (e.g. "planar isotropic with a33=0.1"), flag the contradiction explicitly — e.g. "Note: 'planar isotropic' implies a33=0.0, which conflicts with your stated a33=0.1. I will use the planar isotropic defaults (a11=a22=0.5, a33=0.0)." Then proceed with the keyword's table values.
 
 ---
 

@@ -1,0 +1,27 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+IE1,a11,0.7744,0.77417481,TRUE,1,96.81,
+IE1,a22,0.1677,0.16733065,TRUE,1,96.81,
+IE1,matrix_modulus,2855.6,2854.3467,TRUE,1,96.81,
+IE2,a11,0.6986,0.69863778,TRUE,2,116.49,
+IE2,a22,0.1487,0.14870919,TRUE,2,116.49,
+IE2,matrix_modulus,3111.2,3111.2351,TRUE,2,116.49,
+IE2,matrix_poisson,0.366,0.36596256,TRUE,2,116.49,
+IE3,fiber_massfrac,0.25,0.25,FALSE,3,143.82,wrong tool: get_material_details
+IE3,ar,30,30,FALSE,3,143.82,wrong tool: get_material_details
+IE3,matrix_modulus,3093.9,3093.9424,FALSE,3,143.82,wrong tool: get_material_details
+IE3,matrix_poisson,0.363,0.36301994,FALSE,3,143.82,wrong tool: get_material_details
+IE4,GOOD,,,FALSE,3,124.92,inverse — tool routing only
+IT1,fit_error,3.00E-05,3.20E-04,TRUE,1,118.22,
+IT1,f_cte1_ppm,0.5194,6.21E-01,TRUE,1,118.22,Different startinng points casued this
+IT1,f_cte2_ppm,6.7578,1.09E+01,TRUE,1,118.22,Different startinng points casued this
+IT1,m_cte_ppm,56.1807,5.52E+01,TRUE,1,118.22,Different startinng points casued this
+IT2,fit_error,3.00E-05,3.00E-05,TRUE,1,162.12,
+IT2,f_cte1_ppm,0.4101,4.11E-01,TRUE,1,162.12,
+IT2,f_cte2_ppm,1,1,TRUE,1,162.12,
+IT2,m_cte_ppm,57.0797,5.71E+01,TRUE,1,162.12,
+IK1,fit_error,0.000223,0.000223,TRUE,1,86.5,
+IK1,k_f1,7.5416,7.54162,TRUE,1,86.5,
+IK1,k_f2,0.5052,0.505169,TRUE,1,86.5,
+IK1,p1,0.020776,0.020776,TRUE,1,86.5,
+IK1,p2,0.2033,0.204146,TRUE,1,86.5,
+IK2,—,,,TRUE,1,86.51,inverse — tool routing only
