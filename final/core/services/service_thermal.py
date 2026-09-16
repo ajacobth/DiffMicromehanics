@@ -20,8 +20,8 @@ THERMAL_BOUNDS = [
 class ThermalResult(TypedDict):
     p1:           float   # polymer conductivity scaling [W/m·K]
     p2:           float   # polymer conductivity offset  [W/m·K]
-    l2:           float   # fiber longitudinal conductivity [W/m·K]
-    t:            float   # fiber anisotropy ratio (K_f_long / K_f_trans) [-]
+    k_f1:         float   # fiber longitudinal conductivity [W/m·K]  (= l2)
+    k_f2:         float   # fiber transverse conductivity   [W/m·K]  (= l2/t)
     best_loss:    float
     temperatures: list    # list[float]
     K_pred:       dict    # {"K11": list[float], "K22": list[float], "K33": list[float]}
@@ -179,8 +179,8 @@ def run_thermal_inverse(
     return ThermalResult(
         p1=float(best_params.p1),
         p2=float(best_params.p2),
-        l2=float(best_params.l2),
-        t=float(best_params.t),
+        k_f1=float(best_params.l2),
+        k_f2=float(best_params.l2 / best_params.t),
         best_loss=best_loss,
         temperatures=all_T.tolist(),
         K_pred={

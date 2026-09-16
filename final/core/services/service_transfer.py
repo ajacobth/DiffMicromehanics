@@ -58,6 +58,7 @@ class TransferResult(TypedDict):
     sigmas:                 dict
     constituent_inputs:     dict   # full input dict used for forward models
     predictions:            dict   # "elastic" | "thermoelastic" | "thermal" → dict | None
+    thermal_sweep:          dict   # temperature-dependent K11/K22/K33 table, or {"error": ...}
 
 
 def _best_value(rows: list[dict], names: list[str]) -> Optional[dict]:
@@ -486,8 +487,13 @@ def run_transfer(
     opt_micro           = {k: v for k, v in opt_free.items() if k not in free_constituents}
     reinferred_consts   = {k: v for k, v in opt_free.items() if k in free_constituents}
 
-    # Build full input dict for forward predictions
-    full_inputs = build_forward_inputs(source_card_id, {**opt_micro, **reinferred_consts})
+    # Build full input dict for forward predictions.
+    # fixed_micro holds ar/fiber_massfrac that were held fixed during the inverse;
+    # they must be included here so all three forward models have ar_f and w_f.
+    full_inputs = build_forward_inputs(
+        source_card_id,
+        {**(fixed_micro or {}), **opt_micro, **reinferred_consts},
+    )
 
     # Run all three forward models
     predictions: dict[str, Optional[dict]] = {}
@@ -506,6 +512,14 @@ def run_transfer(
         except Exception as exc:
             predictions[model_name] = {"error": str(exc)}
 
+    # Thermal sweep: K11/K22/K33 vs temperature using the transferred microstructure
+    _SWEEP_TEMPS = [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 175.0, 200.0]
+    try:
+        new_micro = {**(fixed_micro or {}), **opt_micro}
+        thermal_sweep = run_thermal_sweep(source_card_id, new_micro, _SWEEP_TEMPS)
+    except Exception as _exc:
+        thermal_sweep = {"error": str(_exc)}
+
     return TransferResult(
         source_card_id=source_card_id,
         constituent_props=constituent_props,
@@ -517,4 +531,5 @@ def run_transfer(
         sigmas=dict(sigmas or {}),
         constituent_inputs=full_inputs,
         predictions=predictions,
+        thermal_sweep=thermal_sweep,
     )

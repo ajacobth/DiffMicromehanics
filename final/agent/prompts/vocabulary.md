@@ -49,6 +49,13 @@ Even with E1 + E3 + nu13, the solution is not unique: there is a 1D family of (a
 
 **Rule:** If the user gives orientation as a keyword (e.g. "random"), look up the exact values above and pass them directly. Never invent or approximate orientation values. If the user gives a keyword alongside an explicit a33 value that contradicts the keyword's default (e.g. "planar isotropic with a33=0.1"), flag the contradiction explicitly — e.g. "Note: 'planar isotropic' implies a33=0.0, which conflicts with your stated a33=0.1. I will use the planar isotropic defaults (a11=a22=0.5, a33=0.0)." Then proceed with the keyword's table values.
 
+**⚠️ Critical disambiguation — "random" vs "planar random" in manufacturing context:**
+- "randomly oriented", "randomly aligned", "random" → **always 3D isotropic: a11=a22=a33=0.333**, even for printed parts.
+- Only use planar random (a11=a22=0.5, a33=0.0) when the user says "planar", "in-plane", or "2D random" explicitly.
+- The word "printed" or "manufactured" does NOT imply planar random. A printed part described as "randomly oriented" is 3D isotropic.
+- Wrong: "printed with randomly oriented fibers" → a11=a22=0.5 ✗
+- Correct: "printed with randomly oriented fibers" → a11=a22=a33=0.333 ✓
+
 ---
 
 ## Elastic composite properties

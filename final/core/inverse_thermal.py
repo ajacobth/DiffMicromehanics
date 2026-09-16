@@ -12,6 +12,7 @@ Constituent models (Thomas et al. 2024, Sec. 4.2):
     Fiber   : K_f1    = l2                            (temperature-independent)
               K_f2    = l2 / t                        (temperature-independent)
 
+
 Usage
 -----
     from forward import load_forward
@@ -35,13 +36,15 @@ from scipy.optimize import minimize
 # ── Reference temperature ─────────────────────────────────────────────────────
 T_REF = 1.0   # °C  (Thomas et al. 2024, Sec. 4.2)
 
+
+
 # ── Output index map (must match models/thermal/model_config.json) ────────────
 _OUT_IDX = {"k11": 0, "k12": 1, "k13": 2, "k22": 3, "k23": 4, "k33": 5}
 
 # ── Optimisation bounds [lo, hi] — physical constraints ──────────────────────
 PARAM_BOUNDS = [
-    (0.0,  0.05),   # p1  polymer conductivity scaling  [W/(m·°C)]  — allows k_m up to ~0.4 at 200°C
-    (0.0,  0.40),   # p2  polymer conductivity offset   [W/(m·°C)]  — covers 0.05–0.4 W/m·K range
+    (0.0,  0.05),   # p1  polymer conductivity scaling  [W/(m·°C)]
+    (0.0,  0.40),   # p2  polymer conductivity offset   [W/(m·°C)]
     (1.0, 20.0),    # l2  fiber longitudinal conductivity [W/(m·°C)]
     (1.01, 15.0),   # t   fiber anisotropy ratio (K_f1/K_f2)  [–]
 ]
@@ -69,10 +72,10 @@ class PolymerConductivityModel:
 
 class FiberConductivityModel:
     """
-    Transversely isotropic fiber conductivity (temperature-independent, l1=0).
+    Transversely isotropic fiber conductivity (temperature-independent).
 
-        K_f_long(T)  = l2           (constant)
-        K_f_trans(T) = l2 / t       (constant)
+        K_f_long  = l2
+        K_f_trans = l2 / t
     """
 
     def __init__(self, l2: float, t: float):
@@ -235,8 +238,7 @@ def objective_function(
         if ch is None:
             continue
         K_pred = compute_composite_conductivity(params, ch["T"], predictor, fixed_inputs)
-        scale  = float(np.mean(ch["K"])) or 1.0   # per-channel mean → equal relative weight
-        loss  += float(np.sum(((K_pred[:, col] - ch["K"]) / scale) ** 2))
+        loss  += float(np.sum(((K_pred[:, col] - ch["K"]) / ch["K"]) ** 2))
         n_pts += len(ch["T"])
 
     return loss / max(n_pts, 1)
@@ -284,7 +286,7 @@ def run_inverse_estimation(
     best_loss   = np.inf
 
     for i in range(n_restarts):
-        x0  = lo + rng.random(4) * (hi - lo)
+        x0  = lo + rng.random(len(lo)) * (hi - lo)
         res = minimize(
             fun     = objective_function,
             x0      = x0,

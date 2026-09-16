@@ -1,0 +1,8 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T3,E1,7584.5,,True,1,145.26,
+T3,E2,7462.0,,True,1,145.26,
+T3,G12,2857.1,,True,1,145.26,
+T3,nu12,0.3294,,True,1,145.26,
+T3,CTE11,1.6892e-05,,True,1,145.26,
+T3,CTE22,1.7018e-05,,True,1,145.26,
+T3,CTE33,0.00011134,,True,1,145.26,

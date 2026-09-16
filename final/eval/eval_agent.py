@@ -50,6 +50,7 @@ _MODEL_ALIASES = {
     "32b":   "qwen2.5:32b-instruct-q3_K_M",
     "8b":    "qwen3:8b",
     "q3-14": "qwen3:14b",
+    "moe":   "qwen3:30b-a3b",
 }
 
 _CATEGORY_LABEL = {
@@ -221,12 +222,16 @@ def _extract_tool_calls(messages: list) -> list[dict]:
     return calls
 
 
+_MAX_CONFIRMATION_TURNS = 4   # max follow-up "yes" messages before giving up
+
+
 def run_one(app, key: str) -> dict:
     """Run one prompt in a fresh thread; return tool calls, parsed values, timing.
 
-    Inverse prompts (IE/IT/IK) require a confirmation step: the agent shows a
-    summary and waits for 'yes'. We send a single follow-up 'yes, go ahead' if
-    the expected tool was not called on the first turn.
+    Inverse prompts (IE/IT/IK) require one or more confirmation turns before the
+    agent actually calls the inverse tool (material lookups, identifiability check,
+    pre-run summary, etc. each consume a turn). We keep sending "Yes, go ahead."
+    until the expected tool is called or _MAX_CONFIRMATION_TURNS is reached.
     """
     config  = {"configurable": {"thread_id": str(uuid.uuid4())}}
     t0      = time.perf_counter()
@@ -242,17 +247,18 @@ def run_one(app, key: str) -> dict:
         all_messages = result.get("messages", [])
         n_turns     += 1
 
-        # For inverse prompts: if expected tool wasn't called, send confirmation.
+        # For inverse prompts: keep confirming until the expected tool is called.
         expected = EXPECTED_TOOL[key]
         if key in _NEEDS_CONFIRMATION and expected is not None:
-            tool_calls_so_far = _extract_tool_calls(all_messages)
-            expected_called   = any(tc["tool"] == expected for tc in tool_calls_so_far)
-            if not expected_called:
-                result2      = app.invoke(
+            for _ in range(_MAX_CONFIRMATION_TURNS):
+                tool_calls_so_far = _extract_tool_calls(all_messages)
+                if any(tc["tool"] == expected for tc in tool_calls_so_far):
+                    break   # expected tool was called — done
+                result = app.invoke(
                     {"messages": [HumanMessage(content="Yes, go ahead.")]},
                     config,
                 )
-                all_messages = result2.get("messages", [])
+                all_messages = result.get("messages", [])
                 n_turns     += 1
 
     except Exception as exc:
@@ -280,11 +286,13 @@ def run_one(app, key: str) -> dict:
     # First tool called by the agent
     first_tool = tool_calls[0]["tool"] if tool_calls else None
 
-    # IE5 special case: expected_tool=None means the agent should call NOTHING.
+    # expected_tool=None means the agent should call NOTHING (IE4 / IK2 routing-only).
+    # For all other prompts, check that the expected tool was called at some point —
+    # inverse flows legitimately call get_material_details first, then the inverse tool.
     if expected is None:
         tool_correct = first_tool is None
     else:
-        tool_correct = first_tool == expected
+        tool_correct = any(tc["tool"] == expected for tc in tool_calls)
 
     return {
         "key":          key,
@@ -715,7 +723,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--run",       action="store_true", help="Run agent on benchmark prompts")
     p.add_argument("--score",     metavar="CSV",       help="Score a filled CSV file")
     p.add_argument("--worksheet", action="store_true", help="Print GUI worksheet only (no agent run)")
-    p.add_argument("--model",     default="8b",        help="Model alias: 8b (default), 14b, 32b")
+    p.add_argument("--model",     default="moe",       help="Model alias: moe (default), 8b, 14b, 32b, q3-14")
     p.add_argument("--keys",      nargs="+",           help="Subset of prompt keys, e.g. E1 T4 S1")
     return p.parse_args()
 

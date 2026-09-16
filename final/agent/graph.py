@@ -62,6 +62,7 @@ def build_app(llm: BaseChatModel, system_prompt: str):
             return {}
         report = _sc.evaluate(last.name, last.content)
         updated = ToolMessage(
+            id=last.id,           # same id → add_messages replaces instead of appending
             content=last.content + report,
             tool_call_id=last.tool_call_id,
             name=last.name,

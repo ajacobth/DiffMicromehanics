@@ -15,7 +15,7 @@ Section header format:
 Fit error above 0.05 usually means one of:
 - Measurements are inconsistent with each other
 - Wrong material selected (check fiber and polymer names)
-- Not enough measurements — adding G12 or nu12 significantly helps
+- Not enough measurements — call check_identifiability to find which measurements would help most
 
 If only E1 and E2 are provided, aspect ratio (ar) is poorly constrained.
 The result may still be useful but treat ar as approximate.
@@ -45,6 +45,12 @@ fibers (typical ratio 5-10x). If they are similar, check the CSV column order.
 
 At least 4 temperature points spanning 50 deg C or more are recommended.
 Fewer points or a narrow range make p1 and p2 poorly constrained.
+
+**How to report fit_error**: the tool returns a dimensionless normalized residual
+(e.g. 2.70e-03). The acceptance threshold is 0.10 (also dimensionless).
+Always report it as "fit_error = X.XXe-YY (below the 0.10 threshold)" — never
+convert to a percentage, never say "0.1% threshold". The comparison is simply
+fit_error < 0.10.
 
 ---
 

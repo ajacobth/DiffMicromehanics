@@ -43,6 +43,7 @@ MODELS = {
     "local32":  ("ollama",    "qwen2.5:32b-instruct-q3_K_M"),
     "local2":   ("ollama",    "qwen3:8b"),
     "local3":   ("ollama",    "qwen3:14b"),
+    "moe":      ("ollama",    "qwen3:30b-a3b"),
 }
 # Context window per model — balances speed (prefill ∝ num_ctx) vs capacity
 MODEL_CTX = {
@@ -52,9 +53,10 @@ MODEL_CTX = {
     "local_q8": 16384,  # 14B Q8 — larger ctx, still fast on 32GB
     "local32":  16384,
     "local2":   None,   # 8B — Ollama default (40960); explicit ctx made it slower
-    "local3":   None,    # 14B — Ollama default; explicit ctx was slower
+    "local3":   None,   # 14B — Ollama default; explicit ctx was slower
+    "moe":      None,   # 30B-A3B MoE — Ollama default
 }
-ACTIVE_MODEL = "local2"  # ← change this: "haiku" | "sonnet" | "local" | "local_q8" | "local32" | "local2" | "local3"
+ACTIVE_MODEL = "moe"  # ← change this: "haiku" | "sonnet" | "local" | "local_q8" | "local32" | "local2" | "local3" | "moe"
 
 _THINKING_MSGS = [
     "Consulting the orientation tensor…",

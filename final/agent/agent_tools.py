@@ -391,7 +391,7 @@ def get_card_status(card_id: int) -> str:
         lines.append("  (no microstructure stored — Stage 1 not yet run or not saved)")
 
     # ── Constituent properties ─────────────────────────────────────────────────
-    lines.append("\nConstituent properties:")
+    lines.append("\nConstituent properties:  [FIBER/MATRIX INTRINSIC VALUES — not composite measurements]")
 
     fiber_props   = card["constituent_properties"].get("fiber",   [])
     polymer_props = card["constituent_properties"].get("polymer", [])
@@ -452,7 +452,10 @@ def get_card_status(card_id: int) -> str:
     # ── Experimental measurements ──────────────────────────────────────────────
     exp = card.get("experimental_measurements", [])
     if exp:
-        lines.append(f"\nExperimental measurements ({len(exp)} stored):")
+        lines.append(
+            f"\nExperimental measurements ({len(exp)} stored):"
+            "  [STORED FROM THIS CARD'S PRINTER — do NOT reuse as measurements for a different printer]"
+        )
         seen_exp: dict = {}
         for m in exp:
             n = m["property_name"]
@@ -499,18 +502,21 @@ def get_material_details(material_name: str) -> str:
 
     for f in fibers:
         if name_lower in f["name"].lower():
-            lines = [f"FIBER: {f['name']}  id={f['id']}  supplier={f.get('supplier','?')}"]
+            lines = [
+                f"FIBER: {f['name']}  id={f['id']}  supplier={f.get('supplier','?')}",
+                "  [CONSTITUENT/DATASHEET PROPERTIES — these are fiber-only values, NOT composite measurements]",
+            ]
             _props = [
-                ("E1",      f.get("neat_E1"),   "MPa"),
-                ("E2",      f.get("neat_E2"),   "MPa"),
-                ("G12",     f.get("neat_G12"),  "MPa"),
-                ("nu12",    f.get("neat_nu12"), ""),
-                ("nu23",    f.get("neat_nu23"), ""),
-                ("density", f.get("neat_rho"),  "kg/m³"),
-                ("CTE1",    f.get("neat_CTE1"), "1/K"),
-                ("CTE2",    f.get("neat_CTE2"), "1/K"),
-                ("k1",      f.get("neat_k1"),   "W/m·K"),
-                ("k2",      f.get("neat_k2"),   "W/m·K"),
+                ("fiber_E1",      f.get("neat_E1"),   "MPa  (fiber longitudinal modulus)"),
+                ("fiber_E2",      f.get("neat_E2"),   "MPa  (fiber transverse modulus)"),
+                ("fiber_G12",     f.get("neat_G12"),  "MPa  (fiber shear modulus)"),
+                ("fiber_nu12",    f.get("neat_nu12"), " (fiber Poisson ratio)"),
+                ("fiber_nu23",    f.get("neat_nu23"), " (fiber transverse Poisson ratio)"),
+                ("fiber_density", f.get("neat_rho"),  "kg/m³"),
+                ("fiber_CTE1",    f.get("neat_CTE1"), "1/K  (fiber axial CTE)"),
+                ("fiber_CTE2",    f.get("neat_CTE2"), "1/K  (fiber transverse CTE)"),
+                ("fiber_k1",      f.get("neat_k1"),   "W/m·K"),
+                ("fiber_k2",      f.get("neat_k2"),   "W/m·K"),
             ]
             for label, val, unit in _props:
                 if val is not None:
@@ -519,12 +525,15 @@ def get_material_details(material_name: str) -> str:
 
     for p in polymers:
         if name_lower in p["name"].lower():
-            lines = [f"POLYMER: {p['name']}  id={p['id']}  supplier={p.get('supplier','?')}"]
+            lines = [
+                f"POLYMER: {p['name']}  id={p['id']}  supplier={p.get('supplier','?')}",
+                "  [CONSTITUENT/DATASHEET PROPERTIES — these are matrix-only values, NOT composite measurements]",
+            ]
             _props = [
-                ("E (matrix modulus)", p.get("neat_E1"),   "MPa"),
-                ("nu12",               p.get("neat_nu12"), ""),
-                ("density",            p.get("neat_rho"),  "kg/m³"),
-                ("k (conductivity)",   p.get("neat_k"),    "W/m·K"),
+                ("matrix_E (neat modulus)", p.get("neat_E1"),   "MPa"),
+                ("matrix_nu12",             p.get("neat_nu12"), ""),
+                ("matrix_density",          p.get("neat_rho"),  "kg/m³"),
+                ("matrix_k (conductivity)", p.get("neat_k"),    "W/m·K"),
             ]
             for label, val, unit in _props:
                 if val is not None:
@@ -702,7 +711,7 @@ def inspect_card_inputs(card_id: int) -> str:
     if has_parametric:
         lines.append("  Stage 3 parametric model available (temperature-dependent):")
         for field, label in [("p1","polymer k scaling"), ("p2","polymer k offset"),
-                              ("l2","fiber k_f1"), ("t","fiber anisotropy k_f1/k_f2")]:
+                              ("k_f1","fiber longitudinal k"), ("k_f2","fiber transverse k"),]:
             v = inputs.get(field)
             if v is not None:
                 lines.append(f"  {field:<6} = {v:.4e} W/m·K   ({label})")
@@ -1566,11 +1575,15 @@ def plot_sweep(
     x_max: float = 1.0,
     n_points: int = 10,
     temperature_C: float = 25.0,
-    # Raw inputs — required when card_id == -1 (no saved card)
+    # Material source when card_id == -1
+    fiber_name: str = "",
+    polymer_name: str = "",
+    # Raw microstructure overrides (always applied on top of any source)
     a11: float = -1.0,
     a22: float = -1.0,
     ar: float = -1.0,
     fiber_massfrac: float = -1.0,
+    # Thermal raw inputs (no DB needed for thermal sweeps)
     k_f1_WmK: float = -1.0,
     k_f2_WmK: float = -1.0,
     p1_WmK: float = -1.0,
@@ -1584,7 +1597,10 @@ def plot_sweep(
     K11, K22, K33…) changes as a parameter varies.
 
     card_id           : material card to load base inputs from. Use -1 (default) when
-                        no card is saved — then provide raw inputs explicitly (see below).
+                        no card is saved — then provide fiber_name + polymer_name instead.
+    fiber_name        : fiber name for DB lookup (e.g. "T300_techmer"). Use with polymer_name
+                        when card_id == -1 and plotting elastic/thermoelastic properties.
+    polymer_name      : polymer name for DB lookup (e.g. "PESU_techmer").
     parameter         : the input to vary: fiber_massfrac | a11 | a22 | ar |
                         matrix_modulus | matrix_poisson | f_cte1 | f_cte2 | m_cte
     target_properties : space-separated output names — elastic (E1 E2 E3 G12 nu12),
@@ -1593,8 +1609,10 @@ def plot_sweep(
     n_points          : number of evenly spaced points (default 10).
     temperature_C     : temperature for thermal sweeps (K11/K22/K33). Default 25°C.
 
-    Raw inputs (use when card_id == -1, i.e. no saved card):
-      a11, a22, ar, fiber_massfrac — microstructure base values (those not being swept)
+    Microstructure overrides (applied on top of card or DB source):
+      a11, a22, ar, fiber_massfrac — set these for parameters NOT being swept.
+
+    Thermal raw inputs (use when card_id == -1 and no fiber/polymer in DB):
       k_f1_WmK, k_f2_WmK          — fiber conductivities (W/m·K)
       p1_WmK, p2_WmK               — matrix parametric model: k_m(T) = p1·√T + p2
       fiber_density_kg_m3, matrix_density_kg_m3 — densities
@@ -1609,6 +1627,17 @@ def plot_sweep(
             return f"Card not found: {e}"
         except Exception as e:
             return f"Database error: {e}"
+    elif fiber_name.strip() and polymer_name.strip():
+        try:
+            fid, pid = _resolve_fiber_polymer(fiber_name.strip(), polymer_name.strip())
+            inputs = _smat.get_model_inputs(fid, pid, use_inferred=True)
+            for od in ("a12", "a13", "a23"):
+                if od not in inputs:
+                    inputs[od] = 0.0
+        except ValueError as e:
+            return str(e)
+        except Exception as e:
+            return f"Database error loading materials: {e}"
     else:
         inputs = {"a12": 0.0, "a13": 0.0, "a23": 0.0}
         if fiber_density_kg_m3   > 0:
@@ -2029,38 +2058,33 @@ def add_printer(
 
 @tool
 def check_identifiability(
-    free_variables: str,
     available_measurements: str,
+    known_fixed: str = "",
     fiber_id: int = -1,
     polymer_id: int = -1,
     card_id: int = -1,
 ) -> str:
     """
-    FIM identifiability analysis: can these measurements identify these free parameters?
+    FIM identifiability analysis: can these measurements identify the free parameters?
     Returns WELL / MARGINAL / POOR per parameter and recommends additional measurements.
-    free_variables: comma/space-separated. Supported: a11 a22 a12 a13 a23, fiber_massfrac, ar, matrix_modulus, matrix_poisson, f_cte1, f_cte2, m_cte.
-    available_measurements: comma/space-separated. Elastic: E1 E2 E3 G12 G13 G23 nu12 nu13 nu23. Thermoelastic: CTE11 CTE22 CTE33.
-    fiber_id, polymer_id, card_id: optional nominal material for analysis.
+
+    available_measurements: comma/space-separated elastic or thermoelastic measurements.
+        Elastic: E1 E2 E3 G12 G13 G23 nu12 nu13 nu23
+        Thermoelastic: CTE11 CTE22 CTE33
+    known_fixed: comma/space-separated parameters the user has explicitly fixed from a
+        datasheet or prior stage (e.g. "matrix_poisson"). Only needed to fix matrix_poisson
+        when the user has its datasheet value and shear/Poisson measurements are present.
+    fiber_id, polymer_id, card_id: optional nominal material context for the FIM evaluation.
+
+    Free variables are resolved automatically:
+        Elastic (no shear/Poisson meas.)  →  a11, a22, matrix_modulus
+        Elastic (shear/Poisson present)   →  a11, a22, matrix_modulus, matrix_poisson
+        Thermoelastic                     →  f_cte1, f_cte2, m_cte
+        matrix_poisson removed if in known_fixed.
+    fiber_massfrac and ar are NEVER inferred — they always come from manufacturing records.
     """
-    # ── Parse free_variables ──────────────────────────────────────────────────
-    raw_free = [t.strip().lower() for t in re.split(r"[,\s]+", free_variables.strip()) if t.strip()]
-    free_inputs = []
-    unrecognized_free = []
-    for tok in raw_free:
-        canonical = _FREE_SYNONYMS.get(tok)
-        if canonical and canonical not in free_inputs:
-            free_inputs.append(canonical)
-        elif not canonical:
-            unrecognized_free.append(tok)
-
-    if not free_inputs:
-        return (
-            f"Could not parse any recognized free variables from: '{free_variables}'\n"
-            f"Examples: 'a11,a22'  |  'a11 a22 fiber_massfrac'  |  'matrix_modulus'\n"
-            f"Unrecognized: {unrecognized_free}"
-        )
-
-    # ── Parse available_measurements ──────────────────────────────────────────
+    free_variables = "auto"  # always auto — parameter removed from API
+    # ── Parse available_measurements first (needed for auto free-var resolution) ─
     raw_meas = [t.strip() for t in re.split(r"[,\s]+", available_measurements.strip()) if t.strip()]
     meas_inputs = []
     unrecognized_meas = []
@@ -2083,12 +2107,54 @@ def check_identifiability(
             f"Unrecognized: {unrecognized_meas}"
         )
 
+    # ── Auto free-variable resolution ────────────────────────────────────────
+    unrecognized_free = []
+    if free_variables.strip().lower() == "auto":
+        _TE_MEAS_SET = {"CTE11", "CTE22", "CTE33", "CTE12", "CTE13", "CTE23"}
+        is_thermoelastic = bool(set(meas_inputs) & _TE_MEAS_SET)
+        if is_thermoelastic:
+            free_inputs = list(_TE_FREE)
+        else:
+            has_shear = bool(set(meas_inputs) & _SHEAR_POISSON_MEASUREMENTS)
+            # Auto mode never frees fiber_massfrac or ar — these always come from
+            # manufacturing records and should never be inferred in a standard Stage 1.
+            # Use free_variables="..." manually to free them if truly unknown.
+            if has_shear:
+                base = ["a11", "a22", "matrix_modulus", "matrix_poisson"]
+            else:
+                base = ["a11", "a22", "matrix_modulus"]
+            # Remove any params the user has explicitly fixed (e.g. matrix_poisson from datasheet)
+            fixed_set = set()
+            for tok in re.split(r"[,\s]+", known_fixed.strip()):
+                tok = tok.strip().lower()
+                if tok:
+                    c = _FREE_SYNONYMS.get(tok, tok)
+                    fixed_set.add(c)
+            free_inputs = [v for v in base if v not in fixed_set]
+    else:
+        # Manual override — parse as before
+        raw_free = [t.strip().lower() for t in re.split(r"[,\s]+", free_variables.strip()) if t.strip()]
+        free_inputs = []
+        for tok in raw_free:
+            canonical = _FREE_SYNONYMS.get(tok)
+            if canonical and canonical not in free_inputs:
+                free_inputs.append(canonical)
+            elif not canonical:
+                unrecognized_free.append(tok)
+
+        if not free_inputs:
+            return (
+                f"Could not parse any recognized free variables from: '{free_variables}'\n"
+                f"Examples: 'a11,a22'  |  'a11 a22 fiber_massfrac'  |  'matrix_modulus'\n"
+                f"Unrecognized: {unrecognized_free}"
+            )
+
     # ── Select model ──────────────────────────────────────────────────────────
-    _TE_FREE = {"f_cte1", "f_cte2", "m_cte"}
+    _TE_FREE_SET = {"f_cte1", "f_cte2", "m_cte"}
     _TE_MEAS = {"CTE11", "CTE22", "CTE33", "CTE12", "CTE13", "CTE23"}
     model_name = (
         "thermoelastic"
-        if (set(free_inputs) & _TE_FREE) or (set(meas_inputs) & _TE_MEAS)
+        if (set(free_inputs) & _TE_FREE_SET) or (set(meas_inputs) & _TE_MEAS)
         else "elastic"
     )
 
@@ -2140,6 +2206,10 @@ def check_identifiability(
             f"Valid {model_name} outputs: {sorted(valid_outputs)}"
         )
 
+    # ── Structural check: flag underdetermined but still run FIM for recommendations ──
+    _structurally_underdetermined = len(meas_inputs) < len(free_inputs)
+    _needed = max(0, len(free_inputs) - len(meas_inputs))
+
     # ── Run FIM ───────────────────────────────────────────────────────────────
     target_outputs = {m: 0.0 for m in meas_inputs}
     try:
@@ -2162,14 +2232,28 @@ def check_identifiability(
     _STATUS_LABEL = {"WELL": "WELL", "MARGINAL": "MARGINAL", "POOR": "POOR"}
 
     # ── Format results ────────────────────────────────────────────────────────
+    _auto_poisson = (
+        free_variables.strip().lower() == "auto"
+        and not is_thermoelastic
+        and has_shear
+        and "matrix_poisson" not in fixed_set
+    )
+
     lines = [
         f"IDENTIFIABILITY ANALYSIS — {model_name.upper()} MODEL",
         f"Free variables (want to infer): {', '.join(free_inputs)}",
         f"Available measurements:         {', '.join(meas_inputs)}",
         f"Context: {context_label}",
-        "",
-        "RESULT PER PARAMETER:",
     ]
+    if _auto_poisson:
+        shear_present = sorted(set(meas_inputs) & _SHEAR_POISSON_MEASUREMENTS)
+        lines.append(
+            f"Note: {', '.join(shear_present)} is a shear/Poisson measurement, so "
+            f"matrix_poisson has been added to the free parameters "
+            f"(the system can now infer it, but needs one extra measurement to do so). "
+            f"To avoid this, fix matrix_poisson from the datasheet via known_fixed."
+        )
+    lines += ["", "RESULT PER PARAMETER:"]
 
     for param in free_inputs:
         s  = status.get(param, "POOR")
@@ -2196,11 +2280,18 @@ def check_identifiability(
     n_free = len(free_inputs)
     n_meas = len(meas_inputs)
 
-    if all_poor:
+    if _structurally_underdetermined:
         lines.append(
-            f"\nVERDICT: UNDERDETERMINED\n"
-            f"  {n_meas} measurement(s) is not enough to identify {n_free} unknown(s).\n"
-            f"  The available measurements have too little sensitivity to these parameters."
+            f"\nVERDICT: STRUCTURALLY UNDERDETERMINED\n"
+            f"  {n_meas} measurement(s) cannot uniquely identify {n_free} free parameter(s).\n"
+            f"  At least {_needed} more measurement(s) needed before running the inverse.\n"
+            f"  See ranked recommendations below for which measurements to collect first."
+        )
+    elif all_poor:
+        lines.append(
+            f"\nVERDICT: UNDERDETERMINED (sensitivity)\n"
+            f"  {n_meas} measurement(s) have too little sensitivity to identify all {n_free} parameter(s).\n"
+            f"  See ranked recommendations below."
         )
     elif any_poor:
         poor = [p for p in free_inputs if status.get(p) == "POOR"]
@@ -2450,15 +2541,13 @@ def run_elastic_inverse(
     # ── Underdetermined check (fast, no JAX) ──────────────────────────────────
     n_meas  = len(targets)
     n_free  = len(free_vars)
-    if n_meas < n_free - 2:
+    if n_meas < n_free:
+        needed = n_free - n_meas
         return (
-            f"IDENTIFIABILITY WARNING: {n_meas} measurement(s) provided for {n_free} free "
-            f"parameter(s) ({', '.join(free_vars)}). The system is underdetermined — "
-            "results would be unreliable.\n\n"
-            "Recommended minimum measurements: E1 + E2 + E3 (3 measurements).\n"
-            "Best: E1 + E2 + E3 + G12 + nu12.\n\n"
-            "Run check_identifiability to see which parameters are identifiable with your "
-            "current measurement set, or add more measurements before calling this tool."
+            f"UNDERDETERMINED: {n_meas} measurement(s) provided for {n_free} free "
+            f"parameter(s) ({', '.join(free_vars)}). Need {needed} more measurement(s). "
+            "DO NOT retry this tool. DO NOT offer to proceed. "
+            "Tell the user how many measurements are missing and ask them to provide more data."
         )
 
     # ── Run solver ────────────────────────────────────────────────────────────
@@ -2977,7 +3066,7 @@ def run_thermal_inverse(
     a23: float = 0.0,
     fiber_massfrac: float = -1.0,
     ar: float = -1.0,
-    n_restarts: int = 100,
+    n_restarts: int = 250,
 ) -> str:
     """
     Stage 3 thermal inverse: infer k_f1, k_f2, p1, p2 where k_m(T) = p1·√T + p2.
@@ -3113,11 +3202,10 @@ def run_thermal_inverse(
     }
 
     # ── Format output ─────────────────────────────────────────────────────────
-    p1, p2, l2, t = result["p1"], result["p2"], result["l2"], result["t"]
+    p1, p2, k_f1, k_f2 = result["p1"], result["p2"], result["k_f1"], result["k_f2"]
     best_loss = result["best_loss"]
-    k_f1 = l2
-    k_f2 = l2 / t
     k_m_25 = p1 * (25.0 ** 0.5) + p2
+    t = k_f1 / k_f2
 
     err_label = (
         "good fit"   if best_loss < 1e-4 else
@@ -3129,8 +3217,8 @@ def run_thermal_inverse(
         "THERMAL INVERSE — COMPLETE",
         "",
         "Inferred constituent thermal conductivities:",
-        f"  k_f1  (fiber longitudinal)  = {k_f1:.4f} W/m·K  (= l2)",
-        f"  k_f2  (fiber transverse)    = {k_f2:.4f} W/m·K  (= l2/t)",
+        f"  k_f1  (fiber longitudinal)   = {k_f1:.4f} W/m·K",
+        f"  k_f2  (fiber transverse)     = {k_f2:.4f} W/m·K  (= k_f1/t)",
         f"  p1    (polymer scaling)      = {p1:.4e} W/m·K",
         f"  p2    (polymer offset)       = {p2:.4f} W/m·K",
         f"  k_m @ 25°C                  = {k_m_25:.4f} W/m·K",
@@ -3195,6 +3283,7 @@ def run_transfer(
     a13: float = 0.0,
     a23: float = 0.0,
     infer_matrix_modulus: bool = False,
+    confirm: bool = False,
 ) -> str:
     """
     Stage 4: transfer constituent properties from a fully-characterized card to a new printer.
@@ -3202,11 +3291,36 @@ def run_transfer(
     source_card_id: must be fully characterized (elastic + thermoelastic + thermal).
     E*_MPa / nu*: elastic measurements on new printer (-1.0 to omit). nu13 IS a valid measurement.
     sigma args: measurement uncertainty (1 std dev) — enables epsilon-insensitive loss.
-    ar: fix aspect ratio (omit to infer). a33: minimum a33 floor (typical LSAM: 0.10–0.15).
+    ar: fix aspect ratio (omit to infer). a33: optional minimum floor on a33 (omit to let solver decide freely).
     infer_matrix_modulus: re-infer matrix_modulus for new printer (in-situ Em can differ between printers).
       matrix_poisson is also freed automatically when shear/Poisson measurements (nu12/nu13/G12 etc.) are present.
       Re-inferred values are saved card-locally — they do NOT overwrite the source card's global values.
+    confirm: MUST be True to run the transfer. Call once with confirm=False to show the user a
+      summary of what will be transferred; call again with confirm=True only after the user confirms.
     """
+    # ── Pre-flight 0: measurements from new printer must be provided ─────────
+    _elastic_args = [
+        E1_MPa, E2_MPa, E3_MPa, G12_MPa, G13_MPa, G23_MPa, nu12, nu13, nu23
+    ]
+    if all(v == -1.0 for v in _elastic_args):
+        return (
+            "No measurements from the new printer were provided. "
+            "Ask the user for at least one elastic measurement from the new printer "
+            "(E1_MPa, E2_MPa, E3_MPa, G12_MPa, G13_MPa, G23_MPa, nu12, nu13, or nu23) "
+            "before calling this tool. Do NOT call run_transfer again until the user supplies a value."
+        )
+
+    # ── Pre-flight 0b: printer name must be a real user-supplied name ────────
+    _printer_name = (new_printer or "").strip()
+    _placeholder_patterns = {"new_printer_name", "new_printer", "printer_name",
+                              "target_printer", "unknown", "tbd", ""}
+    if _printer_name.lower() in _placeholder_patterns:
+        return (
+            "No target printer name was provided. "
+            "Ask the user: 'Which printer are you transferring to?' "
+            "Do NOT call run_transfer again until the user gives a real printer name."
+        )
+
     # ── Pre-flight 1: source card exists ─────────────────────────────────────
     card = _db.get_print_config(source_card_id)
     if card is None:
@@ -3238,12 +3352,119 @@ def run_transfer(
             "Ensure all three inverse stages completed and saved successfully."
         )
 
+    # ── Confirmation gate ─────────────────────────────────────────────────────
+    if not confirm:
+        fiber   = _db.get_fiber(fiber_id)   or {}
+        polymer = _db.get_polymer(polymer_id) or {}
+        meas_provided = {
+            k: v for k, v in {
+                "E1": E1_MPa, "E2": E2_MPa, "E3": E3_MPa,
+                "G12": G12_MPa, "G13": G13_MPa, "G23": G23_MPa,
+                "nu12": nu12, "nu13": nu13, "nu23": nu23,
+            }.items() if v != -1.0
+        }
+        meas_lines = "  " + "  ".join(f"{k} = {v} MPa" if "nu" not in k.lower() else f"{k} = {v}" for k, v in meas_provided.items())
+        def _cpv(cp, key):
+            """Extract float value from constituent_props dict entry."""
+            entry = cp.get(key)
+            if entry is None:
+                return None
+            return entry["value"] if isinstance(entry, dict) else float(entry)
+
+        # Resolve AR for the preview: user-supplied > source card > none
+        _prev_snap = _db.get_latest_microstructure(source_card_id)
+        _prev_source_ar: Optional[float] = None
+        if _prev_snap:
+            _psa = _prev_snap.get("ar") or _prev_snap.get("aspect_ratio")
+            if _psa is not None:
+                _prev_source_ar = float(_psa)
+        _ar_user_prev = ar if (ar is not None and float(ar) > 0) else None
+        _ar_effective_prev = _ar_user_prev or _prev_source_ar
+        if _ar_user_prev is not None:
+            _ar_summary_line = f"Aspect ratio: fixed at {ar} (user-supplied)\n\nReply 'yes' or 'confirm' to proceed. Then call run_transfer again with confirm=True.\n"
+        elif _prev_source_ar is not None:
+            _ar_summary_line = f"Aspect ratio: {_prev_source_ar} (loaded from source card — no user input required)\n\nReply 'yes' or 'confirm' to proceed. Then call run_transfer again with confirm=True.\n"
+        else:
+            _ar_summary_line = (
+                "Aspect ratio: NOT PROVIDED — see action required below\n\n"
+                "ACTION REQUIRED BEFORE CONFIRMING:\n"
+                "  AR (aspect ratio) was not provided and could not be loaded from the source card.\n"
+                "  Ask the user: 'What aspect ratio should I use for this material on the new printer?'\n"
+                "  Do NOT call run_transfer with confirm=True until the user replies with a number.\n\n"
+            )
+
+        cp = constituent_props
+        _mm  = _cpv(cp, "matrix_modulus")
+        _mnu = _cpv(cp, "matrix_poisson")
+        _c1  = _cpv(cp, "f_cte1")
+        _c2  = _cpv(cp, "f_cte2")
+        _cm  = _cpv(cp, "m_cte")
+        _kf1 = _cpv(cp, "k_f1")
+        _kf2 = _cpv(cp, "k_f2")
+        _km  = _cpv(cp, "k_m")
+        summary = (
+            f"TRANSFER PREVIEW — please confirm before proceeding.\n\n"
+            f"Source card: {source_card_id} "
+            f"({fiber.get('name','?')} / {polymer.get('name','?')} / {card['name']})\n"
+            f"Target printer: {new_printer}\n\n"
+            f"Constituent properties that will be carried over from source card:\n"
+            f"  matrix_modulus   = {f'{_mm:.0f} MPa' if _mm is not None else '?'}\n"
+            f"  matrix_poisson   = {f'{_mnu:.4f}' if _mnu is not None else '?'}\n"
+            f"  f_cte1           = {f'{_c1:.3e} /K' if _c1 is not None else '?'}\n"
+            f"  f_cte2           = {f'{_c2:.3e} /K' if _c2 is not None else '?'}\n"
+            f"  m_cte            = {f'{_cm:.3e} /K' if _cm is not None else '?'}\n"
+            f"  k_f1             = {f'{_kf1:.3f} W/m·K' if _kf1 is not None else '?'}\n"
+            f"  k_f2             = {f'{_kf2:.3f} W/m·K' if _kf2 is not None else '?'}\n"
+            f"  k_m              = {f'{_km:.4f} W/m·K' if _km is not None else '?'}\n\n"
+            f"{'Matrix modulus will be RE-INFERRED for new printer.' if infer_matrix_modulus else 'Matrix modulus will be fixed (set infer_matrix_modulus=True to re-infer).'}\n\n"
+            f"New printer measurements provided:\n{meas_lines}\n\n"
+            + _ar_summary_line
+        )
+        return summary
+
+    # ── Pre-flight 4a: AR must be resolvable before executing ───────────────────
+    # Check the source card for a stored AR (same snap read below, but needed here for the guard)
+    _guard_snap = _db.get_latest_microstructure(source_card_id)
+    _guard_ar_from_card = None
+    if _guard_snap:
+        _g = _guard_snap.get("ar") or _guard_snap.get("aspect_ratio")
+        if _g is not None:
+            _guard_ar_from_card = float(_g)
+    _ar_user = ar if (ar is not None and float(ar) > 0) else None
+    if _ar_user is None and _guard_ar_from_card is None:
+        return (
+            "AR (aspect ratio) is required before running the transfer and could not be "
+            "resolved from the source card. "
+            "A free AR produces spurious solutions (e.g. a22 > a11, AR=50+) "
+            "that are physically unreasonable for printed composites. "
+            "Ask the user: 'What aspect ratio should I use for this material on the new printer?' "
+            "Then call run_transfer again with ar=<value> and confirm=True."
+        )
+
     # ── Pre-flight 4: resolve or create printer ───────────────────────────────
     all_printers = _db.get_all_printers()
     pn = new_printer.strip().lower()
-    printer_matches = [p for p in all_printers if pn in p["name"].lower()]
+
+    def _combined(p):
+        name = p["name"].lower()
+        mfr  = (p.get("manufacturer") or "").lower()
+        return f"{name} ({mfr})" if mfr else name
+
+    # Exact match (name or "name (manufacturer)") takes priority to avoid
+    # "lsam" matching "lsam_2" via substring containment.
+    exact_matches = [p for p in all_printers
+                     if p["name"].lower() == pn or _combined(p) == pn]
+    if exact_matches:
+        printer_matches = exact_matches
+    else:
+        # Fall back to partial / bidirectional substring matching
+        def _printer_matches(p, pn):
+            name = p["name"].lower()
+            combined = _combined(p)
+            return (pn in name) or (name in pn) or (pn in combined) or (combined in pn)
+        printer_matches = [p for p in all_printers if _printer_matches(p, pn)]
     if len(printer_matches) > 1:
-        names = ", ".join(p["name"] for p in printer_matches)
+        names = ", ".join(f"{p['name']} (ID {p['id']})" for p in printer_matches)
         return f"Printer '{new_printer}' matches multiple entries: {names}. Be more specific."
     if not printer_matches:
         # Printer doesn't exist — create it automatically.
@@ -3278,13 +3499,24 @@ def run_transfer(
     # ── Fixed microstructure: mass fraction always fixed from source card ─────
     fixed_micro: dict[str, float] = {}
     snap = _db.get_latest_microstructure(source_card_id)
+    _source_ar: Optional[float] = None
     if snap:
         _mf = snap.get("fiber_massfrac") or snap.get("mf")
         if _mf is not None:
             fixed_micro["fiber_massfrac"] = float(_mf)
+        _snap_ar = snap.get("ar") or snap.get("aspect_ratio")
+        if _snap_ar is not None:
+            _source_ar = float(_snap_ar)
 
-    if ar is not None:
-        fixed_micro["ar"] = float(ar)
+    # Normalize -1.0 sentinel (model may pass this following other param conventions)
+    _ar_effective = ar if (ar is not None and float(ar) > 0) else None
+
+    # Fall back to source card's AR when user didn't supply one
+    if _ar_effective is None and _source_ar is not None:
+        _ar_effective = _source_ar
+
+    if _ar_effective is not None:
+        fixed_micro["ar"] = float(_ar_effective)
 
     # Off-diagonal orientation terms are fixed (default 0.0 — physically reasonable
     # for printed composites; user can override via a12/a13/a23 args).
@@ -3373,6 +3605,62 @@ def run_transfer(
         lines.append("RE-INFERRED CONSTITUENTS (printer-specific, saved to new card only):")
         for k, v in reinferred.items():
             lines.append(f"  {k:<18s} = {v:.4g}")
+
+    # ── Forward predictions from transferred microstructure ───────────────────
+    preds = result.get("predictions", {})
+    _nan = float("nan")
+
+    el = preds.get("elastic")
+    if el and "error" not in el:
+        lines += [
+            "",
+            "PREDICTED ELASTIC PROPERTIES (transferred microstructure):",
+            f"  E1   = {el.get('E1',  _nan):.1f} MPa",
+            f"  E2   = {el.get('E2',  _nan):.1f} MPa",
+            f"  E3   = {el.get('E3',  _nan):.1f} MPa",
+            f"  G12  = {el.get('G12', _nan):.1f} MPa",
+            f"  G13  = {el.get('G13', _nan):.1f} MPa",
+            f"  G23  = {el.get('G23', _nan):.1f} MPa",
+            f"  nu12 = {el.get('nu12', _nan):.4f}",
+            f"  nu13 = {el.get('nu13', _nan):.4f}",
+            f"  nu23 = {el.get('nu23', _nan):.4f}",
+        ]
+
+    te = preds.get("thermoelastic")
+    if te and "error" not in te:
+        c11 = te.get("CTE11", _nan)
+        c22 = te.get("CTE22", _nan)
+        c33 = te.get("CTE33", _nan)
+        lines += [
+            "",
+            "PREDICTED THERMOELASTIC PROPERTIES (transferred microstructure):",
+            f"  CTE11 = {c11:.4e} /K  ({c11*1e6:.3f} ppm/K)",
+            f"  CTE22 = {c22:.4e} /K  ({c22*1e6:.3f} ppm/K)",
+            f"  CTE33 = {c33:.4e} /K  ({c33*1e6:.3f} ppm/K)",
+        ]
+
+    sweep = result.get("thermal_sweep", {})
+    if sweep and "error" not in sweep:
+        lines += [
+            "",
+            "PREDICTED THERMAL CONDUCTIVITY vs TEMPERATURE (transferred microstructure):",
+            f"  {'T(°C)':>6}  {'K11':>8}  {'K22':>8}  {'K33':>8}  [W/m·K]",
+        ]
+        for T, k11, k22, k33 in zip(
+            sweep["temperatures"], sweep["K11"], sweep["K22"], sweep["K33"]
+        ):
+            lines.append(f"  {T:6.0f}  {k11:8.4f}  {k22:8.4f}  {k33:8.4f}")
+    elif sweep and "error" in sweep:
+        th = preds.get("thermal")
+        if th and "error" not in th:
+            lines += [
+                "",
+                "PREDICTED THERMAL CONDUCTIVITY @ 25°C (transferred microstructure):",
+                f"  K11 = {th.get('k11', _nan):.4f} W/m·K",
+                f"  K22 = {th.get('k22', _nan):.4f} W/m·K",
+                f"  K33 = {th.get('k33', _nan):.4f} W/m·K",
+            ]
+
     lines += [
         "",
         "Call save_to_card(card_name='...') to create the new card.",

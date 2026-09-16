@@ -1,0 +1,8 @@
+key,property,agent_value,gui_value,tool_correct,n_calls,elapsed_s,notes
+T3,E1,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,E2,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,G12,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,nu12,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,CTE11,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,CTE22,,,False,2,250.01,wrong tool: run_thermoelastic_inverse
+T3,CTE33,,,False,2,250.01,wrong tool: run_thermoelastic_inverse

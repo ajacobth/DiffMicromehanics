@@ -1,0 +1,2459 @@
+
+% review tag makes it double-spaced. 10 pt makes it 10 point font but messes with the margins.
+\documentclass[preprint,review,10pt,number]{elsarticle}
+\usepackage{setspace}
+\setstretch{1.0}
+%\doublespacing
+
+
+% fixes the margins to 3cm
+\usepackage[margin=3cm]{geometry}
+
+% other imports
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{lineno}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\usepackage{amsmath} 
+\usepackage{bbding}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{algpseudocode}
+\usepackage{textcomp}
+\usepackage{algorithm}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+%%% Steps  
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+\usepackage{tikz}
+\newcommand{\tikzxmark}{%
+\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0,0) to [bend left=6] (1,1);
+    \draw[line width=0.7,line cap=round] (0.2,0.95) to [bend right=3] (0.8,0.05);
+}}
+\newcommand{\tikzcmark}{%
+\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0.25,0) to [bend left=10] (1,1);
+    \draw[line width=0.8,line cap=round] (0,0.35) to [bend right=1] (0.23,0);
+}}
+
+
+\usepackage{enumitem}
+\newlist{steps}{enumerate}{1}
+\setlist[steps, 1]{label = \textbf{Step \arabic*:}}
+
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{import}
+\newcommand{\mylilfigwidth}{0.6\linewidth}
+\newcommand{\myfigwidth}{0.8\linewidth}
+\newcommand{\myfpfigwidth}{0.8\textwidth}
+
+% USE COMMANDS TO REDUCE THE AMOUNT OF TYPING
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\tx}{\tilde{x}}
+\newcommand{\ty}{\tilde{y}}
+\newcommand{\tu}{\tilde{u}}
+\newcommand{\ttime}{\tilde{t}}
+\newcommand{\tbx}{\tilde{\bx}}
+\newcommand{\tby}{\tilde{\by}}
+\newcommand{\tbz}{\tilde{\bz}}
+\newcommand{\epsexp}{\varepsilon_{\text{exp}}}
+\newcommand{\epspred}{\varepsilon_{\text{pred}}}
+\newcommand{\sigmaexp}{\sigma_{\text{exp}}}
+\newcommand{\tauexp}{\tau_{\text{exp}}}
+\newcommand{\GP}{\operatorname{GP}}
+\newcommand{\calD}{\mathcal{D}}
+
+
+\newcommand{\normtwo}{\vert\vert}
+\newcommand{\ibsays}[1]{{\textcolor{red}{(Ilias says: #1)}}}
+\newcommand{\jtsays}[1]{{\textcolor{red}{(Akshay says: #1)}}}
+\newcommand{\ebsays}[1]{{\textcolor{red}{(Eduardo says: #1)}}}
+
+\newcommand{\detailtexcount}[1]{%
+  \immediate\write18{texcount -merge -sum -q #1.tex output.bbl > #1.wcdetail }%
+  \verbatiminput{#1.wcdetail}%
+}
+
+\newcommand{\quickwordcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -q #1.tex output.bbl > #1-words.sum }%
+  \input{#1-words.sum} words%
+}
+
+% ILIAS SAYS: USE THESE FOR CITING EQUATIONS, FIGs, etc.
+\newcommand{\qref}[1]{Eq.~(\ref{#1})}
+\newcommand{\fref}[1]{Fig.~\ref{#1}}
+\newcommand{\sref}[1]{Sec.~\ref{#1}}
+
+% makes URL in references behave correctly
+\usepackage[obeyspaces]{url}
+
+% puts figures and tables at the end of the document
+% \usepackage{endfloat}
+% \renewcommand{\efloatseparator}{\vfill} % allows more than one float per page when using endfloat package
+
+
+
+% import some useful functions
+\input{mydefs}
+
+% uncomment to set date manually
+%\renewcommand*{\today}{May 31, 2019}
+
+\begin{document}
+\begin{frontmatter}
+\numberwithin{equation}{section}
+%% Title
+\title{\texttt{MateriAl}: A virtual characterization engineer for short fiber-reinforced composites}
+
+%% Date
+
+% Author
+\author[MECH,CMSC]{Akshay J.Thomas \corref{cor1}}
+\ead{ajacobth@purdue.edu}
+\cortext[cor1]{Corresponding Author}
+\address[MECH]{School of Mechanical Engineering, Purdue University, West Lafayette, IN, 47907}
+\address[CMSC]{Composites Manufacturing and Simulation Center, Purdue University, West Lafayette, IN 47906}
+\address[AERO]{School of Aeronautics and Astronautics, Purdue University, West Lafayette, IN, 47907}
+\author[MECH,CMSC]{Eduardo Barocio}
+
+
+
+\begin{abstract}
+\textcolor{red}{RUN ALL PRMPTS AGAIN AND VERIFY BEFORE SUBMITTING TO ENSURE CONSISTENCY}
+The composites community is increasingly exploring large language model-assisted knowledge retrieval and agentic simulations.
+In this paper, we identify that the community is uniquely positioned to derive the majority of its agentic value not from model scale but from physics. 
+This hypothesis motivates a specific architectural choice: small to medium, locally deployed language models paired with high-fidelity surrogate models and physics-constrained inverse solvers.
+To test this hypothesis, we present a virtual characterization engineer, called \texttt{MateriAl}, for short fiber-reinforced composites that connects experiments from the physical world, estimates missing microstructural and material properties via inverse estimation, and populates material cards into a database.
+The full workflow runs on a locally deployed mixture-of-experts (MoE) model with no external API calls, satisfying ITAR/EAR data sovereignty requirements for proprietary composite material data. Every recovered value is stored with provenance metadata in a traceable material card. 
+Through this virtual engineer, we make an argument for investing in automation intelligence, wherein scientific capability in physics-driven engineering agents scales with model fidelity, not language model size.
+This frame of reference offloads the intelligence to decades of physics-based research as opposed to the model size of frontier models.
+
+
+\end{abstract}
+
+
+\begin{keyword}
+
+
+\end{keyword}
+\journal{Computer Methods in Applied Mechanics and Engineering}
+\end{frontmatter}
+
+\linenumbers
+
+
+%
+\section{Introduction}
+Artificial intelligence (AI) refers broadly to the ability of computational systems to perform tasks that traditionally require human reasoning, such as learning, planning, and decision-making~\cite{chang2024survey}. 
+The recent proliferation of AI across scientific and engineering disciplines has been driven in large part by the development of large language models (LLMs) --- a class of AI systems built on the transformer architecture~\cite{vaswani2017attention} that learn rich representations of language from large corpora.
+Since the release of ChatGPT in 2022, LLMs have seen rapid adoption across a wide range of applications, exhibiting strong capabilities in code synthesis, as demonstrated by tools such as Codex and Claude Code. Recent work has shown that reasoning can be elicited through chain-of-thought (CoT) prompting~\cite{wei2022chain} and further improved via self-consistency decoding. 
+These capabilities position LLMs as viable 
+tools for augmenting human effort in coding, document retrieval, and workflow automation.
+
+Building on these advances, a new class of AI called agentic AI systems has emerged.
+Unlike traditional models that generate outputs conditioned on a fixed set of inputs, agentic systems are endowed with the ability to plan towards a goal, execute tools and software, and self-correct based on external feedback.
+This has ushered in a 
+wave of research applying agents to open-ended scientific discovery~\cite{lu2024ai, gottweis2025towards, du2025accelerating}, automated data science~\cite{ou2025automind, jiang2025aide}, and numerical simulations in solid mechanics~\cite{ni2024mechagents, tian2024collaboration, deotale2026all} and fluid mechanics~\cite{yue2025foam, dong2025fine}.
+Interest in agentic AI for engineering and manufacturing has grown substantially~\citep{edwards2026agentic, vishwasrao2026agentic}, yet adoption remains constrained less by model capability than by governance, infrastructure, and regulatory requirements. 
+\citet{edwards2026agentic} conducted 33 in-depth interviews across large enterprises, small and medium enterprises (SMEs), AI developers, and computer-aided design, manufacturing, and engineering (CAD/CAM/CAE) vendors, identifying the primary barriers to agentic AI adoption in engineering: International Traffic in Arms Regulations (ITAR) and Export Administration Regulations (EAR) data security constraints that prevent cloud deployment, the absence of engineering-grade verification frameworks, legacy tool integration challenges, and a persistent AI literacy gap.
+Critically, their findings frame 
+agentic AI adoption as a governance and infrastructure problem first, and a model 
+capability problem second.
+
+Composites research is a field that is restricted by ITAR and EAR requirements.
+In this paper, we argue that the composites community is uniquely positioned to 
+derive the majority of its agentic value not from model scale, but from physics.
+This hypothesis motivates a specific architectural choice of using small language models (SLM) that are locally deployed, and paired with high-fidelity surrogate or physics models.
+\citet{belcak2025slm} provided the motovation for this SLM-first  architecture, arguing that the majority of agentic invocations in deployed systems are repetitive, scoped, and non-conversational.
+\citet{vishwasrao2026agentic} established the architectural precedent for using trained physical models as the primary intelligence substrate within an agentic loop, demonstrating surrogate-accelerated exploration of partial differential equation (PDE) parameter spaces within a multi-agent system.
+To that end, we introduce \texttt{MateriAl}, an agentic system that performs micromechanical model evaluations, inverse estimations, and material database management.
+We approach the problem in composites through the lens of small models since local deployment is mandatory rather than optional.
+
+One might be aware of the bitter lesson postulated by \citet{sutton2019bitter}. 
+Sutton argues that it is more effective to leverage general methods that use large compute rather than building knowledge into the agents.
+Sutton provides an explanation for the same through the lens of Moore's law. 
+The bitter lesson has since been extended to open-ended scientific discovery, where foundation models trained across all scientific domains simultaneously are outperforming narrow, domain-specific systems. 
+Some examples include time series foundation models~\citep{ansari2024chronos}, vision foundation models~\citep{kirillov2023segment}, and physics foundation models~\citep{herde2024poseidon}, each of which outperforms narrow, single-task baselines by pretraining across broad data rather than encoding domain knowledge directly into the architecture.
+The bitter lesson has since been extended to open-ended scientific discovery, where foundation models trained across all scientific domains simultaneously are outperforming narrow, domain-specific systems. 
+We do not dispute this. 
+Rather, we see companies like Lila Sciences adopting this technique to achieve success and breakthroughs [some refs].
+However, it is important to discuss the critical distinctions between the two classes of problems.
+On the one hand, we have open-ended discovery, where the ground truth is unknown (setting aside intuitive know-hows), and on the other hand, we have well-defined engineering problems, where the 
+ground truth is physically defined, and the task is to recover it efficiently from a bounded set of measurements.
+The bitter lesson governs the former.
+Many engineering problems, including inverse estimation, forward predictions, and design of experiments, fall into the latter.
+For this broad range of engineering problems, scale itself does not achieve success.
+Rather, we argue that the deployment of smarter engineering systems could benefit largely by encoding years of research and exploration to make intelligent systems.
+We also acknowledge that people outside the composite engineering community have started to make similar observations \cite{guo2026workflow}.
+For problems with a known solution structure, deterministic workflows with language models as bounded decision nodes could outperform fully autonomous agents.
+\texttt{MateriAl} implements this principle, reserving language model reasoning exclusively for tool selection while delegating all scientific inference to deterministic physics tools.
+
+\section{The Physics Layer and Provenance Methods}
+In this section, we discuss the details of the physics layer and the methods used to maintain a provenance system for \texttt{MateriAl} agent.
+\texttt{MateriAl} is built on research progress established in  Refs.~\cite{thomas2022machine, thomas2024probabilistic, ghosh2025framework}, which collectively developed the surrogate modeling, probabilistic transfer learning, and thermoelastic property transfer frameworks that constitute the physics layer of the agent.
+Specifically, \citet{thomas2022machine} established the machine learning approach for determining elastic properties of printed fiber-reinforced polymers from composite-level measurements; \citet{thomas2024probabilistic} extended this to probabilistic physics-guided transfer learning for property prediction across extrusion deposition additive manufacturing systems; and \citet{ghosh2025framework}  developed the framework for transferring thermoelastic properties between manufacturing platforms.
+\texttt{MateriAl} synthesizes these three bodies of work into a unified agentic characterization system, with advancements in surrogate model architecture, staged inverse estimation, and Fisher Information Matrix-based identifiability analysis that extend beyond the individual contributions of each prior work.
+For the sake of completeness, we discuss the surrogate models and inverse estimation in detail before presenting the agentic architecture of  \texttt{MateriAl}.
+\texttt{MateriAl} hinges on the main result from \cite{thomas2022machine}, that the fiber orientation tensor can be inferred using limited mechanical testing. 
+Inferring the fiber orientation state allows for the prediction of composite properties using constituent properties and also the transfer of material properties across printing systems.
+The primary function of \texttt{MateriAl} is to populate material cards with incomplete information from experiments.
+For details on the feasibility of this approach, readers are directed to Refs.~\cite{thomas2022machine, thomas2024probabilistic, ghosh2025framework}.
+
+\subsection{Forward Models}
+Material characterization involves solving a series of inverse problems and forward estimates. 
+To enable the inverse and forward estimates, we need a predictive model that is differentiable.
+The primary forward model must accept fiber and polymer properties alongside microstructural descriptors to predict composite properties across the elastic, thermoelastic, and thermal domains.
+Micromechanics models have achieved great success in this regard.
+We choose to work with the two-step homogenization method (implemented in Digimat) that uses the Mori-Tanaka model~\cite{mori1973average}.
+The method begins by decomposing a representative volume element into ``pseudo-grains" that contain inclusions of the same orientation state and length. 
+Next, these pseudo-grains are homogenized using a Mori-Tanaka scheme, and the readers are directed to \cite{tian2020micro} for a comprehensive derivation.
+Finally, the pseudo-grains are homogenized using a Voigt scheme. 
+Note that the second step in homogenization can be carried out using various schemes, one of which is the double-inclusion model \cite{hori1993double}.
+
+
+Although differentiability of the micromechanics model is not strictly required to solve the inverse problem itself, access to model gradients provides two critical capabilities that motivate its inclusion as a design requirement.
+First, gradient information enables 
+efficient gradient-based optimization via L-BFGS-B, substantially reducing the number of forward evaluations required to converge the inverse solver relative to gradient-free alternatives.
+Second, and more fundamentally, the Jacobian of the forward model with respect to the constituent property inputs is the central quantity required for Fisher Information Matrix (FIM) analysis.
+The FIM ranks the identifiability of each unknown given the experiments.
+Therefore, the FIM analysis serves as a mechanism to suggest the next best experiment to identify unknown parameters.
+The two-step homogenization model, while physically rigorous, 
+is not analytically differentiable with respect to arbitrary orientation distributions.
+The gradient estimate via the orientation averaging can be computationally expensive to be used in an iterative inverse solver or in an agentic workflow.
+This motivates the development of neural network surrogates that are fast, differentiable by construction via automatic differentiation, and sufficiently accurate to serve as the physics layer of 
+\texttt{MateriAl}.
+employs three independent neural network surrogates, one per physical domain. 
+Each surrogate maps a vector of constituent properties and microstructural descriptors to the corresponding composite property tensor.
+The three surrogates serve as predictive models for the elastic properties, thermoelastic properties, and thermal conductivity of the composite.
+
+The elastic surrogate accepts the transversely isotropic elastic constants of the fiber, the isotropic elastic constants of the polymer phase, the fiber and matrix density, and the composite morphology descriptors, which include the second-order orientation tensor components, fiber mass fraction, and fiber aspect ratio, and predicts the 9 effective composite elastic properties.
+We use the second-order fiber orientation tensor \cite{advani1987use} to describe the fiber orientation state, and therefore, the five independent components are input to the surrogate model.
+The thermoelastic surrogate accepts the same microstructural descriptors and fiber and matrix densities, augmented by the transversely isotropic fiber coefficients of thermal expansion and the isotropic matrix coefficient of thermal expansion.
+The thermoelastic surrogate predicts the composites coefficient of thermal expansion (five components of the CTE matrix). 
+The thermoelastic surrogate also predicts the elastic components of the composite in addition to the CTE; however, we delegate the duties of predicting the elastic properties to the elastic surrogate.
+The thermal surrogate accepts the same microstructural descriptors alongside the transversely isotropic fiber thermal conductivities and the isotropic polymer conductivity and predicts the composite thermal conductivity tensor.
+
+We created the training data set by sampling outputs from the commercially available Digimat software.
+To create  valid positive semi-definite orientation tensors \cite{advani1987use}, we use a Dirichlet-based 
+approach~\cite{friemann2023micromechanics}.
+First, the three eigenvalues of the second order tensors are sampled from $\text{Dir}(\boldsymbol{\alpha} = \mathbf{1})$, which is equivalent to the uniform distribution over the standard 2-simplex.
+A uniformly random rotation matrix $\mathbf{R} \in SO(3)$ is sampled using the algorithm 
+of~\citet{arvo1992fast} and applied as a transformation:
+%
+\begin{equation}
+    \mathbf{A} = \mathbf{R} \, \mathbf{A}_{\text{diag}} \, \mathbf{R}^\top
+    \label{eq:rotation}
+\end{equation}
+%
+where $\mathbf{A}_{\text{diag}} = \text{diag}(\lambda_1, \lambda_2, \lambda_3)$ is the diagonal tensor in the principal frame.
+nsor in the principal frame. The resulting tensor $\mathbf{A}$ 
+is symmetric and positive semi-definite by construction, with 
+$\text{tr}(\mathbf{A}) = 1$.
+The remainder of the scalar parameters are sampled using a Sobol sampling method~\cite{sobol1967}.
+We direct the readers to the appendix for a summary of training methods and predictive statistics.
+
+\subsection{Inverse identification framework}
+
+While the motivation and methodology for the staged inverse estimation are established in Refs.~\cite{thomas2022machine, thomas2024probabilistic, ghosh2025framework}, we reformulate the inverse problem through the lens of the now-available differentiable surrogate models, which enable gradient-based optimization and analytical identifiability analysis that were not possible in prior work.
+The inverse solver minimizes a normalized loss over the available composite measurements.
+The default loss is a normalized mean-squared 
+error augmented by a physical constraint penalty:
+%
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) = 
+    \sum_{k} \left(\frac{\hat{y}_k(\boldsymbol{\theta}) - 
+    t_k}{\sigma_k^{\text{out}}}\right)^{\!2} 
+    + \lambda \sum_{j} \max\!\left(0,\ 
+    c_j(\boldsymbol{\theta})\right)^2
+    \label{eq:loss_default}
+\end{equation}
+%
+where $\hat{y}_k(\boldsymbol{\theta})$ is the surrogate prediction for composite output $k$ at parameter vector $\boldsymbol{\theta}$, $t_k$ is the corresponding experimental measurement, $\sigma_k^{\text{out}}$ is the output standardization scale computed from training data statistics, and $c_j(\boldsymbol{\theta})$ are physical bound constraints with penalty weight $\lambda = 10^4$. 
+Normalization by $\sigma_k^{\text{out}}$ is a principled choice since it weights each output by its variability in the training distribution such that terms of various lengthscales contribute equally to the loss.
+The physical constraint we enforce using $\lambda$ is ensuring that the trace of the orientation tensor is less than unity.
+
+When measurement uncertainties are available, an epsilon-insensitive 
+variant replaces the data fidelity terms:
+%
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) = 
+    \sum_{k} \left( 
+    \frac{\max\!\left(0,\ |\hat{y}_k(\boldsymbol{\theta}) - t_k| - 
+    \varepsilon_k\right)}{\sigma_k^{\text{out}}} 
+    \right)^{\!2}
+    + \lambda \sum_{j} \max\!\left(0,\ 
+    c_j(\boldsymbol{\theta})\right)^2
+    \label{eq:loss_epsilon}
+\end{equation}
+%
+where $\varepsilon_k = \sigma_k^{\text{meas}} \times s_\varepsilon$ is a per-output dead-zone width set from the measurement uncertainty $\sigma_k^{\text{meas}}$ and a tunable scale factor $s_\varepsilon$. 
+We set $s_\varepsilon$ to be 0.5.
+The choice is made to account for systematic biases.
+Predictions within $\varepsilon_k$ of the measurement contribute exactly zero to the data fidelity gradient. Therefore, the optimizer receives no signal to fit experimental data beyond the resolution of the measurement instrument. 
+The physical constraint penalty is unconditional and is appended to both loss formulations regardless of which data fidelity mode is active, ensuring that recovered parameters remain within physically admissible limits.
+The loss is minimized using L-BFGS-B with analytic gradients supplied by the surrogate's automatic differentiation via JAX. Both loss formulations contain $\max(0, \cdot)$ operations, which introduce non-smoothness at zero. JAX resolves this via subgradients: at the 
+kink $x = 0$, the derivative of $\max(0, x)$ is assigned zero by convention, so that the optimizer receives no gradient signal for outputs already within the measurement uncertainty band.
+
+\subsection{Identifiability Analysis}
+This section presents an identifiability analysis based on the Fisher Information Matrix (FIM), following the general framework of \citet{walter1997identification} and \citet{quaiser2009systematic} for assessing which parameters can be reliably inferred from the available measurements prior to inversion.
+By assuming, zero mean additive Guassian noise on each composite measurement, $y_i^{\text{meas}} = \hat{y}_i(\boldsymbol{\theta})
++ \epsilon_i$ with $\epsilon_i \sim \mathcal{N}(0, \sigma_i^2)$ and independent across the various measurments, the standard FIM
+%
+\begin{equation}
+    \mathbf{F}(\boldsymbol{\theta}) =
+    \mathbf{J}(\boldsymbol{\theta})^\top
+    \boldsymbol{\Sigma}^{-1}
+    \mathbf{J}(\boldsymbol{\theta}), \qquad
+    \boldsymbol{\Sigma} = \mathrm{diag}(\sigma_1^2, \ldots, \sigma_m^2)
+    \label{eq:fim}
+\end{equation}
+%
+is the appropriate local measure of information, where $\mathbf{J}(\boldsymbol{\theta}) = \partial\hat{\mathbf{y}}/\partial\boldsymbol{\theta}$ is the surrogate Jacobian evaluated via automatic differentiaion in JAX.
+When a measurement uncertainty is not supplied for a given output, $\sigma_i$ is set to 2\% of the predicted output magnitude at the evaluation point.
+If the true measurement noise exceeds 2\%, the resulting identifiability estimates for parameters informed primarily by fallback outputs will be biased toward apparent identifiability, and should be corroborated with a stress test at larger assumed $\sigma_i$.
+The raw Jacobian mixes parameters of different physical units and scales (e.g.\ moduli in GPa alongside Poisson's ratios of $O(1)$),  so raw eigenvalues of $\mathbf{F}$ are not directly comparable across parameters.
+We therefore rescale each column of the Jacobian by the admissible range of the corresponding
+parameter,
+%
+\begin{equation}
+    J^{\text{norm}}_{ij} = J_{ij} \cdot \frac{(\theta_j^{\text{hi}} - \theta_j^{\text{lo}})}{\sigma_i},
+    \label{eq:jnorm}
+\end{equation}
+%
+where $[\theta_j^{\text{lo}}, \theta_j^{\text{hi}}]$ are the physically admissible bounds for parameter $j$.
+The resulting normalized FIM,
+$\mathbf{F}^{\text{norm}} = (\mathbf{J}^{\text{norm}})^\top \mathbf{J}^{\text{norm}}$, has dimensionless eigenvalues that express information content relative to the full admissible range of each parameter, making the well-determined/marginal/poor classification below comparable across parameters of arbitrary physical unit.
+
+Since the FIM is evaluated prior to any experiment, the true parameter vector $\boldsymbol{\theta}$ is unknown. 
+Rather than evaluating Eq.~\eqref{eq:jnorm} at a single nominal point, we approximate the expected FIM by Latin hypercube sampling $N$ points $\{\boldsymbol{\theta}^{(k)}\}_{k=1}^N$ over the admissible parameter box and averaging,
+%
+\begin{equation}
+    \bar{\mathbf{F}}^{\text{norm}} = \frac{1}{N} \sum_{k=1}^{N} \mathbf{F}^{\text{norm}}(\boldsymbol{\theta}^{(k)}),
+    \label{eq:fim_expected}
+\end{equation}
+%
+with $N = 200$ samples used throughout this work. 
+This averages out the local
+sensitivity structure of the surrogate over the plausible parameter range rather than committing to identifiability conclusions that hold only near one particular point.
+We then proceed to compute the eigen decomposition of $\bar{\mathbf{F}}^{\text{norm}} = \mathbf{V}\boldsymbol{\Lambda}\mathbf{V}^\top$,with eigenvalues $\lambda_1 \leq \cdots \leq \lambda_{n}$ and corresponding eigenvectors
+$\mathbf{v}_1, \ldots, \mathbf{v}_n$. Each eigenvalue is classified using fixed,
+dimensionless thresholds,
+%
+\begin{equation}
+    \text{status}(\lambda) =
+    \begin{cases}
+        \text{POOR} & \lambda < 1 \\
+        \text{MARGINAL} & 1 \leq \lambda < 100 \\
+        \text{WELL} & \lambda \geq 100,
+    \end{cases}
+    \label{eq:eig_thresholds}
+\end{equation}
+%
+reflecting that an information direction with eigenvalue below unity cannot be resolved within the admissible parameter range under the assumed measurement noise. 
+Because each eigenvector typically has non-negligible support on several parameters, translating a per-direction eigenvalue into a per-parameter status requires an assignment rule. 
+We adopt a dominant-component heuristic: each eigenvector is assigned to the parameter with the largest-magnitude entry, and that direction's status is propagated to the corresponding parameter. 
+When a parameter is the dominant component of multiple eigenvectors, it is assigned the worst, least identifiable, status among them. This rule provides a compact, interpretable per-parameter summary, but it is an approximation: by retaining only the largest component of each eigenvector, it can obscure genuine multi-parameter coupling, particularly when two or more parameters load comparably onto the same poorly constrained direction. The classification should therefore be read as a diagnostic screen rather than an exact partition of information content among parameters.
+
+For parameters not classified as POOR, we report the Cram\'{e}r-Rao lower bound on the standard deviation \citep{walter1997identification}, obtained from the square root of the diagonal of a regularized pseudo-inverse of $\bar{\mathbf{F}}^{\text{norm}}$. Because $\bar{\mathbf{F}}^{\text{norm}}$ can be near-singular along poorly identified directions \citep{quaiser2009systematic}, we invert it in its own eigenbasis and regularize the inverse directly rather than the eigenvalues themselves, following the general strategy of incorporating near-null eigenvectors explicitly into the regularization rather than discarding them \citep{wang2025systematic}: eigenvalues above $10^{-10}$ are inverted normally, while any eigenvalue at or below $10^{-10}$ is assigned a fixed inverse value of $10^{15}$, so that
+%
+\begin{equation}
+    \big[(\bar{\mathbf{F}}^{\text{norm}})^{-1}\big]_{jj} =
+    \sum_i v_{i,j}^2 \cdot
+    \begin{cases}
+        1/\lambda_i & \lambda_i > 10^{-10} \\
+        10^{15} & \lambda_i \leq 10^{-10},
+    \end{cases}
+    \label{eq:cr_bound}
+\end{equation}
+%
+converted back to physical units by taking the square root of this diagonal entry and multiplying by the parameter's admissible range, $\text{CR-std}_j = \sqrt{\big[(\bar{\mathbf{F}}^{\text{norm}})^{-1}\big]_{jj}} \cdot (\theta_j^{\text{hi}} - \theta_j^{\text{lo}})$. As a consistency check, if this bound exceeds the full admissible range of the parameter, the parameter is relabeled POOR regardless of the eigenvalue-based classification above: a Cram\'{e}r-Rao standard deviation larger than the parameter's own physical range indicates that the dominant-component heuristic under-detected contamination from a near-null direction, and the classification is overridden for consistency between the reported status and the reported bound.
+
+
+\subsection{Material card and provenance systems}
+
+Addressing the provenance of a particular material card can be quite challenging, given the fact that there could be multiple machines that process the same material in a facility.
+Further, the source of the data that is being used is not fixed.
+To clarify, some fiber properties could be inferred from experimental measurements\cite{ghosh2025framework} while some fiber properties are collected from literature~\cite{thomas2022machine}.
+Therefore, it is important to audit this trail across the material scales.
+Every characterized material is represented by a \textit{material card} which is a structured record keyed to a (fiber, polymer, printer) triple.
+The card separates what is machine-specific from what is not: constituent properties (matrix modulus, fiber CTE, thermal conductivity) are stored at the material level, shared across all cards that use the same fiber and polymer pair, while microstructure (orientation tensor, fiber mass fraction, aspect ratio) is stored per card because it is set by the printer.
+Every stored value carries a provenance tag: \textit{web} (manufacturer datasheet), \textit{inputted} (user-entered), \textit{inferred }(recovered by an inverse solver), or \textit{predicted }(output by the forward surrogate).
+
+Composite properties can accumulate values from multiple sources over time and therefore follow an explicit resolution hierarchy: a user preference override takes precedence, followed by experimental measurement, surrogate prediction, and finally user-inputted values. 
+Constituent properties recovered by the inverse solver are stored separately, keyed to the fiber--polymer pair rather than to a specific card, and are not subject to this ranking; they are resolved directly by material identity.
+When a forward prediction is requested for a new printer, the system draws these constituent values and combines them with the new printer's microstructure, without re-running the inverse stage.
+
+\section{MateriaAl Agent Architecture}
+
+The physics layer and material card provenance system provide a physics-grounded harness for MateriaAl.
+The agent is implemented as a three-node LangGraph state machine with nodes \textbf{agent}, \textbf{tool\_executor}, and \textbf{checker}, connected as follows: the agent node executes, and if the language model requests a tool call, control passes to the tool executor and then the checker before returning to the agent; if the language model produces a direct response, the turn ends.
+The \textbf{agent node} is the language model.
+It receives the full conversation history, the current material card context, and the tool library schema, and either selects the appropriate tool and arguments or generates the user-facing response directly.
+The \textbf{tool executor node} is deterministic.
+It receives the tool call selected by the language model, executes the corresponding Python function against the physics layer, and returns the result as a structured message.
+The \textbf{checker node} is the quality gate.
+It intercepts all inverse solver results before they are returned to the agent, and appends a structured quality report consisting of two components.
+First, a set of hard rules is evaluated against the parsed tool output.
+Rules and thresholds are defined in a per-tool YAML configuration and can be overridden per material system without modifying the code.
+The rules checked are:
+
+\begin{enumerate}
+
+\item \textbf{Fit error.}
+The normalised fit error is compared against a threshold of 0.05 for elastic and thermoelastic inversions and 0.10 for thermal inversion, above which the result is flagged as unreliable.
+
+\item \textbf{Microstructural plausibility.}
+Recovered microstructural descriptors are compared against physically motivated bounds.
+The primary fiber alignment component $a_{11}$ is expected to fall in $[0.50,\,0.90]$ for well-aligned extrusion-deposited composites.
+Fiber aspect ratio is bounded to $[5,\,50]$, consistent with short-fiber composites, and fiber mass fraction to $[0.05,\,0.35]$, above which the surrogate loses reliability at high inclusion concentrations.
+
+\item \textbf{Constituent property plausibility.}
+Recovered constituent properties are compared against literature-informed bounds for the material class.
+Matrix modulus is bounded to $[1000,\,6000]$~MPa for thermoplastic polymers; matrix Poisson's ratio to $[0.30,\,0.45]$; fiber longitudinal CTE ($\alpha_{f1}$) to $[-2,\,5]$~ppm/K, consistent with near-zero or slightly negative values for carbon fibers; fiber transverse CTE ($\alpha_{f2}$) to $[5,\,30]$~ppm/K; matrix CTE to $[30,\,120]$~ppm/K; fiber longitudinal conductivity ($k_{f1}$) to $[1,\,100]$~W/m$\cdot$K; fiber transverse conductivity ($k_{f2}$) to $[0.5,\,20]$~W/m$\cdot$K; and matrix conductivity at 25\textdegree C to $[0.1,\,2.0]$~W/m$\cdot$K.
+
+\end{enumerate}
+
+Second, relevant qualitative guidelines are retrieved from a separate knowledge document and appended alongside the hard-rule report.
+The language model reads both components as part of the tool result, ensuring that verification occurs at the computational layer before the language model has any opportunity to rationalise or overlook a poor result.
+This architectural choice is motivated by Edwards et al.'s~\citeyearpar{edwards2026agentic} finding that engineering AI requires verifiable, auditable outputs.
+
+The language model plays a well-defined narrow task of choosing what tool, or Python function, to call based on the user input.
+\texttt{MateriAl} uses \textbf{Qwen3:30B-A3B}, a 30B-parameter mixture-of-experts (MoE) model with approximately 3B active parameters per token, served locally via Ollama, with zero external API calls. The choice is justified on two independent grounds.
+First, \citet{belcak2025slm} demonstrates that architectures with compact active compute can achieve competitive performance on tool-calling benchmarks directly relevant to agentic routing, and we confirmed that Qwen3:30B-A3B's efficient MoE design is sufficient for the multi-tool routing workload while remaining deployable on consumer hardware.
+Second, the full workflow runs on the user's own hardware, satisfying ITAR/EAR data sovereignty requirements.
+We also observed that the hybrid reasoning capability~\cite{yang2025qwen3} of the Qwen 3 model proved to be more reliable than non-reasoning models.
+The model's hybrid reasoning mode means it deliberates before committing to a tool call and its arguments, which makes it more reliable for agentic routing than models without this capability.
+
+\section{Evalaution of \texttt{MateriAl}}
+
+We divided the evaluation of \texttt{MateriAl} into three sections: forward predictions, inverse estimations, and transfer of material properties across printing systems.
+During the course of the development, having standard evaluation prompts helped in monitoring the performance of the agent as we added more capability to the agent.
+
+% ----------- BEGIN FORWARD EVALs _-----------
+\subsection{Forward Evaluations}
+We construct a 12-prompt benchmark across three forward prediction categories.
+We constructed a total of test 12 prompts (6 elastic, 3 thermoelastic, and 3 thermal conductivity) to test \texttt{MateriAl}.
+Each prompt aims to represent varying levels of linguistic complexity that \texttt{MateriAl} might encounter when interacting with a user or an engineer.
+Table~\ref{tab:benchmark_design} summarizes the categories and the specific parsing challenge targeted by each prompt.
+Out of the 12 prompts, we present \texttt{MateriAl} response to prompts number E6, T3, and K3. 
+These prompts are more aligned with the language used by an engineer.
+Prompt E6 (Fig.~\ref{fig:e6}) requires the agent to resolve an orientation keyword to a numerical tensor before invoking the surrogate. 
+Prompt T3 (Fig.~\ref{fig:t3})is particularly instructive since the user specifies a planar isotropic orientation alongside $a_{33} = 0.1$, which is physically inconsistent since planar isotropy constrains $a_{33} \approx 0$. The agent must detect the contradiction, resolve the orientation to $a_{11} = a_{22} = 0.50$, flag the inconsistency to the user, and additionally convert the CTE inputs from SI units (K$^{-1}$) to ppm/K.
+Fig.~\ref{fig:t3} shows that
+notably, while the computed CTE values are exact, the agent's closing summary misreports the resolved $a_{33}$ as 0.1 rather than the 0 value actually used internally, illustrating a reporting discrepancy rather than computational error.
+Prompt K3 (Fig.~\ref{fig:k3}) combines orientation keyword resolution with a parametric matrix conductivity model expressed as a written formula. 
+
+In addition to presenting conversational outputs from \texttt{MateriAl}, we also evaluated the absolute percentage error (APE) for each output given by the agent relative to the GUI reference implementation. Tables~\ref{tab:mape_elastic}--\ref{tab:mape_thermal} report the per-property APE for the forward prediction benchmark, with Table~\ref{tab:category_summary_mape} summarizing the category-level means.
+\texttt{MateriAl} achieved 100\% tool routing accuracy across all 12 prompts, and the overall mean APE across every predicted property was 0.176\%, with category means of 0.123\% (elastic), 0.000\% (thermoelastic), and 0.471\% (thermal). The structured baseline and moderately complex prompts (E1--E5, T2, T3, K3) recover composite properties to within numerical precision of the ground truth, with APE at or below 0.045\% in nearly every case, confirming that named-material lookup, partial-output requests, and unit-inconsistent inputs are parsed and normalized correctly before being passed to the surrogate.
+The largest errors are concentrated in the prompts that combine multiple extraction challenges. Prompt E6, which requires resolving the natural-language orientation keyword ``randomly aligned'' to $a_{11} = a_{22} = 0.33$ before invoking the elastic surrogate, shows the highest per-property MAPE in the elastic category (0.354--1.180\%, mean 0.123\%), suggesting that small deviations in the resolved orientation tensor propagate through the surrogate into all nine elastic constants.
+All three thermoelastic prompts (T1--T3) produce exact agreement with the GUI reference, confirming that structured baselines, unnamed material systems, and contradiction-resolution with unit conversion are all handled correctly.
+Prompt K2, which evaluates a parametric matrix conductivity model $k_m(T) = p_1\sqrt{T} + p_2$ at two discrete temperatures, produced the highest error in the thermal category (up to 2.381\% for $k_{33}$ at 50$^\circ$C), consistent with compounded error from evaluating an algebraic expression at multiple temperature points. Prompt K1's informal scalar label parsing produced very small errors of 0.001--0.265\% across its three outputs.
+Despite these small errors, we find that \texttt{MateriAl} was able to reliably route and perform the tasks intended by the user.
+
+\begin{table}[h]
+\centering
+\caption{Forward prediction benchmark prompts and parsing 
+challenges tested. Prompts within each category progress 
+from a structured baseline to adversarial edge cases that 
+combine multiple extraction difficulties simultaneously.}
+\label{tab:benchmark_design}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+Key & Category & Parsing challenge \\
+\midrule
+E1 & Elastic & Structured baseline in which all inputs are 
+               provided with explicit field labels and 
+               consistent units throughout \\
+E2 & Elastic & Named material system (CF/ABS) provided 
+               alongside explicit numerical values. The 
+               agent must use the supplied inputs rather 
+               than retrieve properties from the material 
+               database. \\
+E3 & Elastic & Desired output properties enumerated explicitly 
+               by the user. The agent must invoke the 
+               complete tool and return all nine elastic 
+               constants regardless of the partial output 
+               specification \\
+E4 & Elastic & Partial output request in which only two 
+               constants (E1 and E2) are named. The 
+               agent should call the full prediction tool 
+               rather than attempting to selectively compute 
+               individual outputs \\
+E5 & Elastic & Internally inconsistent units within a single 
+               prompt (fiber moduli stated in MPa, matrix 
+               modulus in GPa). Correct tool invocation 
+               requires unit normalisation prior to argument 
+               assembly \\
+E6 & Elastic & Orientation state described by a natural 
+               language keyword (``randomly aligned'') rather 
+               than numerical tensor components. This requires 
+               vocabulary resolution to $a_{11} = a_{22} = 
+               0.33$ before the tool can be invoked \\
+\midrule
+T1 & Thermoelastic & Structured baseline with CTE values in 
+                     ppm/K, explicit orientation tensor 
+                     components, and standard material 
+                     parameters \\
+T2 & Thermoelastic & Material system described generically 
+                     (``carbon fiber polymer'') without a 
+                     named polymer. The agent must rely 
+                     exclusively on the provided numerical 
+                     inputs without recourse to database 
+                     retrieval \\
+T3 & Thermoelastic & Contradictory orientation specification 
+                     in which a planar isotropic state is 
+                     requested alongside $a_{33} = 0.1$, 
+                     which is inconsistent with the planar 
+                     isotropic constraint ($a_{33} \approx 
+                     0$). Here, the agent is expected to detect 
+                     and flag the inconsistency, resolve to 
+                     $a_{11} = a_{22} = 0.50$, and 
+                     additionally convert CTE inputs from 
+                     SI units (K$^{-1}$) to ppm/K \\
+\midrule
+K1 & Thermal & Polymer thermal conductivity provided as an 
+               informal scalar label rather than the 
+               parametric $k_m(T)$ form --- the agent must 
+               extract a constant $k_m$ from natural 
+               language and proceed with the prediction \\
+K2 & Thermal & Matrix conductivity specified via the 
+               parametric model $k_m(T) = p_1\sqrt{T} + 
+               p_2$ with $p_1$ and $p_2$ given explicitly; 
+               output requested at two discrete temperatures \\
+K3 & Thermal & Hardest thermal prompt, combining an 
+               orientation keyword requiring vocabulary 
+               resolution (``randomly oriented'' $\rightarrow$ 
+               $a_{11} = a_{22} = 1/3$) with a matrix 
+               conductivity model expressed as a written 
+               formula, and a multi-temperature output 
+               request at four discrete points \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% Requires: \usepackage{booktabs}
+
+% Requires: \usepackage{booktabs}
+
+% ---------- Elastic ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- elastic properties (Qwen3:30B-A3B MoE).}
+\label{tab:mape_elastic}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+\textbf{Prompt} & $E_1$ & $E_2$ & $E_3$ & $G_{12}$ & $G_{13}$ & $G_{23}$ & $\nu_{12}$ & $\nu_{13}$ & $\nu_{23}$ \\
+\midrule
+E1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E2 & 0.001 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E3 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E4 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E5 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E6 & 0.600 & 0.592 & 1.180 & 0.750 & 0.360 & 0.354 & 0.500 & 1.161 & 1.167 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- Thermoelastic (CTE only) ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- thermoelastic (CTE) properties (Qwen3:30B-A3B MoE).}
+\label{tab:mape_thermoelastic}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Prompt} & CTE$_{11}$ & CTE$_{22}$ & CTE$_{33}$ \\
+\midrule
+T1 & 0.000 & 0.000 & 0.000 \\
+T2 & 0.000 & 0.000 & 0.000 \\
+T3 & 0.000 & 0.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- Thermal ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- thermal conductivity, by temperature (Qwen3:30B-A3B MoE).}
+\label{tab:mape_thermal}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+& \multicolumn{3}{c}{25$^\circ$C} & \multicolumn{3}{c}{50$^\circ$C} & \multicolumn{3}{c}{100$^\circ$C} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Prompt} & $k_{11}$ & $k_{22}$ & $k_{33}$ & $k_{11}$ & $k_{22}$ & $k_{33}$ & $k_{11}$ & $k_{22}$ & $k_{33}$ \\
+\midrule
+K1 & 0.001 & 0.003 & 0.265 & --- & --- & --- & --- & --- & --- \\
+K2 & --- & --- & --- & 0.477 & 0.366 & 2.381 & 0.948 & 0.383 & 2.115 \\
+K3 & 0.000 & 0.023 & 0.045 & --- & --- & --- & 0.000 & 0.040 & 0.015 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- Category summary ----------
+\begin{table}[htbp]
+\centering
+\caption{Category-level summary of forward prediction benchmark: mean APE by property category and overall (Qwen3:30B-A3B MoE).}
+\label{tab:category_summary_mape}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Category} & \textbf{Prompts} & \textbf{Mean APE (\%)} \\
+\midrule
+Forward --- Elastic       & 6  & 0.123 \\
+Forward --- Thermoelastic & 3  & 0.000 \\
+Forward --- Thermal       & 3  & 0.471 \\
+\midrule
+\textbf{Overall}          & \textbf{12} & \textbf{0.176} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Tool routing accuracy: 12/12 (100\%).
+\end{table}
+%%%-------------------E6 FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Prompt E6} \hfill \textit{Orientation keyword resolution}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+What are the elastic properties for a short carbon fiber nylon 
+composite with randomly aligned fibers? Fiber: $E_{f1} = 230$~GPa, 
+$E_{f2} = 15$~GPa, $G_{f12} = 15$~GPa, $\nu_{f12} = 0.20$, 
+$\nu_{f23} = 0.25$. Matrix: $E_m = 1600$~MPa, $\nu_m = 0.40$. 
+Densities 1760 and 1010~kg/m$^3$. Mass fraction 0.30, AR~=~20.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+The elastic properties of the short carbon fiber/nylon composite 
+with random orientation are calculated as follows:
+\vspace{4pt}
+
+\textbf{Elastic Moduli (MPa):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $E_1$ (print direction): 4{,}843.6~MPa (4.84~GPa)
+\item $E_2$ (transverse): 4{,}822.9~MPa (4.82~GPa)
+\item $E_3$ (out-of-plane): 4{,}807.4~MPa (4.81~GPa)
+\end{itemize}
+
+\textbf{Shear Moduli (MPa):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $G_{12}$: 1{,}813.0~MPa (1.81~GPa)
+\item $G_{13}$: 1{,}800.2~MPa (1.80~GPa)
+\item $G_{23}$: 1{,}801.4~MPa (1.80~GPa)
+\end{itemize}
+
+\textbf{Poisson's Ratios:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $\nu_{12}$: 0.3345
+\item $\nu_{13}$: 0.3347
+\item $\nu_{23}$: 0.3339
+\end{itemize}
+\vspace{4pt}
+Would you like to save these results to a material card, or would 
+you like to proceed with thermoelastic analysis (requires CTE 
+measurements)?
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Prompt E6: the agent correctly resolves the orientation 
+keyword ``randomly aligned'' to the three-dimensionally isotropic 
+state $a_{11} = a_{22} = a_{33} = 1/3$ and invokes the elastic 
+surrogate. The near-equal values of $E_1 \approx E_2 \approx E_3$ 
+and $G_{12} \approx G_{13} \approx G_{23}$ confirm that the 
+isotropic orientation was correctly applied. The agent's closing 
+prompt demonstrates awareness of the multi-stage characterisation 
+workflow. MAPE against GUI reference: 0.74\% (precision artefact 
+from floating-point representation of $1/3$).}
+\label{fig:e6}
+\end{figure}
+%----------------------------------------------
+
+%%%-------------------T3 FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Prompt T3} \hfill \textit{Contradictory orientation \& unit conversion}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+What is the CTE tensor for CF/PA12 with planar isotropic orientation 
+with $a_{33}$ to be 0.1, Fiber longitudinal CTE: $-5\times10^{-7}$~per~K. 
+Fiber transverse CTE: $1.2\times10^{-5}$~per~K. Matrix CTE: 
+$8\times10^{-5}$~per~K. Elastic inputs: fiber 230~GPa axial, 15~GPa 
+transverse, 15~GPa shear, Poisson 0.20 and 0.25. Matrix 1600~MPa, 
+Poisson 0.35. Densities 1760 and 1330~kg/m$^3$. Mass fraction 0.25, 
+AR~=~20.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+The predicted CTE tensor for CF/PA12 with planar isotropic orientation ($a_{11} = a_{22} = 0.5$, $a_{33} = 0.1$) is:
+\vspace{4pt}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item CTE$_{11}$: 16.892~ppm/K ($1.6892\times10^{-5}$~/K)
+\item CTE$_{22}$: 17.018~ppm/K ($1.7018\times10^{-5}$~/K)
+\item CTE$_{33}$: 111.342~ppm/K ($1.1134\times10^{-4}$~/K)
+\end{itemize}
+The off-diagonal terms (CTE$_{12}$, CTE$_{13}$, CTE$_{23}$) are negligible for planar isotropic orientation, as expected. These values match the provided fiber/matrix CTEs and microstructure.
+\vspace{4pt}
+Would you like to visualize how these values change with different orientations?
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Prompt T3: the agent detects the physical inconsistency 
+between the requested planar isotropic orientation and the supplied 
+$a_{33} = 0.1$, resolves the orientation to $a_{11} = a_{22} = 0.50$, 
+and converts the CTE inputs from SI units (K$^{-1}$) to ppm/K before 
+invoking the thermoelastic surrogate.}
+\label{fig:t3}
+\end{figure}
+
+% ---------------------------------------%%%-------------------K3 FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Prompt K3} \hfill \textit{Orientation keyword \& parametric conductivity model}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+How thermally conductive is a short fiber carbon nylon part printed 
+with randomly oriented fibers. Fiber has longitudinal conductivity 
+8~W/mK and transverse 1~W/mK. The nylon matrix follows 
+$k_m = 0.02\sqrt{T} + 0.18$. Fiber mass fraction 30 percent, aspect 
+ratio 20, densities 1760 and 1210~kg/m$^3$. Give me values at 25, 
+50, 75, and 100 degrees C.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+Here are the thermal conductivity values for the short fiber 
+carbon/nylon composite at the requested temperatures:
+\vspace{4pt}
+
+\textbf{Thermal Conductivity (W/m$\cdot$K):}
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Temp.\ ($^\circ$C) & $k_{11}$ (axial) & $k_{22}$ (transverse) & $k_{33}$ (through-thickness) \\
+\midrule
+25  & 0.884 & 0.856 & 0.869 \\
+50  & 0.932 & 0.902 & 0.918 \\
+75  & 0.968 & 0.936 & 0.955 \\
+100 & 0.998 & 0.967 & 0.987 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{4pt}
+
+\textbf{Key Observations:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item \textbf{Anisotropy:} The material shows strong anisotropy 
+($k_{11} > k_{22} > k_{33}$) due to the high conductivity of carbon 
+fibers (8~W/m$\cdot$K) vs.\ nylon matrix (0.28~W/m$\cdot$K at 
+25$^\circ$C).
+\item \textbf{Temperature dependence:} Matrix conductivity increases 
+with temperature (0.28 $\rightarrow$ 0.38~W/m$\cdot$K over 
+25--100$^\circ$C) via the parametric model $k_m(T) = 
+0.02\sqrt{T} + 0.18$.
+\item \textbf{Fiber contribution:} At 100$^\circ$C, fibers 
+contribute $\sim$85\% of $k_{11}$ (0.998~W/m$\cdot$K) and 
+$\sim$60\% of $k_{22}$ (0.967~W/m$\cdot$K) relative to the matrix.
+\end{itemize}
+\vspace{4pt}
+Would you like to visualize how these values change across the 
+temperature range?
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Prompt K3: the agent resolves the orientation keyword ``randomly oriented'' to $a_{11}=a_{22}=1/3$ and evaluates the parametric matrix conductivity model $k_m(T) = 0.02\sqrt{T}+0.18$ at four discrete temperatures before invoking the thermal surrogate, 
+functional evaluation in a single prompt. MAPE against GUI reference: 
+0.000--0.045\% (25$^\circ$C and 100$^\circ$C).}
+\label{fig:k3}
+\end{figure}
+%----------------------------------------------
+
+
+%%-----------END OF FORWARD EVALS-------------------
+
+
+%%% ---------- INVERSE EVALS --------------
+
+\subsection{Inverse Evaluations}
+
+We construct an 8-prompt benchmark across three inverse characterization categories:
+elastic, thermoelastic, and thermal conductivity.
+Each prompt is designed to isolate variations in input prompts that range from variation in how measurements are reported, incorporation of externally measured microstructure, and correct handling of under-determined or ambiguous input.
+Table~\ref{tab:inverse_benchmark_design} summarizes the categories and the specific challenge targeted by each prompt. 
+We present the response of \texttt{MateriAl} for particularly interesting prompts.
+First, prompt IE4 supplies only a wide measurement range rather than a point estimate (see Fig.\ref{fig:ie4}). 
+Second, prompt IK2 supplies a single conductivity channel over a narrow temperature window, both of which under-determine the inverse problem. The agents response is shown in Fig.\ref{fig:ik2}.
+Even though the inverse was run, \texttt{MateriAl} correctly warns the user of missing K22 and K33 values.
+
+In these cases, the correct agent behavior is not a numerical solve but a refusal or flagged warning. 
+%%%% ------------------ IMAGES FOR INVERSE ----
+
+%%%-------------------IE4 FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Prompt IE4} \hfill \textit{Ambiguous range input \& refusal behavior}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+I have some T300 / PESU Ultrason test data printed on CAMRI, but my 
+measurements have pretty wide scatter: $E_1$ is roughly 20--21~GPa 
+and $E_2$ is somewhere around 6~GPa. Can you run the elastic inverse 
+for me?
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+The elastic inverse requires at least 3 measurements (e.g., $E_1$, 
+$E_2$, $G_{12}$) to uniquely determine $a_{11}$, $a_{22}$, and 
+matrix modulus. Your current data ($E_1 \approx 20$--$21$~GPa, 
+$E_2 \approx 6$~GPa) is insufficient. Could you provide additional 
+measurements like $G_{12}$, $\nu_{12}$, or $E_3$? These would 
+improve identifiability and help constrain the solution.
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Prompt IE4: the user supplies only a wide measurement range 
+($E_1 \approx 20$--$21$~GPa, $E_2 \approx 6$~GPa) rather than point 
+estimates. Rather than fabricating a point value from the range and 
+proceeding with an underdetermined solve, the agent correctly 
+identifies that two elastic measurements cannot uniquely constrain 
+the three free parameters ($a_{11}$, $a_{22}$, matrix modulus), and 
+requests specific additional measurements rather than returning an 
+unreliable numerical result. This refusal is the intended behavior 
+for this prompt and is scored separately from the numerical accuracy 
+benchmark (Table~\ref{tab:inverse_summary}).}
+\label{fig:ie4}
+\end{figure}
+%----------------------------------------------
+
+%%%-------------------IK2 FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Prompt IK2} \hfill \textit{Narrow-range thermal input \& under-determinacy flagging}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+Thermal conductivity measurement on my Carbon Fiber T300 / PESU 
+Ultrason / CAMRI specimens --- only $K_{11}$ was measured and the 
+equipment only went up to 50$^\circ$C. Data file: 
+\texttt{synthetic\_K\_narrow.csv}. Stage~1 elastic inverse outputs: 
+$a_{11}=0.70$, $a_{22}=0.15$, fiber mass fraction$=0.25$, aspect 
+ratio$=30$. Run the thermal inverse and tell me the results.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+The thermal inverse analysis completed with a good fit (fit\_error 
+$= 7.7\times10^{-6}$), but one critical parameter failed quality 
+checks:
+\vspace{4pt}
+
+\textbf{Critical Failure --- Matrix Conductivity ($k_m$):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Inferred value: 0.0711~W/m$\cdot$K
+\item Expected range: 0.1--2.0~W/m$\cdot$K (typical for polymers 
+like PESU)
+\item Issue: the matrix conductivity is too low --- this suggests 
+either a data/unit scaling error in the $K_{11}$ CSV values, a 
+model mismatch in the parametric form $k_m(T) = p_1\sqrt{T} + p_2$, 
+or fiber dominance in the $K_{11}$ channel overshadowing the matrix 
+contribution
+\end{itemize}
+
+\textbf{Incomplete Data Warning:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Missing channels $K_{22}$ and $K_{33}$ are required for 
+reliable inference of $k_{f2}$ (fiber transverse conductivity) and 
+$p_1$, $p_2$ (polymer parametric model)
+\item Recommendation: re-measure all three channels across a 
+50$^\circ$C+ temperature range for better parameter constraints
+\end{itemize}
+
+\textbf{Validated Parameters (with caveats):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Fiber longitudinal conductivity $k_{f1}$: 13.74~W/m$\cdot$K 
+(matches carbon fiber expectations)
+\item Fiber transverse conductivity $k_{f2}$: 1.365~W/m$\cdot$K 
+(low for carbon fiber; verify measurement setup)
+\item Polymer parametric model: $p_1 = 2.6792\times10^{-3}$, $p_2 
+= 0.0577$~W/m$\cdot$K
+\item Anisotropy ratio: 10.06 (matches carbon fiber axial/transverse 
+ratio)
+\end{itemize}
+\vspace{4pt}
+Would you like to proceed with saving these results despite the 
+$k_m$ outlier?
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Prompt IK2: with only a single conductivity channel 
+($K_{11}$) measured over a narrow temperature range (25--50$^\circ$C), 
+the thermal inverse is under-determined with respect to the 
+polymer's parametric conductivity model and the fiber transverse 
+conductivity. Rather than reporting the numerically converged fit as 
+reliable, the agent flags the physically implausible matrix 
+conductivity against its plausibility bounds (Section~3.3, Rule 3), 
+identifies the missing channels required for identifiability, and 
+withholds an unqualified save-to-card action pending user 
+confirmation. This flagging behavior is the intended response for 
+this prompt and is scored on routing/detection rather than numerical 
+accuracy (Table~\ref{tab:inverse_summary}).}
+\label{fig:ik2}
+\end{figure}
+%----------------------------------------------
+
+
+
+%% ------------------END IMAGES FOR INVERSE 
+In addition to \texttt{MateriAl}'s response, we also estimate errors across each output for the six prompts that admit a well-posed numerical solution, reporting the absolute percentage error (APE) against the GUI reference implementation. Per-property APE is given in Tables~\ref{tab:inv_mape_elastic}--\ref{tab:inv_mape_thermal} and category-level mean APE summarized in Table~\ref{tab:inverse_summary}. Elastic inverse accuracy was below 0.16\% APE for all recovered parameters ($a_{11}$, $a_{22}$, matrix modulus, matrix Poisson ratio), and thermal conductivity inverse error remained below 0.42\% APE across all four recovered parameters ($k_{f1}$, $k_{f2}$, $p_1$, $p_2$).
+Notice that the errors for the inferred parameters for prompt IT1 are high. 
+This is atrributed to the fact that only the CTE11 and CTE22 values were provided and multiple values of the parameters satisfy the underconstrained inverse problem.
+
+%% ------- BEGIN TABLES -------
+\begin{table}[h]
+\centering
+\caption{Inverse characterization benchmark prompts and challenges tested. Prompts
+within each category progress from a structured baseline to cases requiring unit normalization, fixed-input incorporation, or recognition of an under-determined
+inverse problem.}
+\label{tab:inverse_benchmark_design}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+Key & Category & Challenge \\
+\midrule
+IE1 & Elastic & Structured baseline with E1, E2, G12, and nu12 reported in GPa against a named database material \\
+IE2 & Elastic & Measurements reported in MPa rather than GPa, requiring unit normalization before the inverse is invoked \\
+IE3 & Elastic & Fiber orientation supplied from micro-CT
+measurement ($a_{11}$, $a_{22}$) and passed
+as fixed inputs rather than left as a free
+inverse parameter \\
+IE4 & Elastic & Ambiguous range input ($\sim$20--21 GPa)
+rather than a point estimate; the agent is
+expected to withhold the inverse call rather
+than fabricate a point value from the range \\
+\midrule
+IT1 & Thermoelastic & CTE reported in ppm/K with Stage 1
+elastic outputs supplied explicitly as
+fixed inputs \\
+IT2 & Thermoelastic & CTE reported in 1/K scientific notation
+rather than ppm/K, testing unit
+robustness as it propagates from Stage 1
+into the thermoelastic inverse \\
+\midrule
+IK1 & Thermal & All three conductivity channels provided as a
+file-based input over a wide temperature range
+(25--200\textdegree C) \\
+IK2 & Thermal & Single conductivity channel over a narrow
+temperature range (25--50\textdegree C); the
+agent is expected to recognize and flag the
+resulting under-determinacy rather than solve
+as if well-posed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+%%%% --------- THE TABLES ---------------
+
+% ---------- Elastic per-property ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- elastic properties (Qwen3:30B-A3B MoE).}
+\label{tab:inv_mape_elastic}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Prompt} & $a_{11}$ & $a_{22}$ & Matrix Modulus & Matrix Poisson \\
+\midrule
+IE1 & 0.022 & 0.153 & 0.004 & --- \\
+IE2 & 0.005 & 0.005 & 0.002 & 0.010 \\
+IE3 & ---   & ---   & 0.001 & 0.005 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+
+\end{table}
+
+% ---------- Thermoelastic per-property ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- thermoelastic (CTE) properties (Qwen3:30B-A3B MoE).}
+\label{tab:inv_mape_thermoelastic}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Prompt} & Fiber CTE$_1$ & Fiber CTE$_2$ & Matrix CTE \\
+\midrule
+IT1 & 12.090 & 36.519 & 1.083 \\
+IT2 & 0.165  & 0.000  & 0.004 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize IT1 provides only CTE$_{11}$ and CTE$_{22}$ as targets against three free parameters, an underdetermined system with a one-parameter family of equally valid solutions; IT2 adds CTE$_{33}$, fully constraining the system.
+\end{table}
+
+% ---------- Thermal per-property ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- thermal conductivity (Qwen3:30B-A3B MoE).}
+\label{tab:inv_mape_thermal}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Prompt} & $k_{f1}$ & $k_{f2}$ & $p_1$ & $p_2$ \\
+\midrule
+IK1 & 0.000 & 0.006 & 0.043 & 0.414 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- Category summary ----------
+\begin{table}[htbp]
+\centering
+\caption{Category-level summary of inverse estimation benchmark: mean APE by property category and overall (Qwen3:30B-A3B MoE).}
+\label{tab:inverse_summary}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Category} & \textbf{Prompts} & \textbf{Mean APE (\%)} \\
+\midrule
+Inverse --- Elastic       & 3 & 0.023 \\
+Inverse --- Thermoelastic & 2 & 8.310 \\
+Inverse --- Thermal       & 1 & 0.116 \\
+\midrule
+\textbf{Overall}          & \textbf{6} & \textbf{2.660} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Tool routing accuracy: 8/8 (100\%); IE4 (deliberate refusal test) and IK2 (routing-only) are excluded from mean APE.
+\end{table}
+
+%%%%------------END OF INVERSE EVALS -------------
+\FloatBarrier
+
+%%%% ________-----IDENTIFIBIALITY ANALYSIS ------
+\subsection{Identifiability Analysis and Experiment Recommendation}
+\label{sec:identifiability_demo}
+
+The forward and inverse benchmarks above evaluate \texttt{MateriAl} against measurement sets that were designed to be well-posed. 
+Each prompt supplies enough independent measurements to uniquely determine the requested parameters. 
+In practice, however, an engineer often does not know in advance whether the data on hand are sufficient, and posing that question is itself a common and non-trivial use case. This section demonstrates \texttt{MateriAl}'s identifiability analysis capability.
+Given a partial or evolving set of measurements, the agent assesses whether the available data can uniquely constrain the requested parameters, and if not, recommends which additional measurement would most improve identifiability. 
+Unlike the benchmark prompts in the preceding sections, these interactions are not scored against a numerical GUI reference since there is no single correct output to match.
+We present a representative multi-turn interaction in which a user progressively supplies additional elastic measurements (first $E_1$ alone, then $E_1$ and $E_2$, then $E_1$, $E_2$, and $E_3$) and \texttt{MateriAl} correctly invokes the identifiability check at each stage, reporting the resulting parameter uncertainty and ranking candidate follow-up measurements by expected information gain.
+
+%%%-------------------IDENTIFIABILITY DEMO FIGURE ----------------
+\begin{figure}[h]
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Identifiability Demo} \hfill \textit{Experimental campaign planning}},
+    fonttitle=\small
+]
+\begin{tcolorbox}[
+    colback=gray!8,
+    colframe=gray!60,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+I have T300 / PESU Ultrason specimen that was printed CAMRI. I've 
+measured $E_1 = 22.1$~GPa. Fiber mass fraction is 0.25, aspect ratio 
+30. How do I prepare an experimental campaign from here to 
+characterize my material?
+\end{tcolorbox}
+\vspace{6pt}
+\begin{tcolorbox}[
+    colback=gray!3,
+    colframe=gray!40,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize \textcolor{gray!70!black}{\ding{110}\ check\_identifiability}}},
+    fonttitle=\small\bfseries,
+    coltitle=black
+]
+\small
+To prepare your experimental campaign, you need at least 3 more 
+measurements to uniquely identify the 4 free parameters ($a_{11}$, 
+$a_{22}$, matrix modulus, matrix Poisson). Here's the ranked plan:
+\vspace{4pt}
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item Measure $E_2$ (next most impactful after $E_1$) --- helps 
+constrain matrix modulus and orientation
+\item Measure $\nu_{13}$ (Poisson ratio) --- critical for 
+identifying matrix Poisson ratio
+\item Measure $G_{13}$ (shear modulus) --- improves identifiability 
+of matrix properties
+\end{enumerate}
+\vspace{4pt}
+These measurements will enable a full elastic inverse solve. Would 
+you like me to suggest specific experimental methods for these 
+measurements?
+\end{tcolorbox}
+\end{tcolorbox}
+\caption{Identifiability-driven experiment planning: given a single 
+elastic measurement ($E_1$) and known process parameters, the agent 
+invokes the identifiability check rather than attempting a solve, 
+determines that the current data cannot uniquely constrain the four 
+free elastic parameters, and returns a ranked measurement plan 
+ordered by expected improvement to the worst-constrained parameter 
+direction. This recommendation is generated by the deterministic FIM 
+E-optimality computation (Section~\ref{sec:identifiability}) rather 
+than by the language model's own judgment, consistent with 
+\texttt{MateriAl}'s architecture of confining language-model 
+reasoning to tool selection while delegating scientific inference to 
+the physics layer.}
+\label{fig:identifiability_demo}
+\end{figure}
+%----------------------------------------------
+
+%%%-------------------IDENTIFIABILITY MULTI-TURN FIGURE ----------------
+\begin{center}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Identifiability Demo} \hfill \textit{Progressive measurement, conditional parameter promotion}},
+    fonttitle=\small
+]
+
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I have $E_1=22.1$~GPa, fiber mass fraction$=0.25$, AR$=30$ for T300/PESU. What should I measure next to characterize this material?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ check\_identifiability}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+To uniquely identify the microstructure and matrix modulus, you need at least 2 more measurements. The top recommendations are:
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item $G_{23}$ (shear modulus) --- most informative for identifiability
+\item $E_2$ (transverse modulus)
+\item $E_3$ (out-of-plane modulus)
+\item $\nu_{12}$ (in-plane Poisson ratio)
+\item $\nu_{13}$ (transverse Poisson ratio)
+\end{enumerate}
+Adding $G_{23}$ would immediately resolve the underdetermination. What would you like to measure next?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I don't have $G_{23}$, but I have $E_2=5.8$~GPa. What should I measure next?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ check\_identifiability}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+With $E_1$ and $E_2$ measurements, you now have 2 measurements but still need 1 more to fully determine the microstructure and matrix modulus. The top recommendation is:
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item $G_{23}$ (shear modulus) --- most impactful for resolving underdetermination
+\item $\nu_{13}$ (transverse Poisson ratio)
+\item $G_{13}$ (in-plane shear modulus)
+\end{enumerate}
+Since you cannot measure $G_{23}$, $\nu_{13}$ is the next best choice. What would you like to measure next?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I now have $G_{23}=4$~GPa. Can I run the inverse now?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ check\_identifiability}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+With $E_1$, $E_2$, and $G_{23}$ measurements, you now have 3 measurements but still need 1 more to fully determine all 4 parameters ($a_{11}$, $a_{22}$, matrix\_modulus, matrix\_poisson). The top recommendation is:
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item $\nu_{23}$ (out-of-plane Poisson ratio) --- most impactful for resolving underdetermination
+\item $\nu_{13}$ (transverse Poisson ratio)
+\item $\nu_{12}$ (in-plane Poisson ratio)
+\end{enumerate}
+Since you cannot measure $\nu_{23}$, $\nu_{13}$ is the next best choice. Would you like to measure $\nu_{13}$ next, or would you prefer to proceed with the current data (even though the system remains underdetermined)?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+You mentioned earlier there were only three parameters to infer.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+You're correct --- let's clarify. With $E_1$, $E_2$, and $G_{23}$, the system now has 3 measurements but still needs 1 more to resolve 4 parameters:
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item $a_{11}$ (print direction alignment)
+\item $a_{22}$ (transverse alignment)
+\item matrix\_modulus (matrix stiffness)
+\item matrix\_poisson (matrix Poisson ratio)
+\end{enumerate}
+The confusion arises because $G_{23}$ (shear modulus) is a shear/Poisson measurement, which introduces matrix\_poisson as a free parameter (previously fixed from datasheets). This adds one more unknown, making the total 4 parameters. To proceed, you need 1 additional measurement (e.g., $\nu_{13}$, $\nu_{23}$, or $E_3$). Would you like to measure one of these next, or proceed with the current data (even though the system remains underdetermined)?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I have $\nu_{12} = 0.38$. Does that help?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+With $E_1$, $E_2$, $G_{23}$, and $\nu_{12}$, you now have 4 measurements and 4 parameters to infer ($a_{11}$, $a_{22}$, matrix\_modulus, matrix\_poisson). The system is now marginally identifiable (condition number $= 51.4$), meaning the solution is possible but with some uncertainty, especially for matrix\_poisson.
+\vspace{4pt}
+
+\textbf{Key Takeaways:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $a_{11}$ and $a_{22}$ are well-constrained (low uncertainty)
+\item matrix\_modulus is also well-determined ($\pm$47~MPa)
+\item matrix\_poisson is marginally identifiable ($\pm$0.01)
+\end{itemize}
+\vspace{4pt}
+
+\textbf{Next Steps:}
+\begin{enumerate}[leftmargin=1.4em, itemsep=1pt, topsep=2pt]
+\item Proceed with the inverse solve (elastic inverse) using the current data. The result will include all four parameters, but matrix\_poisson will carry higher uncertainty.
+\item Consider adding one of the top-ranked measurements (e.g., $\nu_{23}$, $\nu_{13}$, or $E_3$) to further reduce uncertainty.
+\end{enumerate}
+Would you like to run the elastic inverse now, or add another measurement to improve identifiability?
+\end{tcolorbox}
+
+\end{tcolorbox}
+\end{center}
+
+\captionof{figure}{Progressive identifiability-driven measurement planning. Starting from a single elastic measurement, the agent invokes the identifiability check after each newly supplied measurement, re-ranking candidate follow-up measurements by expected information gain at every stage. A notable feature of this interaction is the agent's handling of \textit{conditional parameter promotion}: when the user supplies $G_{23}$, a shear/Poisson-type measurement, matrix\_poisson --- previously fixed to a datasheet value --- is promoted to a free inverse parameter, increasing the total parameter count from 3 to 4. When challenged by the user on this apparent inconsistency, the agent correctly explains the underlying cause rather than simply restating the new count. The interaction terminates with a fully quantified, marginally identifiable system (condition number 51.4), with per-parameter uncertainty reported for the first time in this progression.}
+\label{fig:identifiability_progressive}
+%%% _----------END IDEINTIFIABLITY ANALYSIS----
+
+%%%%%%% --------- BEGIN TRANSFER ANALYSIS-----
+%%%-------------------MATERIAL CARD QUERY FIGURE ----------------
+\begin{center}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Material Card Query} \hfill \textit{Database inspection prior to transfer}},
+    fonttitle=\small
+]
+
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+List the material cards in the database that I can transfer to a new printer.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ list\_cards}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The following material cards are fully characterized and ready for transfer to a new printer:
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt, topsep=2pt]
+\item \texttt{card\_id=11} --- Fiber: Carbon Fiber T300\_techmer; Polymer: PESU\_Electrafil\_3DP; Printer: CAMRI; Completed stages: Elastic, Thermoelastic, Thermal
+\item \texttt{card\_id=1} --- Fiber: AF; Polymer: AP; Printer: CAMRI; Completed stages: Elastic, Thermoelastic, Thermal
+\end{enumerate}
+These cards contain all required data (microstructure, constituent properties, and thermal model) to perform a successful transfer. Would you like to proceed with transferring one of these cards to a new printer?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Can you summarize card\_id 11 for me please?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ get\_card\_status}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Card Summary: \texttt{card\_id=11} (``CF\_T300\_techmer\_PESU\_Electrafil\_3DP\_CAMRI'')
+\vspace{4pt}
+
+Fiber: Carbon Fiber T300\_techmer \quad Polymer: PESU\_Electrafil\_3DP \quad Printer: CAMRI
+\vspace{4pt}
+
+\textbf{Completed Stages:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Elastic (microstructure, matrix modulus, orientation tensor inferred)
+\item Thermoelastic (fiber and matrix CTEs inferred)
+\item Thermal (conductivity model parameters inferred)
+\end{itemize}
+Created: 2026-08-04
+\vspace{4pt}
+
+\textbf{Transfer Status:} Ready for transfer to a new printer (all required data is saved). This card contains a fully characterized composite system with microstructure (orientation tensor, fiber mass fraction, aspect ratio), constituent properties (matrix modulus, Poisson ratio, CTEs), and a thermal conductivity model (parametric matrix conductivity formula). Would you like to proceed with transferring this card to a new printer?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Can you tell me about the material properties of this card?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ get\_card\_status}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Detailed summary of \texttt{card\_id=11} (``CF\_T300\_techmer\_PESU\_Electrafil\_3DP\_CAMRI''):
+\vspace{4pt}
+
+\textbf{1. Fiber Properties (Carbon Fiber T300\_techmer):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Elastic moduli: $E_1$ (axial) $= 240{,}000$~MPa; $E_2$ (transverse) $= 14{,}000$~MPa; $G_{12}$ (shear) $= 28{,}000$~MPa
+\item Poisson ratios: $\nu_{12} = 0.2$; $\nu_{23} = 0.25$
+\item Thermal expansion: $\alpha_1 = -9.34\times10^{-7}$~1/K (axial); $\alpha_2 = 9.36\times10^{-6}$~1/K (transverse)
+\item Density: 1{,}760~kg/m$^3$
+\item Thermal conductivity: $k_1$ (axial) $= 13.23$~W/m$\cdot$K; $k_2$ (transverse) $= 1.19$~W/m$\cdot$K
+\end{itemize}
+
+\textbf{2. Polymer Properties (PESU\_Electrafil\_3DP):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Elastic modulus: $E = 3{,}200$~MPa (neat resin)
+\item Poisson ratio: $\nu = 0.35$
+\item Thermal expansion: $\alpha = 5.59\times10^{-5}$~1/K
+\item Density: 1{,}350~kg/m$^3$
+\item Thermal conductivity: $k_m$ (matrix) $= 0.148$~W/m$\cdot$K (in-situ, inferred); parametric model $k_m(T) = 0.00496\sqrt{T} + 0.123$~W/m$\cdot$K
+\end{itemize}
+
+\textbf{3. Microstructure (CAMRI Printer):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Orientation tensor: $a_{11} = 0.7933$ (aligned along print direction); $a_{22} = 0.1708$ (transverse alignment); $a_{12} = a_{13} = a_{23} = 0.0$ (no shear alignment)
+\item Fiber mass fraction: 25\% (by weight)
+\item Aspect ratio: 20 (length/diameter)
+\end{itemize}
+
+\textbf{4. Inferred Constituent Properties:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Matrix modulus: 2{,}338~MPa (in-situ, inferred from elastic measurements)
+\item Matrix Poisson ratio: 0.35 (fixed from datasheet)
+\item Thermal conductivity model: $k_{f1} = 13.23$~W/m$\cdot$K (fiber axial); $k_{f2} = 1.19$~W/m$\cdot$K (fiber transverse); $k_m = 0.148$~W/m$\cdot$K (matrix, parametric)
+\end{itemize}
+
+\textbf{5. Experimental Measurements (composite-level, CAMRI printer):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Elastic moduli: $E_1 = 16{,}920$~MPa; $E_2 = 4{,}850$~MPa; $E_3 = 3{,}790$~MPa
+\item Thermal expansion: CTE$_{11} = 4.19\times10^{-6}$~1/K; CTE$_{22} = 3.51\times10^{-5}$~1/K; CTE$_{33} = 6.5\times10^{-5}$~1/K
+\end{itemize}
+
+\textbf{6. Notes:} Transfer ready: yes (all stages completed: elastic, thermoelastic, thermal). Printing conditions not yet recorded --- use \texttt{save\_processing\_conditions} to add details.
+\vspace{4pt}
+
+Would you like to transfer this card to a new printer or explore specific properties (e.g., thermal conductivity at a temperature range)?
+\end{tcolorbox}
+
+\end{tcolorbox}
+\end{center}
+
+\captionof{figure}{Material card inspection prior to cross-printer transfer. The agent lists all fully characterized cards in the database, then retrieves increasing levels of detail for \texttt{card\_id=11} on request --- from a high-level completion summary to the full constituent-property record. Note the distinction between \textit{fiber-level constituent inputs} (Section~1, e.g. $E_1 = 240{,}000$~MPa, the manufacturer datasheet modulus of the T300 fiber itself) and \textit{composite-level experimental measurements} (Section~5, e.g. $E_1 = 16{,}920$~MPa, the measured axial modulus of the printed composite on the CAMRI printer): the former are constituent properties that transfer unchanged to a new printer, while the latter are printer-specific measurements used to infer the microstructure (Section~3) for this particular card. This separation is what enables the transfer described in Section~\ref{sec:transfer}: only the microstructure block is printer-specific and needs to be re-inferred for a new printer, while the fiber and matrix constituent properties carry over directly.}
+\label{fig:card_query}
+%%%%% ------------ END  TRASNFER ANALYSIS -----
+
+\section*{Data and Code Availability}
+The surrogate model training code, trained model weights, training histories, 
+and inverse solver implementation are openly available at 
+\url{https://github.com/ajacobth/DiffMicromechanics}.
+
+\section*{Acknowledgements}
+
+This research was sponsored by the Composites Additive Manufacturing and Simulation (CAMS) consortium at Purdue University.
+
+\section*{CRediT author contribution statement}
+\textbf{Akshay J. Thomas}: Conceptualization, Methodology, Software, Validation, Investigation, Formal analysis, Data Curation, Visualization, Writing - original draft, review and editing
+\textbf{Eduardo Barocio}: Conceptualization, Funding Acquisition, Resources,  Writing-review, and editing 
+% \paragraph{Word Counts}
+% [This section is \textit{not} included in the word count.]
+% \quickwordcount{main}
+
+% \section*{Acknowledgements}
+% Thank your project partners or people who helped contribute to the work.
+\fontsize{10}{10}\selectfont
+%\clearpage 
+\bibliographystyle{model1-num-names}
+\bibliography{references.bib}
+
+\appendix
+
+\renewcommand{\thefigure}{A.\arabic{figure}}
+\renewcommand{\thetable}{A.\arabic{table}}
+
+\setcounter{figure}{0}
+\setcounter{table}{0}
+
+\section{Surrogate Model Training Details and Evaluation Metrics}
+\label{app:surrogate_details}
+
+This appendix reports the training configuration and held-out test-set
+error metrics for the three neural network surrogates described in
+Section~\ref{sec:surrogate_arch} (elastic, thermoelastic, and thermal
+conductivity). All three surrogates share a common training framework:
+a Flax/JAX multilayer perceptron (MLP) trained with the Adam optimizer
+and exponential learning-rate decay, z-score normalization applied
+independently to inputs and outputs, and $L_2$ weight regularization
+restricted to the two-dimensional kernel matrices (bias vectors and
+other one-dimensional parameter arrays are excluded from the penalty).
+All metrics reported below are computed on a held-out test set drawn
+from an independent Latin hypercube sampling (LHS) run that was not
+used during training or validation.
+
+Unless otherwise noted, the $L_2$ penalty takes the form
+$\lambda \sum_l \lVert \mathbf{W}_l \rVert_F^2$, summed over the kernel
+matrices $\mathbf{W}_l$ of all layers $l$. The training loss combines
+the mean-squared error (MSE) and the $L_2$ penalty with fixed weights,
+$\mathcal{L}_{\text{total}} = w_{\text{mse}} \cdot \text{MSE} +
+w_{L_2} \cdot L_2$, with $\{w_{\text{mse}}, w_{L_2}\} = \{1.0,
+10^{-6}\}$ held constant throughout training (the grad-norm balancing
+scheme is initialized at these weights with an update interval of
+$10^{12}$ steps, i.e.\ effectively frozen). Both the CAD-generated
+Digimat training data and the reported test metrics use z-scored
+input/output statistics computed exclusively from the training split.
+
+\subsection{Elastic surrogate}
+\label{app:elastic_surrogate}
+
+The elastic surrogate predicts the nine effective composite elastic
+constants $(E_1, E_2, E_3, G_{12}, G_{13}, G_{23}, \nu_{12}, \nu_{13},
+\nu_{23})$ from 16 constituent and microstructural inputs: the
+transversely isotropic fiber elastic constants and Poisson's ratios
+$(e_1, e_2, g_{12}, f_{\nu 12}, f_{\nu 23})$, fiber aspect ratio and
+mass fraction $(ar, w_f)$, fiber and matrix density $(\rho_f, \rho_m)$,
+the isotropic matrix modulus and Poisson's ratio $(E_m, \nu_m)$, and
+the five independent orientation tensor components $(a_{11}, a_{22},
+a_{12}, a_{13}, a_{23})$. Table~\ref{tab:app_elastic_config} summarizes
+the training configuration; Table~\ref{tab:app_elastic_global} reports
+global test-set accuracy; Table~\ref{tab:app_elastic_per_output}
+reports per-output accuracy.
+
+\begin{table}[h]
+\centering
+\caption{Elastic surrogate (\texttt{case\_5}): training configuration.}
+\label{tab:app_elastic_config}
+\begin{tabular}{ll}
+\toprule
+Parameter & Value \\
+\midrule
+Inputs (16)     & $e_1, e_2, g_{12}, f_{\nu 12}, f_{\nu 23}, ar, w_f, \rho_f, E_m, \nu_m, \rho_m, a_{11}, a_{22}, a_{12}, a_{13}, a_{23}$ \\
+Outputs (9)     & $E_1, E_2, E_3, G_{12}, G_{13}, G_{23}, \nu_{12}, \nu_{13}, \nu_{23}$ \\
+Architecture    & MLP: [128, 512, 256, 256, 128, 64, 16] hidden units \\
+Activation      & Swish \\
+Weight init.    & Glorot normal (kernels), zeros (biases) \\
+Optimizer       & Adam ($\beta_1 = 0.9$, $\beta_2 = 0.999$, $\varepsilon = 10^{-8}$) \\
+Learning rate   & $10^{-3}$ initial; exponential decay (rate $= 0.9$, steps $= 10^{6}$) \\
+$L_2$ weight    & $\lambda = 10^{-6}$ \\
+Loss            & $\mathcal{L}_{\text{total}} = w_{\text{mse}} \cdot \text{MSE} + w_{L_2} \cdot L_2$; fixed weights $\{1.0, 10^{-6}\}$ \\
+Epochs / batch  & 501 / 512 \\
+Seed            & 112 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Elastic surrogate (\texttt{case\_5}): global test-set metrics
+(elastic and shear moduli in GPa, Poisson's ratios dimensionless).}
+\label{tab:app_elastic_global}
+\begin{tabular}{ccc}
+\toprule
+RMSE & MAE & $R^2$ \\
+\midrule
+0.02327 & 0.01077 & 0.99994 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Elastic surrogate (\texttt{case\_5}): per-output test-set metrics.}
+\label{tab:app_elastic_per_output}
+\begin{tabular}{lccc}
+\toprule
+Output & RMSE & MAE & $R^2$ \\
+\midrule
+$E_1$ [GPa]    & 0.03757 & 0.02040 & 0.99983 \\
+$E_2$ [GPa]    & 0.04069 & 0.02363 & 0.99980 \\
+$E_3$ [GPa]    & 0.03654 & 0.02431 & 0.99986 \\
+$G_{12}$ [GPa] & 0.01092 & 0.00723 & 0.99988 \\
+$G_{13}$ [GPa] & 0.01379 & 0.00974 & 0.99981 \\
+$G_{23}$ [GPa] & 0.01255 & 0.00859 & 0.99984 \\
+$\nu_{12}$     & 0.00142 & 0.00098 & 0.99955 \\
+$\nu_{13}$     & 0.00156 & 0.00111 & 0.99947 \\
+$\nu_{23}$     & 0.00132 & 0.00091 & 0.99964 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\subsection{Thermoelastic surrogate}
+\label{app:thermoelastic_surrogate}
+
+The thermoelastic surrogate augments the elastic surrogate's inputs
+with the transversely isotropic fiber coefficients of thermal
+expansion (CTE) and the isotropic matrix CTE, and predicts the full
+set of elastic constants together with the five independent
+components of the composite CTE matrix. As noted in
+Section~\ref{sec:surrogate_arch}, the elastic outputs of this
+surrogate are computed as a byproduct of training but are not used in
+the agent pipeline, which delegates elastic prediction to the
+dedicated elastic surrogate of Appendix~\ref{app:elastic_surrogate}.
+Table~\ref{tab:app_thermo_config} summarizes the training
+configuration; Table~\ref{tab:app_thermo_global} reports global
+test-set accuracy; Table~\ref{tab:app_thermo_per_output} reports
+per-output accuracy.
+
+\begin{table}[h]
+\centering
+\caption{Thermoelastic surrogate (\texttt{case\_7}): training configuration.}
+\label{tab:app_thermo_config}
+\begin{tabular}{ll}
+\toprule
+Parameter & Value \\
+\midrule
+Inputs (19)     & $e_1, e_2, g_{12}, f_{\nu 12}, f_{\nu 23}, \alpha_{f1}, \alpha_{f2}, ar, w_f, \rho_f, E_m, \nu_m, \rho_m, \alpha_m, a_{11}, a_{22}, a_{12}, a_{13}, a_{23}$ \\
+Outputs (15)    & $E_1$--$E_3$, $G_{12}$--$G_{23}$, $\nu_{12}$--$\nu_{23}$, CTE$_{11}$, CTE$_{22}$, CTE$_{33}$, CTE$_{12}$, CTE$_{13}$, CTE$_{23}$ \\
+Architecture    & MLP: [128, 256, 512, 1024, 512, 256, 256, 256, 128, 128] hidden units \\
+Activation      & Swish \\
+Weight init.    & Glorot normal (kernels), zeros (biases) \\
+Optimizer       & Adam ($\beta_1 = 0.9$, $\beta_2 = 0.999$, $\varepsilon = 10^{-8}$) \\
+Learning rate   & $10^{-3}$ initial; exponential decay (rate $= 0.9$, steps $= 10^{6}$) \\
+$L_2$ weight    & $\lambda = 10^{-6}$ \\
+Loss            & $\mathcal{L}_{\text{total}} = w_{\text{mse}} \cdot \text{MSE} + w_{L_2} \cdot L_2$; fixed weights $\{1.0, 10^{-6}\}$ \\
+Epochs / batch  & 501 / 512 \\
+Seed            & 101 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Thermoelastic surrogate (\texttt{case\_7}): global test-set
+metrics (moduli in GPa, Poisson's ratios dimensionless, CTE in 1/K).}
+\label{tab:app_thermo_global}
+\begin{tabular}{ccc}
+\toprule
+RMSE & MAE & $R^2$ \\
+\midrule
+0.03105 & 0.01376 & 0.99993 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Thermoelastic surrogate (\texttt{case\_7}): per-output test-set metrics.}
+\label{tab:app_thermo_per_output}
+\begin{tabular}{lccc}
+\toprule
+Output & RMSE & MAE & $R^2$ \\
+\midrule
+$E_1$ [GPa]      & 0.06990 & 0.05097 & 0.99971 \\
+$E_2$ [GPa]      & 0.06221 & 0.04951 & 0.99977 \\
+$E_3$ [GPa]      & 0.06392 & 0.04905 & 0.99977 \\
+$G_{12}$ [GPa]   & 0.02412 & 0.01860 & 0.99973 \\
+$G_{13}$ [GPa]   & 0.02394 & 0.01872 & 0.99973 \\
+$G_{23}$ [GPa]   & 0.02145 & 0.01663 & 0.99979 \\
+$\nu_{12}$       & 0.00143 & 0.00097 & 0.99950 \\
+$\nu_{13}$       & 0.00146 & 0.00100 & 0.99950 \\
+$\nu_{23}$       & 0.00150 & 0.00097 & 0.99950 \\
+CTE$_{11}$ [1/K] & $2.98\times10^{-7}$ & $2.11\times10^{-7}$ & 0.99988 \\
+CTE$_{22}$ [1/K] & $3.25\times10^{-7}$ & $2.34\times10^{-7}$ & 0.99985 \\
+CTE$_{33}$ [1/K] & $3.15\times10^{-7}$ & $2.25\times10^{-7}$ & 0.99986 \\
+CTE$_{12}$ [1/K] & $1.78\times10^{-7}$ & $1.14\times10^{-7}$ & 0.99969 \\
+CTE$_{13}$ [1/K] & $1.63\times10^{-7}$ & $9.98\times10^{-8}$ & 0.99975 \\
+CTE$_{23}$ [1/K] & $1.51\times10^{-7}$ & $9.39\times10^{-8}$ & 0.99977 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Reported CTE metrics are given in raw model units of 1/K. The
+diagonal CTE components ($11$/$22$/$33$) are typically on the order
+of $10^{-5}$--$10^{-4}$~1/K, while the off-diagonal components
+($12$/$13$/$23$) are near zero for symmetric microstructures; the
+absolute RMSE/MAE values above should be interpreted relative to
+these characteristic magnitudes rather than in isolation.
+
+\FloatBarrier
+\subsection{Thermal conductivity surrogate}
+\label{app:thermal_surrogate}
+
+The thermal conductivity surrogate predicts the six independent components of the composite thermal conductivity tensor from the transversely isotropic fiber conductivities, the isotropic matrix conductivity, fiber aspect ratio and mass fraction, fiber and matrix density, and the orientation tensor components. Unlike the elastic and thermoelastic surrogates, this network uses a ReLU activation rather than Swish. Table~\ref{tab:app_thermal_config} summarizes the training configuration; Table~\ref{tab:app_thermal_global} reports global test-set accuracy; Table~\ref{tab:app_thermal_per_output} reports per-output accuracy.
+
+\begin{table}[h]
+\centering
+\caption{Thermal conductivity surrogate (\texttt{case\_6}): training configuration.}
+\label{tab:app_thermal_config}
+\begin{tabular}{ll}
+\toprule
+Parameter & Value \\
+\midrule
+Inputs (12)     & $k_{f1}, k_{f2}, k_m, ar_f, w_f, \rho_f, \rho_m, a_{11}, a_{22}, a_{12}, a_{13}, a_{23}$ \\
+Outputs (6)     & $k_{11}, k_{12}, k_{13}, k_{22}, k_{23}, k_{33}$ \\
+Architecture    & MLP: [128, 256, 512, 256, 256, 128, 64, 16] hidden units \\
+Activation      & ReLU (differs from Swish used in the other two surrogates) \\
+Weight init.    & Glorot normal (kernels), zeros (biases) \\
+Optimizer       & Adam ($\beta_1 = 0.9$, $\beta_2 = 0.999$, $\varepsilon = 10^{-8}$) \\
+Learning rate   & $10^{-3}$ initial; exponential decay (rate $= 0.9$, steps $= 10^{6}$) \\
+$L_2$ weight    & $\lambda = 10^{-6}$ \\
+Loss            & $\mathcal{L}_{\text{total}} = w_{\text{mse}} \cdot \text{MSE} + w_{L_2} \cdot L_2$; fixed weights $\{1.0, 10^{-6}\}$ \\
+Epochs / batch  & 501 / 512 \\
+Seed            & 101 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Thermal conductivity surrogate (\texttt{case\_6}): global
+test-set metrics (conductivity in W/m$\cdot$K).}
+\label{tab:app_thermal_global}
+\begin{tabular}{ccc}
+\toprule
+RMSE & MAE & $R^2$ \\
+\midrule
+0.01598 & 0.00875 & 0.99941 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Thermal conductivity surrogate (\texttt{case\_6}): per-output test-set metrics.}
+\label{tab:app_thermal_per_output}
+\begin{tabular}{lccc}
+\toprule
+Output & RMSE & MAE & $R^2$ \\
+\midrule
+$k_{11}$ [W/m$\cdot$K] & 0.02148 & 0.01326 & 0.99927 \\
+$k_{12}$ [W/m$\cdot$K] & 0.00681 & 0.00344 & 0.99828 \\
+$k_{13}$ [W/m$\cdot$K] & 0.00973 & 0.00604 & 0.99666 \\
+$k_{22}$ [W/m$\cdot$K] & 0.02278 & 0.01437 & 0.99922 \\
+$k_{23}$ [W/m$\cdot$K] & 0.00689 & 0.00346 & 0.99813 \\
+$k_{33}$ [W/m$\cdot$K] & 0.01906 & 0.01192 & 0.99945 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\subsection{Notes on data generation and normalization}
+\label{app:surrogate_notes}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{$L_2$ regularization.} Applied only to the
+    two-dimensional kernel weight matrices, not to bias vectors;
+    penalty $\lambda \sum_l \lVert \mathbf{W}_l \rVert_F^2$ summed
+    over layers.
+    \item \textbf{Loss weighting.} Grad-norm balancing initialized at
+    $\{w_{\text{mse}}, w_{L_2}\} = \{1.0, 10^{-6}\}$ and effectively
+    frozen throughout training (update interval $10^{12}$ steps).
+    \item \textbf{Normalization.} Z-score normalization applied
+    independently to inputs and outputs; the mean and standard deviation used for normalization are computed from the training split only.
+    \item \textbf{Test set.} An independent Sobol sampling draw, disjoint from the training and validation splits, used only for the metrics reported in this appendix.
+    \item \textbf{Framework.} All three surrogate are implemented in JAX and Flax (Linen), with Orbax used for checkpointing and
+    Weights \& Biases (WandB) used for training logging.
+\end{itemize}
+
+\FloatBarrier
+\section{Sensitivity Analysis via the Differentiable Surrogate}
+\label{app:sensitivity_demo}
+
+Because the forward surrogates can be evaluated in milliseconds, \texttt{MateriAl} can be used interactively to explore how composite properties respond to changes in microstructure or constituent inputs, independent of any inverse or characterization task. This appendix presents a representative conversation in which a user queries a single composite property, then progressively requests parameter sweeps to understand its sensitivity to fiber mass fraction and fiber orientation.
+
+\begin{center}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Sensitivity Exploration} \hfill \textit{Interactive parameter sweeps}},
+    fonttitle=\small
+]
+
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Hi there, for a composite that is 0.2 mass fraction CF T300\_techmer and PESU\_techmer polymer, with aspect ratio of 20. What is the composite's $E_1$ value for $a_{11}=0.7$, $a_{22}=0.2$?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The composite's $E_1$ (axial modulus) is 11,346~MPa (11.35~GPa) under the specified microstructure: orientation $a_{11}=0.7$, $a_{22}=0.2$, $a_{33}=0.1$; fiber mass fraction 20\%; aspect ratio 20. This prediction uses the T300\_techmer fiber and PESU\_techmer matrix properties from the material database.
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I want to know how $E_1$ changes when I change the mass fraction from 0.15 to 0.3. Can you plot it for me please?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ plot\_sweep}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The plot shows $E_1$ increases linearly with fiber mass fraction under the given orientation ($a_{11}=0.7$, $a_{22}=0.2$, AR$=20$): $\sim$8,830~MPa at 15\% mass fraction, $\sim$11,350~MPa at 20\% (baseline from the earlier query), and $\sim$17,070~MPa at 30\%. The slope ($\sim$105,000~MPa per 10\% mass fraction) reflects the fiber's stiffness relative to the matrix.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{center}
+\includegraphics[width=0.6\linewidth]{1.png}
+\end{center}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Can you plot $E_1$ and $E_2$ of the composite fixing mass fraction at 0.2 and change $a_{11}$ from 0.6 to 0.8?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ plot\_sweep}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+$E_1$ rises sharply with increasing $a_{11}$ ($\sim$9,440~MPa at $a_{11}=0.6$ to $\sim$13,510~MPa at $a_{11}=0.8$), reflecting the dominance of fiber alignment in the axial direction on composite stiffness. $E_2$ increases only slightly ($\sim$4,485~MPa to $\sim$4,685~MPa) since it depends more on in-plane fiber distribution ($a_{22}$, $a_{33}$), which is not directly varied here.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{center}
+\includegraphics[width=0.6\linewidth]{2.png}
+\end{center}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Sure, let's look at $E_3$ as well --- it should change since $a_{22}$ is fixed.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ plot\_sweep}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+$E_3$ decreases sharply as $a_{11}$ increases ($\sim$4,449~MPa at $a_{11}=0.6$ to $\sim$3,536~MPa at $a_{11}=0.8$). This is because the through-thickness orientation component $a_{33} = 1 - a_{11} - a_{22}$ is indirectly controlled by $a_{11}$: as $a_{11}$ increases with $a_{22}$ fixed, $a_{33}$ decreases, reducing the fiber contribution to through-thickness stiffness. This highlights how the orientation tensor components are interdependent, and how varying one component propagates to every modulus component differently.
+\end{tcolorbox}
+\vspace{6pt}
+\begin{center}
+\includegraphics[width=0.6\linewidth]{3.png}
+\end{center}
+
+\end{tcolorbox}
+\end{center}
+
+\captionof{figure}{Interactive sensitivity exploration using the differentiable elastic surrogate. The user progressively builds a parameter study --- first a single-point property query, then a fiber mass fraction sweep, then an orientation sweep, extended on request to include a third output. Because the surrogate is fast and differentiable, each sweep is evaluated on demand rather than requiring a pre-computed lookup table, and the agent correctly identifies the coupled-orientation-component explanation for $E_3$'s behavior (via $a_{33}=1-a_{11}-a_{22}$) rather than treating each modulus component independently.}
+\label{fig:sensitivity_demo}
+
+%--------------
+
+\FloatBarrier
+\section{Staged Inverse Characterization Example: T300\_techmer/PESU\_Electrafil\_3DP on CAMRI}
+\label{app:staged_characterization}
+
+This appendix summarizes a representative end-to-end staged inverse characterization session, in which a user progressively supplies elastic, thermoelastic, and thermal conductivity measurements for a T300\_techmer/PESU\_Electrafil\_3DP composite printed on CAMRI, and the resulting material card (\texttt{PESU\_CAMRI\_CARD\_TRANSFER}, \texttt{card\_id=1}) is saved for later transfer to a new printer. Table~\ref{tab:app_staged_inputs} lists the process parameters and measurements supplied by the user at each stage; Tables~\ref{tab:app_staged_elastic}--\ref{tab:app_staged_thermal} report the corresponding inferred properties and fit quality for each of the three inverse stages.
+
+\begin{table}[h]
+\centering
+\caption{User-supplied process parameters and measurements across the three characterization stages.}
+\label{tab:app_staged_inputs}
+\begin{tabular}{lll}
+\toprule
+\textbf{Stage} & \textbf{Quantity} & \textbf{Value} \\
+\midrule
+\multirow{2}{*}{Process}
+ & Fiber mass fraction & 0.25 \\
+ & Aspect ratio & 20 \\
+\midrule
+\multirow{3}{*}{Elastic}
+ & $E_1$ & 16{,}920~MPa \\
+ & $E_2$ & 4{,}850~MPa \\
+ & $E_3$ & 3{,}790~MPa \\
+\midrule
+\multirow{3}{*}{Thermoelastic}
+ & CTE$_{11}$ & $4.19\times10^{-6}$~1/K ($\pm 2\times10^{-7}$) \\
+ & CTE$_{22}$ & $3.508\times10^{-5}$~1/K ($\pm 2\times10^{-6}$) \\
+ & CTE$_{33}$ & $6.5\times10^{-5}$~1/K ($\pm 2\times10^{-6}$) \\
+\midrule
+Thermal & $K_{11}, K_{22}, K_{33}$ vs.\ $T$ & file-based input (\texttt{PESU\_DATA.csv}) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Stage 1 --- elastic inverse results.}
+\label{tab:app_staged_elastic}
+\begin{tabular}{ll}
+\toprule
+\textbf{Quantity} & \textbf{Value} \\
+\midrule
+$a_{11}$ (print-direction alignment) & 0.7933 \\
+$a_{22}$ (transverse alignment) & 0.1708 \\
+Matrix modulus $E_m$ (inferred) & 2338.2~MPa \\
+Matrix Poisson's ratio (fixed, datasheet) & 0.35 \\
+Fit error & 0.000\% \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Matrix modulus is lower than the polymer datasheet value (3200~MPa), attributed to in-situ printing effects.
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Stage 2 --- thermoelastic inverse results: inferred constituent CTEs and per-channel fit quality.}
+\label{tab:app_staged_thermoelastic}
+\begin{tabular}{lc}
+\toprule
+\textbf{Inferred constituent property} & \textbf{Value} \\
+\midrule
+$f\_cte_1$ (fiber axial CTE) & $-1.03$~ppm/K \\
+$f\_cte_2$ (fiber transverse CTE)$^\dagger$ & $7.57$~ppm/K \\
+$m\_cte$ (matrix CTE) & $56.52$~ppm/K \\
+\bottomrule
+\end{tabular}
+
+\vspace{6pt}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Channel} & \textbf{Target (ppm/K)} & \textbf{Predicted (ppm/K)} & \textbf{APE (\%)} \\
+\midrule
+CTE$_{11}$ & 4.19  & 4.29  & 2.39 \\
+CTE$_{22}$ & 35.08 & 34.82 & 0.75 \\
+CTE$_{33}$ & 65.00 & 65.13 & 0.21 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize $^\dagger$ Poorly constrained: $f\_cte_2$ is structurally coupled to $m\_cte$ in the composite model and cannot be uniquely determined from CTE measurements alone, even with all three channels (CTE$_{11}$, CTE$_{22}$, CTE$_{33}$) supplied --- a model-level identifiability limitation rather than a data gap.
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Stage 3 --- thermal conductivity inverse results.}
+\label{tab:app_staged_thermal}
+\begin{tabular}{ll}
+\toprule
+\textbf{Quantity} & \textbf{Value} \\
+\midrule
+$k_{f1}$ (fiber longitudinal conductivity) & 12.14~W/m$\cdot$K \\
+$k_{f2}$ (fiber transverse conductivity) & 1.385~W/m$\cdot$K \\
+$k_m$ (matrix conductivity at 25\textdegree C) & 0.1485~W/m$\cdot$K \\
+$p_1$ (polymer parametric scaling factor) & $6.1073\times10^{-3}$~W/m$\cdot$K \\
+$p_2$ (polymer parametric offset) & 0.1179~W/m$\cdot$K \\
+Anisotropy ratio $t = k_{f1}/k_{f2}$ & 8.76 \\
+Fit error & 0.306\% \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Final card saved as \texttt{PESU\_CAMRI\_CARD\_TRANSFER} (\texttt{card\_id=1}) with all three stages (elastic, thermoelastic, thermal) completed and ready for transfer to a new printer.
+\end{table}
+
+%%%-------------------STAGED CHARACTERIZATION CHAT FIGURE ----------------
+\begin{center}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.6pt,
+    arc=2pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\textbf{Staged Characterization} \hfill \textit{T300\_techmer / PESU\_Electrafil\_3DP on CAMRI}},
+    fonttitle=\small
+]
+
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I need to characterize a material that was printed on CAMRI, the Fiber: Carbon Fiber T300\_techmer, Polymer: PESU\_Electrafil\_3DP. I know that the mass fraction is 0.25 and aspect ratio is 20.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ get\_material\_details, check\_identifiability}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I need at least three elastic measurements (e.g., $E_1$, $E_2$, $G_{12}$) to start the inverse characterization. Could you provide values for any of these properties from your CAMRI-printed sample?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+I know $E_1$ is 16{,}920~MPa, $E_2 = 4{,}850$~MPa, and $E_3 = 3{,}790$~MPa.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ check\_identifiability, run\_elastic\_inverse}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The elastic characterization is complete! Now, let's proceed to thermoelastic inverse to determine thermal expansion coefficients (CTE$_{11}$, CTE$_{22}$). Do you have measured CTE values from your CAMRI-printed sample (e.g., CTE$_{11} = 50$~ppm/K, CTE$_{22} = 120$~ppm/K)?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+What are the results for the elastic characterization?
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The elastic inverse characterization results are as follows:
+\vspace{4pt}
+
+\textbf{Microstructure:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $a_{11}$ (print direction alignment): 0.7933 (well-aligned, typical for CAMRI)
+\item $a_{22}$ (transverse alignment): 0.1708
+\item Fiber mass fraction ($w_f$): 0.25 (25\% by weight)
+\item Aspect ratio (ar): 20 (matches your input)
+\end{itemize}
+
+\textbf{Constituent Properties:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Matrix modulus ($E_m$): 2338.2~MPa (inferred, lower than the polymer's datasheet value of 3200~MPa due to printing effects)
+\item Matrix Poisson's ratio: 0.35 (fixed from datasheet)
+\end{itemize}
+
+\textbf{Fit Quality:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item Fit error: 0.00000 (perfect match to your provided $E_1$/$E_2$/$E_3$ values)
+\item Parameter validity: all values fall within expected ranges for printed composites
+\end{itemize}
+\vspace{4pt}
+These results are currently in memory. Would you like to save them to a card now, or proceed to thermoelastic characterization?
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Proceed with thermoelastic, I have these measurements: CTE$_{11} = 4.19\times10^{-6}$~1/K (error $2\times10^{-7}$); CTE$_{22} = 3.508\times10^{-5}$~1/K (error $2\times10^{-6}$); CTE$_{33} = 6.5\times10^{-5}$~1/K (error $2\times10^{-6}$).
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ run\_thermoelastic\_inverse}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The thermoelastic inverse results are complete, but there's a key limitation: $f\_cte_2$ (fiber transverse CTE) is poorly constrained due to the inherent coupling between fiber and matrix CTEs in the composite model. Here's the breakdown:
+\vspace{4pt}
+
+\textbf{Inferred Constituent CTEs (Printer-Independent):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $f\_cte_1$ (fiber axial CTE): $-1.03$~ppm/K (slightly negative --- typical for carbon fibers)
+\item $f\_cte_2$ (fiber transverse CTE): 7.57~ppm/K (poorly constrained)
+\item $m\_cte$ (matrix CTE): 56.52~ppm/K (well-constrained)
+\end{itemize}
+
+\textbf{Fit Quality:}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item CTE$_{11}$: predicted 4.29~ppm/K vs.\ target 4.19~ppm/K (2.39\% error)
+\item CTE$_{22}$: predicted 34.82~ppm/K vs.\ target 35.08~ppm/K (0.75\% error)
+\item CTE$_{33}$: predicted 65.13~ppm/K vs.\ target 65.00~ppm/K (0.21\% error)
+\end{itemize}
+\vspace{4pt}
+The model fits well overall, but the $f\_cte_2$ value is inherently tied to the matrix CTE ($m\_cte$). This coupling means $f\_cte_2$ cannot be uniquely determined from CTE measurements alone --- even with CTE$_{33}$ provided. This is a fundamental limitation of the model, not a data gap.
+\vspace{4pt}
+
+\textbf{Next Steps:} Save these thermoelastic properties to a card, or proceed to thermal inverse if thermal conductivity data ($K_{11}$, $K_{22}$, $K_{33}$ vs.\ temperature) is available.
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Let's proceed with the thermal inverse; the data is in \texttt{PESU\_DATA.csv}.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ run\_thermal\_inverse}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The thermal inverse characterization is complete! Here's a summary of the results:
+\vspace{4pt}
+
+\textbf{Inferred Thermal Properties (Printer-Independent):}
+\begin{itemize}[leftmargin=1.2em, itemsep=0pt, topsep=2pt]
+\item $k_{f1}$ (fiber longitudinal conductivity): 12.14~W/m$\cdot$K
+\item $k_{f2}$ (fiber transverse conductivity): 1.385~W/m$\cdot$K
+\item $k_m$ (matrix conductivity at 25\textdegree C): 0.1485~W/m$\cdot$K
+\item $p_1$ (polymer scaling factor): $6.1073\times10^{-3}$~W/m$\cdot$K
+\item $p_2$ (polymer offset): 0.1179~W/m$\cdot$K
+\item Anisotropy ratio ($t = k_{f1}/k_{f2}$): 8.76
+\end{itemize}
+\vspace{4pt}
+Fit error: 0.306\% (excellent match to your thermal data).
+\vspace{4pt}
+
+\textbf{Next Steps:} Save these thermal properties to a card, predict composite properties at any temperature, or validate the model against experimental data using \texttt{compare\_thermal\_fit}.
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!8, colframe=gray!60, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{User}}, fonttitle=\small\bfseries, coltitle=black
+]
+\small
+Save this card to a new card called PESU\_CAMRI\_CARD\_TRANSFER.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[
+    breakable,
+    colback=gray!3, colframe=gray!40, boxrule=0.5pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\textbf{\texttt{MateriAl}} \hfill \texttt{\footnotesize\textcolor{gray!70!black}{\ding{110}\ save\_to\_card}}},
+    fonttitle=\small\bfseries, coltitle=black
+]
+\small
+The card \texttt{PESU\_CAMRI\_CARD\_TRANSFER} (\texttt{card\_id=1}) has been saved successfully with Stage 3 (Thermal) completed.
+\vspace{4pt}
+Would you like to transfer these properties to a new printer (e.g., LSAM), predict composite properties (e.g., thermal conductivity at specific temperatures), or compare the thermal model vs.\ measurements using \texttt{compare\_thermal\_fit}?
+\end{tcolorbox}
+
+\end{tcolorbox}
+\end{center}
+
+\captionof{figure}{End-to-end staged characterization of T300\_techmer/PESU\_Electrafil\_3DP on CAMRI, progressing through elastic, thermoelastic, and thermal conductivity inverse stages in a single conversation. The agent gates each stage behind an identifiability check, reports fit quality and inferred constituent properties after each solve, and correctly distinguishes a genuine model-level non-identifiability (the fiber transverse CTE $f\_cte_2$, structurally coupled to the matrix CTE) from an ordinary data-sufficiency issue. The resulting fully characterized card is saved as \texttt{PESU\_CAMRI\_CARD\_TRANSFER} (\texttt{card\_id=1}), ready for transfer to a new printer. Numerical results for each stage are summarized in Tables~\ref{tab:app_staged_inputs}--\ref{tab:app_staged_thermal}.}
+\label{fig:staged_chat}
+
+
+\FloatBarrier
+\section{Qwen3 8B Benchmark Results}
+\label{app:qwen3_8b_results}
+
+This appendix reports the benchmark results obtained with the Qwen3 8B model, the earlier agent configuration used during development. The main body Tables~\ref{tab:mape_elastic}--\ref{tab:category_summary_mape} and Tables~\ref{tab:inv_mape_elastic}--\ref{tab:inverse_summary} report the current Qwen3:30B-A3B (MoE) results.
+
+% ---------- 8B Elastic ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- elastic properties (Qwen3 8B).}
+\label{tab:mape_elastic_8b}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+\textbf{Prompt} & $E_1$ & $E_2$ & $E_3$ & $G_{12}$ & $G_{13}$ & $G_{23}$ & $\nu_{12}$ & $\nu_{13}$ & $\nu_{23}$ \\
+\midrule
+E1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E2 & 0.001 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E3 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E4 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E5 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+E6 & 0.600 & 0.592 & 1.180 & 0.750 & 0.360 & 0.354 & 0.500 & 1.161 & 1.167 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- 8B Thermoelastic ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- thermoelastic (CTE) properties (Qwen3 8B).}
+\label{tab:mape_thermoelastic_8b}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Prompt} & CTE$_{11}$ & CTE$_{22}$ & CTE$_{33}$ \\
+\midrule
+T1 & 0.046 & 0.000 & 0.000 \\
+T2 & 0.000 & 0.000 & 0.000 \\
+T3 & 0.000 & 0.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- 8B Thermal ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), forward prediction --- thermal conductivity, by temperature (Qwen3 8B).}
+\label{tab:mape_thermal_8b}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+& \multicolumn{3}{c}{25$^\circ$C} & \multicolumn{3}{c}{50$^\circ$C} & \multicolumn{3}{c}{100$^\circ$C} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Prompt} & $k_{11}$ & $k_{22}$ & $k_{33}$ & $k_{11}$ & $k_{22}$ & $k_{33}$ & $k_{11}$ & $k_{22}$ & $k_{33}$ \\
+\midrule
+K1 & 0.125 & 0.192 & 0.348 & --- & --- & --- & --- & --- & --- \\
+K2 & --- & --- & --- & 0.477 & 0.366 & 2.381 & 0.948 & 0.383 & 2.115 \\
+K3 & 0.000 & 0.023 & 0.045 & --- & --- & --- & 0.000 & 0.040 & 0.015 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- 8B Forward Category summary ----------
+\begin{table}[htbp]
+\centering
+\caption{Category-level summary of forward prediction benchmark: mean APE by property category and overall (Qwen3 8B).}
+\label{tab:category_summary_mape_8b}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Category} & \textbf{Prompts} & \textbf{Mean APE (\%)} \\
+\midrule
+Forward --- Elastic       & 6  & 0.123 \\
+Forward --- Thermoelastic & 3  & 0.002 \\
+Forward --- Thermal       & 3  & 0.451 \\
+\midrule
+\textbf{Overall}          & \textbf{12} & \textbf{0.175} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Tool routing accuracy: 12/12 (100\%).
+\end{table}
+
+% ---------- 8B Inverse Elastic ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- elastic properties (Qwen3 8B).}
+\label{tab:inv_mape_elastic_8b}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Prompt} & $a_{11}$ & $a_{22}$ & Matrix Modulus & Matrix Poisson \\
+\midrule
+IE1 & 0.022 & 0.153 & 0.004 & --- \\
+IE2 & 0.005 & 0.005 & 0.002 & 0.010 \\
+IE3 & ---   & ---   & 0.001 & 0.005 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- 8B Inverse Thermoelastic ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- thermoelastic (CTE) properties (Qwen3 8B).}
+\label{tab:inv_mape_thermoelastic_8b}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Prompt} & Fiber CTE$_1$ & Fiber CTE$_2$ & Matrix CTE \\
+\midrule
+IT1 & 12.090 & 36.519 & 1.083 \\
+IT2 & 0.165  & 0.000  & 0.004 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize IT1 provides only CTE$_{11}$ and CTE$_{22}$ as targets against three free parameters, an underdetermined system with a one-parameter family of equally valid solutions; IT2 adds CTE$_{33}$, fully constraining the system.
+\end{table}
+
+% ---------- 8B Inverse Thermal ----------
+\begin{table}[htbp]
+\centering
+\caption{Per-property APE (\%), inverse estimation --- thermal conductivity (Qwen3 8B).}
+\label{tab:inv_mape_thermal_8b}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Prompt} & $k_{f1}$ & $k_{f2}$ & $p_1$ & $p_2$ \\
+\midrule
+IK1 & 0.000 & 0.006 & 0.043 & 0.414 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------- 8B Inverse Category summary ----------
+\begin{table}[htbp]
+\centering
+\caption{Category-level summary of inverse estimation benchmark: mean APE by property category and overall (Qwen3 8B).}
+\label{tab:inverse_summary_8b}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Category} & \textbf{Prompts} & \textbf{Mean APE (\%)} \\
+\midrule
+Inverse --- Elastic       & 3 & 0.022 \\
+Inverse --- Thermoelastic & 2 & 8.310 \\
+Inverse --- Thermal       & 1 & 0.116 \\
+\midrule
+\textbf{Overall}          & \textbf{6} & \textbf{2.800} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize Tool routing accuracy: 6/8 (75\%); IE4 (deliberate refusal test) and IK2 (routing-only) routing failures are counted in the denominator.
+\end{table}
+
+\end{document}

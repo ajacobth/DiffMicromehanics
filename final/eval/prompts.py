@@ -79,7 +79,7 @@ PROMPTS: dict[str, str] = {
     # IE1: baseline — GPa measurements, DB material names, "go ahead" included
     "IE1": (
         "I've run tensile and shear tests on my Carbon Fiber T300 / PESU Ultrason specimens "
-        "printed on the CAMRI printer. My results: E1=15.45 GPa error of around 0.25 Gpa, E2=5.14 GPa error of around 0.1 GPa, E3=4.21 GPa error of around 0.1 Gpa, "
+        "printed on the CAMRI printer. My results: E1=15.45 GPa error is 0.25 Gpa, E2=5.14 GPa error is0.1 GPa, E3=4.21 GPa error is 0.1 Gpa, "
         "nThe fiber mass fraction is 0.20 and the aspect ratio is 21. Fix the polymer poisson ratio to 0.34"
         "Please run the elastic inverse and report the results "
     ),
